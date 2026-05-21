@@ -84,7 +84,7 @@
     if (!email || !password) { showErr('Please fill in all fields.'); return; }
     if (password.length < 6) { showErr('Password must be at least 6 characters.'); return; }
     btn.textContent = 'Creating account…'; btn.disabled = true;
-    const { error } = await client.auth.signUp({ email, password });
+    const { error } = await client.auth.signUp({ email, password, options: { emailRedirectTo: 'https://truri-nm7o.vercel.app' } });
     if (error) {
       showErr(error.message); btn.textContent = 'Sign Up'; btn.disabled = false;
     } else {
