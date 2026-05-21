@@ -1,0 +1,176 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+    <div class="module-number">03</div>
+    <h2 class="module-title">The 20+ Tools</h2>
+    <p class="module-subtitle">Every tool the AI can call — what it does, which group it belongs to, and the stub pattern that keeps token costs low.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The stub pattern: only load what you need</h2>
+      <p>Sending every tool&rsquo;s full parameter schema on every request wastes thousands of <span class="term" data-definition="Tokens are the units LLMs process — roughly 3/4 of a word each. Sending more tokens costs more money and time. Reducing token count is a core optimization target.">tokens</span>. Avise uses a two-stage stub pattern:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>First call — compact stubs</strong><p>The LLM gets one-line descriptions of each tool. It uses these to decide which tool it needs — low cost, fast.</p></div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body"><strong>Stub detected — registry swap</strong><p>When the loop detects a stub tool call, it replaces the stub with the full implementation. Messages are NOT saved yet — the iteration is discarded.</p></div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body"><strong>Second call — full tool</strong><p>The AI now sees the complete parameter schema and calls the tool correctly. This response IS saved to the database.</p></div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body"><strong>Tool executes — result returned</strong><p>The executor runs, queries the database, and returns structured JSON. The LLM receives this as a tool result and formulates its answer.</p></div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="coins" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Stubs save tokens on tools never called</strong>
+          <p><code>proposeJournalEntry</code> has 20+ parameter fields. Loading all of them for every request — even when the user is just asking a question — would waste thousands of tokens. Stubs compress this to ~10 tokens until the AI explicitly commits to that tool.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Group 1 — Data lookup (read-only)</h2>
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in"><code class="badge-code">findAccounts</code><span class="badge-desc">Search the <span class="term" data-definition="The chart of accounts is the master list of all financial account categories used by a company — Assets, Liabilities, Revenue, Expenses, etc.">chart of accounts</span> by name, classification, ID, or number. <strong>Stub tool.</strong></span></div>
+        <div class="badge-item animate-in"><code class="badge-code">findJournalEntries</code><span class="badge-desc">Search <span class="term" data-definition="Journal entries are the core financial records in Avise — each one has a date, description, and balanced debit/credit lines.">journal entries</span> by displayId list, date range, status (Posted/Scheduled/Quarantined). <strong>Stub tool.</strong></span></div>
+        <div class="badge-item animate-in"><code class="badge-code">findPeriods</code><span class="badge-desc">Find accounting periods by name (e.g. &ldquo;May 2025&rdquo;), date range, or UUID. Critical for resolving user mentions of specific months.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">findTasks</code><span class="badge-desc">Find close tasks by period, type (flux/reconciliation/account), status, assignee, or reviewer. <strong>Stub tool.</strong></span></div>
+        <div class="badge-item animate-in"><code class="badge-code">findUsers</code><span class="badge-desc">List all company users with id, email, fullName, status. Used when filtering or attributing tasks.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">findDimensionsFromValue</code><span class="badge-desc">Full-text search across <span class="term" data-definition="Dimensions are custom tagging attributes in Avise — like Vendor, Class, or Department — used to categorize journal lines.">dimension</span> values. Find which dimension (Vendor, Class, etc.) contains a specific value.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">listValuesForDimension</code><span class="badge-desc">Get all possible values for a named dimension. Used before proposing entries that need dimension tags.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">jeVersions</code><span class="badge-desc">Get the full version history of a journal entry by displayId — shows all edits and who made them.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">getTask</code><span class="badge-desc">Fetch full details of a single task by UUID — including events, comments, and status timeline.</span></div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Group 2 — Reports &amp; Search</h2>
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in"><code class="badge-code">balanceSheetReport</code><span class="badge-desc">Generate a Balance Sheet for a date range. Returns CSV-flattened account hierarchy. Supports comparison periods and <span class="term" data-definition="Dimension breakdown means grouping report rows by a dimension value — for example, showing Revenue split by Department.">dimension breakdown</span>.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">incomeStatementReport</code><span class="badge-desc">Generate an Income Statement. Same parameters as balance sheet — compareTo, showBy, dimension pivot, account filters.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">generalLedgerReport</code><span class="badge-desc">Full GL activity for one account over a date range. Paginated, dimension-filterable. Returns entries as CSV rows with balances.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">fullTextSearch</code><span class="badge-desc"><span class="term" data-definition="Full-text search scans actual text content in database records — not structured fields like amounts or dates.">Full-text search</span> across journal lines, bills, accrual numbers, customers, and messages. Min 2 chars, max 50 results.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">searchDocuments</code><span class="badge-desc"><span class="term" data-definition="Semantic vector search finds documents by meaning, not just keyword matching. It compares mathematical representations of text to find similar content.">Semantic vector search</span> (TurboPuffer) across chunked document content in the company&rsquo;s file library. Used for RAG over uploaded files.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">searchFileLibrary</code><span class="badge-desc">Search the file library by name, date, content type, period, or linked entity. Returns metadata — use readFile to get content.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">readFile</code><span class="badge-desc">Read the content of a specific file from the library by UUID. Handles both content-extracted text and provider-uploaded binary files.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">retrieveDocumentContent</code><span class="badge-desc">Retrieve previously chunked document content by document ID. Companion to searchDocuments.</span></div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="book-open" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">11 Avise Docs tools — conditionally registered</strong>
+          <p>Tools like <code>aiAsk</code>, <code>searchSpace</code>, <code>pageByPath</code> connect to the Avise documentation system. They are only registered when a personal access token is configured in the environment. They enable the AI to answer questions about how Avise works as a product — separate from a company&rsquo;s financial data.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Group 3 — Action tools (propose &amp; display)</h2>
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in"><code class="badge-code">proposeJournalEntry</code><span class="badge-desc">Draft a new journal entry as an interactive artifact. Validates accounts, dimensions, balance. Creates an editable card the user can post. <strong>Stub tool.</strong></span></div>
+        <div class="badge-item animate-in"><code class="badge-code">proposeSchedule</code><span class="badge-desc">Draft a simple (single debit/credit) prepared schedule as an artifact. Calculates all monthly entries from totalAmount, termStart, termEnd. <strong>Stub tool.</strong></span></div>
+        <div class="badge-item animate-in"><code class="badge-code">proposeMultiLineSchedule</code><span class="badge-desc">Draft a multi-line schedule where each entry can have multiple debits and credits. Supports complex allocations. <strong>Stub + Feature-flagged:</strong> only available when <code>ai-complex-schedules</code> flag is ON.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">suggestAccounts</code><span class="badge-desc">Propose new chart-of-accounts entries as an editable table artifact. Only works for Avise-platform companies. <strong>Stub tool.</strong></span></div>
+        <div class="badge-item animate-in"><code class="badge-code">displayArtifactTable</code><span class="badge-desc">Render structured data as an interactive, formatted table artifact. Columns typed as markdown, number, date, or currency. <strong>Mandatory instead of Markdown tables.</strong></span></div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">What a tool definition looks like</h2>
+      <div class="code-walk animate-in">
+        <div class="code-walk-header"><span class="code-walk-file">avise-api/src/ai/tools/listValuesForDimension.ts</span></div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">type</span> <span class="code-function">ListValuesForDimensionSchema</span> = {
+  dimensionName: <span class="code-keyword">string</span>;
+};</code></pre>
+          <div class="code-walk-explanation"><p>Every tool starts with a TypeScript type for its inputs. Simple tools have one field; complex tools like <code>proposeJournalEntry</code> have 10+.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> parameters = {
+  <span class="code-property">type</span>: <span class="code-string">"object"</span>,
+  <span class="code-property">properties</span>: {
+    dimensionName: {
+      <span class="code-property">type</span>: <span class="code-string">"string"</span>,
+      <span class="code-property">description</span>: <span class="code-string">"Case-insensitive name of
+the dimension to retrieve..."</span>
+    },
+  },
+  <span class="code-property">required</span>: [<span class="code-string">"dimensionName"</span>],
+};</code></pre>
+          <div class="code-walk-explanation"><p>The <code>parameters</code> object is what gets sent to the LLM. The <code>description</code> field is the only instruction the AI gets on how to use the tool. Bad descriptions = bad tool calls.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> executor = <span class="code-keyword">async</span> ({ companyId, args }) =&gt; {
+  <span class="code-keyword">await</span> companyAuthorization
+    .<span class="code-function">checkAnyCompanyPermission</span>(companyId);
+  <span class="code-keyword">const</span> values =
+    <span class="code-keyword">await</span> dimensionsData.<span class="code-function">listWithValues</span>(
+      companyId,
+      { name: { in: [args.dimensionName] } }
+    );
+  <span class="code-keyword">return</span> { status: <span class="code-string">"success"</span>, data: values };
+};</code></pre>
+          <div class="code-walk-explanation"><p>Every executor starts with an authorization check — ensuring the caller has permission for this company&rsquo;s data. Then it queries the database and returns structured JSON back to the LLM.</p></div>
+        </div>
+      </div>
+
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Stub tool calls are detected BEFORE execution. The loop swaps the registry and re-runs with the full definition — no execution, no database write for the stub iteration."
+             data-explanation-wrong="Stub tools are never executed. The loop detects the stub call, swaps in the full tool, and re-sends the request.">
+          <h3 class="quiz-question">The AI calls a stub tool. What happens immediately?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The stub executes with limited results and the AI refines from there</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The loop detects the stub, replaces it with the full tool, re-sends — no execution happens</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The request fails and the user sees an error</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — the ai-complex-schedules feature flag gates proposeMultiLineSchedule. In ai/index.ts: if (!flagEnabled('ai-complex-schedules')) { delete availableTools.proposeMultiLineSchedule; }"
+             data-explanation-wrong="The ai-complex-schedules feature flag removes the tool from the registry before the conversation starts. If off, the tool simply doesn't exist for that session.">
+          <h3 class="quiz-question">What controls whether proposeMultiLineSchedule is available to the AI?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The ai-complex-schedules feature flag — if off, the tool is deleted from the registry before the loop starts</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The user&rsquo;s role — only accountants can use action tools</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The LLM provider — only OpenAI supports multi-line schedules</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Typical chain: findPeriods resolves 'last quarter' → generalLedgerReport fetches the expense data → displayArtifactTable renders it (Markdown tables are forbidden by the system prompt)."
+             data-explanation-wrong="The AI needs to resolve the period first (findPeriods), fetch the data (generalLedgerReport), then display it (displayArtifactTable). Markdown tables are prohibited.">
+          <h3 class="quiz-question">User: &ldquo;Show me all software expenses last quarter.&rdquo; Which tool sequence is most likely?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>searchDocuments → displayArtifactTable</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>findAccounts → balanceSheetReport</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>findPeriods → generalLedgerReport → displayArtifactTable</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-4" class="btn module-continue-btn">Continue to Module 4: The Chat Loop <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-2" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 2</a>
+      </div>
+    </section>
+  </div>
+</section>

@@ -1,0 +1,188 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+    <div class="module-number">02</div>
+    <h2 class="module-title">The CI/CD Pipeline</h2>
+    <p class="module-subtitle">From a commit to a running container — two workflows, one for pull requests and one for releases, both driven by smart workspace detection.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The full pipeline map</h2>
+      <pre class="mermaid">
+graph LR
+  A["git push\n(PR or main)"] --> B["detect-changes\nTurborepo --affected"]
+  B --> C{Changed\nworkspace?}
+  C -- "PR branch" --> D["workspace-pr-ci\nformat + lint + types + tests"]
+  C -- "merge to main" --> E["workspace-release\nformat + lint + types + tests\n+ Docker build + ECR push"]
+  E --> F["update-gitops-deployment\nKustomize image tag"]
+  F --> G["Argo CD\npulls GitOps repo\ndeploys to K8s"]
+  D --> H["Slack notification\nPR status"]
+  E --> I["Slack notification\nDeploy ready DM"]
+  A -- "avise-web" --> J["AWS Amplify\nbuild + deploy\n(separate pipeline)"]
+      </pre>
+      <p>Two separate GitHub Actions workflows handle the two events. Both start with the same smart workspace detection step.</p>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Smart workspace detection — only test what changed</h2>
+
+      <p>The first job in every workflow is <strong>detect-changes</strong>. It uses Turborepo&rsquo;s <code>--affected</code> flag to figure out which workspaces are affected by the current commit — including transitive dependencies.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header"><span class="code-walk-file">.github/workflows/pull-request.yml — detect-changes job</span></div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>BASE_REF=<span class="code-string">"${{ github.event.pull_request.base.sha }}"</span>
+affected_output=$(
+  TURBO_SCM_BASE=<span class="code-string">"$BASE_REF"</span>
+  pnpm turbo ls --affected --output=json
+)</code></pre>
+          <div class="code-walk-explanation"><p>Turborepo compares the current commit to the PR base to find which workspaces have file changes. If you changed a file in <code>avise-shared-utils</code>, both <code>avise-shared-utils</code> AND all workspaces that depend on it (avise-api, qbo-sync, etc.) are included in the affected set.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">if</span> [[ -f <span class="code-string">".github/actions/workspace/${workspace}/pr/action.yml"</span> ]]; then
+  has_action=<span class="code-keyword">true</span>
+<span class="code-keyword">else</span>
+  has_action=<span class="code-keyword">false</span>
+<span class="code-keyword">fi</span></code></pre>
+          <div class="code-walk-explanation"><p>Not every workspace has its own PR action — only ones with tests and build steps. The detection job records whether a workspace has an action file. The matrix job later only runs full CI for workspaces where both <code>changed=true</code> AND <code>has_action=true</code>.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>matrix=<span class="code-string">"[$(IFS=','; echo "${matrix_workspaces[*]}")]"</span>
+config=<span class="code-string">"{\"workspaces\":{$(IFS=','; echo "${workspace_configs[*]}")}}"</span>
+echo <span class="code-string">"matrix=$matrix"</span> >> $GITHUB_OUTPUT</code></pre>
+          <div class="code-walk-explanation"><p>The result is output as a JSON matrix. The next job uses <code>strategy.matrix</code> to spin up parallel runners — one per workspace. Unaffected workspaces get a &ldquo;Skipping — no changes detected&rdquo; log and exit immediately.</p></div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="git-branch" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Secrets are fetched via OIDC — no stored credentials</strong>
+          <p>Before running any workspace-specific step, the CI runner authenticates to AWS using <span class="term" data-definition="OIDC (OpenID Connect) lets GitHub Actions prove its identity to AWS without storing long-lived credentials anywhere. AWS issues a short-lived token for each workflow run.">OIDC</span> and assumes IAM role <code>github-actions-secrets-role</code>. Then it pulls all secrets from <code>monorepo/secrets</code> in AWS Secrets Manager. No API keys live in GitHub Secrets.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The release pipeline — from merge to production</h2>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Engineer merges a PR to the main branch"},
+        {"highlight":"flow-actor-2","label":"release.yml workflow triggers. detect-changes finds affected workspaces (e.g. avise-api changed)."},
+        {"highlight":"flow-actor-2","label":"Common checks run: check:format, check:lint, check:type for avise-api","payload":"pnpm turbo --filter avise-api check:lint"},
+        {"highlight":"flow-actor-2","label":"avise-api release action: runs unit tests, integration tests (PostgreSQL + Redis + SpiceDB in Docker)"},
+        {"highlight":"flow-actor-3","label":"Docker image built and pushed to AWS ECR","payload":"100306515615.dkr.ecr.us-east-2.amazonaws.com/avise-api:<git-sha>"},
+        {"highlight":"flow-actor-4","label":"update-gitops-deployment action: checks out AviseInc/gitops repo, runs kustomize edit set image with new tag"},
+        {"highlight":"flow-actor-4","label":"Commits and pushes to gitops repo","payload":"git commit -m \"<sha> release of avise-api for prod by actor\""},
+        {"highlight":"flow-actor-5","label":"Argo CD detects the gitops repo change and deploys the new image to Kubernetes (dev, then prod)"},
+        {"highlight":"flow-actor-1","label":"Slack DM sent to the engineer: your deployment is ready"}
+      ]'>
+        <div class="flow-step-label" id="flow-label">Click Next Step to begin</div>
+        <div class="flow-payload" id="flow-payload"></div>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1"><div class="flow-actor-icon"><i data-lucide="user" class="icon"></i></div><span>Engineer</span></div>
+          <div class="flow-actor" id="flow-actor-2"><div class="flow-actor-icon"><i data-lucide="github" class="icon"></i></div><span>GitHub Actions</span></div>
+          <div class="flow-actor" id="flow-actor-3"><div class="flow-actor-icon"><i data-lucide="box" class="icon"></i></div><span>AWS ECR</span></div>
+          <div class="flow-actor" id="flow-actor-4"><div class="flow-actor-icon"><i data-lucide="git-branch" class="icon"></i></div><span>GitOps Repo</span></div>
+          <div class="flow-actor" id="flow-actor-5"><div class="flow-actor-icon"><i data-lucide="server" class="icon"></i></div><span>Argo CD / K8s</span></div>
+        </div>
+        <div class="flow-packet"></div>
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">← Previous</button>
+          <button class="btn flow-next-btn">Next Step →</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The frontend — a separate pipeline via AWS Amplify</h2>
+      <p>avise-web does NOT go through the release.yml workflow. It has its own Amplify-managed pipeline defined in <code>amplify.yml</code>:</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header"><span class="code-walk-file">amplify.yml — avise-web deployment</span></div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>- env | grep -e REACT_APP_API_URL
+       -e REACT_APP_AUTH0_CLIENT_ID
+       -e REACT_APP_DATADOG_RUM_APP_ID
+       -e REACT_APP_SPLIT_CLIENT_SIDE_KEY
+       -e REACT_APP_KNOCK_API_KEY
+  >> avise-web/.env.local</code></pre>
+          <div class="code-walk-explanation"><p>All environment variables are injected from Amplify&rsquo;s environment at build time, written to a <code>.env.local</code> file. These include the DataDog RUM keys, Knock channel ID, Split.io client key, Auth0 config, and the API URL — all set per environment (dev vs prod) in the Amplify console.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>- pnpm turbo --filter avise-web build</code></pre>
+          <div class="code-walk-explanation"><p>Turborepo builds avise-web — which first builds its dependencies (avise-shared-utils, etc.) because of the <code>^build</code> dependency chain.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>artifacts:
+  baseDirectory: avise-web/build
+  files:
+    - "**/*"</code></pre>
+          <div class="code-walk-explanation"><p>Amplify takes the static build output and deploys it to its CDN. No Docker, no Kubernetes — it is a pure static site hosting setup. Amplify handles SSL, CDN distribution, and branch-based preview deployments automatically.</p></div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">avise-web also has its own GitHub Actions PR workflow</strong>
+          <p><code>.github/workflows/avise-web-test-lint-runner.yml</code> and <code>avise-web-prod-deployer.yml</code> handle PR checks and prod triggers for the frontend specifically. The release.yml handles backend workspaces; Amplify + its own workflow handles the frontend.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module2">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — avise-shared-utils is a dependency of avise-api. Turborepo's --affected flag includes all downstream dependents, so changing avise-shared-utils means avise-api CI also runs."
+             data-explanation-wrong="Turborepo's --affected flag is transitive. If avise-shared-utils changes, everything that depends on it (including avise-api) is in the affected set. Both workspaces' CI runs.">
+          <h3 class="quiz-question">You change one file in <code>avise-shared-utils</code>. Which workspaces run their CI checks?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Only avise-shared-utils — the change is isolated to that workspace</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>avise-shared-utils AND every workspace that depends on it (avise-api, qbo-sync, etc.)</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>All workspaces in the monorepo, because shared-utils is a root package</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the update-gitops-deployment action checks out the AviseInc/gitops repo, uses kustomize to update the Docker image tag, commits, and pushes. Argo CD then detects the change and deploys to Kubernetes."
+             data-explanation-wrong="The GitOps pattern means the deployment is driven by changes to a dedicated gitops repo. GitHub Actions commits the new image tag using kustomize, and Argo CD continuously watches for changes to deploy.">
+          <h3 class="quiz-question">After Docker build and ECR push succeed, how does the new image get deployed to Kubernetes?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>GitHub Actions runs <code>kubectl apply</code> directly against the cluster</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The Dockerfile contains a deploy step that pushes to K8s on startup</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>update-gitops-deployment commits the new image tag to the AviseInc/gitops repo; Argo CD detects the change and deploys</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — OIDC lets GitHub Actions assume an AWS IAM role without any stored credentials. Each workflow run gets a short-lived token. The IAM role then grants access to AWS Secrets Manager where monorepo/secrets lives."
+             data-explanation-wrong="OIDC means GitHub Actions proves its identity to AWS cryptographically — no stored secrets needed. AWS issues a short-lived token for the run. The secrets themselves live in AWS Secrets Manager, not in GitHub.">
+          <h3 class="quiz-question">How does GitHub Actions access secrets like the OpenAI API key and database passwords without storing them in GitHub?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>OIDC: GitHub Actions authenticates to AWS and assumes an IAM role, then pulls secrets from AWS Secrets Manager</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Secrets are stored in GitHub Secrets and injected as environment variables</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>A vault agent sidecar runs alongside the GitHub runner and provides secrets on request</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+      <div class="module-nav-end animate-in">
+        <a href="#module-3" class="btn module-continue-btn">Continue to Module 3: Infrastructure <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-1" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 1</a>
+      </div>
+    </section>
+  </div>
+</section>

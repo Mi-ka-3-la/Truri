@@ -1,0 +1,503 @@
+<section class="module" id="module-3" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — ANCHOR: Section Preview Map (Mermaid)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 3</span>
+        <h1 class="module-title">How They Talk</h1>
+        <p class="module-subtitle">Services in Avise do not all talk the same way. The communication method tells you how urgent, how long-running, and how reliable the interaction needs to be.</p>
+      </header>
+
+      <h2 class="screen-heading">Five patterns — one for each situation</h2>
+      <p>Think of an office building. You have five ways to communicate: phone calls, walkie-talkies, physical inboxes, project boards, and the loudspeaker. Each one exists because the others are wrong for some situations.</p>
+
+      <div class="section-map animate-in">
+        <div class="section-map-header">
+          <i data-lucide="map" class="icon-lg"></i>
+          <div>
+            <h3 class="section-map-title">Five communication patterns in this module</h3>
+            <p class="section-map-sub">By the end you will know exactly which to reach for when building a new feature.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+graph LR
+  S["Services need\nto communicate"] --> R["REST\nQuick Q&amp;A\nUser waits"]
+  S --> W["WebSocket\nReal-time\nChannel stays open"]
+  S --> B["BullMQ Queue\nBackground work\nMinutes long"]
+  S --> A["Argo Workflows\nDistributed ops\nHours long"]
+  S --> K["Knock\nNotifications\nFire and forget"]
+  classDef center fill:#1A3D2B,stroke:#2D8B55,stroke-width:2px,color:#fff;
+  classDef pattern fill:#F0FAF4,stroke:#2D8B55,stroke-width:1.5px,color:#1F1D1B;
+  class S center;
+  class R,W,B,A,K pattern;
+        </pre>
+        <div class="section-map-legend">
+          <p>Each pattern gets its own screen. Read them in order or jump to the one you need — each stands alone.</p>
+        </div>
+      </div>
+
+      <!-- Quick-reference cards -->
+      <div class="bento-grid stagger-children" style="margin-top: var(--space-8);">
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="phone" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">REST</h4>
+          <p class="pattern-desc">Synchronous. User waits. Under 5 seconds. The default choice.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="radio" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">WebSocket</h4>
+          <p class="pattern-desc">Persistent channel. Server pushes anytime. AI chat, cursors, live feeds.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="inbox" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">BullMQ</h4>
+          <p class="pattern-desc">Async queue. Minutes long. Survives restarts. Reports, email.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="git-branch" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">Argo Workflows</h4>
+          <p class="pattern-desc">Hours long. Kubernetes-distributed. Accounting syncs.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="bell" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">Knock</h4>
+          <p class="pattern-desc">Fire and forget. Notifications. Email, Slack, in-app.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — MECHANISM: REST (phone call)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">REST: the phone call — you dial, you wait, you get your answer</h2>
+      <p>Most interactions in Avise use <span class="term" data-definition="REST (Representational State Transfer) is the most common style of API communication. The browser sends an HTTP request to the server, waits for a response, then updates the UI. One request, one response, done.">REST</span>. The browser makes a request, the server processes it, and the browser waits for the response before updating the screen.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-web/src/api/apiClient.ts — the HTTP wrapper</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">export const</span> api = {
+  post: &lt;T&gt;(url: <span class="code-keyword">string</span>, data?: <span class="code-keyword">any</span>) =&gt; axiosInstance.post&lt;T&gt;(url, data),
+  get: &lt;T&gt;(url: <span class="code-keyword">string</span>) =&gt; axiosInstance.get&lt;T&gt;(url),
+};</code></pre>
+          <div class="code-walk-explanation">
+            <p>A thin wrapper around <span class="term" data-definition="Axios is a JavaScript library for making HTTP requests. It handles things like automatically parsing JSON responses and attaching authentication headers to every request.">Axios</span>. Every API call in avise-web goes through this object — meaning things like authentication headers and base URL configuration are applied once and inherited everywhere. The TypeScript generic <code>&lt;T&gt;</code> ensures the response is typed, not just a raw object.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Usage with React Query (useMutation):</span>
+<span class="code-keyword">const</span> { mutate, isPending } = useMutation({
+  mutationFn: () =&gt; api.post(<span class="code-string">'/v1/companies/:id/journal-entries'</span>, payload)
+});</code></pre>
+          <div class="code-walk-explanation">
+            <p><span class="term" data-definition="React Query (TanStack Query) is a library that wraps API calls and manages their state automatically. It tracks whether a request is loading, succeeded, or failed — and re-fetches data when it goes stale.">React Query</span> wraps the Axios call. <code>useMutation</code> is the hook used for operations that change data — creating, updating, or deleting. While <code>isPending</code> is true, the component can show a spinner. When the <span class="term" data-definition="A mutation in React Query is any operation that writes data to the server — a POST, PUT, PATCH, or DELETE. It is called a &quot;mutation&quot; because it mutates (changes) the server state.">mutation</span> resolves, React Query automatically updates any cached data that is now stale.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// While isPending is true, show a spinner.</span>
+<span class="code-comment">// When it resolves, update the UI.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The caller is blocked until the response arrives — that is a feature, not a bug. The UI needs to know whether the save succeeded before it can confirm anything to the user. REST is correct here because the operation finishes in well under 5 seconds and the result matters immediately.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="phone" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">REST is a phone call — blocking is the point</strong>
+          <p>You dial, you wait for the person to pick up, you get your answer, you hang up. The caller is blocked until the response arrives. For anything that finishes in under 5 seconds and where the UI must know the result before continuing, REST is exactly right. Choose a different pattern only when REST&apos;s blocking nature becomes a problem — like when the work takes 40 seconds or the server needs to push updates the client did not ask for.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — MECHANISM: WebSocket (walkie-talkie for AI chat)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">WebSocket: the walkie-talkie — the channel stays open</h2>
+      <p>The AI chat cannot use REST. The model sometimes thinks for 90 seconds and sends a dozen intermediate updates along the way. A <span class="term" data-definition="WebSocket is a protocol that opens a persistent, two-way connection between a browser and server. Unlike HTTP, both sides can send messages at any time without the other side asking first.">WebSocket</span> channel stays open for the entire conversation — the server can push events the moment they happen.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/app.ts + avise-api/src/ai/index.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { WebSocketServer, AuthenticatedWebSocket }
+  <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/websocket/server"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p>The <code>WebSocketServer</code> comes from avise-shared-utils — both avise-api and any future service that needs real-time communication import the same implementation. <code>AuthenticatedWebSocket</code> is a type that extends the standard WebSocket with a <span class="term" data-definition="A JWT payload is the decoded contents of a JSON Web Token — it contains claims like the user's ID, email, and permissions. Attaching it to the WebSocket connection means every message from that connection is already identified.">jwtPayload</span> field, so every message received on the socket already carries the user&apos;s identity.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">async function</span> handleNewWebSocketConnection(ws: AuthenticatedWebSocket) {
+  <span class="code-keyword">const</span> idpId = ws.jwtPayload.sub;
+  <span class="code-keyword">const</span> identity = <span class="code-keyword">await</span> identityService.getUserIdentityByIdpId(idpId);
+  <span class="code-keyword">if</span> (identity) ws.userId = identity.id;
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>When a new WebSocket connection arrives, the server immediately resolves the user identity from the <span class="term" data-definition="IDP (Identity Provider) is the service that handled the user's login — in this case, Auth0. The &quot;sub&quot; field in the JWT is the user's unique ID issued by Auth0.">IDP</span> ID inside the token. This lookup happens once per connection — all subsequent messages on this channel are already attributed to the right user without re-checking auth.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// avise-api/src/ai/index.ts — server pushes typed events as the AI thinks:</span>
+ws.send({ type: <span class="code-string">'tool_call'</span>, toolName: <span class="code-string">'findJournalEntries'</span> });
+ws.send({ type: <span class="code-string">'artifact'</span>, artifact: tableData });
+ws.send({ type: <span class="code-string">'message'</span>, content: assistantText });
+ws.send({ type: <span class="code-string">'done'</span> });</code></pre>
+          <div class="code-walk-explanation">
+            <p>Four <span class="term" data-definition="An event in this context is a typed message sent over the WebSocket. Each event has a 'type' field so the browser knows what kind of update it received and how to render it.">event</span> types flow down the channel. <code>tool_call</code> appears when the AI decides to search for data — the browser can show "Searching journal entries..." while the AI is still thinking. <code>artifact</code> carries structured data (a table, a chart). <code>message</code> carries the assistant&apos;s text. <code>done</code> signals the browser to stop the loading state.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="radio" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">WebSocket eliminated the AI timeout problem entirely</strong>
+          <p>Before WebSocket, AI chat used HTTP requests — and HTTP requests time out after roughly 30 seconds. The <span class="term" data-definition="An LLM (Large Language Model) is the AI model that generates responses. Complex accounting questions sometimes require multiple tool calls and extended reasoning, which can take longer than standard HTTP timeout limits.">LLM</span> sometimes takes longer. WebSocket eliminates this entirely. The channel lives until either side closes it — meaning the AI can take 90 seconds, send ten intermediate events, and the browser receives every one of them without any timeout. This is the kind of architectural constraint that turns an impossible feature into a working product.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — MECHANISM: BullMQ + Argo Workflows
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">BullMQ and Argo: the inbox and the project board</h2>
+      <p>When work takes minutes — or hours — you do not make the user wait. You drop it in a queue, continue the response immediately, and let a worker pick it up.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">BullMQ — producer and worker pattern</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Producer (avise-api): add a job to the queue</span>
+<span class="code-keyword">await</span> queue.add(<span class="code-string">'processRecurringTask'</span>, { taskId, companyId });</code></pre>
+          <div class="code-walk-explanation">
+            <p>The API immediately adds a <span class="term" data-definition="A job in BullMQ is a unit of work stored in Redis. It has a name (what to do) and a payload (the data to do it with). Adding a job takes milliseconds — the actual work happens later, in a separate process.">job</span> to the queue and returns a response to the user. The user does not wait for the work to finish — just for the job to be accepted. This takes milliseconds.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Worker (separate process): pick up and process jobs</span>
+worker.on(<span class="code-string">'completed'</span>, job =&gt; logger.info(<span class="code-string">`Job ${job.id} completed`</span>));
+worker.on(<span class="code-string">'failed'</span>, (job, err) =&gt; logger.error(<span class="code-string">`Job ${job.id} failed`</span>, err));</code></pre>
+          <div class="code-walk-explanation">
+            <p>A separate <span class="term" data-definition="A worker process is a program that runs independently of the main API server. It continuously polls the BullMQ queue for new jobs and executes them. If the server restarts, Redis still holds the job — the worker picks it up when it comes back online.">worker process</span> polls Redis for new jobs. <code>completed</code> and <code>failed</code> events fire once the work is done — both are logged so the team can track what happened to every job. If the server crashes mid-job, BullMQ marks it as failed and can retry automatically.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- BullMQ vs Argo comparison -->
+      <h3 class="screen-heading" style="margin-top: var(--space-10);">Choosing between BullMQ and Argo Workflows</h3>
+      <div class="grid-2-cols stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <i data-lucide="inbox" class="icon-lg" style="color: var(--color-actor-2);"></i>
+            <strong>BullMQ</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body"><p>Minutes-long jobs on a single server</p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body"><p>Backed by <span class="term" data-definition="Redis is an in-memory data store used here as a job queue. Jobs survive server restarts because Redis persists them to disk.">Redis</span> — jobs survive restarts</p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body"><p>Recurring tasks, email sending, report generation</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <i data-lucide="git-branch" class="icon-lg" style="color: var(--color-actor-3);"></i>
+            <strong>Argo Workflows</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body"><p>Hours-long jobs distributed across <span class="term" data-definition="Kubernetes is an orchestration system that runs containers (packaged applications) across multiple machines. Argo Workflows runs on top of Kubernetes so long jobs can span many machines and resume after failures.">Kubernetes</span></p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body"><p>Full event tracking via operation-tracking workspace</p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body"><p>Accounting syncs, large file processing — NS sync and QBO sync are actively migrating to Argo</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="arrow-up-right" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The codebase has TODOs marking this in-progress migration</strong>
+          <p>NS sync and QBO sync currently run as BullMQ jobs. There are explicit migration TODOs in the codebase moving them to Argo Workflows. The reason: these jobs sometimes run for 45+ minutes, need <span class="term" data-definition="Observability means being able to see what is happening inside a system. Operation-tracking records every step of a long-running job so the team can see exactly where it stopped if it fails.">full observability</span>, and must survive server restarts without losing state. BullMQ can handle them, but Argo was built for exactly this scale.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 5 — MECHANISM: Group Chat — "Which channel do I use?"
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Which channel do I use? — An architecture conversation</h2>
+      <p>Four common scenarios. Watch how the choice of communication pattern maps to the constraints of the situation.</p>
+
+      <div class="chat-window" id="chat-which-channel">
+        <div class="chat-messages">
+
+          <!-- Message 1: E asks about notifications -->
+          <div class="chat-message" data-msg="0" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>I need to notify a user when their task gets approved. Which pattern?</p>
+            </div>
+          </div>
+
+          <!-- Message 2: A answers about Knock -->
+          <div class="chat-message" data-msg="1" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p>Use <strong>Knock</strong> — it is the notification delivery system. Not REST (the user might be offline when the approval happens), not WebSocket (you do not need a response back). Knock handles the routing: in-app, email, or Slack depending on the user&apos;s preferences.</p>
+            </div>
+          </div>
+
+          <!-- Message 3: E asks about QBO sync -->
+          <div class="chat-message" data-msg="2" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>What about syncing 50,000 QuickBooks transactions? Should happen overnight.</p>
+            </div>
+          </div>
+
+          <!-- Message 4: A answers Argo -->
+          <div class="chat-message" data-msg="3" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p><strong>Argo Workflow</strong> — runs for 45 minutes, needs retry on failure, and must survive a server restart. BullMQ could do it, but Argo gives you full step-by-step observability via the operation-tracking workspace. For a sync this large, you need to know exactly which step failed if something goes wrong at 3am.</p>
+            </div>
+          </div>
+
+          <!-- Message 5: E asks about CSV export -->
+          <div class="chat-message" data-msg="4" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>User clicks &apos;Export to CSV&apos;. Takes about 20 seconds to generate. What do I do?</p>
+            </div>
+          </div>
+
+          <!-- Message 6: A answers BullMQ -->
+          <div class="chat-message" data-msg="5" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p><strong>BullMQ queue</strong> — offload the generation work immediately, return a job ID to the browser, and notify the user when the file is ready. Do not make them stare at a spinner for 20 seconds. A REST call that takes 20 seconds will time out on some networks and will block a server thread the whole time.</p>
+            </div>
+          </div>
+
+          <!-- Message 7: E asks about AI chat -->
+          <div class="chat-message" data-msg="6" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>User types a message in the AI chat. How does the response come back?</p>
+            </div>
+          </div>
+
+          <!-- Message 8: A explains WebSocket -->
+          <div class="chat-message" data-msg="7" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p><strong>WebSocket</strong> — the AI might think for 90 seconds and push 10 intermediate events (tool calls, artifacts, partial messages) along the way. REST would time out. WebSocket keeps the channel open as long as needed, and the server can push each event the instant it is ready — giving the user live feedback instead of a frozen screen.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="chat-which-channel-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 6 — APPLICATION: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <p>Four scenarios. Pick the communication pattern that fits the constraints.</p>
+
+      <div class="quiz-container" id="quiz-m3">
+
+        <!-- Q1: Excel export -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. REST blocks the user for 40 seconds and risks a timeout. BullMQ queues the work immediately, returns a success response, and notifies the user when the file is ready. The user does not wait — and the work is not lost if the server restarts."
+             data-explanation-wrong="REST blocks the user for 40 seconds and risks a timeout on many networks. BullMQ queues the work, returns a response immediately, and notifies when done. Always offload slow work to a queue rather than holding an HTTP connection open.">
+          <h3 class="quiz-question">A user wants to download all their journal entries as a large Excel file. Generation takes 40 seconds. Which pattern?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>REST — it is a simple request, just wait for the file</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>WebSocket — stream the file as it is generated</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>BullMQ queue — offload the work, notify when ready</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Knock — send a notification when the file is done</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2: Real-time co-editing -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Real-time bidirectional communication — where the server pushes updates the client did not ask for — is what WebSocket was built for. Polling every second would work but wastes resources and introduces up to 1-second lag on every update."
+             data-explanation-wrong="Real-time bidirectional communication where the server pushes cursor positions without being asked = WebSocket. REST polling every second technically works but introduces lag and wastes resources. WebSocket pushes the moment something changes.">
+          <h3 class="quiz-question">You are building a real-time co-editing feature where two users edit a budget simultaneously and see each other&apos;s cursors. Which pattern?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>REST polling every second</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>WebSocket — the server pushes cursor updates in real time</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>BullMQ — background processing for edits</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Argo Workflow — it is complex distributed work</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3: Debugging a sync -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right. Operation tracking appends events throughout a long-running job. The last event tells you exactly where the sync stopped — whether it was during authentication, data fetching, or writing records. This is why the Argo migration is worth doing: full step-by-step observability."
+             data-explanation-wrong="Operation tracking appends events throughout a long-running job. The last recorded event tells you exactly where the sync stopped — far more useful than checking logs or the database after the fact. This is the primary advantage of the operation-tracking workspace over raw BullMQ logs.">
+          <h3 class="quiz-question">A company&apos;s QuickBooks sync has not run in 3 hours. You check BullMQ — the job was picked up. What is the most likely next place to look for what happened?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The avise-web browser console — front-end errors</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Operation tracking events for the sync operation</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The Auth0 dashboard — authentication might have expired</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The PostgreSQL database — look for missing rows</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q4: Who triggers Knock -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Server-side events — task assignments, approvals, deadline triggers — are always initiated from avise-api after the business logic completes. The browser never triggers notifications directly; it only displays them. The server is the authoritative source of truth about what happened."
+             data-explanation-wrong="Server-side business events are triggered from avise-api, not from the browser. The browser only displays the result — it never initiates notifications directly. If the browser triggered Knock, a malicious user could send notifications to anyone just by opening the browser console.">
+          <h3 class="quiz-question">Knock sends a notification to a user when they are assigned a task. Which service triggers the Knock event?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The user&apos;s browser (avise-web) — it knows the assignment happened</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api — after saving the task assignment in the database</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL directly — via a database trigger</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The user who made the assignment — from their session</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m3')">Try Again</button>
+      </div>
+
+      <!-- Module navigation -->
+      <div class="module-nav-end animate-in">
+        <a href="#module-4" class="btn module-continue-btn">
+          Continue to Module 4: Where Things Live
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-2" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 2
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>

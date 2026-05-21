@@ -1,0 +1,355 @@
+<section class="module" id="module-6" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">Full Stack — From Click to Database</h1>
+      <p class="module-subtitle">One click travels through five distinct layers of code before the database updates. Here is every handoff.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Architecture diagram of 5 layers -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Five layers each have one job — mixing them up is the most common AI-generated code smell</h2>
+        <p>
+          You click "Mark as Prepared" in the browser. In the next 200ms, that action passes through five distinct layers.
+          Each layer has a single responsibility. Click any component below to learn what it does.
+        </p>
+
+        <div class="arch-diagram animate-in">
+
+          <div class="arch-zone" style="border-color: var(--color-actor-4); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 1 — Browser</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The React UI sends HTTP requests to the API and renders the response back to the user. It knows nothing about business rules — it only knows how to display data and collect user input. When you click Mark as Prepared, it sends a PATCH request to the API and waits."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="monitor" class="icon-lg"></i></div>
+                <span>React UI</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-2); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 2 — API Controller</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The controller handles HTTP — it validates authentication, parses the request body, and calls the service layer. It never contains business logic. Its job is to be the front door: check credentials, understand the request, delegate the work, and format the HTTP response."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="server" class="icon-lg"></i></div>
+                <span>Task Controller</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-3); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 3 — Service Layer</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The service layer enforces business rules. Is this status transition valid? Should an email be sent? Should auto-review be triggered? It orchestrates multiple data layer calls in the right sequence. No raw database queries live here — it speaks to the data layer, never directly to Prisma."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="cog" class="icon-lg"></i></div>
+                <span>Task Service</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-1); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 4 — Data Layer</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The data layer speaks only Prisma. It runs database queries — updates, inserts, reads — and returns typed results. It never contains business logic, never sends emails, and never validates whether a status transition is allowed. It just persists exactly what the service tells it to persist."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+                <span>Tasks Data</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-5); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 5 — Database</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="PostgreSQL stores and retrieves all task records. It guarantees atomic transactions — when the data layer updates a task status and creates a TaskEvent in the same transaction, either both writes succeed or neither does. There is no partial state."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="database" class="icon-lg"></i></div>
+                <span>PostgreSQL</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-description" id="arch-desc">Click any component to learn what it does in this architecture</div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Three-layer architecture is not bureaucracy — each layer has a different job description</strong>
+            <p>
+              The controller is a receptionist. The service is the decision-maker. The data layer is the filing clerk.
+              When you see Prisma queries in a controller or email logic in the data layer, that is a bug — not a style preference.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Full flow animation: Mark as Prepared -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Nine steps trace a single click from the browser all the way to PostgreSQL and back</h2>
+        <p>
+          Each step is a handoff between layers. The
+          <span class="term" data-definition="An HTTP PATCH request is a partial update — it sends only the fields that need to change, not the full record. The browser uses PATCH to tell the API which task to update and what the new status should be.">HTTP PATCH</span>
+          request starts in the browser; the updated status arrives back there at step 9. Every arrow is a real function call in the codebase.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-browser","label":"Step 1: User clicks Mark as Prepared in the React UI. The browser sends an HTTP PATCH request to /api/tasks/:id with the new status."},
+          {"highlight":"flow-actor-controller","label":"Step 2: The Task Controller receives the request. It validates the auth token and parses the request body. No business logic runs here.","packet":true,"from":"actor-browser","to":"actor-controller"},
+          {"highlight":"flow-actor-controller","label":"Step 3: The controller calls the service layer — service.updateTaskStatus(companyId, taskId, prepared). It passes the work and waits."},
+          {"highlight":"flow-actor-service","label":"Step 4: The service checks business rules. Is this status transition allowed? Does the task belong to this company? Should auto-review be queued?","packet":true,"from":"actor-controller","to":"actor-service"},
+          {"highlight":"flow-actor-service","label":"Step 5: Rules pass. The service calls data.setTaskStatusAndEvent(companyId, taskId, prepared) to persist the change."},
+          {"highlight":"flow-actor-data","label":"Step 6: The data layer constructs a Prisma transaction — update task status, create TaskEvent record, set statusUpdatedAt timestamp.","packet":true,"from":"actor-service","to":"actor-data"},
+          {"highlight":"flow-actor-db","label":"Step 7: PostgreSQL executes both writes atomically. Either both succeed or neither does. The transaction guarantees no partial state.","packet":true,"from":"actor-data","to":"actor-db"},
+          {"highlight":"flow-actor-browser","label":"Step 8: The updated task record travels back up through data layer, service, and controller — each layer passes it along without modification.","packet":true,"from":"actor-db","to":"actor-browser"},
+          {"highlight":"flow-actor-browser","label":"Step 9: The React UI receives the HTTP response and renders the new status. The user sees prepared. Total time: under 200ms."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-browser">
+              <div class="flow-actor-icon"><i data-lucide="monitor" class="icon-lg"></i></div>
+              <span>Browser</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-controller">
+              <div class="flow-actor-icon"><i data-lucide="server" class="icon-lg"></i></div>
+              <span>Controller</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-service">
+              <div class="flow-actor-icon"><i data-lucide="cog" class="icon-lg"></i></div>
+              <span>Service</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-data">
+              <div class="flow-actor-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+              <span>Data Layer</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-db">
+              <div class="flow-actor-icon"><i data-lucide="database" class="icon-lg"></i></div>
+              <span>PostgreSQL</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Code translation: setTaskStatus (data layer) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The data layer speaks only Prisma — no business logic, no side effects, no opinions</h2>
+        <p>
+          <code>setTaskStatus</code> is the simplest data layer function. It runs one
+          <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a TypeScript library that lets you write typed JavaScript instead of raw SQL to query the database. It generates TypeScript types from your schema automatically, so a type error in your code means a type error in your database access.">Prisma</span>
+          update, sets the timestamp, and returns the record. No validation, no emails, no events.
+          That is by design — the service layer above it handles those concerns.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">setTaskStatus</span>(</span>
+<span class="code-line">  companyId: <span class="code-function">string</span>,</span>
+<span class="code-line">  taskId: <span class="code-function">string</span>,</span>
+<span class="code-line">  status: <span class="code-function">TaskStatus</span>,</span>
+<span class="code-line">): <span class="code-function">PrismaPromise</span>&lt;<span class="code-function">PrismaTask</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">return</span> prisma.task.<span class="code-function">update</span>({</span>
+<span class="code-line">    <span class="code-property">where</span>: {</span>
+<span class="code-line">      <span class="code-property">companyId_id</span>: { companyId, id: taskId },</span>
+<span class="code-line">    },</span>
+<span class="code-line">    <span class="code-property">data</span>: {</span>
+<span class="code-line">      status,</span>
+<span class="code-line">      <span class="code-property">statusUpdatedAt</span>: <span class="code-function">getCurrentSystemJsDateTime</span>(),</span>
+<span class="code-line">    },</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>companyId + taskId as a compound key</strong> — the WHERE clause requires both. A task ID alone is not enough: the same numeric ID could theoretically exist across two companies. The compound key prevents one company from accidentally updating another company record.</p>
+              <p class="tl"><strong>prisma.task.update</strong> — Prisma generates the SQL UPDATE statement from this typed object. No raw SQL string, no injection risk, and the TypeScript compiler catches typos in field names before the code ever runs.</p>
+              <p class="tl"><strong>statusUpdatedAt</strong> — always stamped with the current system time. This powers sorting, filtering, and audit displays throughout the UI.</p>
+              <p class="tl"><strong>Returns PrismaPromise</strong> — the function can be composed into a larger Prisma transaction. The caller decides whether to run it alone or inside an atomic block with other operations.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="archive" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">The data layer is a filing clerk — it stores exactly what it receives and asks no questions</strong>
+            <p>
+              Email sending, transition validation, and side effects all belong one floor up in the service layer.
+              When AI-generated code adds email logic inside a data function, that is a layer violation — and a correctness risk,
+              because now side effects run even when the caller wanted to batch the operation inside a transaction.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MECHANISM — Code translation: reopenDueToLedgerUpdates (service layer) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The service layer decides which tasks to reopen — the data layer handles the how</h2>
+        <p>
+          <code>reopenDueToLedgerUpdates</code> is a
+          <span class="term" data-definition="The service layer is the middle tier in the three-layer architecture. It contains business logic — rules about what is valid, what side effects should occur, and what order operations should run in. It calls the data layer for database access and is called by the controller for HTTP requests.">service layer</span>
+          function that orchestrates the task reopening flow.
+          It receives raw
+          <span class="term" data-definition="A ledger update is a notification that new financial transactions have been posted to the general ledger for one or more accounts. In Avise, ledger updates trigger the task reopener to check whether any prepared tasks for those accounts need to be reopened.">ledger updates</span>,
+          fetches only the relevant tasks, and delegates reopening to a helper — no Prisma query appears here directly.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-function">reopenDueToLedgerUpdates</span> = <span class="code-keyword">async</span> (</span>
+<span class="code-line">  companyId: <span class="code-function">string</span>,</span>
+<span class="code-line">  ledgerUpdates?: <span class="code-function">LedgerUpdate</span>[],</span>
+<span class="code-line">): <span class="code-function">Promise</span>&lt;<span class="code-keyword">void</span>&gt; =&gt; {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (ledgerUpdates?.length) {</span>
+<span class="code-line">    <span class="code-comment">// Fetch tasks linked to incoming accountIds</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> tasksWithPeriod =</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">fetchTasksForLedgerUpdates</span>(</span>
+<span class="code-line">        ledgerUpdates, companyId</span>
+<span class="code-line">      );</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// Reopen tasks affected by the ledger updates</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">reopenQualifyingTasks</span>(</span>
+<span class="code-line">      tasksWithPeriod, companyId</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">};</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>Guard on ledgerUpdates?.length</strong> — if no ledger updates arrived, exit immediately. This prevents unnecessary database queries when there is nothing to check.</p>
+              <p class="tl"><strong>fetchTasksForLedgerUpdates</strong> — a data-layer call that fetches only the tasks associated with the affected account IDs and their periods. The service does not write raw Prisma here — it delegates to the data layer.</p>
+              <p class="tl"><strong>reopenQualifyingTasks</strong> — another service-level helper that runs the balance comparison logic and decides which tasks actually need to be reopened. Decision logic stays in the service; writes go through the data layer.</p>
+              <p class="tl"><strong>No raw Prisma calls visible</strong> — the service layer is clean of database syntax. That boundary is what makes each layer independently testable and replaceable.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: APPLICATION + SYNTHESIS — Quiz + closing callout -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Spot the layer violation — three scenarios that test whether you can steer AI-generated code</h2>
+        <p>
+          Each question describes code that is structurally wrong.
+          Use the layer responsibilities you just learned to identify exactly what is wrong and where the fix should go.
+        </p>
+
+        <div class="quiz-container" id="quiz-module6">
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Correct — the data layer is responsible only for database queries. Business side effects like sending emails belong in the service layer. This is a layer violation: if the data layer sends emails, the email fires even when the caller wants to batch the operation inside a transaction or call setTaskStatus without triggering notifications. The service layer is the right place for side effects."
+               data-explanation-wrong="Think about what the data layer is supposed to do. Its job description is: speak Prisma, return records, no opinions. Anything that is not a database operation does not belong there. Where would you put code that decides whether to send a notification?">
+            <h3 class="quiz-question">
+              Scenario: An AI-generated feature adds an email notification call inside <code>data/tasks/index.ts</code>
+              right after a Prisma update. What is wrong with this, and what is the fix?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Layer violation — the data layer should only handle database queries. Move the email call to the service layer, which is responsible for business side effects.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No problem — the data layer can handle email as long as the Prisma call succeeds first.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Move the email call to the controller — it sits closer to the HTTP layer where notifications originate.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — setTaskStatus updates the status field but does not create a TaskEvent audit record. The setTaskStatusAndEvent function does both atomically. When you see a status change with no corresponding TaskEvent in the audit trail, look for places where setTaskStatus was called when setTaskStatusAndEvent was needed."
+               data-explanation-wrong="The issue is not the controller or a missing timestamp — statusUpdatedAt is set by setTaskStatus. The audit trail uses TaskEvent records, which are created only by setTaskStatusAndEvent. The distinction between these two functions is exactly what explains a missing event.">
+            <h3 class="quiz-question">
+              Scenario: A task status changes in the database but no
+              <span class="term" data-definition="A TaskEvent is an audit record created whenever a task status changes. It stores the reason for the change, the old and new status, and relevant financial details like balance snapshots. It is created alongside the status update in an atomic database transaction.">TaskEvent</span>
+              audit record is created. Which function was probably called instead of <code>setTaskStatusAndEvent</code>?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The controller called the data layer directly, skipping the service layer entirely.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>setTaskStatus — the simpler function that updates status but does not create an audit event.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A raw SQL update bypassed Prisma entirely and skipped the statusUpdatedAt timestamp.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — this is a business rule: the domain defines what constitutes valid prepared state. Business rules live in the service layer. The data layer just persists whatever the service tells it to; it has no way to know whether the domain considers a task valid for preparation. The controller parses HTTP — it should not know domain rules either."
+               data-explanation-wrong="Ask: is this check about parsing an HTTP request, or about running a database query, or about what the domain considers valid? Validation of domain state — what a task must contain to be considered preparable — is a business rule. Business rules have exactly one home in this architecture.">
+            <h3 class="quiz-question">
+              Scenario: You need to add a new validation: tasks cannot be marked prepared if they have no resolution text.
+              Where should this check live in the three-layer architecture, and why?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The controller — it receives the HTTP request and can reject it before calling the service.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The data layer — it touches the task record and can check the resolution field before updating status.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The service layer — it is a business rule about what constitutes a valid state transition, which is the service layer job description.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+
+        <div class="callout callout-accent animate-in" style="margin-top: var(--space-8)">
+          <div class="callout-icon"><i data-lucide="target" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">You can now steer an AI with precision</strong>
+            <p>
+              You know the data model, the lifecycle, recurring templates, auto-review, and the layered architecture.
+              When AI generates task-related code in the wrong layer — or misses the
+              <code>balanceWhenLastPrepared</code> snapshot — you will recognize it and know exactly how to redirect it.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

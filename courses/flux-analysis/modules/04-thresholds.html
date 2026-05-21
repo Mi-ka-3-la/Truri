@@ -1,0 +1,210 @@
+<section class="module" id="module-4">
+  <div class="module-content">
+    <div class="module-number">04</div>
+    <h2 class="module-title">Threshold Settings</h2>
+    <p class="module-subtitle">Settings → Task Accruals → Flux Threshold controls three completely separate things. Understanding which is which avoids a lot of confusion.</p>
+
+    <!-- SCREEN 1: Anchor — the three-way decoupling -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">One settings panel. Three independent systems.</h2>
+
+      <p>When you open <strong>Settings → Task Accruals → Flux Threshold for Auto-Review</strong>, you see three fields. People assume they all work together. They don&apos;t — each one controls a completely different part of the system:</p>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="percent" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">% Change Threshold</h3>
+          <p class="pattern-desc">Controls whether the <strong>yellow alert icon</strong> appears on the % Change column AND whether auto-review checks the percentage.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">fluxPercentChangeThreshold — nullable, no default</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="dollar-sign" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h3 class="pattern-title">$ Change Threshold</h3>
+          <p class="pattern-desc">Controls whether the <strong>yellow alert icon</strong> appears on the $ Change column AND whether auto-review checks the dollar amount.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">fluxBalanceChangeThreshold — nullable, no default</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="clock" class="icon-xl" style="color: var(--color-actor-4);"></i>
+          <h3 class="pattern-title">Days Before End of Period</h3>
+          <p class="pattern-desc">Controls <strong>when flux tasks are created</strong> — how many days before the period ends do recurring flux tasks get auto-generated.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">fluxDaysBeforePeriodEnd — default: 10</code>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="split" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">% column value, alert icon, and task creation are three independent systems</strong>
+          <p>The % Change column always shows the calculated number — no setting affects it. The alert icon only appears if a threshold is set AND the <code>create-mom-flux-task</code> feature flag is on AND the comparison is Month over Month. Auto-review runs on its own schedule, separate from display. These three systems share the same settings input but execute independently.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — what each setting actually does -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The exact rules for the yellow alert icon</h2>
+
+      <p>The alert icon (a yellow warning triangle) is the most visible consequence of threshold settings. Here is the complete list of conditions that must ALL be true for it to appear:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>The <code>create-mom-flux-task</code> <span class="term" data-definition="A feature flag is a switch engineers control server-side. When off, the code that shows the icon is never reached, even if everything else is configured.">feature flag</span> must be ON</strong>
+            <p>If this flag is off (the current default), no alert icon ever appears — regardless of any settings.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Comparison must be Month over Month</strong>
+            <p>Alert icons are hardcoded to only appear for the <code>monthOverMonth</code> comparison. QoQ and YoY never show alerts.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>The relevant threshold must be set (non-null) in Settings</strong>
+            <p>If % Change Threshold is null, the <code>accountPercentChangeOverThreshold</code> flag is never set by the backend. Same for $ Change Threshold.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>The account&apos;s value must exceed the threshold (strictly &gt;, not ≥)</strong>
+            <p>The comparison is <code>Math.abs(value) &gt; threshold</code>. An account exactly at the threshold does NOT trigger the alert.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>&ldquo;Hide Threshold Alerts&rdquo; filter must be OFF</strong>
+            <p>The filter bar has an option to hide alerts. If enabled, icons are suppressed in the UI even if all other conditions are met.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — null thresholds and the one hidden default -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Empty Settings: what still happens vs what goes silent</h2>
+
+      <p>Both <code>fluxPercentChangeThreshold</code> and <code>fluxBalanceChangeThreshold</code> have <strong>no database default</strong> — new companies get <code>null</code>. Here&apos;s the full impact:</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">% Change column value</code>
+          <span class="badge-desc"><i data-lucide="check-circle-2" class="icon-sm icon-success"></i> <strong>Always works.</strong> The formula runs on raw balances. Settings do not affect the number displayed.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Yellow alert icon</code>
+          <span class="badge-desc"><i data-lucide="x-circle" class="icon-sm icon-error"></i> <strong>Never appears.</strong> With null thresholds, the backend never sets the flag, so the icon has nothing to read.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Auto-review</code>
+          <span class="badge-desc"><i data-lucide="x-circle" class="icon-sm icon-error"></i> <strong>Off completely.</strong> If both thresholds are null, <code>isAutoReviewFluxEnabled()</code> returns false and the checker exits immediately.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Task creation timing</code>
+          <span class="badge-desc"><i data-lucide="alert-triangle" class="icon-sm" style="color: var(--color-actor-4);"></i> <strong>Uses default: 10 days.</strong> <code>fluxDaysBeforePeriodEnd</code> has <code>@default(10)</code> in the database schema. Every new company gets 10 days silently.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="package" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The one hidden default: 10 days before period end</strong>
+          <p>This is the only predefined rule that runs even when Settings is completely empty. The <code>fluxDaysBeforePeriodEnd</code> field in the database has <code>@default(10)</code>, so flux recurring tasks are created 10 days before the period ends from day one — without the admin configuring anything. It lives in <code>avise-domains/prisma/schema.prisma</code>, line 242.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Scenario-based questions about how the three systems interact.</p>
+
+      <div class="quiz-container" id="quiz-module4">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — the yellow icon requires the feature flag create-mom-flux-task to be ON. If it&apos;s off, no alert appears regardless of threshold configuration. The % Change value itself is always shown."
+             data-explanation-wrong="The yellow alert icon requires both a configured threshold AND the create-mom-flux-task feature flag to be on. The flag is off by default — so even with thresholds set, icons won&apos;t appear unless the flag is enabled for your organization.">
+          <h3 class="quiz-question">You configure a 15% Change Threshold in Settings. Users report they never see the yellow alert icon. What is the most likely reason?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>No accounts have changes exceeding 15%</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The <code>create-mom-flux-task</code> feature flag is off for this organization</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The threshold must be configured in both % and $ fields simultaneously</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — if only ONE threshold is set, auto-review uses that one threshold alone. Both thresholds being set enables the &apos;both must be exceeded&apos; (AND) logic. Either threshold being non-null is enough to enable auto-review at all."
+             data-explanation-wrong="Auto-review is enabled when EITHER threshold is non-null. If only the % threshold is set, auto-review checks % only. If both are set, both must be exceeded. The &apos;both required&apos; logic only kicks in when both thresholds exist.">
+          <h3 class="quiz-question">You configure ONLY the % Change Threshold (set to 20%). The $ Change Threshold remains empty. What happens with auto-review?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auto-review is disabled — both thresholds must be set for it to work</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auto-review runs but checks BOTH conditions anyway</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auto-review runs and checks ONLY the % condition (since $ is null)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — fluxDaysBeforePeriodEnd defaults to 10 in the database schema. This is the only flux-related field with a built-in default. The two threshold fields default to null (no behavior).">
+          <h3 class="quiz-question">A new company is created in Avise. No one has touched Settings → Task Accruals yet. What flux behavior is already active?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Flux tasks will be created 10 days before period end (the <code>fluxDaysBeforePeriodEnd</code> default)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons show for changes over 10% (system default)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — all flux features require explicit configuration to activate</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-5" class="btn module-continue-btn">
+          Continue to Module 5: Exporting
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-3" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 3
+        </a>
+      </div>
+    </section>
+  </div>
+</section>

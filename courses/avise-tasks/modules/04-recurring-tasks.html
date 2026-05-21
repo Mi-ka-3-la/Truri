@@ -1,0 +1,316 @@
+<section class="module" id="module-4" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Recurring Tasks</h1>
+      <p class="module-subtitle">Templates on autopilot — configure once, generate every period forever.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Template vs. Instance -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Most tasks in Avise are never created manually — a template generates them every period</h2>
+        <p>
+          Think of a TV series: the show format is defined once (title, cast, runtime), and each week a new episode is produced from it.
+          A <span class="term" data-definition="A RecurringTask is the template record in the database. It defines what a task should look like — title, assignee, task type, frequency, due date formula — without being a task itself. The system uses it to mint fresh Task instances each period.">RecurringTask</span>
+          is the show format; each period the system generates a fresh
+          <span class="term" data-definition="A Task instance is an individual task record generated from a RecurringTask template for a specific accounting period. It has its own status, resolution text, and due date. Completing or reopening one instance does not affect others from earlier or later periods.">Task instance</span>
+          — its own episode, with its own status and resolution.
+        </p>
+
+        <div class="pattern-cards stagger-children animate-in">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">
+              <i data-lucide="repeat" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">RecurringTask Template</h4>
+            <p class="pattern-desc">
+              The show format — stores title, assignee, task type,
+              <span class="term" data-definition="Frequency is an enum on the RecurringTask model with values monthly, quarterly, and yearly. It controls how often the system generates a new Task instance from this template.">frequency</span>,
+              and the due date formula. Configured once by an admin; never has a status of its own.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">
+              <i data-lucide="play-circle" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Task Instance</h4>
+            <p class="pattern-desc">
+              The individual episode — inherits title, assignee, and task type from its parent template, then lives independently.
+              It has its own status (starting at unprepared), its own resolution text, and its own computed due date.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="split" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Separating template from instance is the key design decision in this feature</strong>
+            <p>
+              It lets you reconfigure the template for next month without touching completed work from last month.
+              Past episodes are sealed; the show format can change at any time.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation of RecurringTask model -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The RecurringTask model separates what needs to happen from when and how often</h2>
+        <p>
+          Four fields do the heavy lifting:
+          <code>frequency</code> sets the cadence,
+          <code>startDate</code> and <code>endDate</code> bound the series run,
+          and <code>daysFrom</code> + <code>relativeTo</code> form a due date formula that resolves fresh for every period.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">model</span> <span class="code-function">RecurringTask</span> {</span>
+<span class="code-line">  <span class="code-property">frequency</span>   <span class="code-function">Frequency</span> <span class="code-keyword">@default</span>(monthly)</span>
+<span class="code-line">  <span class="code-property">startDate</span>   <span class="code-function">DateTime</span>  <span class="code-keyword">@db.Date</span></span>
+<span class="code-line">  <span class="code-property">endDate</span>     <span class="code-function">DateTime</span><span class="code-operator">?</span> <span class="code-keyword">@db.Date</span></span>
+<span class="code-line">  <span class="code-property">daysFrom</span>    <span class="code-function">Int</span></span>
+<span class="code-line">  <span class="code-property">relativeTo</span>  <span class="code-function">RelativeTo</span></span>
+<span class="code-line">  <span class="code-property">taskType</span>    <span class="code-function">TaskType</span></span>
+<span class="code-line">  <span class="code-property">tasks</span>       <span class="code-function">Task</span>[]    <span class="code-keyword">@relation</span>(<span class="code-string">"recurring_task"</span>)</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">enum</span> <span class="code-function">Frequency</span> {</span>
+<span class="code-line">  monthly</span>
+<span class="code-line">  quarterly</span>
+<span class="code-line">  yearly</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>frequency</strong> — how often a new task instance is generated. Defaults to monthly; can be quarterly or yearly.</p>
+              <p class="tl"><strong>startDate</strong> — the first period for which the system will generate tasks. Mandatory.</p>
+              <p class="tl"><strong>endDate</strong> — the last period. It is optional (marked with <code>?</code>) — leave it null and the series runs indefinitely.</p>
+              <p class="tl"><strong>daysFrom + relativeTo</strong> — a formula, not a hardcoded date. Example: 5 days before period end. Computed fresh for every period so it is always correct regardless of month length.</p>
+              <p class="tl"><strong>tasks</strong> — the list of every Task instance that has ever been generated from this template. One template, many episodes.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="calendar-clock" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">A formula due date is always correct no matter which month it resolves in</strong>
+            <p>
+              Storing "5 days before period end" instead of a hardcoded date means February, March, and December all get
+              the right deadline automatically. The system computes the actual date fresh each period.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Six steps carry a template from admin configuration to a task in the preparer queue</h2>
+        <p>
+          The
+          <span class="term" data-definition="The period system is the part of Avise that manages accounting periods — opening new periods, tracking their start and end dates, and triggering task generation when a period opens.">period system</span>
+          is the trigger. When a new period opens, it reads all active templates, computes due dates, and mints a fresh Task instance for each one.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-template","label":"Admin configures the RecurringTask template: title, assignee, task type, frequency, and due date formula. Saved once."},
+          {"highlight":"flow-actor-period","label":"A new accounting period opens. The period system begins task generation.","packet":true,"from":"actor-template","to":"actor-period"},
+          {"highlight":"flow-actor-period","label":"The period system reads all active RecurringTask templates for this company. Active means: startDate is in the past and endDate is in the future or null."},
+          {"highlight":"flow-actor-period","label":"For each template, the system computes the actual due date using daysFrom and relativeTo — resolved against this specific period end date."},
+          {"highlight":"flow-actor-task","label":"A new Task instance is created. It inherits title, assignee, task type, and account from the template. Status starts at: unprepared.","packet":true,"from":"actor-period","to":"actor-task"},
+          {"highlight":"flow-actor-assignee","label":"The assignee is notified. The task appears in their queue for this period.","packet":true,"from":"actor-task","to":"actor-assignee"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-template">
+              <div class="flow-actor-icon"><i data-lucide="repeat" class="icon-lg"></i></div>
+              <span>Template</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-period">
+              <div class="flow-actor-icon"><i data-lucide="calendar" class="icon-lg"></i></div>
+              <span>Period System</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-task">
+              <div class="flow-actor-icon"><i data-lucide="clipboard-list" class="icon-lg"></i></div>
+              <span>Task Instance</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-assignee">
+              <div class="flow-actor-icon"><i data-lucide="user" class="icon-lg"></i></div>
+              <span>Assignee</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MECHANISM — Group chat between Template and Task Instance -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The template and its instances are related but fully independent once created</h2>
+        <p>
+          Updating a template only affects future instances. Past and present instances keep their original field values —
+          they are snapshots of the template at generation time, not live references to it.
+        </p>
+
+        <div class="chat-window" id="chat-module4">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="actor-rt" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">RT</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">RecurringTask</span>
+                <p>I am your template. You inherited my title, assignee, task type, and account when the period opened.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="actor-ti" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Instance</span>
+                <p>Got it. And I have my own status — right now I am unprepared. The preparer has not touched me yet.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="actor-rt" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">RT</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">RecurringTask</span>
+                <p>Exactly. When your period ends and a reviewer marks you as reviewed, that does not affect me or any of your sibling instances from other periods.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="actor-ti" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Instance</span>
+                <p>What if the admin changes your assignee after I have already been created?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="actor-rt" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">RT</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">RecurringTask</span>
+                <p>Future instances will use the new assignee. You and your siblings from past periods keep the original. You are a snapshot — not a live pointer to me.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module4-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+            </div>
+          </div>
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply the template pattern to new situations — three scenarios</h2>
+        <p>
+          These questions test whether you can use what you know about RecurringTask templates and instances
+          to make decisions in unfamiliar scenarios. Read each carefully before selecting.
+        </p>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — RecurringTask templates are exactly what this feature is built for. You configure 50 templates once and the system generates all 600 tasks automatically each month. Manual creation does not scale and cannot be reconfigured without touching individual task records."
+               data-explanation-wrong="Think about what happens in month two. And month three. Manually creating tasks does not scale — and reconfiguring 600 individual records every time requirements change is error-prone. RecurringTask templates exist precisely to solve this problem.">
+            <h3 class="quiz-question">
+              Scenario: Your company needs monthly reconciliation tasks for 50 accounts. A colleague suggests creating
+              600 individual tasks manually — one per account per month for the year. What is the better approach, and why?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Create 600 tasks manually — it gives more control over each individual task.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Configure 50 RecurringTask templates — the system generates all instances automatically each month.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Create one RecurringTask template and clone it 599 times.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — the endDate field on the RecurringTask model controls when the series stops. After December 2024, the system sees that the current period is beyond endDate and skips this template during task generation. Setting endDate to null lets the series run indefinitely."
+               data-explanation-wrong="The status of individual task instances does not prevent future generation — that is controlled at the template level. Look at the RecurringTask model fields that bound the series in time. There is a specific field for this.">
+            <h3 class="quiz-question">
+              Scenario: A recurring task template has <code>endDate</code> set to 2024-12-31. Task generation stopped
+              after December 2024. A new team member suspects a bug. What is the correct explanation?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A task instance was marked wont_do in December, which paused the template.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The frequency enum was changed to yearly after December.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>endDate controls when the series ends — the template is working exactly as configured.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — updating the template only affects future-generated instances. Existing task instances from previous periods are independent records; they hold their own copy of the assignee field from the time they were created. Only tasks generated after the update will use the new assignee."
+               data-explanation-wrong="Think about whether task instances are live pointers to the template or independent snapshots. The chat conversation in the previous screen explored exactly this. Updating the template does not reach back in time.">
+            <h3 class="quiz-question">
+              Scenario: An admin updates the assignee field on a recurring task template mid-month. Which tasks
+              will now show the new assignee?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>All existing task instances for this template — they are linked live to the template.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only future generated instances — existing task records keep their original assignee.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No tasks — the system requires a new template to be created for the assignee to change.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

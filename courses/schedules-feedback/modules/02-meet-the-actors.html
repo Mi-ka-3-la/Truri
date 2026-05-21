@@ -1,0 +1,259 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">02</div>
+      <h1 class="module-title">Meet the Actors</h1>
+      <p class="module-subtitle">Six files do most of the work. Once you know which is which, you can tell engineering exactly where to look.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Anchor: Section Preview Map (Mermaid flowchart)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">The six-file cast at a glance</h2>
+
+      <pre class="mermaid">
+graph LR
+  A["Browser / React\nPreparedSchedulesPage.tsx"] --> B["Backend Controller\npreparedSchedulesController.ts"]
+  B --> C["Service Layer\ncrud.ts + helpers.ts"]
+  C --> D["Database\nPrisma PreparedSchedule model"]
+  C --> E["Report Service\npreparedSchedulesReportService.ts"]
+  E --> F["XLSX Formatter\npreparedScheduleReportXlsxFormatter.ts"]
+      </pre>
+
+      <p class="animate-in">Each of the six feedback themes maps to one or more of these files. By the time you finish this course you will be able to read a client complaint and immediately point to the node above that needs to change.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Mechanism: Tech Stack Architecture
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">The tech stack, layer by layer</h2>
+
+      <div class="stagger-children">
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-2); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="monitor" class="icon"></i>
+          </div>
+          <p class="pattern-title">React Frontend (avise-web)</p>
+          <p class="pattern-desc">TypeScript + React. The PreparedSchedulesPage, SchedulePage, and CreateSchedulePageV2 folders. Uses TanStack Query for data fetching and React Hook Form for the create/edit flows.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-3); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="zap" class="icon"></i>
+          </div>
+          <p class="pattern-title">Express API (avise-api)</p>
+          <p class="pattern-desc">Node.js + Express. The preparedSchedulesController handles REST endpoints. The preparedSchedules/ service folder owns business logic &mdash; create, update, delete, list. <span class="term" data-definition="A feature flag is a switch engineers control server-side that enables or disables a feature for specific clients without a code deployment.">Feature flags</span> (Split) gate async creation and multi-line schedules.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-4); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="refresh-cw" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a TypeScript library that lets you query the database using JavaScript objects instead of writing raw SQL.">Prisma</span>
+            <span class="term" data-definition="An ORM (Object-Relational Mapper) translates between your code's objects and database rows automatically. You call prisma.preparedSchedule.findMany() and it generates the SQL for you.">ORM</span> (avise-domains)
+          </p>
+          <p class="pattern-desc">TypeScript ORM over PostgreSQL. Three models drive the whole feature: PreparedSchedule, ScheduleLinkedTransaction, and ScheduleSourceLine. The data/ layer in avise-api wraps Prisma queries.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-accent); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="database" class="icon"></i>
+          </div>
+          <p class="pattern-title">PostgreSQL</p>
+          <p class="pattern-desc">All schedule data lives here. Journal entries are in the journal_entries table; the schedule models are in prepared_schedules, schedule_linked_transactions, and schedule_source_lines.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-5); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="bell" class="icon"></i>
+          </div>
+          <p class="pattern-title">Knock (Notifications)</p>
+          <p class="pattern-desc">When schedule creation finishes (async or sync), a Knock workflow fires to notify the user. Two workflows: prepared-schedules-create (success/failure variants).</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="toggle-right"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title"><span class="term" data-definition="A feature flag is a switch engineers control server-side that enables or disables a feature for specific clients without a code deployment.">Feature flags</span> gate two major behaviors</span>
+          <p>The <code>async-argo-schedule-creation</code> flag makes creation run in the background via an Argo workflow (Kubernetes job). The <code>schedules-multi-line</code> flag enables the multi-line schedule editor. Both default to off &mdash; check with engineering whether they are on for a given client.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Mechanism: Group Chat
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">How the actors talk when you create a schedule</h2>
+
+      <div class="chat-window animate-in" id="chat-module2">
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-accent);">
+            <i data-lucide="monitor" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-accent);">Frontend</span>
+            <p>User clicked &lsquo;Save &amp; Post&rsquo;. Sending <code>POST /v1/companies/abc/schedules</code> with entries, name, termStart, termEnd, and source line IDs.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-2);">
+            <i data-lucide="zap" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-2);">Controller</span>
+            <p>Request received. Validating query schema with Joi. Passing to <code>crud.createPreparedScheduleAndAssociatedJournalEntries()</code>.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-3);">
+            <i data-lucide="layers" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-3);">Service</span>
+            <p>Validating that all accounts are Balance Sheet type. Calling <code>v2JournalEntriesService.createEntries</code> &mdash; status = <code>Scheduled</code> for each entry.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-4);">
+            <i data-lucide="database" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-4);">Database</span>
+            <p>Created 1 row in <code>prepared_schedules</code>. Created 12 rows in <code>schedule_linked_transactions</code> (one per monthly entry). Created source line links in <code>schedule_source_lines</code>.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-5);">
+            <i data-lucide="cpu" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-5);">Argo</span>
+            <p><em>(if <code>async-argo-schedule-creation</code> flag is ON)</em> Argo workflow kicked off in background. Controller already returned <code>201</code> to the frontend.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: #8B847B;">
+            <i data-lucide="bell" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: #8B847B;">Knock</span>
+            <p>Schedule creation finished. Sending Knock notification to the user: &lsquo;Your schedule is ready!&rsquo;</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Application: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <div class="quiz-container animate-in" id="quiz-module2">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="The service layer (crud.ts + helpers.ts) does the heavy lifting &mdash; creating all journal entries one by one, linking source lines. A slow create is almost always a service or database bottleneck, not a frontend issue."
+             data-explanation-wrong="The frontend only sends the request and waits. The real work happens in the service layer, which creates all journal entries, runs validations, and writes to the database.">
+          <p class="quiz-question">A client says &ldquo;When I create a big schedule, the UI shows a spinner for ages.&rdquo; Which layer is likely responsible?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The React frontend (PreparedSchedulesPage.tsx)
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The service layer (crud.ts + helpers.ts) or the database
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The Knock notification system
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct &mdash; with async creation, the backend triggers an Argo Kubernetes job and immediately returns a 201. The user sees a toast &lsquo;We are working on creating your schedule in the background!&rsquo; and is redirected to the list, not the schedule detail page."
+             data-explanation-wrong="The flag routes creation through a background Argo workflow. The controller returns immediately, and the Knock notification fires when the async job finishes &mdash; the user is never stuck waiting on the page.">
+          <p class="quiz-question">The <span class="term" data-definition="A feature flag is a switch engineers control server-side that enables or disables a feature for specific clients without a code deployment.">feature flag</span> <code>async-argo-schedule-creation</code> is ON for a client. What changes about the create flow?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Journal entries get a different status than Scheduled
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The export XLSX format changes
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Schedule creation runs in a background Kubernetes job; the controller returns immediately while the job runs
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly those three. PreparedSchedule is the container, ScheduleLinkedTransaction links each journal entry to it, and ScheduleSourceLine links the originating source transactions."
+             data-explanation-wrong="PreparedSchedule is the main model, but it needs two join tables: ScheduleLinkedTransaction (one row per journal entry) and ScheduleSourceLine (one row per source transaction line).">
+          <p class="quiz-question">Which three <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a TypeScript library that lets you query the database using JavaScript objects instead of writing raw SQL.">Prisma</span> models store all schedule data?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              PreparedSchedule, ScheduleLinkedTransaction, ScheduleSourceLine
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              PreparedSchedule, JournalEntry, Account
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Workflow, JournalEntry, PreparedSchedule
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Reset</button>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-3">
+          Continue to Module 3: The Data Model
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-1">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to Module 1
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>

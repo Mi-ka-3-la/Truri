@@ -1,0 +1,235 @@
+<section class="module" id="module-1" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Report Card for AI</h1>
+      <p class="module-subtitle">You built an AI accountant. How do you know if it's doing a good job?</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: What Avise's AI does -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Meet the AI Accountant</h2>
+        <p>
+          Avise is a financial software product. At its core is an
+          <span class="term" data-definition="An AI agent is an AI that can take actions — not just answer questions. It can look things up, run calculations, and produce structured outputs, all on its own.">AI agent</span>
+          that helps accountants with their work. You can chat with it in plain English and it will look up journal entries, propose amortization schedules, answer questions about your books — things that used to take minutes of clicking now take seconds of typing.
+        </p>
+        <div class="pattern-cards stagger-children animate-in">
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔍</div>
+            <h4 class="pattern-title">Find Journal Entries</h4>
+            <p class="pattern-desc">Ask "show me JE #42" and get a full summary with account names, amounts, and a link.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">📅</div>
+            <h4 class="pattern-title">Propose Schedules</h4>
+            <p class="pattern-desc">Ask "amortize this $12k prepaid over 2025" and get a full monthly schedule artifact ready to create.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">🛡️</div>
+            <h4 class="pattern-title">Guardrail Checks</h4>
+            <p class="pattern-desc">The AI must stay within its boundaries — it should never expose raw database IDs or go beyond what it is allowed to do.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: The problem with AI quality -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Problem: AI Is Non-Deterministic</h2>
+        <p>
+          Unlike regular code — where the same input always produces the same output — AI is
+          <span class="term" data-definition="Non-deterministic means the output can vary even when the input is identical. Ask an AI the same question twice and you might get slightly different answers.">non-deterministic</span>.
+          Every time you call an
+          <span class="term" data-definition="An LLM (Large Language Model) is the AI brain inside a product like this. Examples: GPT-4, Claude, Gemini. They generate text in response to prompts.">LLM</span>,
+          you might get a slightly different response. So how do you check that the AI is doing its job correctly — at scale, across all edge cases, every time you change the code?
+        </p>
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">The Core Insight</strong>
+            <p>You can't unit-test AI the way you test regular code. Instead you run many real interactions against the real AI and <em>score</em> the responses. That's exactly what the evals system does.</p>
+          </div>
+        </div>
+        <p>
+          This is where <span class="term" data-definition="Evalite is the open-source library that powers the evals runner. It integrates with Vitest (a JavaScript test runner) and provides the scaffolding for running, recording, and displaying AI eval results.">Evalite</span> and Avise's evals
+          <span class="term" data-definition="An SDK (Software Development Kit) is a toolkit — a collection of ready-made code that developers can use to build something specific. Here, the evals SDK is Avise's own layer of tools built on top of Evalite.">SDK</span>
+          come in.
+        </p>
+      </section>
+
+      <!-- Screen 3: What is an eval? The report card metaphor -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What Is an Eval? Think: a Report Card</h2>
+        <p>
+          A school report card works like this: a student (the AI) is given a task, they do their work, and a teacher (the scorer) grades the result. The grade is a number — 0 for fail, 1 for pass, or something in between for partial credit.
+        </p>
+        <div class="step-cards animate-in stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Give the AI a prompt</strong>
+              <p>A natural-language instruction like "Show me journal entry #42" or "Create a 12-month amortization schedule for $12,000."</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>The AI responds</strong>
+              <p>The real AI agent runs, calls its tools, and produces a response — just like a real user interaction.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Scorers grade the response</strong>
+              <p>The response is checked against a list of expectations — did it mention the right account names? Did it produce the right artifact? Each check returns a score from 0 to 1.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Results are recorded</strong>
+              <p>Evalite stores the scores and metadata so you can review them in a dashboard and track improvement over time.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: The data flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Eval Pipeline, Animated</h2>
+        <p>Click through the steps to see how a single eval runs from start to finish.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"Step 1: A prompt is prepared — real data is loaded from the database to make it realistic."},
+          {"highlight":"flow-actor-2","label":"Step 2: The prompt is sent to the AI agent, which runs exactly as it would for a real user.","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-2","label":"Step 3: The agent calls its tools (findJournalEntries, proposeSchedule, etc.) and generates a response."},
+          {"highlight":"flow-actor-3","label":"Step 4: The response is passed to the scorers.","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-3","label":"Step 5: Each scorer checks one thing (correct amount? right tool called?) and returns a score 0-1."},
+          {"highlight":"flow-actor-4","label":"Step 6: Evalite records scores + metadata to a local database for viewing.","packet":true,"from":"actor-3","to":"actor-4"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon">📋</div>
+              <span>Test Data</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon">🤖</div>
+              <span>AI Agent</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon">📐</div>
+              <span>Scorers</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon">💾</div>
+              <span>Results DB</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: The code structure -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Where to Find This in the Code</h2>
+        <p>All the evals-related code lives in <code>avise-api/evals/</code>. Here is the layout:</p>
+
+        <div class="file-tree animate-in">
+          <div class="ft-folder open">
+            <span class="ft-name">evals/</span>
+            <span class="ft-desc">All eval code lives here</span>
+            <div class="ft-children">
+              <div class="ft-folder">
+                <span class="ft-name">sdk/</span>
+                <span class="ft-desc">Avise's own toolkit — the building blocks used to write evals</span>
+                <div class="ft-children">
+                  <div class="ft-file"><span class="ft-name">index.ts</span><span class="ft-desc">The evaluateAgent() function — the main entry point</span></div>
+                  <div class="ft-folder"><span class="ft-name">metrics/</span><span class="ft-desc">All the scoring logic — StringMatch, ArtifactsExist, etc.</span></div>
+                  <div class="ft-folder"><span class="ft-name">tasks/</span><span class="ft-desc">How to run the AI (stringInputTask is the most common)</span></div>
+                  <div class="ft-folder"><span class="ft-name">utils/</span><span class="ft-desc">Helpers: parse tool calls, extract messages, etc.</span></div>
+                </div>
+              </div>
+              <div class="ft-file"><span class="ft-name">evalsContext.ts</span><span class="ft-desc">The EvalsContext class — loads test data from the DB</span></div>
+              <div class="ft-file"><span class="ft-name">helpers.ts</span><span class="ft-desc">Pre-built metrics for common checks (shouldHaveDisplayId, etc.)</span></div>
+              <div class="ft-folder"><span class="ft-name">findJeScenarios/</span><span class="ft-desc">Tests for the "find journal entry" feature</span></div>
+              <div class="ft-folder"><span class="ft-name">proposeScheduleScenarios/</span><span class="ft-desc">Tests for the "propose schedule" feature</span></div>
+              <div class="ft-folder"><span class="ft-name">guardrails/</span><span class="ft-desc">Tests that the AI obeys limits (e.g. no raw IDs in responses)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-content">
+            <strong class="callout-title">How to Run Evals</strong>
+            <p>From the <code>avise-api</code> folder: <code>pnpm evals</code> to run once, <code>pnpm evals:watch</code> for live reload. Results appear in a local Evalite UI at <code>localhost:3001</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Quick Check</h2>
+
+        <div class="quiz-container" id="quiz-module1">
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — evals run real prompts through the real AI and score the responses. The whole point is to catch quality problems that regular code tests cannot."
+               data-explanation-wrong="Not quite. Evals are not about testing TypeScript types or API endpoints — they run actual AI interactions and score the results against expectations.">
+            <h3 class="quiz-question">You change the AI agent's system prompt to improve how it formats amounts. What would an eval catch that a regular TypeScript type-check would miss?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TypeScript compilation errors introduced by the change</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whether the API route still returns HTTP 200</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whether the AI now formats "$1,000.50" correctly in its actual responses</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right — the score is always between 0 and 1. 1 means the check fully passed, 0 means it failed. Some scorers give partial credit (like 0.67 if 2 of 3 account names appeared)."
+               data-explanation-wrong="Not quite. Evals use a 0-to-1 scale, not pass/fail booleans or letter grades. This makes partial credit possible — e.g., 0.5 if half the expected account names appeared.">
+            <h3 class="quiz-question">The evals system reports a score of 0.67 for a "should mention all account names" check. What does that mean?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The test failed — anything under 1.0 is a failure</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The AI got partial credit — it mentioned some but not all account names</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>67% of the eval runs passed this check</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

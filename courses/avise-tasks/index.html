@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avise Tasks: How the Close Process Works</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-polish.css">
+
+  <!-- Lucide icons (SVG icon library — replaces emoji throughout the course).
+       Usage in module HTML:  <i data-lucide="database" class="icon"></i>
+       Browse icons:          https://lucide.dev/icons/  -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <style>
+    /* ── ACCENT ─────────────────────────────────────────────── */
+    :root {
+      --color-accent:       #D4A843;
+      --color-accent-hover: #BF9530;
+      --color-accent-light: #FDF5E0;
+      --color-accent-muted: #E0C070;
+    }
+
+    /* ── 2026 PALETTE — replaces the aged-paper warm tones ──── */
+    :root {
+      --color-bg:             #F4F6FB;  /* crisp cool-white, not yellowy */
+      --color-bg-warm:        #EBEDF8;  /* light blue-gray for alternating modules */
+      --color-bg-deep:        #E1E4F2;
+      --color-text:           #1A1C38;  /* deep navy-black — richer than charcoal */
+      --color-text-secondary: #4A5080;  /* cool blue-gray */
+      --color-text-muted:     #8890B8;
+      --color-border:         #D4D8EE;
+      --color-border-light:   #E2E5F4;
+      --color-surface:        #FFFFFF;
+      --color-surface-warm:   #F7F9FF;  /* barely-blue white for cards */
+    }
+
+    /* ── CODE↔ENGLISH: matched line numbers ─────────────────── */
+    .translation-code { counter-reset: code-ln; }
+
+    .code-line {
+      counter-increment: code-ln;
+      border-radius: 3px;
+      transition: background 120ms;
+      padding-right: 4px;
+    }
+    .code-line::before {
+      content: counter(code-ln);
+      display: inline-block;
+      min-width: 1.6em;
+      margin-right: 0.7em;
+      text-align: right;
+      color: #6C7086;
+      font-size: 0.76em;
+      opacity: 0.45;
+      user-select: none;
+    }
+
+    .translation-english .translation-lines { counter-reset: eng-ln; }
+
+    .tl {
+      counter-increment: eng-ln;
+      border-radius: 3px;
+      transition: background 120ms;
+      cursor: default;
+    }
+    .tl::before {
+      content: counter(eng-ln);
+      display: inline-block;
+      min-width: 1.4em;
+      margin-right: 0.45em;
+      font-family: var(--font-mono);
+      font-size: 0.73em;
+      font-weight: 700;
+      color: var(--color-accent-muted);
+      opacity: 0.8;
+      user-select: none;
+    }
+
+    /* ── hover highlight: both sides light up together ───────── */
+    .code-line.ln-active  { background: rgba(212,168,67,0.18); }
+    .tl.ln-active         { background: rgba(212,168,67,0.13); }
+  </style>
+
+  <script src="main.js" defer></script>
+
+  <!-- Line-sync hover: hovering a code line or its English pair highlights both -->
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.translation-block').forEach(function (block) {
+        var codeLines = Array.from(block.querySelectorAll('.code-line'));
+        var engLines  = Array.from(block.querySelectorAll('.tl'));
+        var n = Math.min(codeLines.length, engLines.length);
+        for (var i = 0; i < n; i++) {
+          (function (cl, el) {
+            function on()  { cl.classList.add('ln-active');    el.classList.add('ln-active');    }
+            function off() { cl.classList.remove('ln-active'); el.classList.remove('ln-active'); }
+            cl.addEventListener('mouseenter', on);  cl.addEventListener('mouseleave', off);
+            el.addEventListener('mouseenter', on);  el.addEventListener('mouseleave', off);
+          })(codeLines[i], engLines[i]);
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">Avise Tasks</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Close Process" role="tab" aria-label="Module 1: The Close Process"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Data Model" role="tab" aria-label="Module 2: The Data Model"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="The Lifecycle" role="tab" aria-label="Module 3: The Lifecycle"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Recurring Tasks" role="tab" aria-label="Module 4: Recurring Tasks"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Auto-Review" role="tab" aria-label="Module 5: Auto-Review"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Full Stack" role="tab" aria-label="Module 6: Full Stack"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Accounting Close Process</h1>
+      <p class="module-subtitle">What is a task, where does it come from, and what makes it done?</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — The 4 task types -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Every item on your close checklist belongs to one of four task types</h2>
+        <p>
+          You open the Tasks page in Avise and see a list of items to complete this month.
+          Each task is the <span class="term" data-definition="The smallest, indivisible unit of work in the close process — one task covers one account, reconciliation, category, or flux analysis for a single accounting period.">atomic unit</span> of the
+          <span class="term" data-definition="The accounting close process is the set of steps a finance team completes at the end of each period (month, quarter, year) to finalize their books — reconciling accounts, reviewing balances, and signing off on all work.">accounting close process</span>,
+          giving every piece of work a named owner, a due date, a reviewer, and a status.
+          Nothing falls through the cracks because the system refuses to let work exist without those fields.
+        </p>
+
+        <div class="pattern-cards stagger-children animate-in">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">
+              <i data-lucide="clipboard-list" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Account</h4>
+            <p class="pattern-desc">
+              A general ledger account task — verify the ending balance and make sure every transaction is
+              accounted for before the books are closed.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">
+              <i data-lucide="scale" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Reconciliation</h4>
+            <p class="pattern-desc">
+              Verifies that an account balance matches its supporting documents — bank statements, sub-ledgers,
+              or third-party confirmations — at period end.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">
+              <i data-lucide="tag" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Category</h4>
+            <p class="pattern-desc">
+              Groups a set of related accounts under a single review — useful when a preparer owns an entire
+              expense category rather than individual line items.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">
+              <i data-lucide="trending-up" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Flux</h4>
+            <p class="pattern-desc">
+              Tracks and explains unusual swings in an account balance from one period to the next —
+              the system flags outliers so reviewers know where to look.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="book-open" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Closing a period is like finishing a chapter of a book</strong>
+            <p>
+              The writer (preparer) drafts and submits each section; the editor (reviewer) approves it or sends
+              it back with notes. The accounting period is one chapter — it cannot be sealed until every section
+              has been reviewed and signed off.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — TaskStatus enum code translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The status field is the system vocabulary — every state a task can ever be in is listed exactly once</h2>
+        <p>
+          An <span class="term" data-definition="An enum (enumeration) is a type that can only hold one of a fixed set of named values. The database enforces this — it will reject any value not on the list, making impossible states unrepresentable.">enum</span> in the
+          <span class="term" data-definition="A database schema is the formal definition of every table, column, type, and relationship in the database. In this project, Prisma reads the schema.prisma file and uses it to generate the database structure and TypeScript types simultaneously.">schema</span>
+          locks the field to a known set of values.
+          If code tries to write a status of, say, <code>pending</code> — a word not in the list — the
+          <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a tool that lets you write TypeScript instead of raw SQL to read and write database records, and that generates type-safe TypeScript types from your schema automatically.">Prisma</span>
+          <span class="term" data-definition="An ORM (Object-Relational Mapper) is a library that translates between the TypeScript objects in your code and the rows in your database, so you never have to write raw SQL for standard operations.">ORM</span>
+          will refuse the write before it ever reaches the database.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">enum</span> <span class="code-function">TaskStatus</span> {</span>
+<span class="code-line">  unprepared</span>
+<span class="code-line">  in_progress</span>
+<span class="code-line">  prepared</span>
+<span class="code-line">  reopened</span>
+<span class="code-line">  rejected</span>
+<span class="code-line">  reviewed</span>
+<span class="code-line">  wont_do</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">@@map(name: "task_status")</span></span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This is the complete list of states a task can ever be in. No other value is allowed — ever.</p>
+              <p class="tl"><strong>unprepared</strong> — No work has started. Every new task begins here.</p>
+              <p class="tl"><strong>in_progress</strong> — The preparer has started but not yet submitted.</p>
+              <p class="tl"><strong>prepared</strong> — The preparer clicked submit. Now waiting for a reviewer.</p>
+              <p class="tl"><strong>reopened</strong> — The reviewer sent it back. The preparer must fix and resubmit.</p>
+              <p class="tl"><strong>rejected</strong> — Permanently declined; the work is recorded but not accepted.</p>
+              <p class="tl"><strong>reviewed</strong> — The reviewer approved it. The task is complete.</p>
+              <p class="tl"><strong>wont_do</strong> — Deliberately skipped this period with a recorded reason.</p>
+              <p class="tl"><code>@@map</code> tells Prisma what name to use for this type in the actual database table.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="shield-check" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">A status enum is the system vocabulary — it makes impossible states unrepresentable</strong>
+            <p>
+              Constraining a field to a known set means the database can never hold a value the application
+              does not understand. Every layer of the system — the database, the API, the UI — shares the same
+              vocabulary with no ambiguity.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Flow animation: close process cycle -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task moves through four actors before the period is closed</h2>
+        <p>
+          The accounting <span class="term" data-definition="An accounting period is a fixed time window — typically one month — for which the finance team finalizes all transactions. A period must be explicitly opened before tasks can be created for it, and closed once all tasks are reviewed.">period</span>
+          acts as the container; tasks flow from creation through preparation, review, and back if needed.
+          Each arrow below represents a handoff that the system records and enforces.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-period","label":"A new accounting period opens. The system is now ready to create tasks for this month."},
+          {"highlight":"flow-actor-tasks","label":"The task system generates tasks — one per account, reconciliation, category, or flux item — all starting at status: unprepared.","packet":true,"from":"actor-period","to":"actor-tasks"},
+          {"highlight":"flow-actor-assignee","label":"Each task is assigned to a preparer. They receive their checklist and begin working through it.","packet":true,"from":"actor-tasks","to":"actor-assignee"},
+          {"highlight":"flow-actor-assignee","label":"The preparer completes their work and clicks submit. Status changes from in_progress to prepared."},
+          {"highlight":"flow-actor-reviewer","label":"The task lands in the reviewer queue. The reviewer inspects the work.","packet":true,"from":"actor-assignee","to":"actor-reviewer"},
+          {"highlight":"flow-actor-reviewer","label":"If the work is good, the reviewer approves it. Status becomes: reviewed. Task is done."},
+          {"highlight":"flow-actor-assignee","label":"If the reviewer finds an issue, they reject and send it back. Status becomes: reopened. The cycle restarts.","packet":true,"from":"actor-reviewer","to":"actor-assignee"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-period">
+              <div class="flow-actor-icon"><i data-lucide="calendar" class="icon-lg"></i></div>
+              <span>Period</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-tasks">
+              <div class="flow-actor-icon"><i data-lucide="list-checks" class="icon-lg"></i></div>
+              <span>Task System</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-assignee">
+              <div class="flow-actor-icon"><i data-lucide="user" class="icon-lg"></i></div>
+              <span>Assignee</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-reviewer">
+              <div class="flow-actor-icon"><i data-lucide="user-check" class="icon-lg"></i></div>
+              <span>Reviewer</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply what you know — three scenarios from the real system</h2>
+        <p>
+          These questions test whether you can use the concepts in a new situation — not whether you remember
+          the definitions. Read each scenario carefully before choosing.
+        </p>
+
+        <div class="quiz-container" id="quiz-module1">
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Flux tasks are specifically designed to track and explain unusual movements in account balances from period to period. That is their entire purpose — the name comes from the word for change or flow."
+               data-explanation-wrong="Think about which task type deals with changes over time rather than a single balance or a set of documents. The answer is in what the word itself means.">
+            <h3 class="quiz-question">
+              Scenario: Your CFO wants the finance team to document and explain why the Marketing Expenses account
+              jumped by 40% compared to last month. Which task type is the right fit?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Account — because it covers a general ledger account</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Reconciliation — because you are comparing two numbers</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Flux — because you need to track and explain a period-over-period swing</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Category — because Marketing is a category of expenses</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="When a reviewer sends a task back after it was submitted (prepared), the status becomes reopened. This is different from rejected, which is a permanent outcome — reopened means the preparer must fix and resubmit."
+               data-explanation-wrong="Check the status enum again. There is a specific status for tasks that were submitted and then returned by the reviewer. It is not the same as rejected, which is permanent.">
+            <h3 class="quiz-question">
+              Scenario: A preparer submits their reconciliation work. The reviewer examines it, finds a missing
+              journal entry, and sends it back for correction. What status does the task carry right now?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>rejected — the reviewer did not accept the work</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>reopened — it was sent back for the preparer to fix and resubmit</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>in_progress — the preparer must work on it again</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>unprepared — it is back to the beginning</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="The Period model has an allowTaskCreation flag. Setting it to false prevents the task system from generating new tasks for that period — the period exists in the database but is locked against task creation while the migration runs."
+               data-explanation-wrong="The task types and status enum do not control whether tasks are created in the first place. Think about what controls the period itself — there is a field on the Period record that acts as a gate for task creation.">
+            <h3 class="quiz-question">
+              Scenario: Your team is running a one-week data migration. You want the system to stop generating
+              new tasks for the current period until the migration completes. What field on the Period record
+              controls this gate?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>allowTaskCreation — the Period has a flag that enables or disables task generation</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>status on each Task — set all tasks to wont_do to pause work</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TaskType — remove all task types for this period until migration is done</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>There is no such field — you would need to delete the period entirely</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The Task Data Model</h1>
+      <p class="module-subtitle">Every task is a structured database record — here is what each field is for</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Key fields as icon-label rows -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task record is a library checkout card: it names the borrower, the approver, the due date, and the book</h2>
+        <p>
+          When a task appears on screen it is a structured
+          <span class="term" data-definition="A database record is a single row in a database table — a collection of named fields (columns) with their values, stored persistently so the application can read and update them across sessions.">database record</span>
+          with fields for the owner, reviewer, the account it covers, the deadline, and a snapshot of the balance
+          when work was last submitted.
+          Every field exists to answer one question the close process cannot skip.
+        </p>
+
+        <div class="icon-rows animate-in stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">
+              <i data-lucide="user" class="icon"></i>
+            </div>
+            <div>
+              <strong>assignedTo</strong>
+              <p>The preparer — the person responsible for completing this task. They are the writer of this chapter.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">
+              <i data-lucide="user-check" class="icon"></i>
+            </div>
+            <div>
+              <strong>reviewerId</strong>
+              <p>The approver — the person who inspects the work and either signs off or sends it back. Must be a different person from the preparer.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">
+              <i data-lucide="calendar" class="icon"></i>
+            </div>
+            <div>
+              <strong>dueDate</strong>
+              <p>The deadline for this task. Stored as a calendar date (no time component), so the same due date applies regardless of time zone.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-3)">
+              <i data-lucide="circle-dot" class="icon"></i>
+            </div>
+            <div>
+              <strong>status</strong>
+              <p>The current state of the task — one of the seven values in the
+                <span class="term" data-definition="An enum (enumeration) constrains a field to a fixed set of named values. The database enforces this — it will reject any value not on the list, making impossible states unrepresentable.">TaskStatus enum</span>.
+                Every screen and every business rule reads this field.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1)">
+              <i data-lucide="landmark" class="icon"></i>
+            </div>
+            <div>
+              <strong>accountId</strong>
+              <p>The general ledger account this task covers. Links the task to a specific account in the chart of accounts so reports can aggregate by account.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-accent)">
+              <i data-lucide="activity" class="icon"></i>
+            </div>
+            <div>
+              <strong>balanceWhenLastPrepared</strong>
+              <p>
+                A <span class="term" data-definition="A snapshot is a point-in-time copy of a value stored alongside the record. If the live value changes later, the snapshot remains as evidence of what was true at the moment work was submitted.">snapshot</span>
+                of the account balance at the moment the preparer submitted. If the live balance changes afterward, the system compares it to this snapshot and knows the task needs attention again.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="database" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">balanceWhenLastPrepared is the system's memory — it makes stale approvals detectable</strong>
+            <p>
+              Without this field, the system would have no way to know whether the account changed after
+              the preparer submitted. With it, a nightly job can compare live balances to the snapshots
+              and automatically reopen any task whose account moved.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation of Task model -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Prisma Task model groups fields into four logical roles: identity, people, work, and smart controls</h2>
+        <p>
+          The
+          <span class="term" data-definition="A Prisma model is a block in schema.prisma that maps to a database table. Prisma reads this file and generates both the database schema and the TypeScript types the application uses — one source of truth for both.">Prisma model</span>
+          below is the single source of truth. Every
+          <span class="term" data-definition="A TypeScript type is a compile-time description of the shape of a value — what fields it has and what types those fields hold. Prisma generates these automatically from schema.prisma so the code and the database are always in sync.">TypeScript type</span>,
+          every API response, and every UI component derives from it.
+          Changes to one field here ripple automatically to every layer of the stack.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">// IDENTITY — what period and company does this belong to?</span></span>
+<span class="code-line"><span class="code-keyword">model</span> <span class="code-function">Task</span> {</span>
+<span class="code-line">  id        String  @id @default(cuid())</span>
+<span class="code-line">  companyId String</span>
+<span class="code-line">  periodId  String</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// PEOPLE — who does the work, who approves it?</span></span>
+<span class="code-line">  assignedTo  String?</span>
+<span class="code-line">  reviewerId  String?</span>
+<span class="code-line">  createdBy   String?</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// WORK — what is the task and where does it stand?</span></span>
+<span class="code-line">  title      String</span>
+<span class="code-line">  dueDate    DateTime @db.Date</span>
+<span class="code-line">  taskType   TaskType</span>
+<span class="code-line">  status     TaskStatus</span>
+<span class="code-line">  resolution String?</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// SMART — system intelligence fields</span></span>
+<span class="code-line">  balanceWhenLastPrepared  Int?</span>
+<span class="code-line">  autoReviewEnabled        Boolean?</span>
+<span class="code-line">  recurringTaskId          String?</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>Identity:</strong> <code>id</code> is a
+                <span class="term" data-definition="A CUID (Collision-resistant Unique ID) is a randomly generated string ID designed to be unique across distributed systems without needing a central counter. It looks like clfxyz123... and is used instead of auto-incrementing integers.">CUID</span>
+                — a random collision-proof identifier. <code>companyId</code> and <code>periodId</code> are
+                <span class="term" data-definition="A foreign key is a field whose value must match the primary key of a row in another table. It creates a link between two tables — in this case, Task.periodId must reference a real Period record.">foreign keys</span>
+                that anchor this task to a specific company and a specific accounting month.</p>
+              <p class="tl"><strong>People:</strong> Three
+                <span class="term" data-definition="A nullable field (marked with ? in Prisma) can hold a value OR be null — meaning no value is stored. In TypeScript this is represented as string | null, so the code must handle the null case explicitly.">nullable</span>
+                user references. <code>assignedTo</code> is the preparer; <code>reviewerId</code> is the approver; <code>createdBy</code> logs who originally created it (often a system process, not a human).</p>
+              <p class="tl"><strong>Work:</strong> <code>taskType</code> and <code>status</code> are both enums — constrained to known values. <code>resolution</code> is nullable text: a free-form note the preparer or reviewer can add, especially when marking a task as wont_do.</p>
+              <p class="tl"><strong>Smart:</strong> <code>balanceWhenLastPrepared</code> is the snapshot integer. <code>autoReviewEnabled</code> lets the system approve low-risk tasks without human intervention. <code>recurringTaskId</code> links back to the template that generated this task.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="shield" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Two separate user fields encode a legal requirement, not a design preference</strong>
+            <p>
+              Accounting standards (SOX, GAAP) require
+              <span class="term" data-definition="Separation of duties is a control principle that prevents one person from both performing work and approving it. It is a core requirement of financial audits — if the preparer could also be the reviewer, fraud and errors are much harder to catch.">separation of duties</span>:
+              the person who does the work must not be the same person who approves it. Two distinct
+              fields make that constraint enforceable in code, not just in policy.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Flow animation: task creation from multiple sources -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task record is assembled from three sources simultaneously when a period opens</h2>
+        <p>
+          No single actor creates a task alone. The
+          <span class="term" data-definition="A RecurringTask is a template record that stores the default settings for a task — title, assignee, reviewer, task type — that should repeat every period. The system copies these settings into a new Task record each time a period opens.">RecurringTask</span>
+          template provides the who and what; the Period provides the when; the Account provides the subject.
+          The database assembles all three into one new Task row.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-recurring","label":"The RecurringTask template holds the title, assignee, reviewer, and task type — the settings that repeat every period."},
+          {"highlight":"flow-actor-period","label":"The Period record opens for the month and triggers task generation. It supplies the periodId and the due date.","packet":true,"from":"actor-recurring","to":"actor-period"},
+          {"highlight":"flow-actor-account","label":"The Account record is linked in — its ID becomes the accountId on the new task, connecting the task to a specific GL account.","packet":true,"from":"actor-period","to":"actor-account"},
+          {"highlight":"flow-actor-task","label":"The system writes a new Task row. status is set to unprepared, balanceWhenLastPrepared is set to 0, autoReviewEnabled inherits from the template.","packet":true,"from":"actor-account","to":"actor-task"},
+          {"highlight":"flow-actor-task","label":"The Task record now exists in the database, fully populated. The assignee will see it on their checklist at next page load."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-recurring">
+              <div class="flow-actor-icon"><i data-lucide="repeat" class="icon-lg"></i></div>
+              <span>RecurringTask</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-period">
+              <div class="flow-actor-icon"><i data-lucide="calendar" class="icon-lg"></i></div>
+              <span>Period</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-account">
+              <div class="flow-actor-icon"><i data-lucide="landmark" class="icon-lg"></i></div>
+              <span>Account</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-task">
+              <div class="flow-actor-icon"><i data-lucide="database" class="icon-lg"></i></div>
+              <span>Task Record</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply what you know — three scenarios from the real system</h2>
+        <p>
+          Each question presents a real engineering or business decision. Use your understanding of the data
+          model to reason through each one.
+        </p>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="When the preparer submits, the system records the current account balance in balanceWhenLastPrepared. A background job later compares this snapshot to the live balance. If they differ, the system knows the account moved after submission and reopens the task automatically."
+               data-explanation-wrong="The status field alone cannot detect post-submission balance changes — it only records the outcome of human actions. Think about which field was specifically designed to hold a point-in-time balance snapshot so the system can compare it to the current live value.">
+            <h3 class="quiz-question">
+              Scenario: A preparer submits a reconciliation task on Monday. On Wednesday, a colleague posts
+              three new journal entries to the same account. On Thursday, how does the system know to reopen
+              the task without anyone manually intervening?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The status field is checked against the account and changes automatically</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>balanceWhenLastPrepared stores the balance at submission time; a job compares it to the current live balance and reopens the task if they differ</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reviewer is notified by email and must manually reopen the task</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The recurringTaskId links back to the template and triggers a refresh</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Separation of duties is a core accounting control: the person who prepares work must not also be the person who approves it. One user field would make it possible to assign the same person to both roles, which violates financial audit requirements — not just a design preference."
+               data-explanation-wrong="This is not about code simplicity — it is about a business rule embedded in the data model. Ask yourself what would happen if one person could fill both fields. That is what the two-field design prevents.">
+            <h3 class="quiz-question">
+              Scenario: A junior engineer suggests merging <code>assignedTo</code> and <code>reviewerId</code>
+              into a single <code>responsibleUserId</code> field to simplify the model. What is the strongest
+              argument against this change?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It would break the Prisma relations and require a database migration</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The UI was built assuming two separate fields and would need to be rewritten</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Separation of duties — a preparer must not also be their own reviewer; collapsing the fields makes that control unenforceable</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The field names are used throughout the codebase and renaming would be too expensive</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Prisma schema.prisma in avise-domains is the single source of truth for the data model. Adding the field there causes Prisma to generate the database migration AND update the TypeScript types simultaneously — every other layer of the stack derives from it automatically."
+               data-explanation-wrong="Think about where the source of truth for the Task model lives. The TypeScript types, the API, and the UI all derive from one place — and that place is not the API or the UI themselves.">
+            <h3 class="quiz-question">
+              Scenario: You need to add an <code>urgency</code> field to tasks so preparers can flag
+              high-priority items. Where in the codebase is the single correct first place to add this field?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Prisma schema in avise-domains — the TypeScript types and database structure both derive from it</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The TypeScript types in avise-api — start where the field will be used first</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The UI form in avise-web — design the user experience before defining the data</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The database directly via a SQL ALTER TABLE statement, then update the Prisma schema to match</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">The Task Lifecycle</h1>
+      <p class="module-subtitle">Every status change is an atomic write — the status and the audit record are inseparable</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Status flow as numbered step cards -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task status moves forward like a relay baton — and can be sent back before it crosses the finish line</h2>
+        <p>
+          When a preparer clicks Mark as Prepared, the task does not just change color.
+          The system simultaneously records a new
+          <span class="term" data-definition="A status field holds the current state of a record — one value from a fixed enum. Changing it means the record has moved to a new phase in its lifecycle.">status</span>
+          AND creates an
+          <span class="term" data-definition="An audit trail is an append-only log of every significant event that has happened to a record — who did what, when, and why. It cannot be edited after the fact, making it a reliable source of truth for compliance and debugging.">audit event</span>
+          in one single database write.
+          No partial state is ever possible.
+        </p>
+
+        <div class="step-cards animate-in stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num" style="background: var(--color-text-muted)">1</div>
+            <div class="step-body">
+              <strong>Task created — status: <code>unprepared</code></strong>
+              <p>The system generates the task when the period opens. The assignee can see it but no work has started.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num" style="background: var(--color-actor-2)">2</div>
+            <div class="step-body">
+              <strong>Preparer starts — status: <code>in_progress</code></strong>
+              <p>The assignee begins working. The status signals to the reviewer that this task is claimed and active.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num" style="background: var(--color-actor-4)">3</div>
+            <div class="step-body">
+              <strong>Preparer submits — status: <code>prepared</code></strong>
+              <p>
+                The assignee marks work as done. The system records the current account balance in
+                <span class="term" data-definition="balanceWhenLastPrepared stores the account balance at the exact moment the preparer submitted. A background job later compares the live balance to this snapshot — if they differ, the task is automatically reopened.">balanceWhenLastPrepared</span>
+                and creates an audit event. The baton is now in the reviewer&apos;s hands.
+              </p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in" style="border-left: 3px solid var(--color-actor-5)">
+            <div class="step-num" style="background: var(--color-actor-5)">4A</div>
+            <div class="step-body">
+              <strong>Reviewer approves — status: <code>reviewed</code></strong>
+              <p>The reviewer signs off. The task is complete. The period can close once all tasks reach this state.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in" style="border-left: 3px solid var(--color-actor-1)">
+            <div class="step-num" style="background: var(--color-actor-1)">4B</div>
+            <div class="step-body">
+              <strong>Reviewer rejects — status: <code>reopened</code></strong>
+              <p>
+                The reviewer finds a problem and sends it back. Status becomes <code>reopened</code> — not <code>unprepared</code>,
+                because the audit trail must preserve that this task has been through at least one cycle.
+                Return to step 3.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Status is the baton in a relay race — it cannot change hands without a recorded handoff</strong>
+            <p>
+              In a relay race, the baton physically moves from one runner to the next — there is no ambiguity
+              about who has it. The
+              <span class="term" data-definition="A TaskEvent is a database record created every time a task changes status. It stores the new status, the reason, and a timestamp — forming an append-only audit log that survives even if the task record is later updated again.">TaskEvent</span>
+              log plays the same role: every status change leaves a permanent record of when it happened and why.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation of setTaskStatusAndEvent -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One Prisma update writes the status AND the audit record in a single database transaction</h2>
+        <p>
+          The function <code>setTaskStatusAndEvent</code> is the only place in the codebase where task
+          statuses change. It uses a single
+          <span class="term" data-definition="A Prisma update is a function call that writes changes to one database row. When it includes a nested create (like taskEvents.create), Prisma wraps both writes in one database transaction automatically.">Prisma update</span>
+          with a nested create — which means the database engine executes both writes as an
+          <span class="term" data-definition="An atomic operation is a database write that either succeeds completely or fails completely — it cannot be interrupted halfway. Both the status change and the event creation happen as one indivisible unit.">atomic operation</span>.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">setTaskStatusAndEvent</span>(</span>
+<span class="code-line">  companyId: string,</span>
+<span class="code-line">  taskId: string,</span>
+<span class="code-line">  status: TaskStatus,</span>
+<span class="code-line">  eventPayload: TaskEventPayload,</span>
+<span class="code-line">): PrismaPromise&lt;PrismaTask&gt; {</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> eventPayloadJson = {</span>
+<span class="code-line">    ...eventPayload, status</span>
+<span class="code-line">  };</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> prisma.task.update({</span>
+<span class="code-line">    where: { companyId_id: { companyId, id: taskId } },</span>
+<span class="code-line">    data: {</span>
+<span class="code-line">      status,</span>
+<span class="code-line">      statusUpdatedAt: getCurrentSystemJsDateTime(),</span>
+<span class="code-line">      autoReviewEnabled: false,</span>
+<span class="code-line">      taskEvents: {</span>
+<span class="code-line">        create: {</span>
+<span class="code-line">          type: TaskEventType.system_task_update,</span>
+<span class="code-line">          eventPayload: eventPayloadJson,</span>
+<span class="code-line">        },</span>
+<span class="code-line">      },</span>
+<span class="code-line">    },</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This function is the single gatekeeper for all status changes. Nothing else in the codebase updates <code>status</code> directly.</p>
+              <p class="tl"><strong>Inputs:</strong> which company, which task, what new status to set, and a
+                <span class="term" data-definition="An event payload is a JSON object that carries the context for a status change — why it happened, who triggered it, and any relevant data. It is stored alongside the audit event so future readers can understand what happened without guessing.">payload</span>
+                object explaining why the change is happening.</p>
+              <p class="tl"><code>status</code> is written into the task row AND into the
+                <span class="term" data-definition="eventPayload is a JSON column in the TaskEvent table that stores the full context of a status change — the new status, the reason, and any supporting data. Storing status inside the payload means each event is self-contained.">eventPayload</span>
+                — so the event record is self-contained and readable without joining back to the task.</p>
+              <p class="tl"><code>statusUpdatedAt</code> is stamped with the current system time — a precise timestamp for every transition.</p>
+              <p class="tl"><code>autoReviewEnabled: false</code> resets the auto-review flag on every status change — the system cannot auto-approve a task the reviewer just manually handled.</p>
+              <p class="tl"><code>taskEvents: { create: ... }</code> is the nested write. Prisma wraps the outer update AND this inner create into one
+                <span class="term" data-definition="A database transaction is a group of database operations that either all succeed together or all fail together. If any operation in the group fails, the database rolls back every change made so far, leaving data in a consistent state.">database transaction</span>
+                automatically.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Atomic writes guarantee that a status change and its audit record are inseparable</strong>
+            <p>
+              If the event creation fails, the status does not change — and vice versa. The database enforces
+              both-or-neither. This is exactly what compliance
+              <span class="term" data-definition="An audit trail requirement is a legal or regulatory obligation to maintain a permanent, tamper-proof log of every change to a financial record — who did what and when. SOX (Sarbanes-Oxley) is the most common US law enforcing this for public companies.">audit trail requirements</span>
+              demand: no status change without a reason on record.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Group chat -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Here is what actually happens inside the system when a preparer clicks submit</h2>
+        <p>
+          Three actors collaborate in sequence: the Preparer in the browser, the System API in the backend,
+          and the Database that stores the final result. Watch how the handoffs happen.
+        </p>
+
+        <div class="chat-window" id="chat-module3">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-msg="0" data-sender="preparer" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Preparer</span>
+                <p>I have finished reconciling the Cash account. Clicking Mark as Prepared now.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">System API</span>
+                <p>Received a PATCH request for task ID clx123... with action: prepare. Running business-rule checks — is this task assigned to the right person? Is the period still open?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">System API</span>
+                <p>Checks passed. Calling setTaskStatusAndEvent with status: prepared and the current account balance as part of the event payload.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="database" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">D</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Starting transaction. Writing status: prepared to the Task row and setting statusUpdatedAt to now. Also setting autoReviewEnabled: false.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="database" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">D</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Creating a new TaskEvent row linked to this task. Storing the payload: { status: prepared, balance: 84200, reason: preparer_submitted }. Committing transaction — both writes succeeded.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">System API</span>
+                <p>Transaction confirmed. Returning the updated Task record to the client. The reviewer will now see this task in their queue.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="6" data-sender="preparer" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Preparer</span>
+                <p>The task now shows as Prepared in my list. If the reviewer sends it back, I will see it reappear as Reopened. And if an auditor ever asks why this task changed status, the TaskEvent has the full story.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module3-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply what you know — three scenarios from the real system</h2>
+        <p>
+          These questions ask you to reason about the lifecycle, the audit trail, and the service
+          layer architecture. Use what you have learned — do not guess by elimination.
+        </p>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Every call to setTaskStatusAndEvent creates a TaskEvent with a full payload — including the reason the status changed and who triggered it. The TaskEvent log is the canonical audit trail for task history. Looking there first is always the right move when debugging unexplained status changes."
+               data-explanation-wrong="The task record itself only shows the current status — it does not record history. Think about which structure was specifically designed to be an append-only log of every status change, including the reason each change happened.">
+            <h3 class="quiz-question">
+              Scenario: A task was at <code>prepared</code> status yesterday and is now back at <code>unprepared</code>.
+              Nobody on the team remembers doing it. Where in the codebase would you look first to find out
+              what happened and why?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Task record itself — check the status field and statusUpdatedAt timestamp</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The TaskEvent log — every status change records a payload with the reason, so the full history is there</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The RecurringTask template — it might have reset the task when the next period opened</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The API server logs — search for the task ID in the application log output</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Business rules — like validations that depend on the current state of the task — belong in the service layer. The data layer (setTaskStatusAndEvent and friends) only handles database operations; it does not make business decisions. Adding the check there would mix concerns and make the function harder to test and reuse."
+               data-explanation-wrong="Think about which layer is responsible for business decisions versus which layer is responsible for database operations. The rule you are adding (no preparation without a resolution) is a business rule, not a database operation.">
+            <h3 class="quiz-question">
+              Scenario: You need to enforce a new rule — tasks cannot be marked as <code>prepared</code> unless
+              the <code>resolution</code> field contains at least 10 characters. Where in the architecture
+              should this validation live?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Inside setTaskStatusAndEvent — it is already the only place status changes happen</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In the Prisma schema as a database constraint — enforce it at the database level</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In the service layer — business rules belong above the data layer, which only handles DB operations</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In the UI form — prevent the submit button from being clicked if the field is too short</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="setTaskStatusAndEvent explicitly sets autoReviewEnabled to false on every call. This ensures that after any manual status change, the system cannot subsequently auto-approve the same task — the reviewer&apos;s manual judgment takes precedence and the auto-review flag must be re-enabled explicitly if desired."
+               data-explanation-wrong="Look at the data block in setTaskStatusAndEvent again. There is one field being set that you might not have noticed on first reading. Think about what happens to automated behavior after a human intervenes manually.">
+            <h3 class="quiz-question">
+              Scenario: The system has an auto-review feature that can approve low-risk tasks without human
+              intervention. The <code>setTaskStatusAndEvent</code> function always sets
+              <code>autoReviewEnabled: false</code>. Why is this important?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>After a manual status change, auto-review must not fire again — a reviewer&apos;s manual decision takes precedence and the flag must be explicitly re-enabled</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>autoReviewEnabled is a legacy field no longer in use; setting it to false is just cleanup</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It prevents the database from running a trigger that would create duplicate TaskEvent records</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It signals to the UI to hide the auto-review toggle until the task is back in unprepared status</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-4" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Recurring Tasks</h1>
+      <p class="module-subtitle">Templates on autopilot — configure once, generate every period forever.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Template vs. Instance -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Most tasks in Avise are never created manually — a template generates them every period</h2>
+        <p>
+          Think of a TV series: the show format is defined once (title, cast, runtime), and each week a new episode is produced from it.
+          A <span class="term" data-definition="A RecurringTask is the template record in the database. It defines what a task should look like — title, assignee, task type, frequency, due date formula — without being a task itself. The system uses it to mint fresh Task instances each period.">RecurringTask</span>
+          is the show format; each period the system generates a fresh
+          <span class="term" data-definition="A Task instance is an individual task record generated from a RecurringTask template for a specific accounting period. It has its own status, resolution text, and due date. Completing or reopening one instance does not affect others from earlier or later periods.">Task instance</span>
+          — its own episode, with its own status and resolution.
+        </p>
+
+        <div class="pattern-cards stagger-children animate-in">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">
+              <i data-lucide="repeat" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">RecurringTask Template</h4>
+            <p class="pattern-desc">
+              The show format — stores title, assignee, task type,
+              <span class="term" data-definition="Frequency is an enum on the RecurringTask model with values monthly, quarterly, and yearly. It controls how often the system generates a new Task instance from this template.">frequency</span>,
+              and the due date formula. Configured once by an admin; never has a status of its own.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">
+              <i data-lucide="play-circle" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Task Instance</h4>
+            <p class="pattern-desc">
+              The individual episode — inherits title, assignee, and task type from its parent template, then lives independently.
+              It has its own status (starting at unprepared), its own resolution text, and its own computed due date.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="split" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Separating template from instance is the key design decision in this feature</strong>
+            <p>
+              It lets you reconfigure the template for next month without touching completed work from last month.
+              Past episodes are sealed; the show format can change at any time.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation of RecurringTask model -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The RecurringTask model separates what needs to happen from when and how often</h2>
+        <p>
+          Four fields do the heavy lifting:
+          <code>frequency</code> sets the cadence,
+          <code>startDate</code> and <code>endDate</code> bound the series run,
+          and <code>daysFrom</code> + <code>relativeTo</code> form a due date formula that resolves fresh for every period.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">model</span> <span class="code-function">RecurringTask</span> {</span>
+<span class="code-line">  <span class="code-property">frequency</span>   <span class="code-function">Frequency</span> <span class="code-keyword">@default</span>(monthly)</span>
+<span class="code-line">  <span class="code-property">startDate</span>   <span class="code-function">DateTime</span>  <span class="code-keyword">@db.Date</span></span>
+<span class="code-line">  <span class="code-property">endDate</span>     <span class="code-function">DateTime</span><span class="code-operator">?</span> <span class="code-keyword">@db.Date</span></span>
+<span class="code-line">  <span class="code-property">daysFrom</span>    <span class="code-function">Int</span></span>
+<span class="code-line">  <span class="code-property">relativeTo</span>  <span class="code-function">RelativeTo</span></span>
+<span class="code-line">  <span class="code-property">taskType</span>    <span class="code-function">TaskType</span></span>
+<span class="code-line">  <span class="code-property">tasks</span>       <span class="code-function">Task</span>[]    <span class="code-keyword">@relation</span>(<span class="code-string">"recurring_task"</span>)</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">enum</span> <span class="code-function">Frequency</span> {</span>
+<span class="code-line">  monthly</span>
+<span class="code-line">  quarterly</span>
+<span class="code-line">  yearly</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>frequency</strong> — how often a new task instance is generated. Defaults to monthly; can be quarterly or yearly.</p>
+              <p class="tl"><strong>startDate</strong> — the first period for which the system will generate tasks. Mandatory.</p>
+              <p class="tl"><strong>endDate</strong> — the last period. It is optional (marked with <code>?</code>) — leave it null and the series runs indefinitely.</p>
+              <p class="tl"><strong>daysFrom + relativeTo</strong> — a formula, not a hardcoded date. Example: 5 days before period end. Computed fresh for every period so it is always correct regardless of month length.</p>
+              <p class="tl"><strong>tasks</strong> — the list of every Task instance that has ever been generated from this template. One template, many episodes.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="calendar-clock" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">A formula due date is always correct no matter which month it resolves in</strong>
+            <p>
+              Storing "5 days before period end" instead of a hardcoded date means February, March, and December all get
+              the right deadline automatically. The system computes the actual date fresh each period.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Six steps carry a template from admin configuration to a task in the preparer queue</h2>
+        <p>
+          The
+          <span class="term" data-definition="The period system is the part of Avise that manages accounting periods — opening new periods, tracking their start and end dates, and triggering task generation when a period opens.">period system</span>
+          is the trigger. When a new period opens, it reads all active templates, computes due dates, and mints a fresh Task instance for each one.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-template","label":"Admin configures the RecurringTask template: title, assignee, task type, frequency, and due date formula. Saved once."},
+          {"highlight":"flow-actor-period","label":"A new accounting period opens. The period system begins task generation.","packet":true,"from":"actor-template","to":"actor-period"},
+          {"highlight":"flow-actor-period","label":"The period system reads all active RecurringTask templates for this company. Active means: startDate is in the past and endDate is in the future or null."},
+          {"highlight":"flow-actor-period","label":"For each template, the system computes the actual due date using daysFrom and relativeTo — resolved against this specific period end date."},
+          {"highlight":"flow-actor-task","label":"A new Task instance is created. It inherits title, assignee, task type, and account from the template. Status starts at: unprepared.","packet":true,"from":"actor-period","to":"actor-task"},
+          {"highlight":"flow-actor-assignee","label":"The assignee is notified. The task appears in their queue for this period.","packet":true,"from":"actor-task","to":"actor-assignee"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-template">
+              <div class="flow-actor-icon"><i data-lucide="repeat" class="icon-lg"></i></div>
+              <span>Template</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-period">
+              <div class="flow-actor-icon"><i data-lucide="calendar" class="icon-lg"></i></div>
+              <span>Period System</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-task">
+              <div class="flow-actor-icon"><i data-lucide="clipboard-list" class="icon-lg"></i></div>
+              <span>Task Instance</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-assignee">
+              <div class="flow-actor-icon"><i data-lucide="user" class="icon-lg"></i></div>
+              <span>Assignee</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MECHANISM — Group chat between Template and Task Instance -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The template and its instances are related but fully independent once created</h2>
+        <p>
+          Updating a template only affects future instances. Past and present instances keep their original field values —
+          they are snapshots of the template at generation time, not live references to it.
+        </p>
+
+        <div class="chat-window" id="chat-module4">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="actor-rt" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">RT</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">RecurringTask</span>
+                <p>I am your template. You inherited my title, assignee, task type, and account when the period opened.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="actor-ti" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Instance</span>
+                <p>Got it. And I have my own status — right now I am unprepared. The preparer has not touched me yet.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="actor-rt" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">RT</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">RecurringTask</span>
+                <p>Exactly. When your period ends and a reviewer marks you as reviewed, that does not affect me or any of your sibling instances from other periods.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="actor-ti" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Instance</span>
+                <p>What if the admin changes your assignee after I have already been created?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="actor-rt" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">RT</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">RecurringTask</span>
+                <p>Future instances will use the new assignee. You and your siblings from past periods keep the original. You are a snapshot — not a live pointer to me.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module4-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+            </div>
+          </div>
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply the template pattern to new situations — three scenarios</h2>
+        <p>
+          These questions test whether you can use what you know about RecurringTask templates and instances
+          to make decisions in unfamiliar scenarios. Read each carefully before selecting.
+        </p>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — RecurringTask templates are exactly what this feature is built for. You configure 50 templates once and the system generates all 600 tasks automatically each month. Manual creation does not scale and cannot be reconfigured without touching individual task records."
+               data-explanation-wrong="Think about what happens in month two. And month three. Manually creating tasks does not scale — and reconfiguring 600 individual records every time requirements change is error-prone. RecurringTask templates exist precisely to solve this problem.">
+            <h3 class="quiz-question">
+              Scenario: Your company needs monthly reconciliation tasks for 50 accounts. A colleague suggests creating
+              600 individual tasks manually — one per account per month for the year. What is the better approach, and why?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Create 600 tasks manually — it gives more control over each individual task.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Configure 50 RecurringTask templates — the system generates all instances automatically each month.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Create one RecurringTask template and clone it 599 times.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — the endDate field on the RecurringTask model controls when the series stops. After December 2024, the system sees that the current period is beyond endDate and skips this template during task generation. Setting endDate to null lets the series run indefinitely."
+               data-explanation-wrong="The status of individual task instances does not prevent future generation — that is controlled at the template level. Look at the RecurringTask model fields that bound the series in time. There is a specific field for this.">
+            <h3 class="quiz-question">
+              Scenario: A recurring task template has <code>endDate</code> set to 2024-12-31. Task generation stopped
+              after December 2024. A new team member suspects a bug. What is the correct explanation?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A task instance was marked wont_do in December, which paused the template.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The frequency enum was changed to yearly after December.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>endDate controls when the series ends — the template is working exactly as configured.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — updating the template only affects future-generated instances. Existing task instances from previous periods are independent records; they hold their own copy of the assignee field from the time they were created. Only tasks generated after the update will use the new assignee."
+               data-explanation-wrong="Think about whether task instances are live pointers to the template or independent snapshots. The chat conversation in the previous screen explored exactly this. Updating the template does not reach back in time.">
+            <h3 class="quiz-question">
+              Scenario: An admin updates the assignee field on a recurring task template mid-month. Which tasks
+              will now show the new assignee?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>All existing task instances for this template — they are linked live to the template.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only future generated instances — existing task records keep their original assignee.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No tasks — the system requires a new template to be created for the assignee to change.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-5" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Auto-Review and the Smart Reopener</h1>
+      <p class="module-subtitle">Two systems that run silently in the background — one gives the all-clear, the other sounds the alarm.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Two automation systems -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Both systems compare a stored snapshot to a current value — that one decision makes everything possible</h2>
+        <p>
+          When a preparer submits a task, Avise stores the account balance at that exact moment in a field called
+          <span class="term" data-definition="balanceWhenLastPrepared is a field on the Task record that stores the account balance at the time the preparer submitted the task. It acts as a snapshot — a frozen record of the financial state at submission time — that both the auto-reviewer and task reopener compare against the live current balance.">balanceWhenLastPrepared</span>.
+          That single stored value is what makes both the auto-reviewer and the task reopener work.
+        </p>
+
+        <div class="icon-rows animate-in stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5); --icon-color: var(--color-actor-5)">
+              <i data-lucide="check-circle-2" class="icon"></i>
+            </div>
+            <div>
+              <strong>Auto-Reviewer</strong>
+              <p>
+                Silently reviews tasks where the balance change is within configured
+                <span class="term" data-definition="A threshold is a configured limit — in the auto-reviewer context, it is the maximum balance change (in dollars or percentage) that the system considers safe to approve automatically without human review. If the change is within the threshold, the task is auto-reviewed; if it exceeds it, a human must review.">thresholds</span>
+                — no human reviewer needed. Runs
+                <span class="term" data-definition="Asynchronous execution means a task runs in the background, separately from the main HTTP request. The user gets an instant response and the expensive work (like checking thresholds across many tasks) happens later in a job queue. The alternative — running everything synchronously — would make the UI feel slow.">asynchronously</span>
+                in a
+                <span class="term" data-definition="A job queue is a list of background tasks waiting to be processed by worker processes. Instead of running heavy work inline during an HTTP request, the system adds a job to the queue and returns immediately. Workers pick up jobs from the queue and execute them independently.">job queue</span>
+                so the prepare action feels instant.
+              </p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1); --icon-color: var(--color-actor-1)">
+              <i data-lucide="bell-ring" class="icon"></i>
+            </div>
+            <div>
+              <strong>Task Reopener</strong>
+              <p>
+                Raises an alert when account balances change after a task was marked prepared.
+                Compares <code>balanceWhenLastPrepared</code> to the new current balance.
+                If they differ, the task is automatically set back to
+                <span class="term" data-definition="The reopened status means a task that was previously prepared (submitted) has been sent back for the preparer to address. In the case of the task reopener, this happens automatically when the system detects that the balance changed after submission.">reopened</span>
+                with a <code>BALANCE_CHANGED</code> reason recorded in the audit trail.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="camera" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">The snapshot at prepare time is the architectural key to both features</strong>
+            <p>
+              Without storing <code>balanceWhenLastPrepared</code>, the system could not tell whether a balance discrepancy existed
+              at submission time or appeared afterward. The snapshot freezes the financial state so the comparison is always meaningful.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation: balance comparison in taskReopener -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The reopener compares two values and records a full audit event when they diverge</h2>
+        <p>
+          The core logic is a single conditional: if the current balance differs from the stored snapshot,
+          <span class="term" data-definition="setTaskStatusAndEvent is a function in the data layer that atomically updates the task status and creates a TaskEvent audit record in the same database transaction. It is distinct from setTaskStatus, which only updates the status without creating an event.">setTaskStatusAndEvent</span>
+          updates the task status and logs the discrepancy with the full balance details — period-ending balance and the value stored at prepare time.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> { <span class="code-property">balanceWhenLastPrepared</span> } = task;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">if</span> (</span>
+<span class="code-line">  currentBalance !== <span class="code-keyword">undefined</span> &&</span>
+<span class="code-line">  currentBalance !== <span class="code-property">balanceWhenLastPrepared</span></span>
+<span class="code-line">) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> balanceDetails =</span>
+<span class="code-line">    <span class="code-keyword">await</span> tasksData.<span class="code-function">getBalanceDetails</span>(</span>
+<span class="code-line">      task, TaskStatus.<span class="code-value">reopened</span></span>
+<span class="code-line">    );</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">await</span> tasksData.<span class="code-function">setTaskStatusAndEvent</span>(</span>
+<span class="code-line">    companyId, task.id,</span>
+<span class="code-line">    TaskStatus.<span class="code-value">reopened</span>, {</span>
+<span class="code-line">      reason: SystemTaskChangeReason.<span class="code-value">BALANCE_CHANGED</span>,</span>
+<span class="code-line">      balances: { periodEndingBalance, balanceWhenLastPrepared },</span>
+<span class="code-line">    }</span>
+<span class="code-line">  );</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>balanceWhenLastPrepared</strong> — the frozen snapshot pulled from the task record. Set at the moment the preparer clicked Submit.</p>
+              <p class="tl">The first guard (<code>!== undefined</code>) means: only run this check if we actually fetched a current balance. If the account has no data yet, skip.</p>
+              <p class="tl">If the values differ, the balance changed after submission. This is the signal to reopen.</p>
+              <p class="tl"><strong>getBalanceDetails</strong> fetches the full balance context — period-ending balance and the stored snapshot — so we can show the preparer exactly what changed.</p>
+              <p class="tl"><strong>setTaskStatusAndEvent</strong> updates the status to reopened and writes an audit event with reason <code>BALANCE_CHANGED</code> and the two balance values. Both happen atomically.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Code translation: attemptAutoReviewForUnpreparedTasks -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The auto-reviewer runs in a job queue and applies different thresholds per task type</h2>
+        <p>
+          When a task is prepared, the auto-review function is added to a
+          <span class="term" data-definition="A job queue is a list of background tasks waiting to be processed by worker processes. Instead of running heavy work inline during an HTTP request, the system adds a job to the queue and returns immediately. Workers pick up jobs from the queue and execute them independently.">job queue</span>
+          rather than executed immediately.
+          It reads company-level
+          <span class="term" data-definition="Threshold settings are company-specific configuration values that determine how much of a balance change is acceptable for automatic approval. Reconciliation tasks and flux tasks use separate threshold settings, since the risk profile of each task type is different.">threshold settings</span>,
+          groups tasks by type, and only proceeds if auto-review is enabled for that company.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">attemptAutoReview</span>(args, runSync) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (config.taskAutoReviewer.<span class="code-property">runAsync</span> && !runSync) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-function">addAutoReviewJobToQueue</span>(args);</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> company = <span class="code-keyword">await</span> companies.<span class="code-function">get</span>(args.companyId);</span>
+<span class="code-line">  <span class="code-keyword">const</span> reconSettings =</span>
+<span class="code-line">    companiesService.<span class="code-function">extractAutoReconciliationSettings</span>(company);</span>
+<span class="code-line">  <span class="code-keyword">const</span> fluxSettings =</span>
+<span class="code-line">    companiesService.<span class="code-function">extractAutoFluxSettings</span>(company);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> allTasks = <span class="code-keyword">await</span> tasksData.<span class="code-function">listWithPeriod</span>(</span>
+<span class="code-line">    args.companyId, args.taskIds</span>
+<span class="code-line">  );</span>
+<span class="code-line">  <span class="code-keyword">const</span> tasksByType = lodash.<span class="code-function">groupBy</span>(</span>
+<span class="code-line">    allTasks, task => task.<span class="code-property">taskType</span></span>
+<span class="code-line">  );</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (!isAutoReconEnabled(reconSettings) &&</span>
+<span class="code-line">      !isAutoFluxEnabled(fluxSettings)) <span class="code-keyword">return</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>runAsync guard</strong> — if the config says to run asynchronously and no override is passed, the function immediately adds a job to the queue and returns. The HTTP request finishes instantly; the real work happens later.</p>
+              <p class="tl"><strong>reconSettings / fluxSettings</strong> — each company configures separate thresholds for reconciliation tasks and flux tasks. One size does not fit all.</p>
+              <p class="tl"><strong>groupBy taskType</strong> — reconciliation and flux tasks are evaluated with different logic and thresholds. Grouping them first keeps the evaluation code clean.</p>
+              <p class="tl"><strong>early return</strong> — if auto-review is disabled for both task types on this company, the function exits immediately without touching any tasks.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="zap" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Running heavy checks in a job queue gives users instant feedback without sacrificing correctness</strong>
+            <p>
+              Checking thresholds across many tasks involves multiple database queries. Running this synchronously inside the prepare action
+              would make the UI feel slow. The job queue lets the server return in milliseconds while the auto-review
+              completes in the background.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MECHANISM — Group chat: journal entry triggers reopener -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A new journal entry can reopen a prepared task automatically — here is the full conversation</h2>
+        <p>
+          When a
+          <span class="term" data-definition="A journal entry is a record of a financial transaction posted to the general ledger. In Avise, when new journal entries arrive for an account in a period where tasks exist, the system checks whether any of those tasks need to be reopened.">journal entry</span>
+          posts to an account that already has a prepared task, the task reopener runs the comparison immediately.
+          The preparer is then notified of the balance change.
+        </p>
+
+        <div class="chat-window" id="chat-module5">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="actor-je" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">JE</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Journal Entry System</span>
+                <p>New journal entry posted to account X-123 for period March. Balance affected.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="actor-tr" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TR</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Reopener</span>
+                <p>Account X-123 has a prepared reconciliation task in March. Fetching current balance from the ledger now.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="actor-db" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">DB</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Current period-ending balance for X-123: 52,400.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="actor-tr" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TR</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Reopener</span>
+                <p>balanceWhenLastPrepared was 48,200. Current balance is 52,400. Values differ. Reopening task with reason BALANCE_CHANGED.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="actor-db" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">DB</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Task status updated to reopened. TaskEvent created with both balance values and reason BALANCE_CHANGED.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="actor-tr" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TR</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Reopener</span>
+                <p>Preparer will be notified. The audit trail shows exactly which balance changed and by how much — no ambiguity.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module5-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+            </div>
+          </div>
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Diagnose real problems using what you know about the snapshot, the reopener, and auto-review</h2>
+        <p>
+          Each scenario puts you in the role of the person who needs to find the root cause.
+          Use the system architecture you just learned to reason through the answer.
+        </p>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — TaskEvents with reason BALANCE_CHANGED are the audit trail for reopener activity. Once you confirm the pattern there, you would look at whether new journal entries are being posted to that account in the same period around the time of submission. That correlation explains the cycle."
+               data-explanation-wrong="The threshold settings and auto-reviewer are for automatic approvals, not automatic reopens. The task reopener uses BALANCE_CHANGED events. Start with the audit trail — it records exactly what happened and when.">
+            <h3 class="quiz-question">
+              Scenario: A preparer reports that their reconciliation task keeps being reopened moments after they submit it.
+              Where do you look first to diagnose this?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The auto-reviewer threshold settings — they might be triggering an automatic rejection.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TaskEvents for the BALANCE_CHANGED reason — then check if new journal entries are being posted to that account after the task is submitted.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reviewer — they must be rejecting the task manually each time it is submitted.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Correct — the thresholds determine what qualifies as safe to auto-approve. If they are set too high, large balance changes are treated as acceptable. The fix is to tighten the dollar or percentage threshold so the auto-reviewer only approves tasks where the change is genuinely immaterial."
+               data-explanation-wrong="The job queue controls timing, not correctness. A snapshot stored at the wrong time would cause reopens, not incorrect auto-approvals. The most likely cause of an auto-approval that should not have happened is a threshold set too permissively.">
+            <h3 class="quiz-question">
+              Scenario: A large reconciliation task was auto-reviewed and approved when it should have required human
+              review. Auto-review is definitely enabled. What is the most likely cause?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The balance and delta thresholds are set too loosely — the change was within the threshold so the system approved it automatically.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The job queue delayed the check too long and the balance had already corrected itself by the time auto-review ran.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The balanceWhenLastPrepared snapshot was stored before the final transactions posted, so the comparison was invalid.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — running threshold checks for many tasks involves multiple database queries per task. If this ran synchronously inside the same HTTP request as marking a task prepared, the user would wait for all those queries to complete before getting a response. The job queue decouples the user action from the expensive work, giving instant UI feedback while correctness is preserved."
+               data-explanation-wrong="Safety and correctness are important but they do not explain why asynchronous execution is chosen here — you can run safe, correct code synchronously too. Think about what changes from the user perspective if you run ten database queries inline before returning the HTTP response.">
+            <h3 class="quiz-question">
+              Scenario: A developer proposes running <code>attemptAutoReviewForUnpreparedTasks</code> synchronously
+              inside the same HTTP request as marking a task prepared. Why is the current asynchronous design better?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Asynchronous execution is safer because it isolates errors — a crash in auto-review cannot break the prepare action.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The job queue ensures auto-review always runs in the correct order relative to other tasks.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Performance — checking thresholds across many tasks requires multiple database queries; running this inline would make the prepare action feel slow to the user.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-6" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">06</span>
+      <h1 class="module-title">Full Stack — From Click to Database</h1>
+      <p class="module-subtitle">One click travels through five distinct layers of code before the database updates. Here is every handoff.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Architecture diagram of 5 layers -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Five layers each have one job — mixing them up is the most common AI-generated code smell</h2>
+        <p>
+          You click "Mark as Prepared" in the browser. In the next 200ms, that action passes through five distinct layers.
+          Each layer has a single responsibility. Click any component below to learn what it does.
+        </p>
+
+        <div class="arch-diagram animate-in">
+
+          <div class="arch-zone" style="border-color: var(--color-actor-4); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 1 — Browser</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The React UI sends HTTP requests to the API and renders the response back to the user. It knows nothing about business rules — it only knows how to display data and collect user input. When you click Mark as Prepared, it sends a PATCH request to the API and waits."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="monitor" class="icon-lg"></i></div>
+                <span>React UI</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-2); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 2 — API Controller</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The controller handles HTTP — it validates authentication, parses the request body, and calls the service layer. It never contains business logic. Its job is to be the front door: check credentials, understand the request, delegate the work, and format the HTTP response."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="server" class="icon-lg"></i></div>
+                <span>Task Controller</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-3); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 3 — Service Layer</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The service layer enforces business rules. Is this status transition valid? Should an email be sent? Should auto-review be triggered? It orchestrates multiple data layer calls in the right sequence. No raw database queries live here — it speaks to the data layer, never directly to Prisma."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="cog" class="icon-lg"></i></div>
+                <span>Task Service</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-1); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 4 — Data Layer</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="The data layer speaks only Prisma. It runs database queries — updates, inserts, reads — and returns typed results. It never contains business logic, never sends emails, and never validates whether a status transition is allowed. It just persists exactly what the service tells it to persist."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+                <span>Tasks Data</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-5); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Layer 5 — Database</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="PostgreSQL stores and retrieves all task records. It guarantees atomic transactions — when the data layer updates a task status and creates a TaskEvent in the same transaction, either both writes succeed or neither does. There is no partial state."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon"><i data-lucide="database" class="icon-lg"></i></div>
+                <span>PostgreSQL</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-description" id="arch-desc">Click any component to learn what it does in this architecture</div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Three-layer architecture is not bureaucracy — each layer has a different job description</strong>
+            <p>
+              The controller is a receptionist. The service is the decision-maker. The data layer is the filing clerk.
+              When you see Prisma queries in a controller or email logic in the data layer, that is a bug — not a style preference.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Full flow animation: Mark as Prepared -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Nine steps trace a single click from the browser all the way to PostgreSQL and back</h2>
+        <p>
+          Each step is a handoff between layers. The
+          <span class="term" data-definition="An HTTP PATCH request is a partial update — it sends only the fields that need to change, not the full record. The browser uses PATCH to tell the API which task to update and what the new status should be.">HTTP PATCH</span>
+          request starts in the browser; the updated status arrives back there at step 9. Every arrow is a real function call in the codebase.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-browser","label":"Step 1: User clicks Mark as Prepared in the React UI. The browser sends an HTTP PATCH request to /api/tasks/:id with the new status."},
+          {"highlight":"flow-actor-controller","label":"Step 2: The Task Controller receives the request. It validates the auth token and parses the request body. No business logic runs here.","packet":true,"from":"actor-browser","to":"actor-controller"},
+          {"highlight":"flow-actor-controller","label":"Step 3: The controller calls the service layer — service.updateTaskStatus(companyId, taskId, prepared). It passes the work and waits."},
+          {"highlight":"flow-actor-service","label":"Step 4: The service checks business rules. Is this status transition allowed? Does the task belong to this company? Should auto-review be queued?","packet":true,"from":"actor-controller","to":"actor-service"},
+          {"highlight":"flow-actor-service","label":"Step 5: Rules pass. The service calls data.setTaskStatusAndEvent(companyId, taskId, prepared) to persist the change."},
+          {"highlight":"flow-actor-data","label":"Step 6: The data layer constructs a Prisma transaction — update task status, create TaskEvent record, set statusUpdatedAt timestamp.","packet":true,"from":"actor-service","to":"actor-data"},
+          {"highlight":"flow-actor-db","label":"Step 7: PostgreSQL executes both writes atomically. Either both succeed or neither does. The transaction guarantees no partial state.","packet":true,"from":"actor-data","to":"actor-db"},
+          {"highlight":"flow-actor-browser","label":"Step 8: The updated task record travels back up through data layer, service, and controller — each layer passes it along without modification.","packet":true,"from":"actor-db","to":"actor-browser"},
+          {"highlight":"flow-actor-browser","label":"Step 9: The React UI receives the HTTP response and renders the new status. The user sees prepared. Total time: under 200ms."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-browser">
+              <div class="flow-actor-icon"><i data-lucide="monitor" class="icon-lg"></i></div>
+              <span>Browser</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-controller">
+              <div class="flow-actor-icon"><i data-lucide="server" class="icon-lg"></i></div>
+              <span>Controller</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-service">
+              <div class="flow-actor-icon"><i data-lucide="cog" class="icon-lg"></i></div>
+              <span>Service</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-data">
+              <div class="flow-actor-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+              <span>Data Layer</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-db">
+              <div class="flow-actor-icon"><i data-lucide="database" class="icon-lg"></i></div>
+              <span>PostgreSQL</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Code translation: setTaskStatus (data layer) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The data layer speaks only Prisma — no business logic, no side effects, no opinions</h2>
+        <p>
+          <code>setTaskStatus</code> is the simplest data layer function. It runs one
+          <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a TypeScript library that lets you write typed JavaScript instead of raw SQL to query the database. It generates TypeScript types from your schema automatically, so a type error in your code means a type error in your database access.">Prisma</span>
+          update, sets the timestamp, and returns the record. No validation, no emails, no events.
+          That is by design — the service layer above it handles those concerns.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">setTaskStatus</span>(</span>
+<span class="code-line">  companyId: <span class="code-function">string</span>,</span>
+<span class="code-line">  taskId: <span class="code-function">string</span>,</span>
+<span class="code-line">  status: <span class="code-function">TaskStatus</span>,</span>
+<span class="code-line">): <span class="code-function">PrismaPromise</span>&lt;<span class="code-function">PrismaTask</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">return</span> prisma.task.<span class="code-function">update</span>({</span>
+<span class="code-line">    <span class="code-property">where</span>: {</span>
+<span class="code-line">      <span class="code-property">companyId_id</span>: { companyId, id: taskId },</span>
+<span class="code-line">    },</span>
+<span class="code-line">    <span class="code-property">data</span>: {</span>
+<span class="code-line">      status,</span>
+<span class="code-line">      <span class="code-property">statusUpdatedAt</span>: <span class="code-function">getCurrentSystemJsDateTime</span>(),</span>
+<span class="code-line">    },</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>companyId + taskId as a compound key</strong> — the WHERE clause requires both. A task ID alone is not enough: the same numeric ID could theoretically exist across two companies. The compound key prevents one company from accidentally updating another company record.</p>
+              <p class="tl"><strong>prisma.task.update</strong> — Prisma generates the SQL UPDATE statement from this typed object. No raw SQL string, no injection risk, and the TypeScript compiler catches typos in field names before the code ever runs.</p>
+              <p class="tl"><strong>statusUpdatedAt</strong> — always stamped with the current system time. This powers sorting, filtering, and audit displays throughout the UI.</p>
+              <p class="tl"><strong>Returns PrismaPromise</strong> — the function can be composed into a larger Prisma transaction. The caller decides whether to run it alone or inside an atomic block with other operations.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="archive" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">The data layer is a filing clerk — it stores exactly what it receives and asks no questions</strong>
+            <p>
+              Email sending, transition validation, and side effects all belong one floor up in the service layer.
+              When AI-generated code adds email logic inside a data function, that is a layer violation — and a correctness risk,
+              because now side effects run even when the caller wanted to batch the operation inside a transaction.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MECHANISM — Code translation: reopenDueToLedgerUpdates (service layer) -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The service layer decides which tasks to reopen — the data layer handles the how</h2>
+        <p>
+          <code>reopenDueToLedgerUpdates</code> is a
+          <span class="term" data-definition="The service layer is the middle tier in the three-layer architecture. It contains business logic — rules about what is valid, what side effects should occur, and what order operations should run in. It calls the data layer for database access and is called by the controller for HTTP requests.">service layer</span>
+          function that orchestrates the task reopening flow.
+          It receives raw
+          <span class="term" data-definition="A ledger update is a notification that new financial transactions have been posted to the general ledger for one or more accounts. In Avise, ledger updates trigger the task reopener to check whether any prepared tasks for those accounts need to be reopened.">ledger updates</span>,
+          fetches only the relevant tasks, and delegates reopening to a helper — no Prisma query appears here directly.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-function">reopenDueToLedgerUpdates</span> = <span class="code-keyword">async</span> (</span>
+<span class="code-line">  companyId: <span class="code-function">string</span>,</span>
+<span class="code-line">  ledgerUpdates?: <span class="code-function">LedgerUpdate</span>[],</span>
+<span class="code-line">): <span class="code-function">Promise</span>&lt;<span class="code-keyword">void</span>&gt; =&gt; {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (ledgerUpdates?.length) {</span>
+<span class="code-line">    <span class="code-comment">// Fetch tasks linked to incoming accountIds</span></span>
+<span class="code-line">    <span class="code-keyword">const</span> tasksWithPeriod =</span>
+<span class="code-line">      <span class="code-keyword">await</span> <span class="code-function">fetchTasksForLedgerUpdates</span>(</span>
+<span class="code-line">        ledgerUpdates, companyId</span>
+<span class="code-line">      );</span>
+<span class="code-line"></span>
+<span class="code-line">    <span class="code-comment">// Reopen tasks affected by the ledger updates</span></span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">reopenQualifyingTasks</span>(</span>
+<span class="code-line">      tasksWithPeriod, companyId</span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line">};</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>Guard on ledgerUpdates?.length</strong> — if no ledger updates arrived, exit immediately. This prevents unnecessary database queries when there is nothing to check.</p>
+              <p class="tl"><strong>fetchTasksForLedgerUpdates</strong> — a data-layer call that fetches only the tasks associated with the affected account IDs and their periods. The service does not write raw Prisma here — it delegates to the data layer.</p>
+              <p class="tl"><strong>reopenQualifyingTasks</strong> — another service-level helper that runs the balance comparison logic and decides which tasks actually need to be reopened. Decision logic stays in the service; writes go through the data layer.</p>
+              <p class="tl"><strong>No raw Prisma calls visible</strong> — the service layer is clean of database syntax. That boundary is what makes each layer independently testable and replaceable.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: APPLICATION + SYNTHESIS — Quiz + closing callout -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Spot the layer violation — three scenarios that test whether you can steer AI-generated code</h2>
+        <p>
+          Each question describes code that is structurally wrong.
+          Use the layer responsibilities you just learned to identify exactly what is wrong and where the fix should go.
+        </p>
+
+        <div class="quiz-container" id="quiz-module6">
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Correct — the data layer is responsible only for database queries. Business side effects like sending emails belong in the service layer. This is a layer violation: if the data layer sends emails, the email fires even when the caller wants to batch the operation inside a transaction or call setTaskStatus without triggering notifications. The service layer is the right place for side effects."
+               data-explanation-wrong="Think about what the data layer is supposed to do. Its job description is: speak Prisma, return records, no opinions. Anything that is not a database operation does not belong there. Where would you put code that decides whether to send a notification?">
+            <h3 class="quiz-question">
+              Scenario: An AI-generated feature adds an email notification call inside <code>data/tasks/index.ts</code>
+              right after a Prisma update. What is wrong with this, and what is the fix?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Layer violation — the data layer should only handle database queries. Move the email call to the service layer, which is responsible for business side effects.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No problem — the data layer can handle email as long as the Prisma call succeeds first.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Move the email call to the controller — it sits closer to the HTTP layer where notifications originate.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — setTaskStatus updates the status field but does not create a TaskEvent audit record. The setTaskStatusAndEvent function does both atomically. When you see a status change with no corresponding TaskEvent in the audit trail, look for places where setTaskStatus was called when setTaskStatusAndEvent was needed."
+               data-explanation-wrong="The issue is not the controller or a missing timestamp — statusUpdatedAt is set by setTaskStatus. The audit trail uses TaskEvent records, which are created only by setTaskStatusAndEvent. The distinction between these two functions is exactly what explains a missing event.">
+            <h3 class="quiz-question">
+              Scenario: A task status changes in the database but no
+              <span class="term" data-definition="A TaskEvent is an audit record created whenever a task status changes. It stores the reason for the change, the old and new status, and relevant financial details like balance snapshots. It is created alongside the status update in an atomic database transaction.">TaskEvent</span>
+              audit record is created. Which function was probably called instead of <code>setTaskStatusAndEvent</code>?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The controller called the data layer directly, skipping the service layer entirely.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>setTaskStatus — the simpler function that updates status but does not create an audit event.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>A raw SQL update bypassed Prisma entirely and skipped the statusUpdatedAt timestamp.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — this is a business rule: the domain defines what constitutes valid prepared state. Business rules live in the service layer. The data layer just persists whatever the service tells it to; it has no way to know whether the domain considers a task valid for preparation. The controller parses HTTP — it should not know domain rules either."
+               data-explanation-wrong="Ask: is this check about parsing an HTTP request, or about running a database query, or about what the domain considers valid? Validation of domain state — what a task must contain to be considered preparable — is a business rule. Business rules have exactly one home in this architecture.">
+            <h3 class="quiz-question">
+              Scenario: You need to add a new validation: tasks cannot be marked prepared if they have no resolution text.
+              Where should this check live in the three-layer architecture, and why?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The controller — it receives the HTTP request and can reject it before calling the service.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The data layer — it touches the task record and can check the resolution field before updating status.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The service layer — it is a business rule about what constitutes a valid state transition, which is the service layer job description.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6')">Try Again</button>
+        </div>
+
+        <div class="callout callout-accent animate-in" style="margin-top: var(--space-8)">
+          <div class="callout-icon"><i data-lucide="target" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">You can now steer an AI with precision</strong>
+            <p>
+              You know the data model, the lifecycle, recurring templates, auto-review, and the layered architecture.
+              When AI generates task-related code in the wrong layer — or misses the
+              <code>balanceWhenLastPrepared</code> snapshot — you will recognize it and know exactly how to redirect it.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+  </main>
+
+  <!-- Activate Lucide icons after the page is built -->
+  <script>
+    window.addEventListener('load', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+
+</body>
+</html>

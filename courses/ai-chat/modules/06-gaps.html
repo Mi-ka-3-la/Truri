@@ -1,0 +1,109 @@
+<section class="module" id="module-6">
+  <div class="module-content">
+    <div class="module-number">06</div>
+    <h2 class="module-title">Gaps &amp; Architectural Improvements</h2>
+    <p class="module-subtitle">An honest assessment of what the current architecture lacks — and concrete proposals to fix each gap.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Six architectural gaps</h2>
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">No streaming</code>
+          <span class="badge-desc">The final LLM response is returned in one batch. Users see nothing until the full answer is ready — no character-by-character typewriter effect.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">No provider failover</code>
+          <span class="badge-desc">If OpenAI goes down, all requests fail. The multi-provider setup only activates via explicit override — there is no automatic fallback chain.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">No context compression</code>
+          <span class="badge-desc">Long conversations send ALL messages to the LLM every turn. As conversations grow, cost and latency grow linearly — and eventually the context window overflows.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4);">Stub pattern is fragile</code>
+          <span class="badge-desc">The stub → full tool swap requires a full extra LLM round-trip. If the AI picks a stub tool and the system re-runs, that is 2x LLM calls plus double the latency just to select a tool.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4);">No cross-conversation memory</code>
+          <span class="badge-desc">Every conversation starts fresh. The AI has no knowledge of frequently-asked accounts, user preferences, or past corrections. Users repeat context every session.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-secondary);">No tool result caching</code>
+          <span class="badge-desc">If the AI calls <code>generalLedgerReport</code> with the same args twice in one conversation, the query runs twice. Expensive queries (large GL history) have no in-session cache.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Proposed improvements</h2>
+
+      <div class="grid-2-cols stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="radio" class="icon-lg" style="color: var(--color-actor-2);"></i>
+          <h4 class="pattern-title">1. Stream the final response</h4>
+          <p class="pattern-desc"><strong>What:</strong> Use the OpenAI streaming API to emit tokens as they are generated.<br><strong>Where:</strong> Replace <code>sendConversationMessagesToProvider()</code> with a streaming variant. The controller sends a <code>text/event-stream</code> SSE response. The frontend appends tokens in real time.<br><strong>Impact:</strong> Perceived latency drops dramatically — users see the AI "thinking" rather than waiting in silence.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="git-branch" class="icon-lg" style="color: var(--color-actor-3);"></i>
+          <h4 class="pattern-title">2. Automatic provider failover</h4>
+          <p class="pattern-desc"><strong>What:</strong> Try OpenAI → if unavailable, retry on OpenRouter → if unavailable, queue or return a graceful error.<br><strong>Where:</strong> Wrap <code>resolveProviderAndModel()</code> with a retry chain. Each provider implements a health check. The loop picks the first healthy provider.<br><strong>Impact:</strong> AI Chat stays up when OpenAI has an outage — critical for production reliability.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-accent);">
+          <i data-lucide="scissors" class="icon-lg" style="color: var(--color-accent);"></i>
+          <h4 class="pattern-title">3. Conversation summarization</h4>
+          <p class="pattern-desc"><strong>What:</strong> When a conversation exceeds N messages, summarize older turns into a compact &ldquo;context block&rdquo; and drop the raw history.<br><strong>Where:</strong> Add a <code>summarizeOldMessages()</code> function called before building the input message list. Store the summary in the conversation row.<br><strong>Impact:</strong> Context window never overflows. Cost per turn stays bounded regardless of conversation length.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="zap" class="icon-lg" style="color: var(--color-actor-4);"></i>
+          <h4 class="pattern-title">4. Replace stub pattern with intent classification</h4>
+          <p class="pattern-desc"><strong>What:</strong> Before the main loop, run a cheap classifier call to predict which tools the user request needs. Load only those full tools from the start.<br><strong>Where:</strong> Add a <code>classifyIntent()</code> step in <code>createOrContinueConversation()</code>. The classifier maps user intent to a tool subset. Use a small, fast model for this step.<br><strong>Impact:</strong> Eliminates the extra round-trip. One LLM call instead of two for tool selection.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-5);">
+          <i data-lucide="brain" class="icon-lg" style="color: var(--color-actor-5);"></i>
+          <h4 class="pattern-title">5. Cross-conversation memory layer</h4>
+          <p class="pattern-desc"><strong>What:</strong> Store per-user preferences (frequently used accounts, preferred time ranges, past corrections) in a persistent memory store. Inject relevant memories into the system prompt.<br><strong>Where:</strong> New <code>ai/memory/</code> module. Write memories after each conversation turn. Read them at the start of each new conversation.<br><strong>Impact:</strong> The AI gets smarter per user over time. Users stop repeating themselves.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-info);">
+          <i data-lucide="archive" class="icon-lg" style="color: var(--color-info);"></i>
+          <h4 class="pattern-title">6. In-session tool result cache</h4>
+          <p class="pattern-desc"><strong>What:</strong> Cache tool results by (toolName, args hash) within a single conversation. On a cache hit, return the stored result without re-querying.<br><strong>Where:</strong> Wrap tool execution in <code>registry.ts</code> with a Map keyed by args hash. Clear on conversation end.<br><strong>Impact:</strong> Repeated queries (e.g. AI re-fetches accounts multiple times) no longer hit the database each time. Significant cost reduction for complex multi-tool conversations.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Priority matrix</h2>
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">P0</code>
+          <span class="badge-desc"><strong>Streaming responses</strong> — biggest UX impact, relatively contained change. Add to OpenAI provider + SSE controller endpoint.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">P0</code>
+          <span class="badge-desc"><strong>Provider failover</strong> — production reliability. OpenAI outages currently take AI Chat completely down.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4); font-weight: 700;">P1</code>
+          <span class="badge-desc"><strong>Context compression</strong> — required before heavy enterprise usage. Long conversation cost is unbounded today.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4); font-weight: 700;">P1</code>
+          <span class="badge-desc"><strong>Intent classification / stub replacement</strong> — cuts latency and cost per turn. Medium complexity.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info); font-weight: 700;">P2</code>
+          <span class="badge-desc"><strong>Tool result cache</strong> — quick win for complex conversations. Low risk, session-scoped.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted); font-weight: 700;">P3</code>
+          <span class="badge-desc"><strong>Cross-conversation memory</strong> — high value long term but requires new infrastructure and privacy design.</span>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-7" class="btn module-continue-btn">Continue to Module 7: Quiz <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-5" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 5</a>
+      </div>
+    </section>
+  </div>
+</section>

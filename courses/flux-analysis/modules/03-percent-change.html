@@ -1,0 +1,221 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+    <div class="module-number">03</div>
+    <h2 class="module-title">The % Change Column</h2>
+    <p class="module-subtitle">The formula is pure mathematics. It never looks at your settings. Here&apos;s exactly how it works — including the edge cases that surprise people.</p>
+
+    <!-- SCREEN 1: Anchor — the formula -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">One formula. Always the same.</h2>
+
+      <p>The % Change column is computed by the backend for every account, every time. It uses one formula from <code>avise-api/src/services/reports/financialStatements/shared/utils.ts</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-keyword">function</span> <span class="code-function">percentChangeComparison</span>(
+  previousValue: <span class="code-keyword">number</span>,
+  currentValue: <span class="code-keyword">number</span>
+): <span class="code-keyword">number</span> {
+  <span class="code-keyword">if</span> (previousValue === currentValue) <span class="code-keyword">return</span> <span class="code-number">0</span>;
+  <span class="code-keyword">if</span> (previousValue === <span class="code-number">0</span>) {
+    <span class="code-keyword">return</span> currentValue &gt; <span class="code-number">0</span> ? <span class="code-number">-100</span> : <span class="code-number">100</span>;
+  }
+  <span class="code-keyword">return</span> ((currentValue - previousValue) / previousValue) * <span class="code-number">100</span>;
+}</code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Define a function that takes the prior period balance and the current period balance.</p>
+            <p class="tl">If nothing changed (both values identical), return 0%.</p>
+            <p class="tl">If the prior period was zero — we can&apos;t divide by zero — so return a fixed value of -100 or +100 instead.</p>
+            <p class="tl">Otherwise, standard formula: how much did it change, relative to where it started?</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="divide" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Division by zero is handled — not left as an error</strong>
+          <p>When an account had no balance last period but has one now (a brand-new account, or seasonal activity), dividing by zero would produce infinity. The code caps this at -100 or +100 instead of crashing. You may notice &ldquo;-100%&rdquo; on newly active accounts — that&apos;s why.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — the data flow animation -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">From database balances to the column you see</h2>
+
+      <p>Click through each step to see exactly how a balance becomes a % change in the table:</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Step 1: Backend fetches October balances from the database","payload":"Cash account: $220,000 (October)"},
+        {"highlight":"flow-actor-1","label":"Step 2: Backend fetches September balances from the database","payload":"Cash account: $180,000 (September)"},
+        {"highlight":"flow-actor-2","label":"Step 3: percentChangeComparison() runs the formula","payload":"previous=180000, current=220000 → ((220000-180000)/180000)*100 = +22.2%"},
+        {"highlight":"flow-actor-2","label":"Step 4: Backend attaches the result to the report item alongside fluxMeta","payload":"{ label: \"Cash\", totals: [220000, 180000, 40000, 22.22], fluxMeta: {...} }"},
+        {"highlight":"flow-actor-3","label":"Step 5: UI reads columnGroupLabels to know which column index is the % Change","payload":"columnGroupLabels = [\"October 2024\", \"September 2024\", \"Amount Change\", \"% Change\"]"},
+        {"highlight":"flow-actor-3","label":"Step 6: UI renders totals[3] as a percentage — 22.2% appears in the column","payload":"<Percent value={22.22 / 100} maximumFractionDigits={1} /> → shows \"22.2%\""}
+      ]'>
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin</div>
+        <div class="flow-payload" id="flow-payload"></div>
+
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon"><i data-lucide="database" class="icon"></i></div>
+            <span>Database + Backend</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon"><i data-lucide="calculator" class="icon"></i></div>
+            <span>Formula Engine</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon"><i data-lucide="monitor" class="icon"></i></div>
+            <span>Your Browser</span>
+          </div>
+        </div>
+
+        <div class="flow-packet"></div>
+
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">← Previous</button>
+          <button class="btn flow-next-btn">Next Step →</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — edge cases table -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Every edge case, explained</h2>
+
+      <p>Here is what the formula produces for every scenario you might encounter:</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $100, Current $150</code>
+          <span class="badge-desc"><strong>+50%</strong> — standard case. ((150-100)/100)×100 = 50.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $100, Current $0</code>
+          <span class="badge-desc"><strong>-100%</strong> — account went to zero. Fully decreased.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $0, Current $50</code>
+          <span class="badge-desc"><strong>-100%</strong> — no prior balance, can&apos;t compute real %. Shows -100 by convention (new activity).</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $0, Current $0</code>
+          <span class="badge-desc"><strong>null</strong> — displayed as blank. The <span class="term" data-definition="null means 'no value' — not zero, not undefined, but explicitly absent. The UI renders null as empty rather than showing 0%.">null</span> result is filtered by Number.isFinite() in the legacy flux path and shows as an empty cell.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $0, Current -$30</code>
+          <span class="badge-desc"><strong>+100%</strong> — negative current, zero prior. Returns 100 (by convention).</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Same values both periods</code>
+          <span class="badge-desc"><strong>0%</strong> — equal values. Returns 0 before the division step runs.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Sign convention for credit-nature accounts</strong>
+          <p>Accounts like Revenue, Liabilities, and Equity are <span class="term" data-definition="Credit-nature accounts naturally carry a credit balance in accounting — their balances are positive when credit-side activity exceeds debit-side activity. In Avise these are &apos;flipped&apos; (negated) for display so they show as positive numbers.">credit-nature</span> and are flipped (negated) for display. The % change itself is computed on the raw <span class="term" data-definition="Integers in this context means the balance stored as cents/pence rather than dollars. $1,234.56 is stored as 123456 to avoid floating-point rounding errors.">integer</span> balances before any sign flip, so the percentage you see always reflects the true directional movement.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Apply the formula and edge cases.</p>
+
+      <div class="quiz-container" id="quiz-module3">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — the formula is ((current - prior) / prior) × 100 = ((130 - 100) / 100) × 100 = +30%. Positive because the account grew."
+             data-explanation-wrong="The formula is ((current - prior) / prior) × 100. With prior=$100 and current=$130, that&apos;s ((130-100)/100)×100 = 30%. The sign is positive because the value increased.">
+          <h3 class="quiz-question">An account had $100k in September and $130k in October. What does the % Change column show?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>-30% (it went up by 30k, so the gap is negative)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>+30% (((130-100)/100)×100 = 30)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>+130% (current ÷ prior)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — when the prior period balance is zero, the formula cannot divide by zero. The code returns -100 or +100 as a convention. It does NOT crash or show an error."
+             data-explanation-wrong="Dividing by zero is handled in the code by returning -100 or +100 as a fallback, depending on the sign of the current balance. The column will never be blank due to a zero prior balance.">
+          <h3 class="quiz-question">A new account was created in October with a $5k balance. September balance was $0. What does % Change show?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The column is blank because division by zero is not possible</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>+500% (the code approximates)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>-100% (the code returns -100 as a convention when prior = 0 and current &gt; 0)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — the % Change value is pure math computed at the backend. It does not read your Settings at any point. Settings only affect the yellow alert icon and auto-review logic, not the number itself."
+             data-explanation-wrong="The % Change value is independent of Settings. The formula runs on raw account balances regardless of what you configured in Settings → Task Accruals. Settings affect the alert icon and task automation, not the column value.">
+          <h3 class="quiz-question">You have NOT configured any flux thresholds in Settings. What does the % Change column show?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The correct percentage for every account — thresholds don&apos;t affect the column value</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Blank — percentages require threshold settings to be enabled</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only shows for accounts with more than 10% change (the system default)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-4" class="btn module-continue-btn">
+          Continue to Module 4: Threshold Settings
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-2" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 2
+        </a>
+      </div>
+    </section>
+  </div>
+</section>

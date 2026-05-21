@@ -1,0 +1,352 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Meet the Cast of Characters</h1>
+      <p class="module-subtitle">Five distinct players cooperate every time you open this app. Know them, and you can steer any change.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: HERO — interactive architecture diagram as the dominant visual -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The full system — click any component to learn what it does</h2>
+
+        <div class="arch-diagram animate-in">
+
+          <div class="arch-zone" style="border-color: var(--color-actor-1); margin-bottom: var(--space-4);">
+            <h4 class="arch-zone-label" style="color: var(--color-actor-1);">🖥️ Your Browser</h4>
+            <div class="arch-component"
+                 data-desc="React components — the visual layer you interact with. Renders the Trace List, Trace Detail, Dashboard, and Notes panel. Runs entirely in your browser. It never touches the database directly — it asks the server for everything.">
+              <div class="arch-icon">⚛️</div>
+              <span>React UI</span>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-2); margin-bottom: var(--space-4);">
+            <h4 class="arch-zone-label" style="color: var(--color-actor-2);">⚡ Next.js Server</h4>
+            <div class="arch-component"
+                 data-desc="Server Components — pages that are assembled on the server before being sent to your browser. They can query the database directly and pass data down to client components.">
+              <div class="arch-icon">📄</div>
+              <span>Server Components</span>
+            </div>
+            <div class="arch-component"
+                 data-desc="Server Actions — functions that run on the server in response to browser events (like posting a comment). The browser calls them like regular functions, but the code executes on the server. This is how notes get saved to SQLite.">
+              <div class="arch-icon">⚡</div>
+              <span>Server Actions</span>
+            </div>
+            <div class="arch-component"
+                 data-desc="Next.js Cache — stores results of expensive database queries for a configurable time period (2 minutes for traces and the dashboard). Subsequent requests within that window get the stored result instantly, with no database round-trip.">
+              <div class="arch-icon">💾</div>
+              <span>Cache Layer</span>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-3); margin-bottom: var(--space-4);">
+            <h4 class="arch-zone-label" style="color: var(--color-actor-3);">🔄 ORM Layer</h4>
+            <div class="arch-component"
+                 data-desc="Prisma ORM — the translator between TypeScript and PostgreSQL. You write code like prisma.aiConversation.findMany({where:{...}}), and Prisma converts that into the right SQL query and converts the rows back into TypeScript objects.">
+              <div class="arch-icon">🔄</div>
+              <span>Prisma ORM</span>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); border-color: var(--color-actor-4);">
+            <div>
+              <h4 class="arch-zone-label" style="color: var(--color-actor-4);">🗄️ PostgreSQL</h4>
+              <div class="arch-component"
+                   data-desc="PostgreSQL — the main data warehouse. Holds every AI conversation, every message, every tool call result, and every artifact the AI produced. Read-only from the Trace Viewer — all this data was written by the production Avise platform.">
+                <div class="arch-icon">🐘</div>
+                <span>AI Conversations</span>
+              </div>
+            </div>
+            <div>
+              <h4 class="arch-zone-label" style="color: var(--color-actor-5);">📝 SQLite</h4>
+              <div class="arch-component"
+                   data-desc="SQLite — a tiny single-file database that lives on the server. Stores only reviewer comments. Unlike PostgreSQL, this is writable — the Trace Viewer team creates all the data here. It also maintains a full-text search index for fast keyword search across all notes.">
+                <div class="arch-icon">📁</div>
+                <span>Reviewer Notes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-description" id="arch-desc">Click any component above to learn what it does</div>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); text-align: center; margin-top: var(--space-2);">The <span class="term" data-definition="An ORM (Object-Relational Mapper) is a library that translates between object-oriented code and relational databases. Instead of writing raw SQL, you write TypeScript — and the ORM handles the translation both ways.">ORM</span> and cache sit between the server and the databases. The browser never talks to the databases directly — everything is mediated through the server layer.</p>
+      </section>
+
+      <!-- Screen 2: Meet each actor with icon rows and aggressive tooltips -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Five characters, their personalities</h2>
+
+        <div class="icon-rows stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1)">🖥️</div>
+            <div>
+              <strong>Your Browser (React)</strong>
+              <p>Renders what you see. Built with <span class="term" data-definition="React is a JavaScript library for building interfaces out of reusable pieces called components — like Lego bricks for web pages. When data changes, React updates only the parts of the screen that need to change, without reloading the whole page.">React</span> — a library that breaks the UI into reusable pieces called <span class="term" data-definition="A component is a self-contained building block of a UI — it has its own logic, its own appearance, and accepts inputs called 'props'. Examples: TraceTable, NotesPanel, FilterBar. You can think of each component as a custom HTML tag.">components</span>.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">⚡</div>
+            <div>
+              <strong>Next.js Server</strong>
+              <p>The invisible middleman. <span class="term" data-definition="Next.js is a framework built on React that adds a server layer. It renders pages on the server (faster first load), runs backend logic that talks to databases, and handles routing — all in one tool.">Next.js</span> runs on the server, fetches data, applies logic, and builds pages before your browser ever sees them. It also holds the <span class="term" data-definition="A cache is a temporary store of results. Instead of re-running an expensive operation every time, you save the result and reuse it for a set time. Like keeping leftovers in the fridge instead of cooking from scratch every time.">cache</span>.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-3)">🔄</div>
+            <div>
+              <strong>Prisma (ORM)</strong>
+              <p>The translator. Prisma converts TypeScript <span class="term" data-definition="A query is a question you ask a database — like 'give me all conversations from this company, sorted by date.' Databases have their own language (SQL) for expressing these questions. Prisma lets you write them in TypeScript instead.">queries</span> into <span class="term" data-definition="SQL (Structured Query Language) is the language databases understand. You write commands like SELECT, WHERE, JOIN, GROUP BY to retrieve or manipulate data. It looks nothing like TypeScript — that is why an ORM like Prisma is so valuable.">SQL</span> and converts <span class="term" data-definition="A row is one record in a database table — like one line in a spreadsheet. A query might return hundreds of rows, one per conversation or one per message.">rows</span> back into TypeScript objects.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">🗄️</div>
+            <div>
+              <strong>PostgreSQL (Main Database)</strong>
+              <p>The warehouse. <span class="term" data-definition="PostgreSQL is a powerful open-source relational database — data is organised into tables with rows and columns, and you can run complex queries across them. It is production-grade: used by companies processing millions of records.">PostgreSQL</span> stores every AI conversation ever recorded. The Trace Viewer only reads from it — nothing it does changes this data.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">📝</div>
+            <div>
+              <strong>SQLite (Notes Database)</strong>
+              <p>The sticky-note wall. <span class="term" data-definition="SQLite is a database stored in a single file on disk. Unlike PostgreSQL, it requires no separate server process — it is just a file. Perfect for small, local, writeable data like reviewer notes.">SQLite</span> stores reviewer comments and maintains a <span class="term" data-definition="A full-text search index is like the index at the back of a book — a pre-built lookup of every word in every document. Instead of scanning every comment, the database finds matches in milliseconds by looking up words in this index.">full-text search index</span> so keyword searches across all notes are instant.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: The FullTrace type — code translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What a "trace" actually looks like in code</h2>
+
+        <p>The server assembles all the data for one conversation into a <code>FullTrace</code> object before sending it to the browser. Here is its shape, directly from <code>types/index.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">interface</span> <span class="code-function">FullTrace</span> {</span>
+<span class="code-line">  <span class="code-property">conversationId</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-property">title</span>: <span class="code-keyword">string</span> | <span class="code-keyword">null</span>;</span>
+<span class="code-line">  <span class="code-property">user</span>: {</span>
+<span class="code-line">    <span class="code-property">id</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">    <span class="code-property">fullName</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">    <span class="code-property">email</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  };</span>
+<span class="code-line">  <span class="code-property">messages</span>: <span class="code-function">TraceMessage</span>[];</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">An interface is a contract — it defines exactly what fields a FullTrace must contain.</p>
+              <p class="tl">Every conversation has a unique ID — like a receipt number.</p>
+              <p class="tl">The title is optional — conversations might never get named (hence "or null").</p>
+              <p class="tl">A nested object holding everything about the person who had this conversation...</p>
+              <p class="tl">...their internal user ID,</p>
+              <p class="tl">...their display name,</p>
+              <p class="tl">...and their email address.</p>
+              <p class="tl">A list (array) of every message in the conversation, in order — user, assistant, and tool messages all mixed together.</p>
+              <p class="tl">End of the contract.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Interfaces are checkable promises</strong>
+            <p>A <span class="term" data-definition="A TypeScript interface defines the shape that an object must have — which fields exist and what type each one is. TypeScript checks this automatically at build time. If a function promises to return a FullTrace but forgets the user field, TypeScript reports the error before the code ever runs.">TypeScript interface</span> is a promise the compiler enforces. Any function that says it returns a <code>FullTrace</code> will fail to build if it omits any of these fields. This catches bugs before they ever reach the browser.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Group chat animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The cast in action: opening a trace</h2>
+
+        <p>What the five characters say to each other when you click a conversation row:</p>
+
+        <div class="chat-window" id="chat-module2">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="browser" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Browser</span>
+                <p>User clicked row abc-123. Navigating to /trace/abc-123 now.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="nextjs" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">N</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Next.js Server</span>
+                <p>Received request. Checking my cache before touching the database...</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="nextjs" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">N</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Next.js Server</span>
+                <p>Cache miss. Prisma, I need conversation abc-123 with all messages, user info, and artifacts.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="prisma" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Prisma</span>
+                <p>Translating that into SQL now... PostgreSQL, give me conversation abc-123 with JOINs on users and messages.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">D</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">PostgreSQL</span>
+                <p>Found it. 47 messages, 12 tool calls, user is Sarah from Acme Corp. Returning all rows.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="prisma" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Prisma</span>
+                <p>Converted raw rows into a FullTrace TypeScript object. Handing it to Next.js.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="6" data-sender="nextjs" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">N</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Next.js Server</span>
+                <p>Got the FullTrace. Storing in cache for 2 minutes with tag "trace". Sending the page to the browser.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="7" data-sender="sqlite" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">SQLite</span>
+                <p>Browser asked for notes on abc-123. Found 3 comments. Sending them to the Notes panel.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="8" data-sender="browser" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Browser</span>
+                <p>Page rendered, notes loaded. Everything visible. The whole trip took about 180ms.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" id="chat-module2-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — Prisma is the translator. It converts TypeScript code into SQL and converts the database rows back into TypeScript objects. You never write raw SQL when using Prisma."
+               data-explanation-wrong="Next.js orchestrates the request but delegates all database communication to Prisma, which does the translation in both directions.">
+            <h3 class="quiz-question">You want to add a new field to the data fetched from PostgreSQL. Which character translates your TypeScript code into a database query?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Next.js — it handles all server-side operations</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Prisma — it translates TypeScript into SQL and converts rows back into objects</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>React — it controls what data gets fetched for each component</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right — SQLite is the dedicated writable store for reviewer annotations. PostgreSQL holds the AI conversations from the production system, which the Trace Viewer never writes to."
+               data-explanation-wrong="PostgreSQL holds the AI conversation data from production. The team does not write notes into those records. Notes live in SQLite — a separate, lightweight, writable database the app controls entirely.">
+            <h3 class="quiz-question">You are building a feature to flag conversations as needing follow-up. Where should that flag be stored?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>SQLite — the writable local store for reviewer annotations</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>PostgreSQL — all app data should live in one central database</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The browser — localStorage so each reviewer sees their own flags</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — the cache layer sits inside Next.js on the server. The browser is unaware of it. When the browser makes a request, Next.js intercepts it and either returns a cached result or goes to the database. This is why repeat views of the same trace are much faster."
+               data-explanation-wrong="The cache described here is server-side — managed by Next.js, invisible to the browser. The browser does have its own caching mechanisms (HTTP cache, service workers), but that is a separate system. The cache in this app is a server-side result store keyed on function arguments.">
+            <h3 class="quiz-question">The system has a 2-minute cache. Two users open the same conversation 30 seconds apart. What happens at the cache layer?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The browser cache stores the page — the second user loads it from their own browser history</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Both users trigger their own database queries — the cache only applies to API responses</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The first user fills the server-side cache; the second user gets the stored result with no database query</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,180 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+    <div class="module-number">03</div>
+    <h2 class="module-title">Infrastructure</h2>
+    <p class="module-subtitle">Kubernetes via GitOps and Argo CD, multi-stage Docker builds, AWS ECR, and the database migration story.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The GitOps deployment model</h2>
+      <p><span class="term" data-definition="GitOps is a deployment model where the desired state of your infrastructure is stored in a Git repository. A controller (Argo CD) continuously reconciles the live cluster to match what the Git repo says.">GitOps</span> means the cluster&rsquo;s desired state lives in a separate repo called <code>AviseInc/gitops</code>. Argo CD watches that repo and automatically applies any changes it finds.</p>
+
+      <div class="grid-2-cols stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="git-merge" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h4 class="pattern-title">What lives in the GitOps repo</h4>
+          <p class="pattern-desc">Kubernetes <span class="term" data-definition="Kustomize is a tool for customizing Kubernetes YAML files without modifying the originals. It lets you layer environment-specific settings (like a different image tag) on top of a base config.">Kustomize</span> configs for every environment (<code>dev</code>, <code>prod</code>) and every app (<code>avise-api</code>, <code>qbo-sync</code>, etc.). Each app folder has a <code>kustomization.yaml</code> that specifies which Docker image tag to run.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="refresh-cw" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h4 class="pattern-title">What Argo CD does</h4>
+          <p class="pattern-desc">Argo CD runs inside Kubernetes and polls the GitOps repo every few minutes. When it sees the image tag in <code>kustomization.yaml</code> change (committed by GitHub Actions), it applies the change to the cluster — replacing the old pod with the new one.</p>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header"><span class="code-walk-file">.github/actions/update-gitops-deployment/action.yml</span></div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>- uses: actions/checkout@v4
+  with:
+    repository: AviseInc/gitops
+    ref: main
+    token: <span class="code-string">${{ inputs.github-token }}</span>
+    path: ./.github/gitops</code></pre>
+          <div class="code-walk-explanation"><p>Check out the separate GitOps repository. This is a different repo from the monorepo — it only contains Kubernetes configs, no application code.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>cd .github/gitops/apps/envs/<span class="code-string">${{ inputs.env }}</span>/<span class="code-string">${{ inputs.app }}</span>/
+kustomize edit set image \
+  <span class="code-string">${{ inputs.ecr-registry }}</span>/<span class="code-string">${{ inputs.app }}</span>:<span class="code-string">${{ inputs.release }}</span></code></pre>
+          <div class="code-walk-explanation"><p>Navigate to the environment-specific folder (e.g. <code>apps/envs/prod/avise-api/</code>) and use kustomize to update the image tag in <code>kustomization.yaml</code>. The release version is the git commit SHA.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>git commit -m <span class="code-string">"${{ inputs.release }} release of
+${{ inputs.app }} for ${{ inputs.env }}
+by ${{ inputs.author }}"</span></code></pre>
+          <div class="code-walk-explanation"><p>Commit the kustomization change and push. Argo CD sees this commit within minutes and begins the rolling deployment. Both dev AND prod get updated in the same release action run.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The Docker build — Turborepo pruning in action</h2>
+      <p>The <code>avise-api/Dockerfile</code> uses a multi-stage build that leverages Turborepo&rsquo;s <code>turbo prune</code> command to create a minimal image containing only what avise-api needs:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Stage: pruner</strong>
+            <p><code>turbo prune --scope=avise-api --docker</code> analyzes the workspace dependency graph and outputs two things: <code>out/json/</code> (just package.json files for all dependencies) and <code>out/full/</code> (all source files needed). Only the files avise-api actually needs — no unrelated workspaces.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Stage: install-generate</strong>
+            <p><code>pnpm install --frozen-lockfile</code> using the pruned package.json files. This creates a Docker layer that only invalidates when actual dependencies change — not on every code change. Prisma types and allspice types are also generated here.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Stage: builder</strong>
+            <p><code>pnpm turbo build</code> compiles TypeScript to JavaScript in all workspaces. All build outputs are then tarred into <code>build.tar</code> — capturing the <code>dist/</code> and <code>lib/</code> folders from each workspace.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Stage: runner (final image)</strong>
+            <p>A minimal Debian slim base. Only copies <code>node_modules</code> and the <code>build.tar</code> output from the builder stage. The entrypoint is <code>dumb-init node avise-api/lib/src/app.js</code>. Runs as the <code>node</code> user (not root) for security.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Each Docker stage is its own layer cache</strong>
+          <p>If you only change TypeScript source files, the <code>install-generate</code> stage cache is still valid. Docker skips re-running <code>pnpm install</code> and jumps straight to the builder. This is why the Dockerfile separates install from build — it makes rebuilds faster.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Database migrations — the schema change lifecycle</h2>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Create the migration files</strong>
+            <p><code>pnpm turbo --filter avise-domains create-migration &lt;name&gt;</code> generates two SQL files in <code>avise-domains/migrations/sqls/</code>: <code>*-up.sql</code> (apply the change) and <code>*-down.sql</code> (undo it). The engineer writes the actual SQL DDL statements in these files.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Update the Prisma schema</strong>
+            <p>After writing the SQL migration, update <code>avise-domains/prisma/schema.prisma</code> to reflect the new table/column. This is the TypeScript-level representation — it generates the Prisma client types used by avise-api.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Integration tests validate the migration</strong>
+            <p>In CI, integration tests spin up a fresh PostgreSQL container, apply all migrations via <code>db-migrate</code>, and run the test suite against the migrated schema. This ensures migrations are valid before any code reaches production.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Deployment runs migrations automatically</strong>
+            <p>The avise-api container runs migrations as part of startup (before the Express server begins accepting traffic). This means schema changes are always applied before the code that uses them becomes active.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module3">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — Argo CD polls the GitOps repo and detects the new image tag committed by GitHub Actions. It then performs a rolling update in Kubernetes. No credentials for the cluster are ever stored in the monorepo."
+             data-explanation-wrong="Neither GitHub Actions nor any engineer runs kubectl directly in the release pipeline. GitHub Actions commits the new image tag to the gitops repo, and Argo CD picks up the change and handles the actual Kubernetes deployment.">
+          <h3 class="quiz-question">Who/what actually applies the new Docker image to Kubernetes?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>GitHub Actions runs kubectl apply directly against the cluster</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Argo CD — it polls the GitOps repo, detects the new image tag, and performs a rolling update</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>A deployment engineer runs a manual kubectl command after CI passes</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="The pruner stage uses turbo prune --scope=avise-api to output only the package.json files and source files needed by avise-api and its dependencies. This creates a minimal context, making subsequent install and build stages faster."
+             data-explanation-wrong="turbo prune --scope=avise-api outputs two things: just the package.json files for the dependency graph (for install), and all source files needed by avise-api. Unrelated workspaces are excluded entirely.">
+          <h3 class="quiz-question">What does the <code>pruner</code> stage in the Dockerfile do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Uses <code>turbo prune</code> to extract only avise-api and its dependencies — excluding unrelated workspaces from the build context</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Runs <code>pnpm prune</code> to remove dev dependencies before production packaging</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Deletes the test files and documentation to reduce image size</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct — migrations run at container startup before Express starts accepting traffic. This guarantees the schema is always up to date before any code that uses the new schema becomes active."
+             data-explanation-wrong="Database migrations run automatically during container startup — before the web server starts. This ensures the schema is always in sync with the application code without requiring a separate migration step.">
+          <h3 class="quiz-question">When are database migrations applied in production?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>A separate migration job runs before the new container is deployed</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>An engineer runs migrations manually via a maintenance window</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Automatically at container startup, before the Express server accepts traffic</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+      <div class="module-nav-end animate-in">
+        <a href="#module-4" class="btn module-continue-btn">Continue to Module 4: Config &amp; Secrets <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-2" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 2</a>
+      </div>
+    </section>
+  </div>
+</section>

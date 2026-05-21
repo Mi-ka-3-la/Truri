@@ -1,0 +1,207 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">Your Window Into AI Conversations</h1>
+      <p class="module-subtitle">What this tool does, who uses it, and what happens the moment you open it.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: HERO VISUAL — three views as dominant grid, minimal text -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Three views. One mission: see inside the AI.</h2>
+
+        <!-- Hero visual: the three views as large visual cards -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin: var(--space-8) 0;" class="stagger-children">
+
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-2); text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">📊</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--space-2);">Dashboard</h3>
+            <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0;">"How is the AI performing overall?"</p>
+            <div style="margin-top: var(--space-4); padding: var(--space-2) var(--space-3); background: var(--color-accent-light); border-radius: var(--radius-sm); font-size: var(--text-xs); font-family: var(--font-mono); color: var(--color-accent);">KPIs · Charts · Token usage</div>
+          </div>
+
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-3); text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">📋</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--space-2);">Trace List</h3>
+            <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0;">"Show me specific conversations."</p>
+            <div style="margin-top: var(--space-4); padding: var(--space-2) var(--space-3); background: var(--color-accent-light); border-radius: var(--radius-sm); font-size: var(--text-xs); font-family: var(--font-mono); color: var(--color-accent);">Filter · Search · Paginate</div>
+          </div>
+
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-4); text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">💬</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--space-2);">Trace Detail</h3>
+            <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0;">"Let me read this conversation."</p>
+            <div style="margin-top: var(--space-4); padding: var(--space-2) var(--space-3); background: var(--color-accent-light); border-radius: var(--radius-sm); font-size: var(--text-xs); font-family: var(--font-mono); color: var(--color-accent);">Replay · Annotate · Debug</div>
+          </div>
+        </div>
+
+        <p>Avise is an AI assistant for accountants — it helps them reconcile accounts, generate journal entries, and run reports. Every conversation a real user has with it gets recorded. The AI Trace Viewer lets the team <em>look inside</em> those recordings: find errors, spot patterns, and leave notes for each other.</p>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">✈️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Think: airplane black box</strong>
+            <p>After every flight, investigators can replay every instrument reading and every system event. The Trace Viewer does the same for AI conversations — full replay, message by message, with every <span class="term" data-definition="A tool call is when an AI assistant invokes a specific function — like 'look up this account' or 'generate a journal entry.' The AI decides which tool to call and with what inputs; the result comes back as a tool message.">tool call</span> and every error recorded.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Follow a real action -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Follow a real action: spotting a broken conversation</h2>
+
+        <p>You open the Trace List. A row has a red dot — that means at least one AI tool call failed. You click it. Here is what happens:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Your click changes the URL</strong>
+              <p>The browser navigates to <code>/trace/abc-123</code> — the conversation <span class="term" data-definition="An ID (identifier) is a unique label assigned to each record in the database — like a social security number for a data record. No two conversations share the same ID.">ID</span> becomes part of the address.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>The server fetches the full conversation</strong>
+              <p>A <span class="term" data-definition="A server function is code that runs on the server computer, not in your browser. It can talk directly to databases and services that are hidden from users — a critical security boundary.">server function</span> reads every message, every tool call, and every AI response from the <span class="term" data-definition="A database is a structured store of information — like a filing cabinet with a very fast search system. This app uses two: PostgreSQL for conversations, SQLite for reviewer notes.">database</span>.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Messages appear on screen</strong>
+              <p>User messages, AI responses, and tool calls — rendered in order, colour-coded by <span class="term" data-definition="Role describes who sent a message: 'user' means the accountant typed it, 'assistant' means the AI generated it, 'tool' means a function was called and returned a result. The same conversation has all three interleaved.">role</span> (user / assistant / tool).</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Reviewer notes load alongside</strong>
+              <p>A Notes panel on the right shows comments left by your team — stored in a separate local database so they never touch the original conversation records.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <strong>You add a note and move on</strong>
+              <p>Your comment is saved instantly and is visible to the whole team — searchable by keyword across all conversations.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: The Errors tab — hero use case -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Errors &amp; Reliability tab: where bugs surface</h2>
+
+        <p>Beyond the main three views, there is a dedicated <strong>Errors &amp; Reliability</strong> tab. It is the fastest path to understanding what is breaking and why.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">❌</div>
+            <h4 class="pattern-title">Failed Tool Calls</h4>
+            <p class="pattern-desc">Every tool invocation that returned an error — the tool name, the parameters it was called with, and the error message.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔁</div>
+            <h4 class="pattern-title">Loop Detection</h4>
+            <p class="pattern-desc">A <span class="term" data-definition="A closure signal indicates how a conversation ended around an error. 'loop' means the same tool failed 2+ times in a row — the AI got stuck. 'abandoned' means the user gave up and left after the error.">closure signal</span> flags conversations where the AI called the same failing tool twice — a classic stuck-in-a-loop pattern.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📈</div>
+            <h4 class="pattern-title">Error Trends</h4>
+            <p class="pattern-desc">Which tools break most often, and is the rate going up or down over time? The answer shapes what the engineering team fixes next.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right — the Errors tab flags loop patterns and failed tool calls specifically. That is where you go first when a user reports the AI kept repeating itself, before diving into individual conversations."
+               data-explanation-wrong="The Dashboard shows overall trends and the Trace List lets you browse — but neither surfaces the loop-detection signal the way the Errors tab does. That tab was built exactly for this scenario.">
+            <h3 class="quiz-question">A user reports the AI kept repeating the same action and never finished. Where do you look first?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Dashboard — it shows overall AI performance</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Errors &amp; Reliability tab — it flags loop patterns and failed tool calls</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Trace List — search by the user name and open each conversation manually</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — reviewer notes live in a separate SQLite database. The team can annotate any conversation without touching the original records. The notes are visible to everyone and searchable by keyword."
+               data-explanation-wrong="The main PostgreSQL database holds the AI conversations that came from the production system. Reviewer notes are stored separately in SQLite — so the team can write their own observations without modifying the source data.">
+            <h3 class="quiz-question">You add a note to a conversation. Where does that note get saved?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Inside the conversation record in the main database, alongside the messages</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In your browser only — it disappears when you close the tab</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In a separate local SQLite database — visible to the team, searchable by keyword</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — the role field on each message tells you who sent it: user (the accountant), assistant (the AI), or tool (a function result). A conversation weaves all three together in chronological order. Knowing this helps you describe the message structure precisely when asking an AI to change how messages are displayed."
+               data-explanation-wrong="Role is not about the user account or the reviewer — it describes the type of each message in the conversation thread. A single conversation has user messages, assistant messages, and tool messages all mixed together. This is fundamental to how AI chat APIs work.">
+            <h3 class="quiz-question">In the Trace Detail view, messages are colour-coded by "role." What does role mean here?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Who sent the message: "user" (accountant), "assistant" (AI), or "tool" (a function result)</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reviewer's job title — manager, analyst, or support agent</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whether the message contains an error, a warning, or normal output</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

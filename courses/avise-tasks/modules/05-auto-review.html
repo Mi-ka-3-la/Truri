@@ -1,0 +1,344 @@
+<section class="module" id="module-5" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Auto-Review and the Smart Reopener</h1>
+      <p class="module-subtitle">Two systems that run silently in the background — one gives the all-clear, the other sounds the alarm.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Two automation systems -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Both systems compare a stored snapshot to a current value — that one decision makes everything possible</h2>
+        <p>
+          When a preparer submits a task, Avise stores the account balance at that exact moment in a field called
+          <span class="term" data-definition="balanceWhenLastPrepared is a field on the Task record that stores the account balance at the time the preparer submitted the task. It acts as a snapshot — a frozen record of the financial state at submission time — that both the auto-reviewer and task reopener compare against the live current balance.">balanceWhenLastPrepared</span>.
+          That single stored value is what makes both the auto-reviewer and the task reopener work.
+        </p>
+
+        <div class="icon-rows animate-in stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5); --icon-color: var(--color-actor-5)">
+              <i data-lucide="check-circle-2" class="icon"></i>
+            </div>
+            <div>
+              <strong>Auto-Reviewer</strong>
+              <p>
+                Silently reviews tasks where the balance change is within configured
+                <span class="term" data-definition="A threshold is a configured limit — in the auto-reviewer context, it is the maximum balance change (in dollars or percentage) that the system considers safe to approve automatically without human review. If the change is within the threshold, the task is auto-reviewed; if it exceeds it, a human must review.">thresholds</span>
+                — no human reviewer needed. Runs
+                <span class="term" data-definition="Asynchronous execution means a task runs in the background, separately from the main HTTP request. The user gets an instant response and the expensive work (like checking thresholds across many tasks) happens later in a job queue. The alternative — running everything synchronously — would make the UI feel slow.">asynchronously</span>
+                in a
+                <span class="term" data-definition="A job queue is a list of background tasks waiting to be processed by worker processes. Instead of running heavy work inline during an HTTP request, the system adds a job to the queue and returns immediately. Workers pick up jobs from the queue and execute them independently.">job queue</span>
+                so the prepare action feels instant.
+              </p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1); --icon-color: var(--color-actor-1)">
+              <i data-lucide="bell-ring" class="icon"></i>
+            </div>
+            <div>
+              <strong>Task Reopener</strong>
+              <p>
+                Raises an alert when account balances change after a task was marked prepared.
+                Compares <code>balanceWhenLastPrepared</code> to the new current balance.
+                If they differ, the task is automatically set back to
+                <span class="term" data-definition="The reopened status means a task that was previously prepared (submitted) has been sent back for the preparer to address. In the case of the task reopener, this happens automatically when the system detects that the balance changed after submission.">reopened</span>
+                with a <code>BALANCE_CHANGED</code> reason recorded in the audit trail.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="camera" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">The snapshot at prepare time is the architectural key to both features</strong>
+            <p>
+              Without storing <code>balanceWhenLastPrepared</code>, the system could not tell whether a balance discrepancy existed
+              at submission time or appeared afterward. The snapshot freezes the financial state so the comparison is always meaningful.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation: balance comparison in taskReopener -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The reopener compares two values and records a full audit event when they diverge</h2>
+        <p>
+          The core logic is a single conditional: if the current balance differs from the stored snapshot,
+          <span class="term" data-definition="setTaskStatusAndEvent is a function in the data layer that atomically updates the task status and creates a TaskEvent audit record in the same database transaction. It is distinct from setTaskStatus, which only updates the status without creating an event.">setTaskStatusAndEvent</span>
+          updates the task status and logs the discrepancy with the full balance details — period-ending balance and the value stored at prepare time.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> { <span class="code-property">balanceWhenLastPrepared</span> } = task;</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">if</span> (</span>
+<span class="code-line">  currentBalance !== <span class="code-keyword">undefined</span> &&</span>
+<span class="code-line">  currentBalance !== <span class="code-property">balanceWhenLastPrepared</span></span>
+<span class="code-line">) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> balanceDetails =</span>
+<span class="code-line">    <span class="code-keyword">await</span> tasksData.<span class="code-function">getBalanceDetails</span>(</span>
+<span class="code-line">      task, TaskStatus.<span class="code-value">reopened</span></span>
+<span class="code-line">    );</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">await</span> tasksData.<span class="code-function">setTaskStatusAndEvent</span>(</span>
+<span class="code-line">    companyId, task.id,</span>
+<span class="code-line">    TaskStatus.<span class="code-value">reopened</span>, {</span>
+<span class="code-line">      reason: SystemTaskChangeReason.<span class="code-value">BALANCE_CHANGED</span>,</span>
+<span class="code-line">      balances: { periodEndingBalance, balanceWhenLastPrepared },</span>
+<span class="code-line">    }</span>
+<span class="code-line">  );</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>balanceWhenLastPrepared</strong> — the frozen snapshot pulled from the task record. Set at the moment the preparer clicked Submit.</p>
+              <p class="tl">The first guard (<code>!== undefined</code>) means: only run this check if we actually fetched a current balance. If the account has no data yet, skip.</p>
+              <p class="tl">If the values differ, the balance changed after submission. This is the signal to reopen.</p>
+              <p class="tl"><strong>getBalanceDetails</strong> fetches the full balance context — period-ending balance and the stored snapshot — so we can show the preparer exactly what changed.</p>
+              <p class="tl"><strong>setTaskStatusAndEvent</strong> updates the status to reopened and writes an audit event with reason <code>BALANCE_CHANGED</code> and the two balance values. Both happen atomically.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Code translation: attemptAutoReviewForUnpreparedTasks -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The auto-reviewer runs in a job queue and applies different thresholds per task type</h2>
+        <p>
+          When a task is prepared, the auto-review function is added to a
+          <span class="term" data-definition="A job queue is a list of background tasks waiting to be processed by worker processes. Instead of running heavy work inline during an HTTP request, the system adds a job to the queue and returns immediately. Workers pick up jobs from the queue and execute them independently.">job queue</span>
+          rather than executed immediately.
+          It reads company-level
+          <span class="term" data-definition="Threshold settings are company-specific configuration values that determine how much of a balance change is acceptable for automatic approval. Reconciliation tasks and flux tasks use separate threshold settings, since the risk profile of each task type is different.">threshold settings</span>,
+          groups tasks by type, and only proceeds if auto-review is enabled for that company.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">attemptAutoReview</span>(args, runSync) {</span>
+<span class="code-line">  <span class="code-keyword">if</span> (config.taskAutoReviewer.<span class="code-property">runAsync</span> && !runSync) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-function">addAutoReviewJobToQueue</span>(args);</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> company = <span class="code-keyword">await</span> companies.<span class="code-function">get</span>(args.companyId);</span>
+<span class="code-line">  <span class="code-keyword">const</span> reconSettings =</span>
+<span class="code-line">    companiesService.<span class="code-function">extractAutoReconciliationSettings</span>(company);</span>
+<span class="code-line">  <span class="code-keyword">const</span> fluxSettings =</span>
+<span class="code-line">    companiesService.<span class="code-function">extractAutoFluxSettings</span>(company);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> allTasks = <span class="code-keyword">await</span> tasksData.<span class="code-function">listWithPeriod</span>(</span>
+<span class="code-line">    args.companyId, args.taskIds</span>
+<span class="code-line">  );</span>
+<span class="code-line">  <span class="code-keyword">const</span> tasksByType = lodash.<span class="code-function">groupBy</span>(</span>
+<span class="code-line">    allTasks, task => task.<span class="code-property">taskType</span></span>
+<span class="code-line">  );</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (!isAutoReconEnabled(reconSettings) &&</span>
+<span class="code-line">      !isAutoFluxEnabled(fluxSettings)) <span class="code-keyword">return</span>;</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>runAsync guard</strong> — if the config says to run asynchronously and no override is passed, the function immediately adds a job to the queue and returns. The HTTP request finishes instantly; the real work happens later.</p>
+              <p class="tl"><strong>reconSettings / fluxSettings</strong> — each company configures separate thresholds for reconciliation tasks and flux tasks. One size does not fit all.</p>
+              <p class="tl"><strong>groupBy taskType</strong> — reconciliation and flux tasks are evaluated with different logic and thresholds. Grouping them first keeps the evaluation code clean.</p>
+              <p class="tl"><strong>early return</strong> — if auto-review is disabled for both task types on this company, the function exits immediately without touching any tasks.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="zap" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Running heavy checks in a job queue gives users instant feedback without sacrificing correctness</strong>
+            <p>
+              Checking thresholds across many tasks involves multiple database queries. Running this synchronously inside the prepare action
+              would make the UI feel slow. The job queue lets the server return in milliseconds while the auto-review
+              completes in the background.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MECHANISM — Group chat: journal entry triggers reopener -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A new journal entry can reopen a prepared task automatically — here is the full conversation</h2>
+        <p>
+          When a
+          <span class="term" data-definition="A journal entry is a record of a financial transaction posted to the general ledger. In Avise, when new journal entries arrive for an account in a period where tasks exist, the system checks whether any of those tasks need to be reopened.">journal entry</span>
+          posts to an account that already has a prepared task, the task reopener runs the comparison immediately.
+          The preparer is then notified of the balance change.
+        </p>
+
+        <div class="chat-window" id="chat-module5">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="actor-je" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">JE</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Journal Entry System</span>
+                <p>New journal entry posted to account X-123 for period March. Balance affected.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="actor-tr" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TR</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Reopener</span>
+                <p>Account X-123 has a prepared reconciliation task in March. Fetching current balance from the ledger now.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="actor-db" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">DB</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Current period-ending balance for X-123: 52,400.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="actor-tr" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TR</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Reopener</span>
+                <p>balanceWhenLastPrepared was 48,200. Current balance is 52,400. Values differ. Reopening task with reason BALANCE_CHANGED.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="actor-db" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">DB</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Task status updated to reopened. TaskEvent created with both balance values and reason BALANCE_CHANGED.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="actor-tr" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">TR</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Task Reopener</span>
+                <p>Preparer will be notified. The audit trail shows exactly which balance changed and by how much — no ambiguity.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module5-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+            </div>
+          </div>
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Diagnose real problems using what you know about the snapshot, the reopener, and auto-review</h2>
+        <p>
+          Each scenario puts you in the role of the person who needs to find the root cause.
+          Use the system architecture you just learned to reason through the answer.
+        </p>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — TaskEvents with reason BALANCE_CHANGED are the audit trail for reopener activity. Once you confirm the pattern there, you would look at whether new journal entries are being posted to that account in the same period around the time of submission. That correlation explains the cycle."
+               data-explanation-wrong="The threshold settings and auto-reviewer are for automatic approvals, not automatic reopens. The task reopener uses BALANCE_CHANGED events. Start with the audit trail — it records exactly what happened and when.">
+            <h3 class="quiz-question">
+              Scenario: A preparer reports that their reconciliation task keeps being reopened moments after they submit it.
+              Where do you look first to diagnose this?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The auto-reviewer threshold settings — they might be triggering an automatic rejection.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TaskEvents for the BALANCE_CHANGED reason — then check if new journal entries are being posted to that account after the task is submitted.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reviewer — they must be rejecting the task manually each time it is submitted.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Correct — the thresholds determine what qualifies as safe to auto-approve. If they are set too high, large balance changes are treated as acceptable. The fix is to tighten the dollar or percentage threshold so the auto-reviewer only approves tasks where the change is genuinely immaterial."
+               data-explanation-wrong="The job queue controls timing, not correctness. A snapshot stored at the wrong time would cause reopens, not incorrect auto-approvals. The most likely cause of an auto-approval that should not have happened is a threshold set too permissively.">
+            <h3 class="quiz-question">
+              Scenario: A large reconciliation task was auto-reviewed and approved when it should have required human
+              review. Auto-review is definitely enabled. What is the most likely cause?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The balance and delta thresholds are set too loosely — the change was within the threshold so the system approved it automatically.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The job queue delayed the check too long and the balance had already corrected itself by the time auto-review ran.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The balanceWhenLastPrepared snapshot was stored before the final transactions posted, so the comparison was invalid.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — running threshold checks for many tasks involves multiple database queries per task. If this ran synchronously inside the same HTTP request as marking a task prepared, the user would wait for all those queries to complete before getting a response. The job queue decouples the user action from the expensive work, giving instant UI feedback while correctness is preserved."
+               data-explanation-wrong="Safety and correctness are important but they do not explain why asynchronous execution is chosen here — you can run safe, correct code synchronously too. Think about what changes from the user perspective if you run ten database queries inline before returning the HTTP response.">
+            <h3 class="quiz-question">
+              Scenario: A developer proposes running <code>attemptAutoReviewForUnpreparedTasks</code> synchronously
+              inside the same HTTP request as marking a task prepared. Why is the current asynchronous design better?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Asynchronous execution is safer because it isolates errors — a crash in auto-review cannot break the prepare action.</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The job queue ensures auto-review always runs in the correct order relative to other tasks.</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Performance — checking thresholds across many tasks requires multiple database queries; running this inline would make the prepare action feel slow to the user.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

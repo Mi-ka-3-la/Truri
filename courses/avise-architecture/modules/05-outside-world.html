@@ -1,0 +1,531 @@
+<section class="module" id="module-5" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ============================================================
+         SCREEN 1 — ANCHOR: 8-service dependency grid
+         ============================================================ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 5</span>
+        <h1 class="module-title">The Outside World</h1>
+        <p class="module-subtitle">Avise doesn&apos;t do everything itself. Authentication is Auth0. Notifications are Knock. Errors are caught by DataDog. Feature rollouts are controlled by Split.io. Remove any one — a part of Avise stops working.</p>
+      </header>
+
+      <p>Like a supplier chain in any business: every external service falls into one of three failure categories. Know the category, know how to respond.</p>
+
+      <h3 style="margin: var(--space-6) 0 var(--space-3);">HARD — app breaks immediately</h3>
+      <div class="grid-2-cols stagger-children" style="margin-bottom: var(--space-6);">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error); border-left: 3px solid var(--color-error);">
+          <div class="pattern-icon" style="background: var(--color-error);">
+            <i data-lucide="key-round" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Auth0</h3>
+          <p class="pattern-desc">Authenticates every user login via
+            <span class="term" data-definition="JWT (JSON Web Token) is a small signed package of data proving who you are. After Auth0 validates your credentials, it issues a JWT that avise-api checks on every request.">JWT</span>.
+          </p>
+          <span class="tech-tag" style="background: var(--color-error-light); color: var(--color-error);">Failure: nobody can log in</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error); border-left: 3px solid var(--color-error);">
+          <div class="pattern-icon" style="background: var(--color-error);">
+            <i data-lucide="cloud" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">AWS S3</h3>
+          <p class="pattern-desc">Stores all user-uploaded files. Every PDF, Excel file, and generated export lives here.</p>
+          <span class="tech-tag" style="background: var(--color-error-light); color: var(--color-error);">Failure: file uploads and downloads fail</span>
+        </div>
+
+      </div>
+
+      <h3 style="margin: var(--space-4) 0 var(--space-3);">SOFT — feature degrades gracefully</h3>
+      <div class="grid-3-cols stagger-children" style="margin-bottom: var(--space-6);">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #D97706;">
+          <div class="pattern-icon" style="background: #D97706;">
+            <i data-lucide="sliders-horizontal" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Split.io</h3>
+          <p class="pattern-desc">Controls
+            <span class="term" data-definition="A feature flag is a switch in code that turns a feature on or off without redeploying. Split.io manages these flags remotely — you can toggle them instantly from a dashboard.">feature flags</span>
+            and rollouts.
+          </p>
+          <span class="tech-tag" style="background: #FEF3C7; color: #92400E;">Failure: reverts to safe defaults</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #D97706;">
+          <div class="pattern-icon" style="background: #D97706;">
+            <i data-lucide="bell" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Knock</h3>
+          <p class="pattern-desc">Sends notifications — email and in-app alerts when tasks are assigned or completed.</p>
+          <span class="tech-tag" style="background: #FEF3C7; color: #92400E;">Failure: notifications stop, app works</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #D97706;">
+          <div class="pattern-icon" style="background: #D97706;">
+            <i data-lucide="bar-chart-3" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">DataDog</h3>
+          <p class="pattern-desc">Collects logs, traces, and metrics from every service. The engineering team&apos;s window into the system.</p>
+          <span class="tech-tag" style="background: #FEF3C7; color: #92400E;">Failure: blind to errors, app works</span>
+        </div>
+
+      </div>
+
+      <h3 style="margin: var(--space-4) 0 var(--space-3);">ASYNC — catches up when restored</h3>
+      <div class="grid-3-cols stagger-children">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div class="pattern-icon" style="background: var(--color-success);">
+            <i data-lucide="refresh-cw" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">QuickBooks Online</h3>
+          <p class="pattern-desc">Source of accounting data for QBO customers. Syncs journal entries and transactions.</p>
+          <span class="tech-tag" style="background: var(--color-success-light); color: var(--color-success);">Failure: sync pauses, catches up</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div class="pattern-icon" style="background: var(--color-success);">
+            <i data-lucide="refresh-cw" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">NetSuite</h3>
+          <p class="pattern-desc">Source of ERP data for NetSuite customers. Syncs the same types of accounting data.</p>
+          <span class="tech-tag" style="background: var(--color-success-light); color: var(--color-success);">Failure: sync pauses, catches up</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div class="pattern-icon" style="background: var(--color-success);">
+            <i data-lucide="search" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">TurboPuffer</h3>
+          <p class="pattern-desc">AI vector search index. Powers semantic search in the AI assistant.</p>
+          <span class="tech-tag" style="background: var(--color-success-light); color: var(--color-success);">Failure: falls back to keyword search</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2 — MECHANISM: Auth0 vs SpiceDB
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Auth0 asks &quot;Who are you?&quot; — SpiceDB asks &quot;What can you do?&quot;</h2>
+
+      <p>These are two completely different questions answered by two completely different systems. Confusing them is the most common architecture mistake in systems with user accounts.</p>
+
+      <div class="grid-2-cols stagger-children" style="margin: var(--space-6) 0;">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div class="pattern-icon" style="background: var(--color-actor-2);">
+            <i data-lucide="key-round" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Auth0 — Authentication</h3>
+          <p class="pattern-desc">
+            <span class="term" data-definition="Authentication is proving your identity — like showing a passport. It answers: are you who you claim to be? Auth0 validates your credentials (email + password, Google login, etc.) and issues a JWT token.">Authentication</span>:
+            &quot;Who are you?&quot; Validates credentials, issues a signed
+            <span class="term" data-definition="A JWT (JSON Web Token) is a small, signed packet of data that proves your identity. It contains your user ID and an expiry time, and is cryptographically signed so it cannot be faked.">JWT token</span>.
+            Auth0 knows nothing about tasks or journal entries.
+          </p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="shield" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">SpiceDB — Authorization</h3>
+          <p class="pattern-desc">
+            <span class="term" data-definition="Authorization is deciding what you&apos;re allowed to do — like a bouncer checking your name against a VIP list. SpiceDB stores permission relationships and answers: does this user have the approve permission for this resource?">Authorization</span>:
+            &quot;What can you do?&quot; Checks your permissions for each specific resource. SpiceDB knows nothing about passwords.
+          </p>
+        </div>
+      </div>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>User logs in</strong>
+            <p>Auth0 validates email + password (or Google SSO). Issues a signed JWT.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>User makes an API request</strong>
+            <p>avise-api receives the request with the JWT in the header.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong><code>jwtAuthentication()</code> — who is this?</strong>
+            <p>Auth0 validates the token. If it&apos;s valid, we know the user&apos;s identity.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>SpiceDB check — what can they do?</strong>
+            <p>Inside the route handler, SpiceDB answers whether this specific user has permission for this specific resource.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in" style="margin-top: var(--space-6);">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/apiRouter.ts</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>r.<span class="code-function">use</span>(<span class="code-function">jwtAuthentication</span>());      <span class="code-comment">// Step 1: Auth0 — who is this person?</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>Every request passes through this
+              <span class="term" data-definition="Middleware is a function that runs between receiving a request and sending a response. It can inspect, modify, or reject requests — like a security checkpoint on a highway.">middleware</span>
+              first. Auth0 validates the JWT. If the token is missing or expired, the request is rejected here — before it reaches any route.
+            </p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>r.<span class="code-function">use</span>(<span class="code-function">userIdentityMiddleware</span>()); <span class="code-comment">// Step 2: Look them up in our DB</span>
+<span class="code-comment">// Then SpiceDB permission check happens inside the route handler</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>After Auth0 confirms identity, Avise looks up the user&apos;s full record in PostgreSQL. Then, inside each route handler, SpiceDB is called to check the specific permission needed for that action.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lock" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Separation is a security feature, not just a design choice.</strong>
+          <p>If SpiceDB is compromised, passwords are still safe in Auth0. If Auth0 is compromised, permission rules are still safe in SpiceDB. Two separate attack surfaces are harder to break simultaneously than one combined system.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3 — MECHANISM: Feature Flags — Conditional Flow Map
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Split.io: the traffic controller for new features</h2>
+
+      <p>
+        Every significant new feature in Avise is gated behind a
+        <span class="term" data-definition="A feature flag is a named boolean switch managed by Split.io. The app checks the flag&apos;s value at runtime — ON means use the new code path, OFF means use the old one. Flags can be toggled instantly without redeploying.">feature flag</span>.
+        This lets engineering roll out changes to 5% of companies first, then 50%, then everyone — and kill a feature instantly if something goes wrong.
+      </p>
+
+      <div class="conditional-flow animate-in" data-default-state="on">
+        <div class="conditional-flow-header">
+          <i data-lucide="git-branch" class="icon-lg" aria-hidden="true"></i>
+          <div>
+            <h3 class="conditional-flow-title">When the flag toggles, the search path changes</h3>
+            <p class="conditional-flow-sub">Same user request — two completely different routes through the system.</p>
+          </div>
+        </div>
+
+        <div class="conditional-flow-toggle" role="tablist">
+          <button class="state-btn active" data-state="on" role="tab" aria-selected="true">
+            <i data-lucide="toggle-right" class="icon-sm" aria-hidden="true"></i> Flag ON (new AI search)
+          </button>
+          <button class="state-btn" data-state="off" role="tab" aria-selected="false">
+            <i data-lucide="toggle-left" class="icon-sm" aria-hidden="true"></i> Flag OFF (legacy keyword search)
+          </button>
+        </div>
+
+        <div class="state-panel active" data-state="on">
+          <pre class="mermaid">
+graph LR
+  A["User searches for concept"]:::active --> B["enableNewSearch = true"]:::active
+  B --> C["AI search pipeline"]:::active
+  C --> D["TurboPuffer vector query"]:::active
+  D --> E["Semantic results returned"]:::active
+  classDef active fill:#E8F5EE,stroke:#2D8B55,stroke-width:2.5px,color:#1F1D1B;
+          </pre>
+          <p class="state-description">
+            <strong>When ON:</strong> the request routes through the new AI-powered search pipeline. TurboPuffer finds journal entries by meaning — not just matching words. A search for &quot;capital expenses&quot; finds entries about &quot;equipment purchases&quot; and &quot;capex.&quot;
+          </p>
+        </div>
+
+        <div class="state-panel" data-state="off">
+          <pre class="mermaid">
+graph LR
+  A["User searches for concept"]:::active --> B["enableNewSearch = false"]:::active
+  B --> C["Legacy keyword search"]:::active
+  C --> D["PostgreSQL LIKE query"]:::active
+  D --> E["Exact-match results returned"]:::active
+  classDef active fill:#FEF3C7,stroke:#D97706,stroke-width:2.5px,color:#1F1D1B;
+          </pre>
+          <p class="state-description">
+            <strong>When OFF:</strong> the request uses the legacy keyword search. PostgreSQL runs a LIKE query — it only finds entries that contain the exact words typed. Simpler, faster, but misses synonyms and related concepts.
+          </p>
+        </div>
+
+        <div class="conditional-flow-meta">
+          <strong>Flag:</strong> <code>enableNewSearch</code>.
+          <strong>Default:</strong> <code>false</code> in production during rollout, <code>true</code> in staging.
+          <strong>Safety net:</strong> <code>FALLBACK_FEATURE_FLAGS</code> activates when Split.io is unreachable — all flags revert to safe conservative defaults. The app never crashes because Split.io is down.
+          <strong>Why it exists:</strong> gradual rollout (10% of companies first), instant kill switch if bugs appear, and A/B testing search quality.
+        </div>
+      </div>
+
+      <div class="code-walk animate-in" style="margin-top: var(--space-6);">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/app.ts</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">await</span> FeatureFlagsClient.<span class="code-function">waitUntilReady</span>();
+<span class="code-comment">// App doesn&apos;t start until Split.io is ready</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The server waits for Split.io to load all flag values before accepting any requests. This ensures that the very first request gets the correct flag state, not a stale default.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// avise-shared-utils/src/featureFlags/config.ts (conceptual)</span>
+<span class="code-comment">// FALLBACK_FEATURE_FLAGS activates when Split.io is unreachable:</span>
+<span class="code-comment">// All flags revert to their safe default values.</span>
+<span class="code-comment">// The app never crashes because Split.io is down.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              The
+              <span class="term" data-definition="A fallback is a backup behavior that activates when the primary system is unavailable. FALLBACK_FEATURE_FLAGS is a constant object of safe default values that Avise uses when Split.io cannot be reached.">fallback</span>
+              constant is the safety net. If Split.io is down, features revert to conservative defaults — usually &quot;flag OFF&quot; to keep the stable legacy path running. The app continues working; it just doesn&apos;t roll out new features during the outage.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 4 — MECHANISM: Group chat — real incident response
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">A real incident: how DataDog turns 2 hours into 8 minutes</h2>
+
+      <p>
+        A QBO sync has been silent for 4 hours. Without
+        <span class="term" data-definition="DataDog is an observability platform — it collects logs (text records of what happened), metrics (numbers like request count and latency), and traces (the path a single request took through the system). Engineers use it to diagnose problems.">DataDog</span>
+        and
+        <span class="term" data-definition="Operation tracking is Avise&apos;s system for recording every step a long-running job takes. Each event is appended to an operation record — so you can replay exactly what the job did, and find where it stopped.">operation tracking</span>,
+        diagnosing this would take hours of guessing. Watch how it actually unfolds:
+      </p>
+
+      <div class="chat-window" id="chat-incident-response">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-msg="0" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Company ABC&apos;s QBO sync hasn&apos;t run in 4 hours. Show me errors.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="1" data-sender="datadog" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">DataDog</span>
+              <p>[ERROR] avise-api: QBO sync job failed — &apos;ETIMEDOUT: connection refused&apos; at 14:23</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="2" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Check operation events for sync job xyz</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4);">avise-api</span>
+              <p>Last event: &apos;file_fetch_started&apos; at 14:22. Then silence.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="4" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Timeout during file fetch from QBO. Not an Avise bug — QBO API was down.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="5" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Create alert: &quot;if QBO API latency &gt; 5s, page on-call&quot;</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="6" data-sender="datadog" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">DataDog</span>
+              <p>Alert created. You&apos;ll be paged within 60 seconds of QBO latency spiking.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="7" data-sender="narrator" style="display:none">
+            <div class="chat-bubble" style="background: var(--color-accent-light); border-left: 3px solid var(--color-accent); max-width: 100%;">
+              <span class="chat-sender" style="color: var(--color-accent);">Result</span>
+              <p>Total diagnosis time: 8 minutes. Without DataDog and operation tracking: 2+ hours of log-grepping and guesswork.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 5 — APPLICATION: Quiz
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Four scenarios about external services. Pick the right diagnosis.</p>
+
+      <div class="quiz-container" id="quiz-m5">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct. Login is Authentication — that&apos;s Auth0&apos;s responsibility. If Auth0 is down or has an incident, nobody can log in regardless of API health."
+             data-explanation-wrong="Login is Authentication — that&apos;s Auth0&apos;s responsibility. The API server being healthy doesn&apos;t matter if Auth0 cannot issue or validate the JWT tokens needed to log in. Check Auth0 first.">
+          <h3 class="quiz-question">Users report they can&apos;t log in to Avise. The API server is healthy. Which external service do you check first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>DataDog</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split.io</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Knock</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Gradual rollout plus instant kill switch equals feature flags. Split.io manages this with percentage-based rollout and immediate flag toggling."
+             data-explanation-wrong="Gradual rollout (5% of companies first) plus an instant kill switch (disable if bugs appear) — that&apos;s the definition of a feature flag system. Split.io manages this. Auth0 scopes, Knock, and a database table can&apos;t toggle instantly for a percentage of users.">
+          <h3 class="quiz-question">A new feature is being rolled out to 5% of companies first. The feature can be disabled instantly if bugs are found. Which system enables both of these?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0 scopes</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split.io feature flags</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Knock workflows</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL feature table</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. DataDog is observability — a SOFT dependency. The app continues working. You just can&apos;t see what happened during that window. This is why DataDog is in the &apos;soft&apos; category: its failure is invisible to users but painful for engineers."
+             data-explanation-wrong="DataDog is observability — a SOFT dependency. The app itself keeps working fine. You just lose visibility into what happened during that 30-minute window. Journal entries save normally; DataDog just didn&apos;t capture any telemetry. This is why it&apos;s &apos;soft&apos; — its failure hurts engineers, not users.">
+          <h3 class="quiz-question">DataDog goes down for 30 minutes during a weekend. A user submits a journal entry successfully. What happened during those 30 minutes?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Journal entries failed to save</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The app crashed</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Everything worked, but errors weren&apos;t captured</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Users couldn&apos;t log in</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. Operation tracking appends events at each step of a long-running job. The last event tells you exactly where it stopped — even if no error was thrown."
+             data-explanation-wrong="Operation tracking appends events at each step of a long-running job. The last event tells you exactly where it stopped — even if no error was thrown. The Auth0 audit log shows login events, not sync steps. PostgreSQL tables show final data, not the process that created it. Split.io shows flag changes, not job execution.">
+          <h3 class="quiz-question">The QBO sync for a company ran for 3 hours and then stopped with no error in DataDog. Where would you look to find what the last successful step was?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0 audit log</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL journal_entries table</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Operation tracking events for that sync job</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split.io flag history</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m5')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m5')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-6" class="btn module-continue-btn">
+          Continue to Module 6: Reading the System
+          <i data-lucide="arrow-right" class="icon" aria-hidden="true"></i>
+        </a>
+        <a href="#module-4" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm" aria-hidden="true"></i> Back to Module 4
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>

@@ -1,0 +1,574 @@
+<section class="module" id="module-2" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — ANCHOR: The 4 core services + specialist row
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 2</span>
+        <h1 class="module-title">Meet the Cast</h1>
+        <p class="module-subtitle">The avise monorepo has 24+ workspaces. That sounds overwhelming — until you realize only 4 do the heavy lifting. The rest are specialists called in for specific scenes.</p>
+      </header>
+
+      <!-- Hero: 4 core service cards -->
+      <h2 class="screen-heading">The four leads — every feature touches at least one of these</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-1);">
+          <div class="pattern-icon" style="background: var(--color-actor-1);">
+            <i data-lucide="monitor" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-web</h4>
+          <p class="pattern-desc">The screen. Everything the user sees and touches lives here. Built with <span class="term" data-definition="React is a JavaScript library for building user interfaces. It lets you build complex UIs by composing small, reusable pieces called components.">React</span>.</p>
+          <span class="tech-tag">React 18</span>
+          <span class="tech-tag">TypeScript</span>
+          <span class="tech-tag">Vite</span>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div class="pattern-icon" style="background: var(--color-actor-2);">
+            <i data-lucide="server" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-api</h4>
+          <p class="pattern-desc">The brain. Business rules, <span class="term" data-definition="API routes are the specific URLs your server listens on. Think of them like the different counters at a post office — each URL handles a specific type of request.">API routes</span>, auth, background jobs. Built with <span class="term" data-definition="Node.js is a runtime that lets JavaScript run on a server (outside the browser). Express is a lightweight framework on top of Node.js for handling HTTP requests.">Node.js + Express</span>.</p>
+          <span class="tech-tag">Node.js</span>
+          <span class="tech-tag">Express 5</span>
+          <span class="tech-tag">TypeScript</span>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="layers" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-domains</h4>
+          <p class="pattern-desc">The rulebook. Pure <span class="term" data-definition="Domain logic describes the rules of the business — like &quot;a journal entry must balance debits and credits.&quot; It has no knowledge of HTTP requests or databases; it is purely about business concepts.">domain logic</span> with no knowledge of <span class="term" data-definition="HTTP (HyperText Transfer Protocol) is how browsers and servers communicate. A &quot;domain&quot; that knows nothing about HTTP means it does not care how data arrived — it only cares what the data means.">HTTP</span> or databases — just business rules.</p>
+          <span class="tech-tag">TypeScript</span>
+          <span class="tech-tag">Pure logic</span>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <div class="pattern-icon" style="background: var(--color-actor-4);">
+            <i data-lucide="wrench" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-shared-utils</h4>
+          <p class="pattern-desc">The toolbox. Config, logging, retry utilities, <span class="term" data-definition="WebSocket helpers are utility functions that make it easier to set up and use the WebSocket protocol — a way for the server and browser to talk to each other in real time without needing to send a new request each time.">WebSocket helpers</span> — everything both avise-api and qbo-sync need.</p>
+          <span class="tech-tag">Cross-cutting</span>
+          <span class="tech-tag">Shared</span>
+        </div>
+      </div>
+
+      <!-- Specialist services row -->
+      <h2 class="screen-heading" style="margin-top: var(--space-10);">The specialist crew — called in for specific scenes</h2>
+      <div class="bento-grid stagger-children">
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="activity" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">operation-tracking</h4>
+          <p class="pattern-desc">Flight recorder for long-running jobs</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="refresh-cw" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">qbo-sync</h4>
+          <p class="pattern-desc"><span class="term" data-definition="QuickBooks Online (QBO) is accounting software used by small and medium businesses. The qbo-sync workspace syncs data between Avise and QuickBooks.">QuickBooks Online</span> sync worker</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="shield" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">allspice</h4>
+          <p class="pattern-desc">Type-safe <span class="term" data-definition="SpiceDB is a database specifically for permissions — it answers questions like &quot;is this user allowed to view this document?&quot; Allspice generates TypeScript bindings so the team can use SpiceDB without hand-writing raw permission queries.">SpiceDB</span> permission bindings generator</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="bell" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">knock</h4>
+          <p class="pattern-desc">Notification workflow templates</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="book-open" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">mcp-avise-docs</h4>
+          <p class="pattern-desc"><span class="term" data-definition="MCP (Model Context Protocol) is a standard for giving AI coding assistants access to project-specific knowledge. This workspace acts as a docs server that AI tools can query.">MCP</span> server for AI coding assistants</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — MECHANISM: Tech Stack Architecture
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The full technology stack — top to bottom</h2>
+      <p>Like a building, the system has distinct floors. Here is what technology runs at each level and why it was chosen.</p>
+
+      <div class="tech-stack animate-in">
+        <div class="tech-stack-header">
+          <i data-lucide="layers" class="icon-lg"></i>
+          <div>
+            <h3 class="tech-stack-title">The technologies, floor by floor</h3>
+            <p class="tech-stack-sub">Closest to the user at the top; raw data storage at the bottom.</p>
+          </div>
+        </div>
+
+        <!-- Browser -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Browser</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="monitor" class="icon-lg icon-accent"></i>
+              <strong>React 18</strong>
+              <p>UI components composed into screens. Re-renders only what changed.</p>
+              <span class="tech-tag">React</span>
+              <span class="tech-tag">Vite</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="route" class="icon-lg icon-accent"></i>
+              <strong>React Router v6</strong>
+              <p>Maps URLs to pages without a full page reload.</p>
+              <span class="tech-tag">Client-side routing</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="database" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="TanStack Query (also called React Query) is a library that manages server data in the browser — fetching it, caching it, refreshing it, and tracking whether a request is loading or has failed.">TanStack Query</span></strong>
+              <p>Fetches API data, caches it, and keeps the UI in sync automatically.</p>
+              <span class="tech-tag">React Query</span>
+              <span class="tech-tag">Axios</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Layer -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">API Layer</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="server" class="icon-lg icon-accent"></i>
+              <strong>Node.js + Express 5</strong>
+              <p>Handles incoming HTTP requests, applies business rules, and sends back responses.</p>
+              <span class="tech-tag">Node.js</span>
+              <span class="tech-tag">Express 5</span>
+              <span class="tech-tag">TypeScript</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="key-round" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="JWT (JSON Web Token) is a compact, digitally-signed credential that proves who you are. Auth0 is a service that handles user login and issues these tokens so the app does not have to manage passwords itself.">JWT via Auth0</span></strong>
+              <p>Every request carries a signed token. The server validates it before doing any work.</p>
+              <span class="tech-tag">Auth</span>
+              <span class="tech-tag">JWT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Domain Layer -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Domain Layer</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="layers" class="icon-lg icon-accent"></i>
+              <strong>avise-domains</strong>
+              <p>Pure business types — JournalEntry, Schedule, PreparedSchedule. No HTTP, no SQL.</p>
+              <span class="tech-tag">TypeScript</span>
+              <span class="tech-tag">Domain types</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="refresh-cw" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a tool that lets you query a database using TypeScript instead of writing raw SQL. It also auto-generates TypeScript types that match your database schema.">Prisma ORM</span> + Drizzle</strong>
+              <p>Prisma for most queries; Drizzle adopted for newer, performance-sensitive queries.</p>
+              <span class="tech-tag">ORM</span>
+              <span class="tech-tag">Type-safe queries</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Layer -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Data Layer</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="database" class="icon-lg icon-accent"></i>
+              <strong>PostgreSQL</strong>
+              <p>Primary store — all business data: companies, journal entries, schedules, users.</p>
+              <span class="tech-tag">Business data</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="shield" class="icon-lg icon-accent"></i>
+              <strong>SpiceDB</strong>
+              <p>Permission database — fast answers to "can this user do this action?"</p>
+              <span class="tech-tag">Permissions</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="zap" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="Redis is an ultra-fast in-memory data store often used as a cache or a job queue. BullMQ uses Redis to store queued jobs so they survive server restarts.">Redis</span></strong>
+              <p>Job queues (BullMQ) and fast ephemeral data.</p>
+              <span class="tech-tag">Job queues</span>
+              <span class="tech-tag">Cache</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="cloud" class="icon-lg icon-accent"></i>
+              <strong>AWS S3 + TurboPuffer</strong>
+              <p>S3 for files; TurboPuffer for AI vector embeddings used in semantic search.</p>
+              <span class="tech-tag">Files</span>
+              <span class="tech-tag">AI vectors</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Infrastructure -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Infrastructure</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="package" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="Turborepo is a build system for monorepos. It caches build results so unchanged workspaces are never rebuilt. pnpm workspaces is a package manager that lets multiple packages share dependencies efficiently.">Turborepo + pnpm</span></strong>
+              <p>Builds only what changed. Shared dependencies deduplicated across all workspaces.</p>
+              <span class="tech-tag">Monorepo build</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="rocket" class="icon-lg icon-accent"></i>
+              <strong>Kubernetes + Argo CD</strong>
+              <p>Containers deployed to Kubernetes; Argo CD keeps the cluster in sync with Git.</p>
+              <span class="tech-tag">Deploy</span>
+              <span class="tech-tag">AWS ECR</span>
+              <span class="tech-tag">GitHub Actions</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Observability -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Observability</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="bar-chart-3" class="icon-lg icon-accent"></i>
+              <strong>DataDog</strong>
+              <p>Traces every request end-to-end, collects logs, and monitors real-user performance.</p>
+              <span class="tech-tag">Traces</span>
+              <span class="tech-tag">Logs</span>
+              <span class="tech-tag">RUM</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="toggle-right" class="icon-lg icon-accent"></i>
+              <strong>Split.io + Knock</strong>
+              <p><span class="term" data-definition="Feature flags are on/off switches in the code. They let you enable a new feature for 10% of users before rolling it out to everyone — safe, reversible, no deployment needed.">Feature flags</span> via Split.io; notification delivery via Knock.</p>
+              <span class="tech-tag">Feature flags</span>
+              <span class="tech-tag">Notifications</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tech-stack-rationale">
+          <strong>Why TypeScript everywhere?</strong> One type error caught at compile time saves hours of runtime debugging. avise-shared-utils guarantees that a utility used in both avise-api and qbo-sync has the exact same behavior — because they share the same TypeScript types. Inconsistency becomes impossible to hide.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — MECHANISM: Startup sequence Code-Walk
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The startup order IS the dependency graph</h2>
+      <p>Open <code>avise-api/src/app.ts</code> and the first thing you see is a sequence of imports. That sequence is not arbitrary — it is an architectural decision encoded directly in code.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/app.ts — startup order</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> <span class="code-string">"avise-shared-utils/datadog"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Observability FIRST.</strong> <span class="term" data-definition="DataDog is a monitoring service that collects logs, traces, and performance metrics from your application. If it is not running before everything else, errors that happen during startup are invisible.">DataDog</span> must be initialized before any other service. If Prisma fails to connect but DataDog is not yet running, that connection error goes completely untracked — like a black box recorder that powers on after the crash.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { FeatureFlagsClient } <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/featureFlags"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Feature flags second.</strong> The <span class="term" data-definition="A feature flags client connects to a service like Split.io that stores which features are on or off. It must be initialized early so any subsequent code can check flags safely.">FeatureFlagsClient</span> connects to Split.io. Subsequent startup steps may check whether a new feature is enabled — if flags are not ready, those checks silently default to the wrong state.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> prisma <span class="code-keyword">from</span> <span class="code-string">"./prisma"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Database connection third.</strong> <span class="term" data-definition="Prisma is the ORM (Object-Relational Mapper) that translates TypeScript code into SQL queries. Importing it here establishes the connection pool to PostgreSQL that all future database operations will use.">Prisma</span> connects to PostgreSQL. Now that DataDog is running, any connection error here will be captured and visible in the monitoring dashboard.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">4</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { buildApp } <span class="code-keyword">from</span> <span class="code-string">"./buildApp"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Express app constructed fourth.</strong> Only once the database is ready does the HTTP server get built. This prevents requests from arriving before the app can handle them correctly.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">5</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> bullmq <span class="code-keyword">from</span> <span class="code-string">"./libraries/bullmq"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Job queue fifth.</strong> <span class="term" data-definition="BullMQ is a job queue library that uses Redis to store and coordinate background tasks. A &quot;job&quot; is a unit of work — like generating a report or sending an email — that runs separately from the main request/response cycle.">BullMQ</span> workers start picking up queued background tasks. Jobs submitted before this point will wait in Redis until the worker is ready.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">6</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { initializeAuthClient } <span class="code-keyword">from</span> <span class="code-string">"./authorization/authorizationClient"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Permission system sixth.</strong> The <span class="term" data-definition="SpiceDB is a dedicated permissions database. The authorization client is the connection to SpiceDB — without it, the API cannot check whether a user is allowed to take an action.">SpiceDB</span> authorization client opens. No incoming request can bypass permission checks because the client is established before the server begins accepting traffic.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">7</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { WebSocketServer } <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/websocket/server"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Real-time channel seventh.</strong> The <span class="term" data-definition="WebSocket is a protocol that keeps a persistent, two-way channel open between the server and browser. Unlike HTTP, the server can push data to the client at any time — essential for the AI chat feature.">WebSocketServer</span> opens the persistent connections used by the AI chat. This requires the auth client (step 6) to already be running so incoming WebSocket connections can be authenticated immediately.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">8</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { initializePublisher } <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/rabbitmq"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Message bus last.</strong> <span class="term" data-definition="RabbitMQ is a message broker — a post office for services. One service publishes a message; other services subscribe and receive it. This decouples the sender from the receiver.">RabbitMQ</span> is the broadcast channel between services. It comes last because all the services it connects to must be ready to receive messages before publishing begins.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="git-commit-vertical" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The startup order IS the dependency graph</strong>
+          <p>If Prisma connects before DataDog is running, connection errors go untracked. If the WebSocketServer starts before the auth client is ready, connections arrive unauthenticated. The import order in app.ts is not a style choice — it is an architectural constraint written as code. In any codebase, the startup sequence is one of the best places to quickly understand what depends on what.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — MECHANISM: avise-domains — domain-centric design
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">avise-domains: the same types, used everywhere</h2>
+      <p>Most codebases tie business logic to its delivery mechanism. avise-domains breaks that pattern — and the payoff is enormous.</p>
+
+      <!-- Contrast: old way vs. new way -->
+      <div class="grid-2-cols stagger-children" style="margin: var(--space-8) 0;">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error);">
+          <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);">
+            <i data-lucide="x-circle" class="icon icon-error"></i>
+            <strong>The layered approach</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num" style="background: var(--color-error);">1</div>
+              <div class="step-body">
+                <strong>HTTP Controller</strong>
+                <p>Parses the incoming request — tied to Express.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num" style="background: var(--color-error);">2</div>
+              <div class="step-body">
+                <strong>Service layer</strong>
+                <p>Business logic — knows about controllers above it.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num" style="background: var(--color-error);">3</div>
+              <div class="step-body">
+                <strong>Data layer</strong>
+                <p>SQL — tied to PostgreSQL below it.</p>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-secondary);">Each layer is tied to its neighbors. Reuse a type in a CLI script? Impossible without dragging in HTTP dependencies.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);">
+            <i data-lucide="check-circle-2" class="icon icon-success"></i>
+            <strong>The domain-centric approach</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <strong>Domain type: JournalEntry</strong>
+                <p>Knows nothing about HTTP or SQL. Just business meaning.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>REST controller uses it</strong>
+                <p>Converts HTTP request INTO a JournalEntry domain type.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>Background job uses it too</strong>
+                <p>Same type — no modification needed.</p>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-secondary);">The domain type is stable. Any consumer — REST, CLI, job — can use it without knowing about the others.</p>
+        </div>
+      </div>
+
+      <!-- Code-walk: avise-domains philosophy -->
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-domains — domain types in plain language</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// avise-domains — domain types don't know about HTTP or databases</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The types in this workspace describe the business — not the delivery. They do not import from Express, from Prisma, or from any database library.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// They describe business concepts in the language of accounting:</span>
+<span class="code-comment">// A Schedule. A JournalEntry. A PreparedSchedule.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The vocabulary comes from the problem domain — accounting — not from the technology. A <code>JournalEntry</code> type describes what an accountant means by "journal entry," independent of how it is stored in PostgreSQL or sent over HTTP.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// The REST API, the CLI, and the background job all use the same types.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>Three completely different execution contexts — an HTTP handler, a command-line script, a background worker — all import from avise-domains. They all speak the same language, which means any validation rule written once applies everywhere.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">4</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Conversion to/from HTTP request/SQL row is handled OUTSIDE the domain.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>Parsing an HTTP request body into a <code>JournalEntry</code> happens in the controller. Converting a Prisma database row into a <code>JournalEntry</code> happens in a mapper function. The domain type itself stays pure.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="book-open" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">A domain type is like a word in a dictionary</strong>
+          <p>It has a precise meaning that does not change depending on who is reading it. The REST API and the background job speak the same language because they share the same domain types. Wherever you see this pattern in any codebase, it signals a deliberate choice to make business rules portable — the team can change the delivery mechanism (swap Express for another framework) without rewriting the business logic.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 5 — APPLICATION: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <p>Three scenarios. Apply what you learned about which workspace owns which responsibility.</p>
+
+      <div class="quiz-container" id="quiz-m2">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. Business rules that describe how the accounting domain works — like the debit/credit balance rule — belong in avise-domains. Any consumer (REST controller, CLI script, background job) can then apply the same rule without duplication."
+             data-explanation-wrong="Business rules that describe how the domain works — like accounting balance rules — belong in avise-domains, not in HTTP controllers or UI code. The controller&apos;s job is to parse requests and call domain logic, not to define it.">
+          <h3 class="quiz-question">You need to add logic that validates whether a journal entry&apos;s debits equal its credits — a core accounting rule. Which workspace does this business logic belong in?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web — so the user sees a validation error immediately</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api controllers — it is called when the request arrives</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-domains — it is a pure accounting rule, independent of delivery</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-shared-utils — it should be available to everyone</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. avise-shared-utils is the toolbox for cross-cutting utilities that multiple workspaces need. Putting a retry helper in avise-api would force qbo-sync to duplicate it — and two copies of the same utility will inevitably diverge."
+             data-explanation-wrong="avise-shared-utils is the toolbox for cross-cutting utilities that multiple workspaces need. Putting it in avise-api would mean qbo-sync has to duplicate it — and duplicated utilities always diverge over time, leading to subtle bugs.">
+          <h3 class="quiz-question">A retry utility for external HTTP calls needs to work in both avise-api and qbo-sync. Where does it go?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web — front-end requests also need retries</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api/src/utils — that is where utilities live in the API</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-shared-utils — it is cross-cutting and needed by multiple workspaces</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-domains — retries are domain logic</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right. The WebSocketServer initialization in app.ts sets up the persistent connection infrastructure that the AI chat and future real-time features use. Startup order is the dependency graph — reading app.ts top to bottom tells you how the system assembles itself."
+             data-explanation-wrong="WebSocket is the real-time communication layer. The WebSocketServer initialization in app.ts sets up the persistent connection infrastructure that the AI chat uses. The startup order in app.ts is an architectural document — each import tells you what the system needs and when.">
+          <h3 class="quiz-question">The Avise team wants to add a new real-time dashboard feature. Which line in app.ts startup would you look at to understand how real-time communication is initialized?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The Prisma import — it controls what data the dashboard can access</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The BullMQ import — background jobs power the dashboard refresh</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The WebSocketServer import — that is the real-time channel initialization</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The DataDog import — observability tracks real-time activity</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m2')">Try Again</button>
+      </div>
+
+      <!-- Module navigation -->
+      <div class="module-nav-end animate-in">
+        <a href="#module-3" class="btn module-continue-btn">
+          Continue to Module 3: How They Talk
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-1" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 1
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>

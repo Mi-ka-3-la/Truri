@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub pentru PO - Curs Interactiv</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #f5f3ef;
+    color: #2d2a26;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+  /* SIDEBAR */
+  .sidebar {
+    background: #1f2937;
+    color: #e5e7eb;
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar h1 {
+    font-size: 17px;
+    font-weight: 600;
+    padding: 0 24px 8px;
+    color: #fff;
+  }
+  .sidebar .subtitle {
+    font-size: 12px;
+    color: #9ca3af;
+    padding: 0 24px 20px;
+    border-bottom: 1px solid #374151;
+  }
+  .nav-module {
+    padding: 14px 24px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .nav-module:hover { background: #374151; }
+  .nav-module.active {
+    background: #374151;
+    border-left-color: #fbbf24;
+    color: #fff;
+  }
+  .nav-module.completed::after {
+    content: "✓";
+    margin-left: auto;
+    color: #34d399;
+    font-weight: bold;
+  }
+  .nav-num {
+    background: #4b5563;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .nav-module.active .nav-num { background: #fbbf24; color: #1f2937; }
+  .nav-module.completed .nav-num { background: #34d399; color: #1f2937; }
+
+  .progress-bar {
+    margin: 20px 24px 0;
+    background: #374151;
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #fbbf24;
+    transition: width 0.3s;
+    width: 0%;
+  }
+  .progress-text {
+    font-size: 11px;
+    color: #9ca3af;
+    padding: 8px 24px;
+  }
+
+  /* MAIN */
+  .main {
+    padding: 48px 64px;
+    max-width: 900px;
+  }
+  .module { display: none; }
+  .module.active { display: block; }
+
+  .module-header {
+    border-bottom: 2px solid #1f2937;
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+  }
+  .module-label {
+    color: #9ca3af;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+  .module-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-top: 4px;
+  }
+
+  /* CONTENT BLOCKS */
+  .break-box {
+    background: #fef2f2;
+    border-left: 4px solid #dc2626;
+    padding: 18px 22px;
+    margin: 24px 0;
+    border-radius: 4px;
+  }
+  .break-box .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #dc2626;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .concept-box {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 24px;
+    margin: 24px 0;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .concept-box h3 {
+    color: #1f2937;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .concept-box p { margin-bottom: 14px; }
+
+  .anchor-box {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px dashed #d97706;
+    padding: 18px 22px;
+    margin: 24px 0;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .anchor-box .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #92400e;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .anchor-box .anchor-word {
+    font-size: 22px;
+    font-weight: 700;
+    color: #78350f;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .anchor-box .anchor-why {
+    font-size: 14px;
+    color: #78350f;
+    font-style: italic;
+  }
+
+  .contrast-box {
+    background: #f0f9ff;
+    border-left: 4px solid #0284c7;
+    padding: 14px 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .contrast-box .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0284c7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .memory-tech {
+    background: #ecfdf5;
+    border: 1px solid #10b981;
+    padding: 20px 22px;
+    margin: 28px 0;
+    border-radius: 6px;
+  }
+  .memory-tech .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #047857;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+  .memory-tech h4 {
+    color: #065f46;
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .memory-tech p { font-size: 14px; color: #064e3b; margin-bottom: 8px; }
+  .memory-tech .technique-name {
+    font-weight: 600;
+    color: #065f46;
+  }
+
+  /* CODE / COMMANDS */
+  code {
+    background: #1f2937;
+    color: #fbbf24;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    font-size: 13px;
+  }
+  pre {
+    background: #1f2937;
+    color: #e5e7eb;
+    padding: 16px 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  pre code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+  }
+  .cmd-comment { color: #9ca3af; }
+  .cmd-prompt { color: #34d399; }
+
+  /* DIAGRAMS */
+  .diagram {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 24px;
+    margin: 24px 0;
+    border-radius: 6px;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; height: auto; }
+  .diagram-caption {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  /* QUIZ */
+  .quiz {
+    background: #fefce8;
+    border: 2px solid #ca8a04;
+    padding: 24px;
+    margin: 32px 0;
+    border-radius: 8px;
+  }
+  .quiz .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #854d0e;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .quiz h4 {
+    color: #1f2937;
+    font-size: 17px;
+    margin-bottom: 16px;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    padding: 12px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 14px;
+    text-align: left;
+    font-family: inherit;
+    color: #374151;
+  }
+  .quiz-option:hover {
+    border-color: #ca8a04;
+    background: #fef9c3;
+  }
+  .quiz-option.correct {
+    background: #d1fae5;
+    border-color: #10b981;
+    color: #065f46;
+  }
+  .quiz-option.wrong {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+  }
+  .quiz-option.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+  .quiz-feedback {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+    display: none;
+  }
+  .quiz-feedback.correct {
+    background: #d1fae5;
+    color: #065f46;
+    border-left: 3px solid #10b981;
+  }
+  .quiz-feedback.wrong {
+    background: #fee2e2;
+    color: #991b1b;
+    border-left: 3px solid #dc2626;
+  }
+
+  /* NAV BUTTONS */
+  .module-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+  }
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: #1f2937;
+    color: #fff;
+  }
+  .btn-primary:hover { background: #374151; }
+  .btn-secondary {
+    background: #e5e7eb;
+    color: #1f2937;
+  }
+  .btn-secondary:hover { background: #d1d5db; }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+  }
+  th {
+    background: #1f2937;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #f9fafb; }
+
+  /* LISTS */
+  ul, ol {
+    margin: 14px 0 14px 24px;
+  }
+  li { margin-bottom: 8px; }
+
+  /* SECTION HEADERS */
+  h2 {
+    color: #1f2937;
+    font-size: 22px;
+    margin: 32px 0 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  h3 {
+    color: #1f2937;
+    font-size: 18px;
+    margin: 24px 0 10px;
+  }
+  strong { color: #1f2937; }
+  em { color: #4b5563; }
+
+  /* INLINE NOTE */
+  .note {
+    background: #f3f4f6;
+    border-left: 3px solid #6b7280;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 14px;
+    border-radius: 0 4px 4px 0;
+  }
+  .note strong { color: #1f2937; }
+
+  @media (max-width: 800px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .main { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <h1>GitHub pentru PO</h1>
+    <div class="subtitle">Cum traieste codul si cum il urmaresti</div>
+    <nav id="nav"></nav>
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="progress-text" id="progress-text">0 / 7 module</div>
+  </aside>
+
+  <main class="main" id="main">
+
+<!-- MODULE 0: Anatomia unui repo -->
+<section class="module active" id="module-0">
+  <div class="module-header">
+    <div class="module-label">Modul 1 din 7</div>
+    <h1 class="module-title">Anatomia unui repo</h1>
+  </div>
+
+  <div class="break-box">
+    <div class="label">Ce se sparge fara conceptul asta</div>
+    Un coleg iti zice in standup: "am facut commit". Tu dai din cap. Apoi zice "dar nu e inca push-uit pe origin/main". Tu dai din cap din nou. Doua saptamani mai tarziu cere extensie de deadline pentru ca "munca lui locala s-a pierdut cand i-a murit laptopul". Tu nu intelegi ce inseamna asta - nu fusese deja livrat? Aici se sparge: codul nu traieste intr-un singur loc. Traieste in <em>mai multe locuri simultan</em>, si ce conteaza e in care loc se afla in fiecare moment.
+  </div>
+
+  <h2>Git vs GitHub - distinctia fundamentala</h2>
+  <p><strong>Git</strong> e instrumentul - un program care ruleaza pe calculatorul fiecarui dev si tine evidenta schimbarilor in fisiere. A fost creat de Linus Torvalds in 2005. Git nu are nevoie de internet ca sa functioneze.</p>
+  <p><strong>GitHub</strong> e un serviciu online care gazduieste repo-uri Git si adauga lucruri peste: pull requests, code review, issue tracking, GitHub Actions (automatizari), Advanced Security. Daca Git e Word-ul, GitHub e Google Docs - acelasi document, dar acum partajat, comentabil, cu istoric vizibil pentru toata lumea.</p>
+
+  <div class="note">
+    <strong>De ce conteaza pentru tine:</strong> cand un dev zice "fac commit", vorbeste despre Git (local). Cand zice "fac PR", vorbeste despre GitHub (server). Doua actiuni diferite, in doua locuri diferite.
+  </div>
+
+  <h2>Cele patru zone unde traieste codul</h2>
+
+  <div class="diagram">
+    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+      <!-- Working Directory -->
+      <rect x="20" y="60" width="140" height="100" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+      <text x="90" y="90" text-anchor="middle" font-size="13" font-weight="bold" fill="#78350f">Working Directory</text>
+      <text x="90" y="110" text-anchor="middle" font-size="11" fill="#78350f">(folderul tau)</text>
+      <text x="90" y="130" text-anchor="middle" font-size="10" fill="#78350f">"Aici editez"</text>
+
+      <!-- Staging -->
+      <rect x="190" y="60" width="140" height="100" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="260" y="90" text-anchor="middle" font-size="13" font-weight="bold" fill="#1e3a8a">Staging Area</text>
+      <text x="260" y="110" text-anchor="middle" font-size="11" fill="#1e3a8a">(zona de pregatire)</text>
+      <text x="260" y="130" text-anchor="middle" font-size="10" fill="#1e3a8a">"Astea vor merge"</text>
+
+      <!-- Local Repo -->
+      <rect x="360" y="60" width="140" height="100" rx="6" fill="#e9d5ff" stroke="#7c3aed" stroke-width="2"/>
+      <text x="430" y="90" text-anchor="middle" font-size="13" font-weight="bold" fill="#581c87">Local Repo</text>
+      <text x="430" y="110" text-anchor="middle" font-size="11" fill="#581c87">(.git folder)</text>
+      <text x="430" y="130" text-anchor="middle" font-size="10" fill="#581c87">"Istoric local"</text>
+
+      <!-- Remote -->
+      <rect x="530" y="60" width="140" height="100" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+      <text x="600" y="90" text-anchor="middle" font-size="13" font-weight="bold" fill="#064e3b">Remote (GitHub)</text>
+      <text x="600" y="110" text-anchor="middle" font-size="11" fill="#064e3b">(serverul)</text>
+      <text x="600" y="130" text-anchor="middle" font-size="10" fill="#064e3b">"Adevarul oficial"</text>
+
+      <!-- Arrows -->
+      <text x="175" y="115" text-anchor="middle" font-size="10" fill="#374151">git add</text>
+      <path d="M 165 105 L 185 105" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <text x="345" y="115" text-anchor="middle" font-size="10" fill="#374151">git commit</text>
+      <path d="M 335 105 L 355 105" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <text x="515" y="115" text-anchor="middle" font-size="10" fill="#374151">git push</text>
+      <path d="M 505 105 L 525 105" stroke="#374151" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- Pull arrow back -->
+      <path d="M 525 145 L 165 145" stroke="#6b7280" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <text x="345" y="160" text-anchor="middle" font-size="10" fill="#6b7280">git pull (aduce inapoi)</text>
+
+      <!-- Labels above -->
+      <text x="90" y="45" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">PE LAPTOPUL DEV-ULUI</text>
+      <text x="430" y="45" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">───────────────</text>
+      <text x="600" y="45" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">PE SERVER</text>
+
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#374151"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="diagram-caption">Codul calatoreste prin patru zone. Fiecare zona are alt rol si alta vizibilitate.</div>
+  </div>
+
+  <div class="concept-box">
+    <h3>1. Working Directory</h3>
+    <p>Folderul de pe calculatorul dev-ului unde editeaza efectiv. Daca dev-ul a modificat 5 fisiere astazi, modificarile traiesc aici. <em>Nimeni altcineva nu le vede inca.</em> Daca laptopul moare acum, munca dispare.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>2. Staging Area (sau "index")</h3>
+    <p>Zona de pregatire. Dev-ul a editat 5 fisiere dar vrea sa "pachetizeze" doar 3 din ele intr-o livrare. Comanda <code>git add</code> muta cele 3 fisiere in staging. E ca atunci cand pui hainele in valiza inainte de a o inchide - nu inseamna ca ai plecat, doar ai ales ce iei cu tine.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>3. Local Repository</h3>
+    <p>Folderul ascuns <code>.git</code> din proiect. Aici se inscriu commit-urile - "fotografii" ale codului la un moment dat, cu mesaj. Comanda <code>git commit</code> face fotografia si o adauga la istoricul local. Munca e acum sigura local (chiar daca dev-ul sterge fisierele, le poate recupera), <em>dar tot nu o vede nimeni altcineva</em>.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>4. Remote (GitHub)</h3>
+    <p>Serverul. Aici ajunge codul cand dev-ul face <code>git push</code>. Acum exista pe GitHub, ceilalti colegi il pot vedea, descarca cu <code>git pull</code>, PR-uri pot fi facute pe el. Asta e "adevarul oficial" - cand un PO intreaba "e in repo?", de fapt intreaba "e pe remote?".</p>
+  </div>
+
+  <div class="anchor-box">
+    <div class="label">Ancora ta</div>
+    <span class="anchor-word">🧳 VALIZA LA AEROPORT</span>
+    <div class="anchor-why">Camera ta (working dir) = unde stau hainele. Valiza (staging) = ce ai ales sa iei. Sa o inchizi (commit) = e gata pregatita. Predata la check-in (push) = a plecat din mainile tale, e in sistemul aeroportului.</div>
+  </div>
+
+  <div class="contrast-box">
+    <div class="label">Contrast</div>
+    Un coleg care zice "am terminat task-ul" inseamna lucruri diferite: poate "am editat in folder" (n-a salvat nimic), "am facut commit" (e doar la el local), sau "am facut push" (e pe GitHub si poate fi reviewuit). Doar a treia varianta e cu adevarat "terminat" din perspectiva ta de PO.
+  </div>
+
+  <h2>Comenzi de baza (daca vrei sa exersezi)</h2>
+  <pre><code><span class="cmd-comment"># Vad ce am modificat dar nu am stage-uit</span>
+git status
+
+<span class="cmd-comment"># Adaug fisiere in staging (un fisier sau toate)</span>
+git add fisier.txt
+git add .
+
+<span class="cmd-comment"># Fac commit local cu mesaj</span>
+git commit -m "fix: corectie calcul TVA"
+
+<span class="cmd-comment"># Trimit commit-urile pe GitHub</span>
+git push origin main
+
+<span class="cmd-comment"># Aduc ce e nou de pe GitHub la mine local</span>
+git pull origin main</code></pre>
+
+  <div class="memory-tech">
+    <div class="label">Tehnica de memorare</div>
+    <h4>Metoda <span class="technique-name">"Calatoria"</span> - imagineaza-ti drumul</h4>
+    <p>De fiecare data cand auzi "commit", refa mental drumul valizei: <em>camera → valiza → casa → aeroport</em>. Nu memora cele 4 zone ca lista. Vezi-le ca etape ale unei calatorii. Cand dev-ul zice "am commit-uit dar nu am push-uit", instant: valiza e gata in casa, dar nu a ajuns la aeroport.</p>
+    <p>Asta e <strong>memorie spatiala</strong> - creierul tine minte locuri mult mai bine decat liste abstracte. Tu esti vizuala, pattern-first; o secventa spatiala iti ramane.</p>
+  </div>
+
+  <div class="quiz">
+    <div class="label">Quiz - Interpretare</div>
+    <h4>Un dev iti zice in stand-up: "am terminat task-ul, l-am commit-uit local dar nu am avut timp sa-l urc". Ce inseamna asta pentru tine ca PO?</h4>
+    <div class="quiz-options" id="q0-opts">
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q0-fb', 'q0-opts')">Task-ul e gata, codul e in repo, putem testa</button>
+      <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true, 'q0-fb', 'q0-opts')">Codul exista doar pe laptopul lui - nimeni altcineva nu poate vedea sau testa pana nu face push</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q0-fb', 'q0-opts')">Codul e pe GitHub dar nu intr-un PR</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q0-fb', 'q0-opts')">Task-ul e in staging dar nu in commit</button>
+    </div>
+    <div class="quiz-feedback" id="q0-fb">
+      <strong>Corect:</strong> "commit local" = pasul 3 din 4. Munca e sigura local (nu se pierde daca repornesc), dar e invizibila pentru oricine altcineva. Daca laptopul lui moare ACUM, munca se pierde. "Nu am avut timp sa urc" = nu am facut push. Ca PO, asta inseamna: nu pot testa, nu pot reviewui, nu pot conta pe ea pana nu apare pe GitHub.
+    </div>
+  </div>
+
+  <div class="module-nav">
+    <button class="btn btn-secondary" onclick="prevModule()" disabled>← Anterior</button>
+    <button class="btn btn-primary" onclick="nextModule()">Continua: Ciclul codului →</button>
+  </div>
+</section>
+
+<!-- MODULE 1: Ciclul de viata al codului -->
+<section class="module" id="module-1">
+  <div class="module-header">
+    <div class="module-label">Modul 2 din 7</div>
+    <h1 class="module-title">Ciclul de viata al codului</h1>
+  </div>
+
+  <div class="break-box">
+    <div class="label">Ce se sparge fara conceptul asta</div>
+    Vineri seara dev-ul iti zice "am facut push, e gata pentru release". Luni dimineata, la demo, clientul observa ca o functionalitate nu merge. Tu te uiti pe GitHub - codul e acolo. Cum se poate? Dev-ul iti raspunde: "PR-ul meu nu a fost inca merged in main, sta in review". A facut push, dar pe un branch propriu. Tu credeai ca push = ajuns in produs. Sunt cinci pasi intre cei doi.
+  </div>
+
+  <h2>Ciclul complet: de la idee la productie</h2>
+
+  <div class="diagram">
+    <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg">
+      <!-- Steps -->
+      <g font-family="sans-serif">
+      <circle cx="60" cy="40" r="22" fill="#1f2937"/>
+      <text x="60" y="46" text-anchor="middle" fill="#fbbf24" font-weight="bold">1</text>
+      <text x="100" y="38" font-size="13" font-weight="bold" fill="#1f2937">Pull (sincronizeaza-te)</text>
+      <text x="100" y="55" font-size="11" fill="#6b7280">Adu ultima versiune din main pe laptop</text>
+
+      <circle cx="60" cy="100" r="22" fill="#1f2937"/>
+      <text x="60" y="106" text-anchor="middle" fill="#fbbf24" font-weight="bold">2</text>
+      <text x="100" y="98" font-size="13" font-weight="bold" fill="#1f2937">Branch (creeaza ramura proprie)</text>
+      <text x="100" y="115" font-size="11" fill="#6b7280">git checkout -b feature/IMK-123-add-stripe</text>
+
+      <circle cx="60" cy="160" r="22" fill="#1f2937"/>
+      <text x="60" y="166" text-anchor="middle" fill="#fbbf24" font-weight="bold">3</text>
+      <text x="100" y="158" font-size="13" font-weight="bold" fill="#1f2937">Modify + Stage + Commit (lucreaza local)</text>
+      <text x="100" y="175" font-size="11" fill="#6b7280">Editeaza → git add → git commit (poate fi repetat)</text>
+
+      <circle cx="60" cy="220" r="22" fill="#1f2937"/>
+      <text x="60" y="226" text-anchor="middle" fill="#fbbf24" font-weight="bold">4</text>
+      <text x="100" y="218" font-size="13" font-weight="bold" fill="#1f2937">Push (urca pe GitHub)</text>
+      <text x="100" y="235" font-size="11" fill="#6b7280">git push - branch-ul apare pe server, vizibil</text>
+
+      <circle cx="60" cy="280" r="22" fill="#dc2626"/>
+      <text x="60" y="286" text-anchor="middle" fill="#fff" font-weight="bold">5</text>
+      <text x="100" y="278" font-size="13" font-weight="bold" fill="#1f2937">Pull Request (cere intrare in main)</text>
+      <text x="100" y="295" font-size="11" fill="#6b7280">Pe GitHub: "Vreau sa adaug munca asta in main"</text>
+
+      <circle cx="60" cy="340" r="22" fill="#059669"/>
+      <text x="60" y="346" text-anchor="middle" fill="#fff" font-weight="bold">6</text>
+      <text x="100" y="338" font-size="13" font-weight="bold" fill="#1f2937">Review + Merge (aprobat → fuzionat)</text>
+      <text x="100" y="355" font-size="11" fill="#6b7280">Cineva citeste, comenteaza, aproba, da "Merge"</text>
+
+      <!-- Connecting line -->
+      <line x1="60" y1="62" x2="60" y2="78" stroke="#9ca3af" stroke-width="2"/>
+      <line x1="60" y1="122" x2="60" y2="138" stroke="#9ca3af" stroke-width="2"/>
+      <line x1="60" y1="182" x2="60" y2="198" stroke="#9ca3af" stroke-width="2"/>
+      <line x1="60" y1="242" x2="60" y2="258" stroke="#9ca3af" stroke-width="2"/>
+      <line x1="60" y1="302" x2="60" y2="318" stroke="#9ca3af" stroke-width="2"/>
+      </g>
+    </svg>
+    <div class="diagram-caption">Sase pasi de la "am inceput" pana la "e in main". <strong>Push-ul (pasul 4) NU inseamna ca a ajuns in main.</strong> Asta vine la pasul 6.</div>
+  </div>
+
+  <h2>Pasii explicati pe rand</h2>
+
+  <div class="concept-box">
+    <h3>1. Pull - sincronizeaza-te inainte sa incepi</h3>
+    <p>Dev-ul aduce ultima versiune a codului din <code>main</code> pe laptopul lui. De ce primul pas? Pentru ca daca alti colegi au facut modificari intre timp, vrea sa porneasca de la cea mai noua versiune, nu de la una veche.</p>
+    <p>Daca sare peste asta, lucreaza pe cod vechi si la pasul 5 va avea <strong>conflict de merge</strong> - doi oameni au modificat acelasi fisier in feluri diferite, Git nu stie pe cine sa creada, cineva trebuie sa rezolve manual.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>2. Branch - creeaza-ti ramura proprie</h3>
+    <p>Dev-ul nu lucreaza direct in <code>main</code> (ramura principala, productia). Isi creeaza un <strong>branch</strong> - o ramura paralela unde poate experimenta fara sa strice nimic in main. Numele branch-ului include adesea ID-ul Jira: <code>feature/IMK-123-add-stripe</code>.</p>
+    <p>Imagineaza-ti un copac: trunchiul (<code>main</code>) creste mereu. Cand cineva vrea sa lucreze la o functie, creeaza o crengusa care porneste din trunchi. Cand termina, crengusa se "lipeste" inapoi in trunchi (merge).</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>3. Modify + Stage + Commit (de mai multe ori)</h3>
+    <p>Dev-ul lucreaza pe branch-ul lui. Editeaza, face commit. Editeaza din nou, face alt commit. Un task complex poate avea 5-15 commit-uri inainte sa fie gata. Fiecare commit e o "fotografie" cu mesaj. Tot ce face pana acum e local pe laptopul lui.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>4. Push - urca branch-ul pe GitHub</h3>
+    <p>Cand vrea ca altcineva sa vada munca (sau cand isi face backup), face <code>git push</code>. Branch-ul lui apare acum pe GitHub. Important: branch-ul lui, nu main-ul. <strong>Codul nu e inca in productie, nu a fost reviewuit, nu a fost aprobat.</strong></p>
+  </div>
+
+  <div class="concept-box">
+    <h3>5. Pull Request - cere oficial intrare in main</h3>
+    <p>Acesta e momentul critic. Pe GitHub, dev-ul deschide un <strong>Pull Request (PR)</strong> - o pagina dedicata unde:</p>
+    <ul>
+      <li>Se vad toate modificarile fata de main, fisier cu fisier</li>
+      <li>Colegii pot lasa comentarii la linii specifice</li>
+      <li>Se ruleaza automat teste (CI - Continuous Integration)</li>
+      <li>Cineva trebuie sa apese "Approve" inainte sa poata fi fuzionat</li>
+    </ul>
+    <p>Numele "Pull Request" e istoric si confuz - de fapt e o cerere de merge, nu de pull. Tradus pe romana: "Cer ca munca mea sa fie trasa in main".</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>6. Review + Merge - aprobat si fuzionat</h3>
+    <p>Alt dev (sau mai multi) citeste PR-ul, lasa comentarii, cere modificari. Cand totul arata bine si testele automate trec, cineva apasa butonul <strong>Merge</strong>. Acum si doar acum, codul e in <code>main</code>. De aici, in functie de procesul echipei, poate ajunge in productie automat sau cu un pas suplimentar de deploy.</p>
+  </div>
+
+  <div class="anchor-box">
+    <div class="label">Ancora ta</div>
+    <span class="anchor-word">🌳 ALTOI LA POMI</span>
+    <div class="anchor-why">Trunchiul (main) creste mereu. Tai o crengusa (branch), o cultivi separat (commit-uri), o aduci inapoi la trunchi (push) si o altoiesti (merge). Pana nu e altoita, crengusa traieste separat. PR-ul = momentul cand pomicultorul verifica daca altoiul prinde.</div>
+  </div>
+
+  <div class="contrast-box">
+    <div class="label">Contrast</div>
+    "Push" si "merge" suna similar dar sunt opuse ca semnificatie. Push = "am pus codul meu pe server, pe branch-ul meu". Merge = "codul meu a fost integrat in main". Intre ele sunt minute sau zile, depinde de cat dureaza review-ul.
+  </div>
+
+  <h2>Conflictele de merge - de ce apar si ce inseamna pentru tine</h2>
+  <p>Doi devi pornesc de la aceeasi versiune a main-ului. Amandoi modifica linia 42 din acelasi fisier, fiecare in branch-ul lui. Primul face merge - linia 42 a lui devine oficiala. Al doilea cere merge - Git zice "stai, linia 42 e diferita acum decat cand ai pornit. Pe care varianta sa o pastrez?"</p>
+  <p>Cineva trebuie sa rezolve manual: deschide fisierul, alege ce versiune ramane (sau combina ambele) si face un commit de rezolvare. Pentru tine ca PO asta inseamna: un task care parea gata mai are 1-2 ore de munca. <em>Nu e un bug, e o consecinta a lucrului in paralel.</em></p>
+
+  <div class="memory-tech">
+    <div class="label">Tehnica de memorare</div>
+    <h4>Metoda <span class="technique-name">"6 Degete"</span> - acronim ritmic</h4>
+    <p>Numara pe degete: <strong>Pull, Branch, Commit, Push, PR, Merge</strong>. Spune-le cu voce tare in ritm. PBCPPM. Cand cineva spune "am push-uit", degetul tau merge automat la pozitia 4 din 6 - mai sunt doi pasi pana la productie.</p>
+    <p>De ce functioneaza: <strong>memorie procedurala</strong> (miscare fizica) + <strong>memorie auditiva</strong> (ritm) se intaresc reciproc. Iti vor ramane chiar daca nu repeti zile in sir.</p>
+  </div>
+
+  <div class="quiz">
+    <div class="label">Quiz - Interpretare</div>
+    <h4>In Avise, Harris zice "PR-ul meu e deschis de 3 zile, doi colegi au comentat dar nu au aprobat inca". La standup, Graham (CEO) intreaba: "deci feature-ul X e in productie?". Ce raspunzi?</h4>
+    <div class="quiz-options" id="q1-opts">
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q1-fb', 'q1-opts')">Da, Harris a facut push acum 3 zile</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q1-fb', 'q1-opts')">Nu inca, dar e gata - doar trebuie deploy</button>
+      <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true, 'q1-fb', 'q1-opts')">Nu, sta in code review - codul exista pe GitHub pe branch-ul lui, dar nu a fost merged in main; mai are nevoie de cel putin o aprobare</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q1-fb', 'q1-opts')">Da, PR-ul deschis inseamna ca e in main</button>
+    </div>
+    <div class="quiz-feedback" id="q1-fb">
+      <strong>Corect:</strong> PR deschis = pasul 5 din 6. Codul e pe GitHub (push-ul s-a facut), dar n-a fost merged. Comentariile fara aprobare = review activ, posibile modificari cerute. Pana la merge: codul nu e in main, nu e in deploy, nu e in productie. Raspunsul cinstit pentru Graham: "e in review activ, estimam X zile pana la merge".
+    </div>
+  </div>
+
+  <div class="module-nav">
+    <button class="btn btn-secondary" onclick="prevModule()">← Anterior</button>
+    <button class="btn btn-primary" onclick="nextModule()">Continua: Branch-uri →</button>
+  </div>
+</section>
+
+<!-- MODULE 2: Branch-uri si strategii -->
+<section class="module" id="module-2">
+  <div class="module-header">
+    <div class="module-label">Modul 3 din 7</div>
+    <h1 class="module-title">Branch-uri si strategii</h1>
+  </div>
+
+  <div class="break-box">
+    <div class="label">Ce se sparge fara conceptul asta</div>
+    Echipa ta are 4 devi care lucreaza in paralel: unul la o functie noua, unul la un bug urgent in productie, unul la o experimentare care s-ar putea sa nu intre niciodata, unul la refactorizare. Daca toti scriu in acelasi fisier in acelasi timp pe acelasi <code>main</code>, e haos - codul unora il sterge pe al altora, productia se sparge la fiecare commit. Branch-urile sunt cum supravietuiesc 4 oameni la acelasi proiect fara sa se calce in picioare.
+  </div>
+
+  <h2>Anatomia unui branch</h2>
+  <p>Un <strong>branch</strong> e o ramura paralela a codului. Pleaca de la un punct din <code>main</code> (sau alt branch) si traieste separat pana cand e fie fuzionata inapoi (merge), fie abandonata (deleted). Toate commit-urile facute pe branch raman pe branch - nu polueaza main-ul pana la merge.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+      <!-- Main branch -->
+      <line x1="40" y1="130" x2="660" y2="130" stroke="#1f2937" stroke-width="3"/>
+      <text x="40" y="120" font-size="12" font-weight="bold" fill="#1f2937">main</text>
+
+      <!-- Commits on main -->
+      <circle cx="80" cy="130" r="8" fill="#1f2937"/>
+      <circle cx="160" cy="130" r="8" fill="#1f2937"/>
+      <circle cx="540" cy="130" r="8" fill="#1f2937"/>
+      <circle cx="620" cy="130" r="8" fill="#1f2937"/>
+
+      <!-- Feature branch -->
+      <path d="M 160 130 Q 200 80 240 80 L 480 80 Q 520 80 540 130" stroke="#7c3aed" stroke-width="2.5" fill="none"/>
+      <circle cx="280" cy="80" r="7" fill="#7c3aed"/>
+      <circle cx="360" cy="80" r="7" fill="#7c3aed"/>
+      <circle cx="440" cy="80" r="7" fill="#7c3aed"/>
+      <text x="280" y="65" font-size="11" fill="#7c3aed" font-weight="bold">feature/IMK-123</text>
+
+      <!-- Hotfix branch -->
+      <path d="M 540 130 Q 560 170 580 180 L 600 180 Q 620 180 620 130" stroke="#dc2626" stroke-width="2.5" fill="none"/>
+      <circle cx="590" cy="180" r="7" fill="#dc2626"/>
+      <text x="540" y="205" font-size="11" fill="#dc2626" font-weight="bold">hotfix/login-bug</text>
+
+      <!-- Annotations -->
+      <text x="160" y="155" font-size="10" fill="#6b7280" text-anchor="middle">creat branch</text>
+      <text x="540" y="155" font-size="10" fill="#6b7280" text-anchor="middle">merge</text>
+
+      <text x="660" y="120" font-size="11" fill="#34d399" font-weight="bold">→ deploy</text>
+    </svg>
+    <div class="diagram-caption">Doua branch-uri: unul lung (feature) care a inceput devreme si s-a fuzionat tarziu, unul scurt (hotfix) deschis si inchis rapid. Productia urmeaza main.</div>
+  </div>
+
+  <h2>Conventii de denumire (citeste-le ca PO)</h2>
+  <p>Echipele bune folosesc prefixe ca sa se vada din nume ce tip de munca e:</p>
+
+  <table>
+    <thead>
+      <tr><th>Prefix</th><th>Tip</th><th>Cand se foloseste</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>feature/</code></td><td>Functionalitate noua</td><td>Story nou din backlog</td></tr>
+      <tr><td><code>fix/</code> sau <code>bugfix/</code></td><td>Bug normal</td><td>Bug raportat, nu urgent</td></tr>
+      <tr><td><code>hotfix/</code></td><td>Bug urgent in productie</td><td>Productia e sparta, trebuie remediere imediata</td></tr>
+      <tr><td><code>chore/</code></td><td>Mentenanta tehnica</td><td>Refactorizare, update dependinte, nu schimba comportament</td></tr>
+      <tr><td><code>docs/</code></td><td>Documentatie</td><td>Doar modificari de README, comentarii, fara cod functional</td></tr>
+      <tr><td><code>release/</code></td><td>Pregatire release</td><td>Stabilizare inainte de a iesi o versiune noua</td></tr>
+    </tbody>
+  </table>
+
+  <p>Un nume bun: <code>feature/IMK-247-stripe-billing-integration</code>. Vezi imediat: e o functionalitate noua, ticketul Jira e IMK-247, si despre ce e vorba.</p>
+
+  <h2>Doua strategii mari: GitFlow vs Trunk-Based</h2>
+
+  <div class="concept-box">
+    <h3>GitFlow - structurat, multi-strat</h3>
+    <p>Branch-uri permanente: <code>main</code> (productie), <code>develop</code> (integrare). Branch-uri temporare: <code>feature/*</code>, <code>release/*</code>, <code>hotfix/*</code>. Codul migreaza: feature → develop → release → main. Fiecare release e o "lansare oficiala".</p>
+    <p><strong>Cand functioneaza:</strong> produse cu release-uri planificate (lunar, trimestrial), versiuni multiple in suport simultan (ex: clienti pe v2.x si v3.x). Mai degraba enterprise sau B2B clasic.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>Trunk-Based - simplu, rapid</h3>
+    <p>Un singur branch lung: <code>main</code>. Toate feature-urile sunt branch-uri scurte (1-3 zile) care se intorc rapid in main. Deploy-urile se intampla zilnic sau de mai multe ori pe zi. Functionalitatile incomplete sunt ascunse cu <strong>feature flags</strong> (steaguri care le tin invizibile pana sunt gata).</p>
+    <p><strong>Cand functioneaza:</strong> SaaS modern, echipe care livreaza des, produse cu o singura versiune in productie. Avise e probabil aici, IMK Portal Phase 1 probabil tot aici.</p>
+  </div>
+
+  <div class="anchor-box">
+    <div class="label">Ancora ta</div>
+    <span class="anchor-word">🚂 GARA CU MAI MULTE LINII</span>
+    <div class="anchor-why">GitFlow = gara mare cu peroane separate (develop, release, main) prin care trenurile (feature-uri) trec ordonat. Trunk-based = un singur peron cu trenuri scurte care vin si pleaca tot timpul. Ambele functioneaza, dar pentru trafic diferit.</div>
+  </div>
+
+  <div class="contrast-box">
+    <div class="label">Contrast</div>
+    Un PO care intreaba "cand iese release-ul?" intr-o echipa trunk-based e ca cineva care intreaba la metroul bucurestean "cand vine urmatorul tren". Vine in cateva minute, mereu. In echipa GitFlow, release-ul e un eveniment cu data fixa. Trebuie sa stii in ce model lucreaza echipa ta inainte sa pui intrebari de planning.
+  </div>
+
+  <div class="memory-tech">
+    <div class="label">Tehnica de memorare</div>
+    <h4>Metoda <span class="technique-name">"Doua peisaje"</span> - vizualizare contrastiva</h4>
+    <p>Imagineaza-ti doua imagini complete, una langa alta:</p>
+    <p><strong>Stanga (GitFlow):</strong> un copac mare cu 4 ramuri principale lungi, multe crengute care urca si coboara intre ele. Ordonat, multi-etaj.</p>
+    <p><strong>Dreapta (Trunk-Based):</strong> un trunchi gros cu zeci de crengute mici care apar si dispar, ca un copac batut de vant. Toate scurte, toate aproape de trunchi.</p>
+    <p>Cand auzi numele unei strategii, vezi instant peisajul. <strong>Memorie vizuala contrastiva</strong> - imaginile opuse se intaresc reciproc pentru ca creierul le proceseaza ca pereche.</p>
+  </div>
+
+  <div class="quiz">
+    <div class="label">Quiz - Interpretare</div>
+    <h4>In sprint planning, Vlad iti zice: "lucram trunk-based, deploy zilnic. Stripe integration va fi in spatele unui feature flag pana la GA". Ce inseamna asta concret pentru release-ul de Phase 2?</h4>
+    <div class="quiz-options" id="q2-opts">
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q2-fb', 'q2-opts')">Codul Stripe va fi pe un branch separat pana la GA</button>
+      <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true, 'q2-fb', 'q2-opts')">Codul Stripe va fi in main si deploy-uit, dar invizibil utilizatorilor; la GA, cineva activeaza flag-ul si feature-ul devine vizibil fara alt deploy</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q2-fb', 'q2-opts')">Nu putem face deploy zilnic daca avem Stripe in lucru</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q2-fb', 'q2-opts')">GA inseamna ca facem un branch GitFlow pentru release</button>
+    </div>
+    <div class="quiz-feedback" id="q2-fb">
+      <strong>Corect:</strong> Feature flag = codul exista, e deja in productie, dar e ascuns dupa un "intrerupator" care zice "afiseaza/nu afiseaza". Echipa poate merge inainte cu deploy-urile zilnice pentru alte feature-uri, fara sa astepte ca Stripe sa fie gata. Cand totul e testat, cineva apasa intrerupatorul - feature-ul apare instant fara deploy nou. Asta e marele avantaj trunk-based: nu astepti "release-ul mare".
+    </div>
+  </div>
+
+  <div class="module-nav">
+    <button class="btn btn-secondary" onclick="prevModule()">← Anterior</button>
+    <button class="btn btn-primary" onclick="nextModule()">Continua: Versionare →</button>
+  </div>
+</section>
+
+<!-- MODULE 3: Versionare -->
+<section class="module" id="module-3">
+  <div class="module-header">
+    <div class="module-label">Modul 4 din 7</div>
+    <h1 class="module-title">Versionare: SemVer, hotfix-uri, release-uri</h1>
+  </div>
+
+  <div class="break-box">
+    <div class="label">Ce se sparge fara conceptul asta</div>
+    Un client integreaza cu API-ul tau folosind versiunea 2.3.1. Doua saptamani mai tarziu, echipa ta lanseaza 2.3.2 - "doar un bugfix". Clientul actualizeaza si... integrarea lui crapa. De ce? Pentru ca echipa a numit gresit versiunea: 2.3.2 nu era doar un bugfix, schimbase un nume de camp. Asta era o schimbare de major version, nu de patch. Numerele de versiune sunt un contract cu cei care folosesc codul tau. Daca numerotezi gresit, le inseli asteptarile.
+  </div>
+
+  <h2>Semantic Versioning (SemVer) - formula MAJOR.MINOR.PATCH</h2>
+
+  <div class="diagram">
+    <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- Version number large -->
+      <text x="350" y="60" text-anchor="middle" font-size="48" font-weight="bold" fill="#1f2937" font-family="monospace">
+        <tspan fill="#dc2626">2</tspan>.<tspan fill="#2563eb">3</tspan>.<tspan fill="#059669">7</tspan>
+      </text>
+
+      <!-- MAJOR -->
+      <text x="160" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc2626">MAJOR (2)</text>
+      <text x="160" y="140" text-anchor="middle" font-size="11" fill="#1f2937">Schimbari care</text>
+      <text x="160" y="155" text-anchor="middle" font-size="11" fill="#1f2937"><strong>strica</strong> ce era inainte</text>
+      <text x="160" y="180" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">Ex: redenumire camp API,</text>
+      <text x="160" y="195" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">eliminare functionalitate</text>
+
+      <!-- MINOR -->
+      <text x="350" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="#2563eb">MINOR (3)</text>
+      <text x="350" y="140" text-anchor="middle" font-size="11" fill="#1f2937">Functionalitati noi care</text>
+      <text x="350" y="155" text-anchor="middle" font-size="11" fill="#1f2937"><strong>nu strica</strong> ce era inainte</text>
+      <text x="350" y="180" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">Ex: endpoint nou,</text>
+      <text x="350" y="195" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">camp optional adaugat</text>
+
+      <!-- PATCH -->
+      <text x="540" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="#059669">PATCH (7)</text>
+      <text x="540" y="140" text-anchor="middle" font-size="11" fill="#1f2937">Bugfix-uri, fara</text>
+      <text x="540" y="155" text-anchor="middle" font-size="11" fill="#1f2937">schimbari de comportament</text>
+      <text x="540" y="180" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">Ex: corectie calcul,</text>
+      <text x="540" y="195" text-anchor="middle" font-size="10" font-style="italic" fill="#6b7280">fix bug de afisare</text>
+    </svg>
+    <div class="diagram-caption">Fiecare cifra are inteles. Cand o cifra creste, cele din dreapta resetate la zero (3.4.9 → 4.0.0 la major bump).</div>
+  </div>
+
+  <h2>Cum se incrementeaza in practica</h2>
+
+  <table>
+    <thead><tr><th>De la</th><th>La</th><th>Ce s-a intamplat</th></tr></thead>
+    <tbody>
+      <tr><td>1.2.3</td><td>1.2.4</td><td>Patch: bugfix mic, fara schimbari de API</td></tr>
+      <tr><td>1.2.4</td><td>1.3.0</td><td>Minor: feature nou (PATCH se reseteaza la 0)</td></tr>
+      <tr><td>1.3.0</td><td>2.0.0</td><td>Major: breaking change (MINOR si PATCH se reseteaza)</td></tr>
+      <tr><td>2.0.0</td><td>2.0.1</td><td>Patch: probabil un fix la noua versiune majora</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>Regula 0.x.y:</strong> Tot ce e sub 1.0.0 e considerat "in dezvoltare" - regulile nu se aplica strict. Cand un produs ajunge la 1.0.0 oficial, devine "stabil" si contractul SemVer incepe sa conteze.
+  </div>
+
+  <h2>Tags si Releases pe GitHub</h2>
+  <p>Cum se materializeaza versionarea in GitHub:</p>
+  <p><strong>Tag</strong> - o eticheta lipita pe un commit specific din istoric. Comanda: <code>git tag v2.3.7</code>. E ca un steag infipt: "aici a fost versiunea 2.3.7". Util pentru ca poti oricand sa te intorci exact la acel cod.</p>
+  <p><strong>Release</strong> - pe GitHub, un tag poate fi promovat la "release", care e o pagina dedicata cu changelog, fisiere atasate (binare, instalere), si link permanent. Devine documentul oficial al lansarii.</p>
+
+  <h2>Hotfix vs Feature Release - flow-ul diferit</h2>
+
+  <div class="concept-box">
+    <h3>Feature release (planificat)</h3>
+    <p>Tu si echipa planificati: pana pe 15 ale lunii iese v2.4.0 cu integrarea Stripe. Flow: feature branch → develop/main → testing → release branch → tag v2.4.0 → deploy. Ai timp sa testezi, sa pregatesti documentatie, sa anunti clientii.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>Hotfix (urgenta in productie)</h3>
+    <p>Sambata dimineata, productia e sparta - un bug critic blocheaza login-ul. Nu poti astepta sa termini feature-urile in lucru. Flow: branch <code>hotfix/v2.3.8-login-fix</code> direct din main, fix scurt, test rapid, merge, tag v2.3.8, deploy imediat. Doar PATCH bump, nimic altceva nu intra.</p>
+    <p><strong>De ce un branch separat:</strong> in main e posibil sa fie deja munca neterminata pentru v2.4.0. Daca faci deploy din main, urci si lucruri pe jumatate. Hotfix-ul porneste de la versiunea actuala de productie (tag v2.3.7) si se intoarce numai cu fix-ul, nimic altceva.</p>
+  </div>
+
+  <div class="anchor-box">
+    <div class="label">Ancora ta</div>
+    <span class="anchor-word">🚗 NUMARUL DE INMATRICULARE AL MASINII</span>
+    <div class="anchor-why">2.3.7 = trei cifre care identifica unic versiunea. Major = generatia (cum sunt B vs CT pe placutele Bucuresti). Minor = anul / seria. Patch = numarul individual. Schimbi placuta doar cand schimbi ceva esential.</div>
+  </div>
+
+  <div class="contrast-box">
+    <div class="label">Contrast</div>
+    O echipa care nu respecta SemVer face "minor bumps" cand de fapt sunt breaking changes. Asta e periculos pentru clientii care integreaza - actualizeaza fara grija si lucrurile lor se sparg. Daca esti PO pe un produs cu API public sau cu integratori (ca IMK cu ThinkOut, CRIF, Stripe), trebuie sa ai grija cum numerotezi.
+  </div>
+
+  <div class="memory-tech">
+    <div class="label">Tehnica de memorare</div>
+    <h4>Metoda <span class="technique-name">"Cele trei intrebari"</span> - decizie ghidata</h4>
+    <p>Cand vezi o versiune noua, intreaba in ordine:</p>
+    <ol>
+      <li><strong>S-a stricat ceva ce mergea inainte?</strong> Daca da → MAJOR bump.</li>
+      <li><strong>Daca nu, e o functionalitate noua?</strong> Daca da → MINOR bump.</li>
+      <li><strong>Daca nu, e doar un fix?</strong> → PATCH bump.</li>
+    </ol>
+    <p>Arborele de decizie are doar 3 noduri. <strong>Memorie procedurala</strong> - dupa ce-l aplici de 5 ori, devine automat.</p>
+  </div>
+
+  <div class="quiz">
+    <div class="label">Quiz - Interpretare</div>
+    <h4>Avise e la versiunea 1.4.2. Echipa adauga un endpoint nou opt-in pentru integrare cu QuickBooks (clientii actuali nu sunt afectati). Ce versiune urmeaza?</h4>
+    <div class="quiz-options" id="q3-opts">
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q3-fb', 'q3-opts')">1.4.3 (patch)</button>
+      <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true, 'q3-fb', 'q3-opts')">1.5.0 (minor)</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q3-fb', 'q3-opts')">2.0.0 (major)</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q3-fb', 'q3-opts')">1.4.2.1 (sub-patch)</button>
+    </div>
+    <div class="quiz-feedback" id="q3-fb">
+      <strong>Corect:</strong> Functionalitate noua + nu strica nimic existent = MINOR bump. Endpoint-ul nou e o adaugare; clientii care nu il folosesc nu sunt afectati. PATCH-ul (ultima cifra) se reseteaza la 0. Daca ar fi fost o schimbare la endpoint-uri vechi (ex: redenumire camp obligatoriu), ar fi fost 2.0.0 - major bump pentru breaking change.
+    </div>
+  </div>
+
+  <div class="module-nav">
+    <button class="btn btn-secondary" onclick="prevModule()">← Anterior</button>
+    <button class="btn btn-primary" onclick="nextModule()">Continua: Jira ↔ GitHub →</button>
+  </div>
+</section>
+
+<!-- MODULE 4: Jira ↔ GitHub -->
+<section class="module" id="module-4">
+  <div class="module-header">
+    <div class="module-label">Modul 5 din 7</div>
+    <h1 class="module-title">Jira ↔ GitHub: legatura completa</h1>
+  </div>
+
+  <div class="break-box">
+    <div class="label">Ce se sparge fara conceptul asta</div>
+    Esti la mid-sprint review. Verifici in Jira: 7 task-uri "In Progress". Pleci linistita ca echipa lucreaza. La sprint end, descoperi ca 5 din ele sunt deja merged in main si deployed - n-a actualizat nimeni Jira. Ai luat decizii pe date vechi de o saptamana. Daca cele doua sisteme nu vorbesc intre ele, ai mereu doar jumatate de adevar. Integrarea Jira-GitHub face ca status-ul ticket-ului sa se sincronizeze automat cu starea codului.
+  </div>
+
+  <h2>Cele trei niveluri de integrare</h2>
+
+  <div class="concept-box">
+    <h3>Nivel 1: Doar legatura vizuala (default cand conectezi)</h3>
+    <p>Dupa ce admin-ul conecteaza Jira cu GitHub, daca dev-ul mentioneaza ID-ul Jira (ex: <code>IMK-247</code>) intr-un commit message, branch name, PR title sau PR description, Jira detecteaza automat si afiseaza in ticket o sectiune "Development" cu link-uri spre acel commit / branch / PR. Nu se schimba status-ul automat, dar tu vezi in Jira ce s-a intamplat in cod.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>Nivel 2: Smart Commits (transformare semi-automata)</h3>
+    <p>Cu o sintaxa speciala in mesajul de commit, dev-ul poate sa:</p>
+    <ul>
+      <li><strong>Adauge un comentariu</strong> in ticket: <code>IMK-247 #comment am implementat validarea KVK</code></li>
+      <li><strong>Logheze timp de lucru</strong>: <code>IMK-247 #time 2h 30m fix bug Stripe webhook</code></li>
+      <li><strong>Tranzitioneze status-ul</strong>: <code>IMK-247 #close</code> sau <code>IMK-247 #in-progress</code></li>
+    </ul>
+    <p>Toate cele trei se pot combina intr-un singur commit. Cerinta: email-ul dev-ului din Git trebuie sa fie acelasi cu email-ul lui din Jira.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>Nivel 3: Tranzitii automate prin reguli (cel mai puternic)</h3>
+    <p>Configurezi in Jira: "cand un PR linkat la ticket e <strong>opened</strong> → tranzitioneaza ticket-ul la 'In Review'". "Cand PR-ul e <strong>merged</strong> → tranzitioneaza la 'Done'". Dev-ul nu trebuie sa atinga Jira deloc - actiunile lui in GitHub conduc automat workflow-ul Jira.</p>
+    <p>Asta inseamna ca atunci cand tu te uiti in Jira la sprint board, status-urile reflecta realitatea codului, nu cand a avut un coleg timp sa actualizeze manual.</p>
+  </div>
+
+  <h2>Conventia "ID Jira in branch name"</h2>
+  <p>Cea mai puternica conventie pe care o poti cere echipei: ID-ul Jira sa fie in numele branch-ului.</p>
+
+  <pre><code><span class="cmd-comment"># Bun:</span>
+feature/IMK-247-stripe-billing-integration
+bugfix/AVI-89-tva-calculation
+hotfix/IMK-301-login-broken
+
+<span class="cmd-comment"># Slab:</span>
+my-stripe-stuff
+fix-bug
+ionuts-branch</code></pre>
+
+  <p>De ce conteaza: GitHub si Jira folosesc ID-ul ca sa se gaseasca reciproc. Daca branch-ul are ID-ul, link-ul Jira ↔ GitHub se face automat fara ca dev-ul sa scrie nimic special. Daca lipseste, trebuie sa-l puna manual in commit messages, ceea ce de obicei uita.</p>
+
+  <h2>Cum citesti Development panel in Jira</h2>
+  <p>In fiecare ticket Jira conectat la GitHub, in dreapta apare sectiunea <strong>Development</strong>:</p>
+
+  <table>
+    <thead><tr><th>Ce vezi</th><th>Ce inseamna</th></tr></thead>
+    <tbody>
+      <tr><td>"1 branch"</td><td>Cineva a inceput sa lucreze. Clik pe el iti arata branch-ul</td></tr>
+      <tr><td>"3 commits"</td><td>3 commit-uri au mentionat acest ID; munca activa</td></tr>
+      <tr><td>"1 pull request - OPEN"</td><td>PR deschis, in review. Codul e push-uit dar nu merged</td></tr>
+      <tr><td>"1 pull request - MERGED"</td><td>Munca a fost integrata in main. <em>Aceasta e dovada ca e "done" tehnic.</em></td></tr>
+      <tr><td>"1 pull request - DECLINED"</td><td>PR-ul a fost respins. Decizia trebuie investigata</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>Ce sa intrebi cand un ticket pare "blocat":</strong> deschide ticket-ul, uita-te in Development panel. Daca PR-ul e OPEN de mult timp - blocajul e in review, nu in dev. Daca nu exista PR dar branch-ul exista de zile - dev-ul lucreaza inca local. Daca nu exista nimic - poate nu a inceput inca. Trei realitati diferite, trei conversatii diferite.
+  </div>
+
+  <div class="anchor-box">
+    <div class="label">Ancora ta</div>
+    <span class="anchor-word">🚇 STATIA DE METROU CU DOUA INTRARI</span>
+    <div class="anchor-why">Jira si GitHub sunt doua intrari in aceeasi statie - tu intri din partea PO (Jira), dev-ul intra din partea developer (GitHub), va intalniti la peron (ticket-ul cu Development panel). ID-ul ticketului e cheia care deschide ambele turnichete.</div>
+  </div>
+
+  <div class="contrast-box">
+    <div class="label">Contrast</div>
+    O echipa fara integrare are doua adevaruri paralele: Jira zice una, codul zice alta. PO-ul intreaba in stand-up "in ce status e X?", dev-ul raspunde "depinde unde te uiti". O echipa cu integrare are un singur adevar - status-ul Jira si starea codului spun aceeasi poveste, fara efort manual.
+  </div>
+
+  <div class="memory-tech">
+    <div class="label">Tehnica de memorare</div>
+    <h4>Metoda <span class="technique-name">"Verificarea in trei pasi"</span> - protocol de citire</h4>
+    <p>De cate ori vezi un ticket "In Progress" care te ingrijoreaza, fa instinctiv aceasta secventa de 3 pasi:</p>
+    <ol>
+      <li><strong>Branch exista?</strong> → daca nu, dev-ul nici n-a inceput</li>
+      <li><strong>PR exista?</strong> → daca nu, e doar la el local sau pe branch fara review</li>
+      <li><strong>PR e merged?</strong> → daca da, e tehnic done (poate doar deploy ramane)</li>
+    </ol>
+    <p>Asta e <strong>memorie procedurala in trei pasi</strong> - dupa ce o aplici de 3-4 ori, devine reflex. Ai un protocol clar in loc sa pui intrebari vagi.</p>
+  </div>
+
+  <div class="quiz">
+    <div class="label">Quiz - Interpretare</div>
+    <h4>In Jira, ticket-ul IMK-247 are status "In Progress" de 5 zile. In Development panel vezi: "1 branch, 8 commits, 1 pull request - OPEN (4 days)". Ce ipoteza cea mai probabila?</h4>
+    <div class="quiz-options" id="q4-opts">
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q4-fb', 'q4-opts')">Dev-ul nu a inceput inca, status-ul Jira e gresit</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q4-fb', 'q4-opts')">Task-ul e gata si in productie</button>
+      <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true, 'q4-fb', 'q4-opts')">Dev-ul a terminat codul (PR deschis acum 4 zile, 8 commits), dar PR-ul sta in review fara progres - blocajul e in review, nu in development</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q4-fb', 'q4-opts')">Sunt 8 task-uri diferite asociate</button>
+    </div>
+    <div class="quiz-feedback" id="q4-fb">
+      <strong>Corect:</strong> 8 commits = munca substantiala. PR OPEN de 4 zile = PR-ul exista pe GitHub dar nu a fost merged. Daca status-ul Jira ar fi automat, ar fi probabil "In Review", nu "In Progress" - posibil tranzitiile automate nu sunt configurate. Conversatia urmatoare nu e cu dev-ul ("de ce nu termini") ci cu cel care trebuie sa faca code review.
+    </div>
+  </div>
+
+  <div class="module-nav">
+    <button class="btn btn-secondary" onclick="prevModule()">← Anterior</button>
+    <button class="btn btn-primary" onclick="nextModule()">Continua: Fluenta PO →</button>
+  </div>
+</section>
+
+<!-- MODULE 5: Fluenta PO tehnic -->
+<section class="module" id="module-5">
+  <div class="module-header">
+    <div class="module-label">Modul 6 din 7</div>
+    <h1 class="module-title">Fluenta PO-ului tehnic</h1>
+  </div>
+
+  <div class="break-box">
+    <div class="label">Ce se sparge fara conceptul asta</div>
+    Esti in standup. Dev-ul zice "PR-ul meu e blocat de un CI failure pe lint dupa rebase". Tu auzi cinci cuvinte din care intelegi doua. Ai doua optiuni: sa zici "ok" si sa pleci fara sa intelegi, sau sa pui intrebari de baza si sa pari ca nu stii nimic. Niciuna nu te ajuta. Fluenta tehnica nu inseamna sa scrii cod - inseamna sa intelegi suficient ca sa pui intrebari bune si sa iei decizii pe date reale.
+  </div>
+
+  <h2>Cum citesti un PR fara sa fii dev</h2>
+
+  <p>Cand deschizi un PR pe GitHub, vezi cateva lucruri importante:</p>
+
+  <div class="concept-box">
+    <h3>Titlul si descrierea</h3>
+    <p>Titlul ar trebui sa fie clar si sa contina ID-ul Jira: <code>IMK-247: Stripe billing integration for monthly subscriptions</code>. Descrierea ar trebui sa explice <em>de ce</em>, nu doar <em>ce</em> - tu, ca PO, poti citi asta si intelege intentia, chiar daca nu intelegi cod.</p>
+    <p>Daca titlul e <code>fix stuff</code> sau descrierea e goala, e un red flag de calitate.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>Status-ul CI (Continuous Integration)</h3>
+    <p>In partea de jos vezi indicatori verzi sau rosii cu nume ca "build", "test", "lint". Astea sunt verificari automate care ruleaza la fiecare push pe PR:</p>
+    <ul>
+      <li><strong>build</strong> - codul se compileaza, nu are erori de sintaxa</li>
+      <li><strong>test</strong> - testele automate trec (functionalitatea nu e stricata)</li>
+      <li><strong>lint</strong> - codul respecta standardele de stil ale echipei</li>
+      <li><strong>security scan</strong> - nu sunt vulnerabilitati cunoscute (GHAS face asta)</li>
+    </ul>
+    <p>Daca vezi tot verde - codul e "tehnic safe" sa fie merged. Daca vezi rosu - ceva trebuie reparat. Asta nu inseamna ca e bug functional, dar inseamna ca echipa a stabilit ca nu merge inainte cu probleme nerezolvate.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>Numarul de "files changed" si "+X / -Y" linii</h3>
+    <p>"1 file changed, +10 -2" = PR mic, probabil un fix. "47 files changed, +2,341 -890" = PR mare, probabil un feature complex sau refactorizare.</p>
+    <p>PR-urile foarte mari sunt greu de reviewuit corect si ascund bug-uri. O echipa sanatoasa pastreaza PR-urile sub ~400 linii cand se poate. Ca PO, daca vezi PR-uri de 2000+ linii, poti pune intrebarea: "ar fi putut fi spart in PR-uri mai mici?"</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>Conversatia (Comments)</h3>
+    <p>Aici se intampla code review-ul. Vezi cine a comentat ce, daca s-au cerut modificari, daca au fost rezolvate. Statusul aprobarilor e in dreapta sus: "Approved by 2", "Changes requested by 1", "Awaiting review".</p>
+  </div>
+
+  <h2>Vocabular minim functional pentru tine</h2>
+
+  <table>
+    <thead><tr><th>Termen</th><th>Ce inseamna</th><th>Cand auzi, gandeste</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Rebase</strong></td><td>Rearanjeaza commit-urile tale peste ultima versiune din main</td><td>Sincronizare cu main, posibil sa apara conflicte</td></tr>
+      <tr><td><strong>Squash</strong></td><td>Combina mai multe commit-uri intr-unul singur</td><td>Curatare istoric inainte de merge</td></tr>
+      <tr><td><strong>Cherry-pick</strong></td><td>Iei un commit dintr-un branch si il pui in altul</td><td>"Vrem fix-ul asta in productie fara restul"</td></tr>
+      <tr><td><strong>Revert</strong></td><td>Anulezi un commit deja merged (face commit invers)</td><td>"Am stricat ceva, dam inapoi pana cand fixam"</td></tr>
+      <tr><td><strong>Stash</strong></td><td>"Pun deoparte" munca curenta ca sa schimb branch-ul</td><td>Dev-ul lucreaza la altceva temporar</td></tr>
+      <tr><td><strong>Fork</strong></td><td>Faci o copie personala a unui repo</td><td>Lucru in open source, sau dev extern fara acces direct</td></tr>
+      <tr><td><strong>Origin</strong></td><td>Numele standard pentru repo-ul de pe GitHub</td><td>"git push origin main" = trimit pe GitHub</td></tr>
+      <tr><td><strong>HEAD</strong></td><td>Pozitia curenta in istoric (unde "esti")</td><td>"Nimic, jargon tehnic"</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Intrebari bune in standup (calibrate pe Git flow)</h2>
+
+  <div class="concept-box">
+    <h3>In loc de "esti gata cu X?"</h3>
+    <p>Intreaba: "in ce stadiu e PR-ul - inca lucrezi local, e push-uit, e in review, sau urmeaza merge-ul?" Raspunsul iti spune exact unde te afli in cele 6 etape.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>In loc de "merge?"</h3>
+    <p>Intreaba: "ai vreun blocker? PR-ul tau e in review activ sau asteapta pe cineva?" Diferentiezi intre "dev-ul are probleme tehnice" si "review-ul e blocajul".</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>In loc de "cand iese?"</h3>
+    <p>Intreaba: "cand estimati merge in main? E o diferenta intre merge si deploy?" Asta te ajuta sa intelegi daca dupa merge mai e un pas pana la clientul real.</p>
+  </div>
+
+  <h2>Red flags in commit history</h2>
+  <p>Daca te uiti la istoricul commit-urilor unui branch sau PR, anumite pattern-uri sunt semne de probleme:</p>
+
+  <ul>
+    <li><strong>Multe commit-uri "fix"</strong> consecutive ("fix", "fix again", "really fix") - dev-ul a avut probleme si a iterat prin incercari. Posibil ca nu inteleg problema fundamentala.</li>
+    <li><strong>Mesaje vagi</strong> ("update", "changes", "wip") - nu poti reconstrui ce s-a intamplat. Greu de reviewuit, greu de debugat in viitor.</li>
+    <li><strong>Commit-uri uriase</strong> (mii de linii intr-un singur commit) - imposibil de reviewuit corect, ascund schimbari mixte.</li>
+    <li><strong>"Merge conflicts resolved"</strong> repetate - munca s-a tras prea mult timp, intre timp main a evoluat mult.</li>
+  </ul>
+
+  <div class="anchor-box">
+    <div class="label">Ancora ta</div>
+    <span class="anchor-word">🩺 STETOSCOPUL DOCTORULUI</span>
+    <div class="anchor-why">Tu nu trebuie sa stii medicina la fel de profund ca medicul, dar daca ai un stetoscop si stii sa-l folosesti, poti detecta cand ceva nu suna bine. PR-ul e pacientul; vocabularul minim e stetoscopul. Nu vindeci, dar identifici cand e nevoie de atentie.</div>
+  </div>
+
+  <div class="contrast-box">
+    <div class="label">Contrast</div>
+    Un PO fara fluenta tehnica primeste informatie filtrata - dev-ul decide ce ii spune si ce nu. Un PO cu fluenta tehnica vede direct si poate distinge intre "lucrul merge incet" si "lucrul e blocat de o decizie care nu s-a luat inca". A doua varianta poate fi rezolvata; prima nu.
+  </div>
+
+  <div class="memory-tech">
+    <div class="label">Tehnica de memorare</div>
+    <h4>Metoda <span class="technique-name">"Vocabularul in context"</span> - asocieri concrete</h4>
+    <p>Nu memora termenii din tabelul de vocabular ca pe definitii. In schimb, pentru fiecare termen, gaseste o <em>situatie concreta din echipa ta unde l-ai auzit (sau s-ar putea sa-l auzi)</em>:</p>
+    <ul>
+      <li><em>Rebase</em> → "Janno a zis ca trebuie sa rebase-uiesc inainte de merge"</li>
+      <li><em>Squash</em> → "Edi prefera sa squash-uiasca commit-urile inainte de PR"</li>
+    </ul>
+    <p>Termenii devin parte din povestea echipei tale, nu carduri de memorat. <strong>Memoria episodica</strong> (intamplari) e mai puternica decat <strong>memoria semantica</strong> (definitii pure).</p>
+  </div>
+
+  <div class="quiz">
+    <div class="label">Quiz - Interpretare</div>
+    <h4>Vezi un PR cu titlul "fix" si descriere goala, 47 fisiere modificate, 1,800 linii adaugate, 6 commit-uri toate cu mesajul "wip". CI-ul e verde. Care e raspunsul cel mai bun ca PO?</h4>
+    <div class="quiz-options" id="q5-opts">
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q5-fb', 'q5-opts')">CI-ul e verde, deci e safe pentru merge - aproba</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q5-fb', 'q5-opts')">Nu e treaba PO-ului sa intervina aici, lasa code review-ul</button>
+      <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true, 'q5-fb', 'q5-opts')">PR-ul ridica intrebari de calitate dincolo de cod - titlul, descrierea, marimea si mesajele de commit semnaleaza risc. Conversatia cu dev-ul (sau tech lead-ul) despre standardele PR-urilor merita avuta inainte de merge</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q5-fb', 'q5-opts')">Cere sa fie squash-uit si gata</button>
+    </div>
+    <div class="quiz-feedback" id="q5-fb">
+      <strong>Corect:</strong> CI verde inseamna "codul nu se sparge tehnic" - dar nu spune nimic despre intentie, scope, risc, intelegere. Un PR de 1,800 linii, fara descriere, fara istoric clar, va fi imposibil de inteles peste 3 luni cand cineva debuga ceva. Ca PO, ai o voce legitima in standardele de calitate ale echipei, nu doar in continutul functional. Asta e parte din fluenta tehnica.
+    </div>
+  </div>
+
+  <div class="module-nav">
+    <button class="btn btn-secondary" onclick="prevModule()">← Anterior</button>
+    <button class="btn btn-primary" onclick="nextModule()">Continua: Aplicare reala →</button>
+  </div>
+</section>
+
+<!-- MODULE 6: Aplicare reala -->
+<section class="module" id="module-6">
+  <div class="module-header">
+    <div class="module-label">Modul 7 din 7</div>
+    <h1 class="module-title">Aplicare: Avise & IMK Portal</h1>
+  </div>
+
+  <div class="break-box">
+    <div class="label">Ce se sparge fara conceptul asta</div>
+    Cunoasterea fara aplicare e doar zgomot. Ai parcurs 6 module despre Git si GitHub - dar daca maine la standup-ul Avise sau la planning-ul IMK nu schimbi o singura intrebare, nu te-am ajutat. Ultimul modul e despre cum sa pui ce ai invatat la treaba in contextele tale concrete.
+  </div>
+
+  <h2>Avise - context probabil si intrebari potrivite</h2>
+
+  <p>Pe baza a ceea ce stiu despre Avise (SaaS de contabilitate, echipa mica, faza de supravietuire, ciclu rapid de iteratie cu CEO-ul implicat direct), e foarte probabil ca echipa lucreaza <strong>trunk-based</strong> sau ceva apropiat:</p>
+
+  <ul>
+    <li>Un singur <code>main</code> ca branch principal</li>
+    <li>Feature branches scurte, life cycle de zile, nu saptamani</li>
+    <li>Deploy frecvent in productie (zilnic sau aproape)</li>
+    <li>Probabil putin proces formal de release versioning - nu sunt clienti enterprise care cer notice de major version</li>
+  </ul>
+
+  <div class="concept-box">
+    <h3>Intrebari utile in contextul Avise</h3>
+    <p><strong>Cand Harris zice "am pregatit un fix pentru AI hallucinations":</strong></p>
+    <p>→ "E intr-un PR open sau deja merged? Daca e merged, e deja in productie sau e nevoie de deploy separat?"</p>
+    <p>→ Te ajuta sa stii daca poti demonstra fix-ul la Graham acum sau peste o ora.</p>
+
+    <p style="margin-top: 16px;"><strong>Cand discutati despre cele 66 test cases pe Evalite:</strong></p>
+    <p>→ "Suita de teste ruleaza ca parte din CI la fiecare PR, sau e ceva ce ruleaza separat manual? Daca un PR pica testele AI, e blocant pentru merge sau doar warning?"</p>
+    <p>→ Te ajuta sa intelegi gradul de protectie real al productiei impotriva regresiilor in comportamentul AI.</p>
+
+    <p style="margin-top: 16px;"><strong>Cand un demo iese prost:</strong></p>
+    <p>→ "Versiunea de pe demo era exact ce e in main, sau era pe alt branch / build vechi? Care commit a fost deploy-uit pe demo?"</p>
+    <p>→ Te ajuta sa separi "bug real" de "demo a rulat un build invechit".</p>
+  </div>
+
+  <h2>IMK Portal - context probabil si intrebari potrivite</h2>
+
+  <p>IMK Portal pare un context diferit: produs B2B Dutch, multi furnizori (ThinkOut, CRIF, Stripe, SnelStart), faze de release planificate (Phase 1, Phase 2), echipa mai mare (Vlad, Alexandra, Leo, Emanuel, Eusebiu, plus Janno pe Dutch backend). Foarte probabil:</p>
+
+  <ul>
+    <li>Strategie de branching mai structurata (poate GitFlow sau o varianta)</li>
+    <li>Release-uri marcate cu versiuni (importante pentru integrari)</li>
+    <li>Mai multe medii: dev → staging → production</li>
+    <li>Code review formal cu cel putin un aprobator necesar</li>
+  </ul>
+
+  <div class="concept-box">
+    <h3>Intrebari utile in contextul IMK Portal</h3>
+    <p><strong>Cand planifici Phase 2 cu Vlad:</strong></p>
+    <p>→ "Ce versiune o sa fie Phase 2? E un minor bump fata de Phase 1 (1.x → 1.y) sau major (1.x → 2.0)? Asta afecteaza cum comunicam cu integratorii ThinkOut si CRIF?"</p>
+    <p>→ Versiunea numerotata e un contract cu echipele externe care fac integrare.</p>
+
+    <p style="margin-top: 16px;"><strong>Cand Stripe billing integration e in lucru:</strong></p>
+    <p>→ "Lucram cu feature flag pentru Stripe sau e o release pe branch separat? Daca e flag, cine il activeaza la GA si cum testam in productie fara sa-l vada clientii?"</p>
+    <p>→ Te ajuta sa intelegi cum poti face dogfooding cu clientii pilot fara sa expui la toata baza.</p>
+
+    <p style="margin-top: 16px;"><strong>In review de sprint:</strong></p>
+    <p>→ "Hai sa ne uitam in Jira la Development panel-ul fiecarui ticket - cate au PR merged, cate au PR open, cate inca nu au branch. Asta ne arata unde e blocajul real al sprint-ului."</p>
+    <p>→ Schimbi conversatia de la "ce simt oamenii" la "ce arata datele".</p>
+  </div>
+
+  <h2>Lucruri concrete pe care sa le pui in practica saptamana asta</h2>
+
+  <div class="concept-box">
+    <h3>1. La proximul standup Avise sau IMK</h3>
+    <p>Cand cineva zice "am terminat" sau "e gata", pune intrebarea: <strong>"e push-uit, in PR, sau merged in main?"</strong>. O singura intrebare, calibrata pe etape.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>2. Deschide trei PR-uri reale (Avise sau IMK)</h3>
+    <p>Citeste-le, identifica: titlul e clar? Descrierea explica de ce? CI-ul e verde? Cati aprobatori? Cate fisiere modificate? Daca PR-ul e mare, ar fi putut fi spart? Nu trebuie sa actionezi, doar sa antrenezi ochiul.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>3. Verifica conventia de branch naming</h3>
+    <p>Deschide branch-urile active in repo (in GitHub: tab "Branches"). Cate au ID-ul Jira in nume? Daca multe nu au, asta e o conversatie cu tech lead-ul - micro-ajustare cu impact mare asupra trasabilitatii.</p>
+  </div>
+
+  <div class="concept-box">
+    <h3>4. Configureaza un Jira filter</h3>
+    <p>Creeaza un filter in Jira: "ticket-uri 'In Progress' cu PR OPEN mai vechi de 3 zile". Asta iti scoate la suprafata blocajele in code review, nu in development. E o intrebare pe care n-o pune nimeni de obicei in stand-up.</p>
+  </div>
+
+  <div class="anchor-box">
+    <div class="label">Ancora ta finala</div>
+    <span class="anchor-word">🎯 LANTERNA PE INTUNERIC</span>
+    <div class="anchor-why">Inainte de cursul asta, partea tehnica era o camera intunecata - vedeai forme, nu detalii. Acum ai o lanterna. Nu vezi tot, dar poti lumina exact unde vrei. Intrebarile bune sunt fascicolul de lumina; vocabularul e bateria.</div>
+  </div>
+
+  <div class="memory-tech">
+    <div class="label">Tehnica finala - consolidare</div>
+    <h4>Metoda <span class="technique-name">"Recall la 24h, 7 zile, 30 zile"</span> - spaced repetition</h4>
+    <p>Fara repetare, 70% din continutul de azi se va sterge in 7 zile. Cu trei recall-uri scurte, fixezi 80% pe termen lung:</p>
+    <ul>
+      <li><strong>Maine</strong> (24h): inchide cursul. Pe o foaie, scrie din memorie cele 6 etape (PBCPPM) si ce inseamna fiecare. Verifica.</li>
+      <li><strong>Peste o saptamana</strong>: in standup, foloseste deliberat doua intrebari noi din cele invatate. Notezi unde a fost util.</li>
+      <li><strong>Peste o luna</strong>: revino la modulele 3 (versionare) si 4 (Jira-GitHub) - astea au cel mai mult detaliu si se vor fi sters partial. Le reciteste in 10 minute.</li>
+    </ul>
+    <p>Asta e <strong>curba de uitare Ebbinghaus</strong> aplicata: nu inveti din nou, doar reintaresti cand pe cale sa uiti.</p>
+  </div>
+
+  <div class="quiz">
+    <div class="label">Quiz final - Aplicare in context propriu</div>
+    <h4>Esti la planning IMK pentru Phase 2. Vlad zice ca echipa va incepe Stripe billing si Vault feature in paralel. Care e cea mai buna intrebare ca PO tehnic informat?</h4>
+    <div class="quiz-options" id="q6-opts">
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q6-fb', 'q6-opts')">"Cand sunt gata ambele?"</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q6-fb', 'q6-opts')">"Cine se ocupa de fiecare?"</button>
+      <button class="quiz-option" data-correct="true" onclick="answerQuiz(this, true, 'q6-fb', 'q6-opts')">"Lucram in paralel pe branch-uri separate, ambele care intra in main? Daca da, cum gestionam dependinta - Vault are permission system, Stripe are nevoie de el pentru billing per organizatie. Cine merge primul si cum?"</button>
+      <button class="quiz-option" onclick="answerQuiz(this, false, 'q6-fb', 'q6-opts')">"Putem face un singur PR cu ambele?"</button>
+    </div>
+    <div class="quiz-feedback" id="q6-fb">
+      <strong>Corect:</strong> Asta arata pe deplin fluenta dobandita: intelegi ca paralelism inseamna branch-uri separate, intelegi ca ordinea de merge conteaza cand exista dependinte, si pui intrebarea care scoate la suprafata o decizie de arhitectura inainte sa devina problema. Asta nu mai e PO care intreaba "cand?", e PO tehnic care vede sistemul.
+    </div>
+  </div>
+
+  <div style="background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%); padding: 32px; border-radius: 8px; margin-top: 40px; text-align: center;">
+    <h3 style="color: #065f46; margin-bottom: 12px;">Ai terminat cursul</h3>
+    <p style="color: #064e3b; font-size: 15px; line-height: 1.7;">Ai trecut prin: anatomia repo-ului, ciclul codului, branching, versionare, integrarea Jira-GitHub, fluenta tehnica si aplicare reala in Avise si IMK. Acum ai vocabularul si modelele mentale care sa-ti permita sa pui intrebari calibrate, nu generice.</p>
+    <p style="color: #064e3b; font-size: 14px; margin-top: 16px; font-style: italic;">Lanterna e in mana ta. Camera e mai luminata. Mergi.</p>
+  </div>
+
+  <div class="module-nav">
+    <button class="btn btn-secondary" onclick="prevModule()">← Anterior</button>
+    <button class="btn btn-primary" onclick="markComplete(6); renderNav();">Marcheaza complet ✓</button>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  const modules = [
+    { id: 0, title: "Anatomia unui repo", short: "Anatomia repo-ului" },
+    { id: 1, title: "Ciclul de viata al codului", short: "Ciclul codului" },
+    { id: 2, title: "Branch-uri si strategii", short: "Branch-uri" },
+    { id: 3, title: "Versionare (SemVer, hotfix, release)", short: "Versionare" },
+    { id: 4, title: "Jira ↔ GitHub: legatura completa", short: "Jira ↔ GitHub" },
+    { id: 5, title: "Fluenta PO-ului tehnic", short: "Fluenta PO" },
+    { id: 6, title: "Aplicare: Avise & IMK Portal", short: "Aplicare reala" }
+  ];
+
+  let currentModule = 0;
+  let completed = new Set();
+
+  function renderNav() {
+    const nav = document.getElementById('nav');
+    nav.innerHTML = modules.map(m => `
+      <div class="nav-module ${m.id === currentModule ? 'active' : ''} ${completed.has(m.id) ? 'completed' : ''}"
+           onclick="goToModule(${m.id})">
+        <span class="nav-num">${m.id + 1}</span>
+        <span>${m.short}</span>
+      </div>
+    `).join('');
+    const pct = (completed.size / modules.length) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = `${completed.size} / ${modules.length} module`;
+  }
+
+  function goToModule(id) {
+    currentModule = id;
+    document.querySelectorAll('.module').forEach(m => m.classList.remove('active'));
+    document.getElementById('module-' + id).classList.add('active');
+    renderNav();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function markComplete(id) {
+    completed.add(id);
+    renderNav();
+  }
+
+  function nextModule() {
+    markComplete(currentModule);
+    if (currentModule < modules.length - 1) goToModule(currentModule + 1);
+  }
+
+  function prevModule() {
+    if (currentModule > 0) goToModule(currentModule - 1);
+  }
+
+  function answerQuiz(btn, correct, feedbackId, allBtns) {
+    document.querySelectorAll(`#${allBtns} .quiz-option`).forEach(b => b.classList.add('disabled'));
+    const feedback = document.getElementById(feedbackId);
+    if (correct) {
+      btn.classList.add('correct');
+      feedback.className = 'quiz-feedback correct';
+    } else {
+      btn.classList.add('wrong');
+      // highlight correct one
+      document.querySelectorAll(`#${allBtns} .quiz-option[data-correct="true"]`).forEach(b => b.classList.add('correct'));
+      feedback.className = 'quiz-feedback wrong';
+    }
+    feedback.style.display = 'block';
+  }
+
+  // Initialize on load
+  renderNav();
+</script>
+</body>
+</html>

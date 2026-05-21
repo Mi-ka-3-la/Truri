@@ -1,0 +1,528 @@
+/* =============================================================
+   STYLES-POLISH — Visual refinement overlay
+   Loaded AFTER styles.css in _base.html. Overrides selected
+   tokens and components to elevate the visual feel without
+   touching the original styles.css.
+
+   What this changes:
+   - Richer, more sophisticated color palette
+   - Multi-layered shadows with warm undertones
+   - More dramatic typography hierarchy
+   - Refined card treatments (subtle gradients, better borders)
+   - Polished hover states and micro-interactions
+   - Lucide icon styling
+   - Subtle ambient background texture
+
+   To remove: delete this file and remove the <link> in _base.html.
+   ============================================================= */
+
+/* ── REFINED DESIGN TOKENS ─────────────────────────────────────
+   Override the base tokens with more nuanced values.
+   ──────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds: warmer, with more depth */
+  --color-bg:             #FBF8F3;
+  --color-bg-warm:        #F4EFE6;
+  --color-bg-deep:        #EFE9DD;
+
+  /* Text: slightly richer contrast */
+  --color-text:           #1F1D1B;
+  --color-text-secondary: #5C5751;
+  --color-text-muted:     #948D85;
+
+  /* Borders: more layered */
+  --color-border:         #E2DBCF;
+  --color-border-light:   #EDE7DC;
+  --color-border-strong:  #D4CBBC;
+
+  /* Surfaces */
+  --color-surface:        #FFFFFF;
+  --color-surface-warm:   #FDF9F2;
+  --color-surface-deep:   #F8F2E8;
+
+  /* Shadows: layered and warm-tinted */
+  --shadow-sm:
+    0 1px 2px rgba(60, 50, 40, 0.04),
+    0 1px 1px rgba(60, 50, 40, 0.03);
+  --shadow-md:
+    0 4px 12px rgba(60, 50, 40, 0.06),
+    0 2px 4px rgba(60, 50, 40, 0.04),
+    0 1px 2px rgba(60, 50, 40, 0.03);
+  --shadow-lg:
+    0 12px 28px rgba(60, 50, 40, 0.08),
+    0 6px 12px rgba(60, 50, 40, 0.05),
+    0 2px 4px rgba(60, 50, 40, 0.03);
+  --shadow-xl:
+    0 24px 56px rgba(60, 50, 40, 0.10),
+    0 12px 24px rgba(60, 50, 40, 0.06);
+  --shadow-glow:
+    0 0 0 4px var(--color-accent-light),
+    0 8px 20px rgba(60, 50, 40, 0.08);
+
+  /* Smoother easings */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── AMBIENT BACKGROUND TEXTURE ─────────────────────────────── */
+body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, color-mix(in srgb, var(--color-accent) 4%, transparent) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, color-mix(in srgb, var(--color-accent) 3%, transparent) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Even modules get a slightly different ambient base */
+.module:nth-child(even) {
+  background:
+    linear-gradient(180deg, var(--color-bg-warm) 0%, var(--color-bg) 100%);
+}
+.module:nth-child(odd) {
+  background:
+    linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-warm) 100%);
+}
+
+/* ── REFINED TYPOGRAPHY HIERARCHY ──────────────────────────── */
+.module-number {
+  font-size: clamp(4rem, 12vw, 8rem);
+  font-weight: 800;
+  opacity: 0.10;
+  letter-spacing: -0.04em;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-muted) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-1);
+}
+
+.module-title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.module-subtitle {
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+  max-width: 60ch;
+  line-height: 1.45;
+}
+
+.screen-heading {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-bottom: var(--space-8);
+  position: relative;
+  padding-bottom: var(--space-3);
+}
+
+.screen-heading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 48px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-muted));
+  border-radius: var(--radius-full);
+}
+
+/* ── NAV REFINEMENT ────────────────────────────────────────── */
+.nav {
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(12px) saturate(1.2);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.nav-dot {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.nav-dot:hover { transform: scale(1.2); }
+.nav-dot.active {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}
+
+/* ── CARDS: PATTERN, STEP, ICON-ROW ───────────────────────────
+   Add subtle gradient, refined borders, hover lift.
+   ──────────────────────────────────────────────────────────── */
+.pattern-card,
+.step-card,
+.icon-row,
+.badge-item {
+  background:
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-warm) 100%);
+  border: 1px solid var(--color-border-light);
+  transition:
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out),
+    border-color var(--duration-fast);
+}
+
+.pattern-card:hover,
+.icon-row:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-strong);
+}
+
+.pattern-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
+}
+
+.step-card {
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-left-color: var(--color-accent);
+}
+
+.step-num {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-muted) 100%);
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--color-accent) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.icon-circle {
+  background: linear-gradient(135deg,
+    var(--icon-color, var(--color-accent)) 0%,
+    color-mix(in srgb, var(--icon-color, var(--color-accent)) 80%, white) 100%);
+  box-shadow:
+    0 4px 14px color-mix(in srgb, var(--icon-color, var(--color-accent)) 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ── QUIZ: refined options ─────────────────────────────────── */
+.quiz-container {
+  background:
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-warm) 100%);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-md);
+}
+
+.quiz-option {
+  background: var(--color-surface);
+  border-width: 1.5px;
+  transition:
+    border-color var(--duration-fast),
+    background var(--duration-fast),
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast);
+}
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--color-accent-muted);
+  transform: translateX(2px);
+  box-shadow: var(--shadow-sm);
+}
+.quiz-option.selected {
+  border-color: var(--color-accent);
+  background:
+    linear-gradient(90deg, var(--color-accent-light) 0%, var(--color-surface-warm) 100%);
+}
+.quiz-option.correct {
+  border-color: var(--color-success);
+  background:
+    linear-gradient(90deg, var(--color-success-light) 0%, var(--color-surface-warm) 100%);
+}
+.quiz-option.incorrect {
+  border-color: var(--color-error);
+  background:
+    linear-gradient(90deg, var(--color-error-light) 0%, var(--color-surface-warm) 100%);
+}
+
+.quiz-check-btn {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.02em;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.quiz-check-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 20px color-mix(in srgb, var(--color-accent) 35%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ── TRANSLATION BLOCKS: more dramatic ─────────────────────── */
+.translation-block {
+  box-shadow: var(--shadow-lg);
+  border: 1px solid color-mix(in srgb, var(--color-bg-code) 20%, transparent);
+}
+.translation-code {
+  background:
+    radial-gradient(ellipse at top right, #2A2A40 0%, #1E1E2E 100%);
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+.translation-english {
+  background:
+    linear-gradient(180deg, var(--color-surface-warm) 0%, var(--color-surface) 100%);
+}
+
+/* ── CHAT: more iMessage-like polish ───────────────────────── */
+.chat-window {
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-lg);
+}
+.chat-bubble {
+  background:
+    linear-gradient(180deg, var(--color-bg-warm) 0%, var(--color-bg-deep) 100%);
+  box-shadow: var(--shadow-sm);
+}
+.chat-avatar {
+  box-shadow:
+    0 3px 8px rgba(60, 50, 40, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* ── CALLOUT REFINEMENT ─────────────────────────────────────── */
+.callout {
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  background:
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-warm) 100%);
+  border: 1px solid var(--color-border-light);
+}
+.callout-accent {
+  border-left: 4px solid var(--color-accent);
+}
+.callout-info {
+  border-left: 4px solid var(--color-info);
+}
+.callout-warning {
+  border-left: 4px solid var(--color-error);
+}
+.callout-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.callout-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  display: block;
+  margin-bottom: var(--space-2);
+  letter-spacing: -0.01em;
+}
+
+/* ── ARCHITECTURE DIAGRAM: depth ───────────────────────────── */
+.arch-zone {
+  background:
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-warm) 100%);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--color-border-light);
+}
+.arch-component {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) var(--space-2) var(--space-2) 0;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  box-shadow: var(--shadow-sm);
+}
+.arch-component:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent-muted);
+}
+.arch-component.active {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+/* ── LUCIDE ICONS ───────────────────────────────────────────────
+   Use in HTML like: <i data-lucide="database" class="icon"></i>
+   Sized variants: .icon-sm, .icon, .icon-lg, .icon-xl
+   ──────────────────────────────────────────────────────────── */
+.icon,
+.icon-sm,
+.icon-lg,
+.icon-xl {
+  display: inline-block;
+  vertical-align: -0.125em;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.icon-sm { width: 1em;     height: 1em; }
+.icon    { width: 1.25em;  height: 1.25em; }
+.icon-lg { width: 1.75em;  height: 1.75em; }
+.icon-xl { width: 2.5em;   height: 2.5em; }
+
+/* Icons inside circles (replaces emoji avatars/pattern icons) */
+.icon-circle .icon,
+.pattern-icon .icon,
+.flow-actor-icon .icon,
+.callout-icon .icon {
+  stroke: white;
+  stroke-width: 2;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+}
+
+/* Inline accent-colored icon */
+.icon-accent { color: var(--color-accent); }
+.icon-success { color: var(--color-success); }
+.icon-error { color: var(--color-error); }
+.icon-muted { color: var(--color-text-muted); }
+
+/* ── TERM TOOLTIPS: refined ───────────────────────────────── */
+.term {
+  border-bottom: 1.5px dashed color-mix(in srgb, var(--color-accent) 50%, transparent);
+  transition: all var(--duration-fast);
+}
+.term:hover {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  border-radius: 2px;
+  margin: 0 -2px;
+  padding: 0 2px;
+}
+.term-tooltip {
+  background:
+    linear-gradient(180deg, #2A2A40 0%, #1E1E2E 100%);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── FLOW ANIMATION: glow ─────────────────────────────────── */
+.flow-actor-icon {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+.flow-actor.active .flow-actor-icon {
+  border-color: var(--color-accent);
+  box-shadow:
+    0 0 0 4px var(--color-accent-light),
+    0 8px 24px color-mix(in srgb, var(--color-accent) 25%, transparent);
+  transform: scale(1.08);
+}
+
+/* ── BADGE LIST: more compact, more visual ────────────────── */
+.badge-item {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+.badge-code {
+  background: linear-gradient(180deg, #2A2A40 0%, #1E1E2E 100%);
+  color: #CBA6F7;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78em;
+  font-weight: 500;
+  letter-spacing: 0;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── FILE TREE: more refined ──────────────────────────────── */
+.file-tree {
+  background:
+    linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-warm) 100%);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+.ft-folder, .ft-file {
+  border-left-color: var(--color-border);
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
+  transition: background var(--duration-fast);
+  border-radius: 4px;
+}
+.ft-folder:hover, .ft-file:hover {
+  background: var(--color-bg-warm);
+}
+
+/* ── FOCUS STATES ────────────────────────────────────────── */
+button:focus-visible,
+.term:focus-visible,
+.nav-dot:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── SUBTLE ENTRANCE FOR HERO ELEMENTS ───────────────────── */
+.module-header { position: relative; }
+.module-header::before {
+  content: "";
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  width: 24px;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+  opacity: 0;
+  animation: slideInDot 0.6s var(--ease-out) 0.3s forwards;
+}
+@keyframes slideInDot {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@media (max-width: 900px) {
+  .module-header::before { display: none; }
+}
+
+/* ── ACCESSIBILITY: respect prefers-reduced-motion ────────────────
+   Users with vestibular disorders set this in their OS settings.
+   Disables all animations and transitions but preserves interactivity
+   (buttons still work, just without the slide-in/scale effects).
+   ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── ACCESSIBILITY: stronger focus rings for keyboard users ─────
+   The default focus styles are good — these make them sharper for
+   anyone navigating without a mouse. Visible when using Tab, hidden
+   when using mouse (via :focus-visible).
+   ──────────────────────────────────────────────────────────── */
+button:focus-visible,
+.term:focus-visible,
+.nav-dot:focus-visible,
+.quiz-option:focus-visible,
+.arch-component:focus-visible,
+.dnd-chip:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 20%, transparent);
+}

@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procesul de Login — Curs Complet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;
+  --text:#e6edf3;--text-dim:#8b949e;
+  --accent:#e6b422;--accent-dim:rgba(230,180,34,0.1);
+  --break-color:#f85149;--break-bg:rgba(248,81,73,0.08);
+  --anchor-color:#3fb950;--anchor-bg:rgba(63,185,80,0.08);
+  --mono:'JetBrains Mono','Courier New',monospace;
+  --serif:'Lora',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);min-height:100vh;line-height:1.75;}
+
+.map-view{display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:1.5rem 1rem 3rem;}
+.map-header{text-align:center;margin-bottom:1.25rem;}
+.map-title{font-family:var(--mono);font-size:1rem;color:var(--accent);letter-spacing:0.1em;}
+.map-subtitle{font-size:0.85rem;color:var(--text-dim);margin-top:0.25rem;font-style:italic;}
+.map-note{font-size:0.78rem;color:var(--text-dim);margin-top:0.4rem;font-family:var(--mono);background:var(--surface);padding:0.35rem 0.8rem;border-radius:3px;border:1px solid var(--border);}
+.map-svg-wrap{width:100%;max-width:980px;}
+#mapSvg{width:100%;height:auto;}
+.map-legend{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;margin-top:1.25rem;max-width:900px;}
+.legend-item{display:flex;align-items:center;gap:0.4rem;font-family:var(--mono);font-size:0.62rem;color:var(--text-dim);padding:0.25rem 0.55rem;border-radius:3px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.legend-item:hover{color:var(--text);}
+
+.course-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0.85rem 1.5rem;position:sticky;top:0;z-index:100;}
+.course-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;}
+.btn-map{font-family:var(--mono);font-size:0.68rem;background:none;border:1px solid var(--border);color:var(--text-dim);padding:0.28rem 0.7rem;border-radius:3px;cursor:pointer;transition:all 0.2s;}
+.btn-map:hover{border-color:var(--accent);color:var(--accent);}
+.course-counter{font-family:var(--mono);font-size:0.68rem;color:var(--accent);}
+.cat-badge{font-family:var(--mono);font-size:0.58rem;padding:0.18rem 0.5rem;border-radius:2px;font-weight:600;letter-spacing:0.07em;}
+.progress-track{height:2px;background:var(--border);border-radius:1px;margin:0.35rem 0;}
+.progress-fill{height:100%;border-radius:1px;transition:width 0.3s ease;}
+.dots-row{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;padding-top:0.25rem;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);cursor:pointer;border:none;padding:0;transition:all 0.2s;}
+.dot.active{transform:scale(1.5);}
+
+.course-main{max-width:760px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+.chunk-cat{font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:0.3rem;}
+.chunk-title{font-size:1.7rem;font-weight:600;margin-bottom:0.2rem;line-height:1.3;}
+.chunk-sub{font-style:italic;color:var(--text-dim);margin-bottom:2rem;font-size:0.95rem;}
+
+.section{margin-bottom:1.4rem;}
+.slabel{font-family:var(--mono);font-size:0.57rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;display:block;margin-bottom:0.45rem;}
+
+.block-break{background:var(--break-bg);border-left:3px solid var(--break-color);padding:0.85rem 1.1rem;border-radius:0 6px 6px 0;}
+.block-break .slabel{color:var(--break-color);}
+.block-break p{font-size:0.95rem;}
+
+.block-concept p{font-size:0.95rem;}
+.block-concept strong{color:var(--accent);font-weight:600;}
+.block-concept em{color:var(--text-dim);font-style:italic;}
+.block-concept code{font-family:var(--mono);font-size:0.8rem;background:var(--surface2);padding:0.1rem 0.4rem;border-radius:3px;color:var(--anchor-color);}
+
+.block-anchor{background:var(--anchor-bg);border:1px solid rgba(63,185,80,0.22);padding:0.85rem 1.1rem;border-radius:6px;}
+.block-anchor .slabel{color:var(--anchor-color);}
+.anchor-word{font-family:var(--mono);font-size:0.95rem;font-weight:600;color:var(--anchor-color);display:block;margin-bottom:0.28rem;}
+.anchor-exp{font-size:0.875rem;color:var(--text-dim);font-style:italic;}
+
+.block-contrast{background:var(--surface2);border:1px solid var(--border);padding:0.85rem 1.1rem;border-radius:6px;}
+.block-contrast .slabel{color:var(--text-dim);}
+.contrast-pair{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-top:0.45rem;}
+.c-bad,.c-good{padding:0.6rem 0.8rem;border-radius:4px;font-size:0.85rem;line-height:1.6;}
+.c-bad{background:var(--break-bg);border:1px solid rgba(248,81,73,0.18);}
+.c-good{background:var(--anchor-bg);border:1px solid rgba(63,185,80,0.18);}
+.c-tag{font-family:var(--mono);font-size:0.57rem;display:block;margin-bottom:0.22rem;}
+.c-bad .c-tag{color:var(--break-color);}
+.c-good .c-tag{color:var(--anchor-color);}
+
+.block-retrieval{background:rgba(230,180,34,0.06);border:1px solid rgba(230,180,34,0.28);border-radius:6px;padding:0.95rem 1.1rem;}
+.block-retrieval .slabel{color:var(--accent);}
+.retrieval-intro{font-size:0.83rem;color:var(--text-dim);font-style:italic;margin-bottom:0.65rem;}
+.retrieval-steps{list-style:none;counter-reset:r;}
+.retrieval-steps li{counter-increment:r;display:flex;gap:0.7rem;padding:0.32rem 0;font-size:0.875rem;color:var(--text);border-bottom:1px solid rgba(230,180,34,0.1);}
+.retrieval-steps li:last-child{border-bottom:none;}
+.retrieval-steps li::before{content:counter(r);font-family:var(--mono);font-size:0.67rem;color:var(--accent);min-width:15px;margin-top:3px;font-weight:600;}
+
+.block-exercise{background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:1.05rem;}
+.block-exercise .slabel{color:var(--accent);}
+.exercise-prompt{font-size:0.93rem;margin-bottom:0.8rem;line-height:1.7;}
+textarea{width:100%;min-height:95px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:var(--serif);font-size:0.875rem;padding:0.6rem 0.75rem;resize:vertical;line-height:1.65;}
+textarea:focus{outline:none;border-color:var(--accent);}
+textarea::placeholder{color:var(--text-dim);}
+
+.block-cal{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.95rem 1.1rem;}
+.block-cal .slabel{color:var(--text-dim);margin-bottom:0.55rem;}
+.cal-item{display:flex;align-items:flex-start;gap:0.6rem;padding:0.38rem 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.cal-item:last-child{border-bottom:none;}
+.cal-box{width:15px;height:15px;border:1px solid var(--border);border-radius:3px;background:var(--bg);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:3px;font-size:9px;transition:all 0.18s;}
+.cal-item.ticked .cal-box{background:var(--anchor-color);border-color:var(--anchor-color);color:#0f1117;font-weight:bold;}
+.cal-text{font-size:0.86rem;color:var(--text-dim);line-height:1.55;transition:color 0.18s;}
+.cal-item.ticked .cal-text{color:var(--text);}
+
+.nav-bar{display:flex;justify-content:space-between;align-items:center;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+.btn{font-family:var(--mono);font-size:0.73rem;padding:0.48rem 1rem;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all 0.18s;letter-spacing:0.04em;}
+.btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+.btn:disabled{opacity:0.22;cursor:not-allowed;}
+.btn-primary{background:var(--accent);color:#0f1117;border-color:var(--accent);font-weight:600;}
+
+.complete-wrap{text-align:center;padding:3rem 1rem;}
+.complete-wrap h1{font-size:1.5rem;margin-bottom:0.7rem;}
+.anchors-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.45rem;max-width:680px;margin:1.5rem auto;text-align:left;}
+.anchor-card{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:0.6rem 0.75rem;display:flex;gap:0.55rem;cursor:pointer;}
+.ac-num{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim);min-width:18px;margin-top:2px;}
+.ac-word{font-family:var(--mono);font-size:0.72rem;font-weight:600;display:block;}
+.ac-chunk{font-size:0.78rem;color:var(--text-dim);font-style:italic;}
+
+/* flow diagram */
+.flow-steps{display:flex;flex-direction:column;gap:0;margin:0.75rem 0;}
+.flow-step{display:flex;gap:0.75rem;align-items:flex-start;}
+.flow-step-left{display:flex;flex-direction:column;align-items:center;}
+.flow-num{font-family:var(--mono);font-size:0.65rem;font-weight:600;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(230,180,34,0.3);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.flow-line{width:1px;background:var(--border);flex:1;min-height:12px;margin:3px 0;}
+.flow-step:last-child .flow-line{display:none;}
+.flow-body{padding:0 0 0.6rem;font-size:0.88rem;line-height:1.6;}
+.flow-body strong{color:var(--accent);}
+.flow-body code{font-family:var(--mono);font-size:0.78rem;background:var(--surface2);padding:0.08rem 0.35rem;border-radius:3px;color:var(--anchor-color);}
+
+@media(max-width:600px){
+  .contrast-pair{grid-template-columns:1fr;}
+  .anchors-grid{grid-template-columns:1fr;}
+  .course-main{padding:1.5rem 1rem 3rem;}
+  .chunk-title{font-size:1.35rem;}
+}
+</style>
+</head>
+<body>
+
+<div id="viewMap" class="map-view">
+  <div class="map-header">
+    <div class="map-title">PROCESUL DE LOGIN — Harta Conceptelor</div>
+    <div class="map-subtitle">Click pe orice concept pentru a incepe capitolul</div>
+    <div class="map-note">Complementar cursului de Autentificare — se recomanda parcurgerea in ordine</div>
+  </div>
+  <div class="map-svg-wrap"><svg id="mapSvg" viewBox="0 0 980 620" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div class="map-legend" id="mapLegend"></div>
+</div>
+
+<div id="viewCourse" style="display:none">
+  <div class="course-header">
+    <div class="course-header-top">
+      <button class="btn-map" onclick="goToMap()">&#x2190; Harta</button>
+      <span id="catBadge" class="cat-badge"></span>
+      <span id="courseCounter" class="course-counter"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    <div class="dots-row" id="dotsRow"></div>
+  </div>
+  <div class="course-main" id="courseMain"></div>
+</div>
+
+<script>
+const BRANCHES = [
+  { label:"Fluxul HTTP", color:"#e6b422", angle:0,
+    children:[{label:"Fluxul complet de login",chunk:0},{label:"URL-ul in autentificare",chunk:1},{label:"HTTP Headers la login",chunk:2}] },
+  { label:"Cookie & Sesiune", color:"#3fb950", angle:60,
+    children:[{label:"Cookie-uri — anatomia tehnica",chunk:3},{label:"Session lifecycle",chunk:4},{label:"Remember me",chunk:5},{label:"Multi-device sessions",chunk:6}] },
+  { label:"Login Page", color:"#58a6ff", angle:120,
+    children:[{label:"Construirea login form-ului",chunk:7},{label:"Error handling la login",chunk:8},{label:"CAPTCHA si rate limiting",chunk:9}] },
+  { label:"Social Login", color:"#a371f7", angle:180,
+    children:[{label:"Social login — flow complet",chunk:10},{label:"Token management in SPA",chunk:11}] },
+  { label:"Financiar & Enterprise", color:"#ffa657", angle:240,
+    children:[{label:"SCA si PSD2",chunk:12},{label:"Step-up authentication",chunk:13},{label:"Adaptive authentication",chunk:14},{label:"Audit trail la login",chunk:15}] },
+  { label:"Mobile & Checklist", color:"#ff7b72", angle:300,
+    children:[{label:"Login pe mobile",chunk:16},{label:"Checklist complet",chunk:17}] }
+];
+
+const CHUNKS = [
+  // 0
+  { id:0, title:"Fluxul Complet de Login", sub:"Ce se intampla intre click si Welcome", branch:0,
+    break_:`Stii ca "userul se logheaza" dar nu stii ce se intampla in retea, pe server, si in browser intre click pe buton si pagina principala. Fara aceasta harta tehnica completa, orice decizie de implementare e facuta pe jumatate — si erorile de securitate apar exact in pasii pe care nu ii cunosti.`,
+    concept:`<strong>POST /login</strong> — nu GET, niciodata GET (parola in URL = in log-uri, in history, in Referer header). Fluxul complet:<br><br>Browserul trimite <code>POST /login</code> cu body <code>{ email, password }</code> via HTTPS. Serverul extrage credentialele, cauta userul in DB dupa email, calculeaza <code>hash(parola_introdusa)</code> si compara cu hash-ul stocat (bcrypt/Argon2). Daca match: genereaza session ID aleator sau JWT, il include in response via <code>Set-Cookie</code> sau body JSON. Serverul trimite <code>302 Found</code> + <code>Location: /dashboard</code>. Browserul urmareste redirect-ul, include automat cookie-ul la fiecare request urmator.`,
+    flowSteps:[
+      {n:"1", strong:"Browser", body:`Click → <code>POST /login</code> cu body: <code>{ email: "ana@avise.ro", password: "..." }</code> — parola e in body, nu in URL.`},
+      {n:"2", strong:"Server (receptie)", body:`Extrage credentialele din body. Cauta userul in DB: <code>SELECT * FROM users WHERE email = ?</code> (parametrizat, nu concatenat).`},
+      {n:"3", strong:"Server (verificare)", body:`Compara: <code>bcrypt.compare(parola_introdusa, hash_din_db)</code>. Daca nu match → raspuns generic + incrementeaza contorul de incercari.`},
+      {n:"4", strong:"Server (emitere token)", body:`Daca match: genereaza <code>sessionId</code> aleator sau semneaza JWT. Scrie sesiunea in session store (Redis, DB).`},
+      {n:"5", strong:"Server (response)", body:`Returneaza <code>302</code> + <code>Set-Cookie: sessionId=xxx; HttpOnly; Secure; SameSite=Strict</code> + <code>Location: /dashboard</code>.`},
+      {n:"6", strong:"Browser (redirect)", body:`Urmareste redirect-ul. La fiecare request urmator trimite automat <code>Cookie: sessionId=xxx</code> — userul e autentificat.`}
+    ],
+    anchor:"LANT CU 6 ZALE",
+    anchorExp:`Fiecare zalea e un pas: click → POST → server verifica → genereaza token → response cu cookie → redirect. Daca o zalea lipseste sau e implementata gresit, lantul se rupe — si de obicei se rupe in locul cel mai putin vizibil.`,
+    bad:`<code>GET /login?email=ana@avise.ro&password=abc123</code> — parola in URL, vizibila in log-uri, browser history, si serverele intermediare.`,
+    good:`<code>POST /login</code> cu body JSON + HTTPS + cookie httpOnly in response. Parola nu apare nicaieri in clar afara de tranzitul securizat.`,
+    retrieval:["Inchide fisierul.","Scrie cei 6 pasi ai fluxului de login fara sa te uiti.","Scrie de ce nu se foloseste GET pentru login.","Deschide si compara — cate zale ai retinut?"],
+    exercise:`Francisc vrea sa implementeze un endpoint de login pentru Avise. El propune GET pentru simplitate (poate fi testat direct in browser). Tu trebuie sa ii explici de ce e gresit, cu 3 argumente concrete. Scrie si cum ar trebui sa arate curl-ul corect pentru a testa endpointul de login.`,
+    cal:["Pot desena fluxul de login in 6 pasi fara sa ma uit?","Stiu de ce parola nu trebuie sa apara niciodata in URL?","Inteleg ce face serverul la pasul 3 si de ce e critic pasul 4 (session regeneration implicit)?"]
+  },
+  // 1
+  { id:1, title:"URL-ul in Autentificare", sub:"Ce e in address bar si de ce fiecare parametru conteaza", branch:0,
+    break_:`Cand "te loghezi cu Google", URL-ul din browser contine zeci de parametri. Fara sa intelegi ce e fiecare, nu poti construi OAuth flow corect, nu poti depana probleme de autentificare, si nu poti verifica daca un redirect e legitim sau un atac.`,
+    concept:`URL-ul de autorizare OAuth 2 + OIDC: <code>https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=XXX&redirect_uri=https://avise.ro/callback&scope=openid+email&state=xK9m&nonce=pQ2r&code_challenge=abc&code_challenge_method=S256</code><br><br><strong>response_type=code</strong>: ceri Authorization Code (nu tokenul direct). <strong>client_id</strong>: identifica aplicatia ta la IdP. <strong>redirect_uri</strong>: unde vine raspunsul — trebuie sa fie exact in whitelist-ul de la IdP (nu prefix match). <strong>scope</strong>: ce permisiuni ceri — openid e obligatoriu pentru OIDC. <strong>state</strong>: string aleator generat de client, stocat in session, verificat in callback — protejeaza contra CSRF pe OAuth flow. <strong>nonce</strong>: inclus in ID token, verificat de client — previne replay attacks. <strong>code_challenge</strong>: PKCE (detaliat in cursul de autentificare). Dupa autentificare: <code>https://avise.ro/callback?code=4/P7Q&state=xK9m</code> — serverul verifica ca state == ce a generat, schimba code pe token.`,
+    anchor:"FORMULA CHIMICA PE ETICHETA PUBLICA",
+    anchorExp:`Eticheta (URL-ul) e publica — toata lumea o vede. Fiecare ingredient (parametru) are rol specific. Daca state e modificat de un atacator, reactia esueaza — serverul detecteaza nepotrivirea. Secretul (client_secret) nu e pe eticheta — e in laboratorul serverului.`,
+    bad:`redirect_uri fara validare stricta la IdP — atacatorul modifica redirect_uri in URL si primeste el codul de autorizare.`,
+    good:`redirect_uri cu exact match in whitelist la IdP + state verificat in callback + nonce in ID token verificat.`,
+    retrieval:["Inchide fisierul.","Scrie URL-ul de autorizare OAuth 2 cu toti parametrii din memorie (aproximativ).","Scrie ce face state si de ce e critic.","Deschide si compara."],
+    exercise:`Analizeaza urmatorul URL de callback si identifica problemele: <code>https://avise.ro/callback?code=4/abc&state=123&error=</code>. Ce verificari face serverul la primirea acestui URL? Ce se intampla daca state din URL nu se potriveste cu ce e in sesiune?`,
+    cal:["Pot explica rolul fiecarui parametru din URL-ul de autorizare OAuth 2?","Inteleg de ce state e esential pentru securitate (ce atac previne)?","Stiu de ce redirect_uri trebuie sa fie exact match, nu prefix match?"]
+  },
+  // 2
+  { id:2, title:"HTTP Headers la Login", sub:"Ce trimite serverul si de ce fiecare header conteaza", branch:0,
+    break_:`Autentificarea nu e doar request si response cu user/parola. Jumatate din securitate sta in headerele HTTP — cele care seteaza cookie-urile, cele care spun browserului sa nu mearga niciodata pe HTTP, si cele care protejeaza contra XSS si clickjacking. Un server care returneaza date corecte dar cu headere gresite e la fel de vulnerabil ca unul fara autentificare.`,
+    concept:`<strong>Headere trimise de server la login reusit</strong>:<br><code>Set-Cookie: sessionId=xxx; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=3600</code> — seteaza sesiunea.<br><code>Location: /dashboard</code> — redirect dupa login (302).<br><code>Strict-Transport-Security: max-age=31536000; includeSubDomains</code> — HSTS: browserul nu mai accepta HTTP pentru domeniu, auto-upgrade la HTTPS.<br><code>Content-Security-Policy: default-src 'self'</code> — previne incarcarea de resurse externe (XSS mitigation).<br><code>X-Frame-Options: DENY</code> — previne clickjacking (site-ul nu poate fi incarcat in iframe).<br><strong>Headere trimise de browser la fiecare request</strong>:<br><code>Cookie: sessionId=xxx</code> — trimis automat pentru domeniu.<br><code>Authorization: Bearer jwt_token</code> — pentru API-uri (SPA + JWT, nu cookie).<br><code>Origin: https://avise.ro</code> si <code>Referer</code> — verificate pentru CSRF protection si CORS.`,
+    anchor:"PLICUL POSTAL CU INSTRUCTIUNI SCRISE PE EL",
+    anchorExp:`Ce e in plic (body-ul requestului) e important. Dar instructiunile scrise pe plic (headerele) spun browserului: pastreaza confidential (HttpOnly), retrimite doar pe HTTPS (Secure), nu lasa alte site-uri sa ma citeasca (SameSite), nu te mai duce niciodata pe HTTP (HSTS). Daca nu scrii instructiunile, browserul face default — si default-ul e adesea nesigur.`,
+    bad:`Set-Cookie: sessionId=xxx — fara niciun atribut. Accesibil din JS (XSS), trimis pe HTTP, vulnerabil la CSRF.`,
+    good:`Set-Cookie: sessionId=xxx; HttpOnly; Secure; SameSite=Strict; Max-Age=3600 — toate atributele explicit si intentionat.`,
+    retrieval:["Inchide fisierul.","Scrie 5 headere pe care serverul le trimite la login si ce face fiecare.","Scrie diferenta dintre Cookie si Authorization ca headere inbound.","Deschide si compara."],
+    exercise:`Harris iti trimite un code review pentru endpointul de login al Avise. Response-ul contine datele corecte dar nu vede niciun header de securitate. Scrie lista de headere pe care le ceri adaugate, cu explicatia pentru fiecare (maxim un rand per header — ca in code review real).`,
+    cal:["Pot numi 5 headere de securitate relevante pentru login si ce face fiecare?","Inteleg diferenta dintre Set-Cookie (server→browser) si Cookie (browser→server)?","Stiu ce e HSTS si de ce e important dupa ce setezi HTTPS?"]
+  },
+  // 3
+  { id:3, title:"Cookie-uri — Anatomia Tehnica", sub:"7 atribute, fiecare cu efect specific", branch:1,
+    break_:`"Cookie" e folosit ca termen general pentru orice mecanism de stocare in browser. In realitate, un cookie are 7 atribute tehnice distincte, fiecare cu efect specific asupra securitatii si comportamentului. Daca nu stii fiecare atribut, nu poti explica de ce un cookie functioneaza intr-un context dar nu in altul — si nu poti depana probleme de autentificare.`,
+    concept:`Anatomia completa a unui cookie:<br><strong>Name=Value</strong> — continutul efectiv (sessionId=xxx). <strong>Domain</strong> — pe ce domeniu se trimite: <code>avise.ro</code> = exact; <code>.avise.ro</code> = include toate subdomeniile. <strong>Path</strong> — pe ce path: <code>/</code> = tot site-ul; <code>/api</code> = doar requesturi catre /api. <strong>Expires / Max-Age</strong> — <em>session cookie</em> (fara expirare = dispare la inchiderea browserului); <em>persistent cookie</em> (cu data/Max-Age = ramane pe disk). <strong>Secure</strong> — trimis DOAR pe HTTPS (nu pe HTTP). <strong>HttpOnly</strong> — inaccesibil din JavaScript: <code>document.cookie</code> nu il vede — protejeaza contra XSS. <strong>SameSite</strong> — Strict (trimis doar de pe acelasi site); Lax (trimis si la navigare top-level GET — linkuri); None (trimis si cross-site — necesita Secure). Third-party cookies: setate de domeniu diferit decat cel al paginii — blocate de browsers moderne.`,
+    anchor:"DOSAR CU 7 CAMPURI PE ETICHETA",
+    anchorExp:`Fiecare camp pe eticheta dosarului controleaza cine poate accesa dosarul (Domain, Path), de unde (SameSite), cat timp ramane (Expires), daca e confidential (HttpOnly), si daca se trimite doar securizat (Secure). Un singur camp gresit si dosarul ajunge in maini gresite sau nu ajunge deloc unde trebuie.`,
+    bad:`<code>Set-Cookie: session=xxx</code> fara atribute: accesibil din JS, trimis pe HTTP, trimis cross-site — vulnerabil la XSS, sniffing, CSRF.`,
+    good:`<code>Set-Cookie: session=xxx; HttpOnly; Secure; SameSite=Strict; Max-Age=3600; Path=/; Domain=avise.ro</code>`,
+    retrieval:["Inchide fisierul.","Scrie toate cele 7 atribute ale unui cookie si ce face fiecare.","Scrie diferenta dintre session cookie si persistent cookie.","Scrie ce face SameSite=Strict vs SameSite=None.","Deschide si compara."],
+    exercise:`Analizeaza acest cookie si identifica toate problemele de securitate: <code>Set-Cookie: sessionId=xyz; Domain=.avise.ro; Path=/; SameSite=None</code>. Ce atribute lipsesc? Ce atac permite fiecare atribut lipsa?`,
+    cal:["Pot recita toate cele 7 atribute ale unui cookie fara sa ma uit?","Inteleg de ce HttpOnly nu inseamna ca cookie-ul e criptat?","Stiu cand sa folosesc SameSite=Strict vs Lax vs None?"]
+  },
+  // 4
+  { id:4, title:"Session Lifecycle", sub:"Creare, regenerare, invalidare — cele 3 momente critice", branch:1,
+    break_:`O aplicatie care creeaza sesiunea la login dar nu o gestioneaza corect dupa are vulnerabilitati serioase: session fixation (atacatorul stie session ID dinainte), sesiuni care nu expira niciodata, logout care sterge doar cookie-ul din browser dar lasa sesiunea activa pe server. Fiecare e o clasa separata de vulnerabilitate.`,
+    concept:`4 momente critice. <strong>(1) Pre-login</strong>: serverul poate crea un session ID temporar pentru CSRF token pe login form. <strong>(2) POST-login — OBLIGATORIU: regenereaza session ID</strong>. Aceasta e protectia contra <em>session fixation</em>: atacatorul da victimei un link cu session ID pre-setat (fixat) — daca serverul nu regenereaza dupa login, atacatorul are sesiunea autentificata. Regenerarea inseamna: creeaza ID nou, copiaza datele, sterge ID-ul vechi. <strong>(3) Active session</strong>: sliding expiration (TTL resetat la fiecare request activ — bun pentru UX) sau absolute TTL (sesiunea expira dupa N minute indiferent de activitate — obligatoriu in aplicatii financiare). <strong>(4) Logout — OBLIGATORIU: invalideaza pe server</strong>. Stergerea cookie-ului din browser nu e suficienta — sesiunea trebuie stearsa din session store. Un atacator care a copiat cookie-ul poate continua sa il foloseasca daca sesiunea nu e invalidata server-side.`,
+    anchor:"CHEIA DE HOTEL RECODATA LA CHECK-IN",
+    anchorExp:`Cand ajungi la hotel (pre-login) primesti o cheie temporara pentru lift. La check-in (login), receptia genereaza o cheie noua (session regeneration) — cheia veche nu mai deschide nimic. La check-out (logout), cheia e dezactivata fizic in sistem, nu doar returnata fizic. Un hot care a copiat cheia in hol nu mai poate intra.`,
+    bad:`Session ID identic inainte si dupa login + logout care face <code>document.cookie = 'session=; expires=...'</code> fara invalidare pe server.`,
+    good:`Session regeneration imediat dupa login (<code>req.session.regenerate()</code>) + invalidare server-side la logout + <code>Set-Cookie: session=; Max-Age=0</code>.`,
+    retrieval:["Inchide fisierul.","Scrie ce e session fixation attack si cum il previi.","Scrie de ce logout-ul nu inseamna doar stergerea cookie-ului.","Scrie diferenta dintre sliding expiration si absolute TTL si cand folosesti fiecare.","Deschide si compara."],
+    exercise:`In Avise, Cristina se logheaza dimineata la 8:00. La 12:00 e inca logata, desi nu a facut nimic de la 9:30. La 12:05 incearca sa acceseze o functionalitate sensibila. Care e politica corecta de session management pentru o aplicatie financiara? Ce se intampla cu sesiunea ei la 12:05 si de ce?`,
+    cal:["Pot explica session fixation attack fara jargon tehnic?","Inteleg de ce regenerarea session ID dupa login e obligatorie, nu optionala?","Stiu diferenta dintre sliding expiration si absolute TTL si cand e potrivit fiecare?"]
+  },
+  // 5
+  { id:5, title:"Remember Me", sub:"Token persistent corect implementat vs persistent cookie simplu", branch:1,
+    break_:`"Remember me" pare o functionalitate banala de UX. Implementarile gresite (cookie cu TTL lung) creaza vulnerabilitati grave: un token furat da acces pe termen nedefinit la cont. Implementarile corecte folosesc un mecanism diferit de sesiunea normala, cu detectie de reutilizare si rotatie.`,
+    concept:`<strong>Abordare simpla (slaba)</strong>: session cookie cu Max-Age=30 zile. Furt = 30 zile acces, fara detectie, fara posibilitate de invalidare selectiva. <strong>Abordare robusta</strong>: token separat de sesiune, cu proprietati distincte: (1) aleator criptografic (256 biti), stocat <em>hashed</em> in DB (ca o parola); (2) <em>single-use cu rotation</em> — la fiecare utilizare se genereaza un token nou si cel vechi e invalidat; (3) legat de dispozitiv (user agent parsed); (4) invalidat la schimbare parola sau activitate suspicoasa. <strong>Detectie de reutilizare</strong> (cel mai important): daca cineva incearca sa foloseasca un token deja rotat (care nu mai exista in DB), asta inseamna ca tokenul a fost furat — sistemul invalideaza <em>toate</em> remember-me token-urile pentru user si notifica prin email. Fluxul la revenire: browser trimite remember-me cookie → server gaseste token (hashed), valideaza, genereaza token nou, creeaza sesiune normala → userul e logat.`,
+    anchor:"ABONAMENT CU BILET REINNOIBIL SINGLE-USE",
+    anchorExp:`Abonamentul (remember-me token) e valid mult. Dar cand il folosesti, primesti unul nou si cel vechi e anulat imediat. Daca cineva incearca sa foloseasca abonamentul tau vechi (furat) — sistemul stie ca a fost compromis si anuleaza tot, inclusiv abonamentele tale de pe alte dispozitive.`,
+    bad:`Persistent cookie cu session ID direct, Max-Age=30 zile — furat = 30 zile acces, nicio detectie posibila.`,
+    good:`Token separat, single-use cu rotation, hashed in DB, detectie reutilizare cu invalidare globala + notificare email.`,
+    retrieval:["Inchide fisierul.","Scrie diferenta dintre 'remember me' cu cookie persistent simplu vs token robust.","Scrie ce se intampla cand sistemul detecteaza reutilizarea unui token remember-me.","Deschide si compara."],
+    exercise:`Avise vrea sa adauge "Ramai logat 30 de zile" pentru utilizatorii mobili. Janno propune sa mareasca Max-Age pe session cookie la 30 de zile. Tu, ca PO, trebuie sa evaluezi riscul si sa propui alternativa. Scrie: (1) riscul din propunerea Janno, (2) alternativa corecta in 3 pasi.`,
+    cal:["Inteleg de ce remember-me robust necesita un token SEPARAT de sesiunea normala?","Stiu ce inseamna token rotation si ce atac detecteaza?","Pot explica de ce token-ul remember-me se stocheaza hashed in DB, nu plain?"]
+  },
+  // 6
+  { id:6, title:"Multi-Device Session Management", sub:"Sesiuni active, metadata, revocare", branch:1,
+    break_:`Userul se logheaza de pe laptop, telefon si tableta. Cand vrea sa vada "unde sunt logat" sau sa "ies din toate sesiunile" — fara un sistem de management al sesiunilor active, acestea sunt imposibil de implementat. In aplicatii financiare, sesiunile active sunt o suprafata de atac vizibila pentru user si pentru echipa de securitate.`,
+    concept:`<strong>Implementare</strong>: la fiecare login, creeaza o inregistrare in tabelul <code>sessions</code>: <code>{ id, userId, sessionToken(hashed), deviceType, browser, os, ip, city, createdAt, lastActiveAt, isRevoked }</code>. La fiecare request: updateaza <code>lastActiveAt</code>. <strong>UI — pagina "Sesiuni active"</strong>: arata pentru fiecare sesiune: dispozitiv (Chrome pe Mac), locatie aproximativa (Bucuresti, Romania), ultima activitate, sesiunea curenta marcata. Butoane: "Revoca aceasta sesiune" + "Revoca toate celelalte sesiuni". <strong>Trigger-uri de revocare automata</strong>: schimbare parola (revoca toate sau toate afara de curenta — depinde de politica), detectie activitate suspicoasa, request explicit user. <strong>Notificari</strong>: email la login nou din locatie/device nou ("Am detectat un login nou din Iasi — ati fost voi?"). <strong>Conformitate</strong>: sesiunile contin IP si locatie = date personale sub GDPR — politica de retentie necesara.`,
+    anchor:"TABLOUL DE BORD AL PORTIERULUI",
+    anchorExp:`Portierul stie exact cine e in cladire, de pe ce usa a intrat, cand, si cand a fost ultima oara activ. Poti cere evacuarea unei singure persoane (revocare selectiva) sau evacuarea tuturor (revocare globala). Fara tabloul de bord, nu stii cine e inauntru.`,
+    bad:`O singura sesiune per user (loginul din alta parte te delogheaza automat) sau sesiuni nelimitate fara metadata si fara posibilitate de revocare.`,
+    good:`Session store cu metadata completa, pagina de management sesiuni in UI, notificari la login nou, revocare granulara si globala.`,
+    retrieval:["Inchide fisierul.","Scrie ce campuri ar trebui sa aiba tabelul sessions.","Scrie ce trigger-uri provoaca revocare automata a sesiunilor.","Deschide si compara."],
+    exercise:`Scrie user story-ul pentru functionalitatea "Sesiuni active" in Avise din perspectiva Cristinei (accountant). Include: ce vede in UI, ce actiuni poate face, si ce se intampla in sistem dupa fiecare actiune. Scrie cel putin 3 AC-uri testabile.`,
+    cal:["Stiu ce date sa stocheaza per sesiune pentru a permite un UI de management?","Inteleg de ce schimbarea parolei ar trebui sa revoce sesiunile (si cand sa nu revoce sesiunea curenta)?","Pot scrie un user story complet pentru sesiuni active?"]
+  },
+  // 7
+  { id:7, title:"Construirea Login Form-ului", sub:"Ce incluzi, ce nu incluzi, si de ce fiecare decizie are implicatii de securitate", branch:2,
+    break_:`Un login form pare banal — doua campuri si un buton. Dar fiecare decizie de design are implicatii de securitate: daca inputul de parola are autocomplete dezactivat (frustrant si insecurizat), daca form-ul face GET sau POST, daca CAPTCHA apare de la prima incercare sau dupa N. Un form gresit construit scurge informatii sau frustreaza userii legitimi.`,
+    concept:`<strong>Ce include un login form securizat</strong>: (1) Exact 2 campuri: email + parola. (2) <code>type="email"</code> pentru email (validare browser) si <code>type="password"</code> pentru parola (ascunde caracterele). (3) <code>autocomplete="username"</code> si <code>autocomplete="current-password"</code> — ajuta password managers, nu il dezactiva niciodata. (4) Actiune: <code>method="POST" action="/login"</code> — niciodata GET. (5) CSRF token: <code>&lt;input type="hidden" name="_csrf" value="..."&gt;</code>. (6) Submit pe Enter + loading state (previne double-submit). (7) Link "Am uitat parola" — duce la flow separat. <strong>Ce NU include</strong>: autocomplete dezactivat (nu ajuta la nimic, frustreaza userii si password managers), CAPTCHA la prima incercare (add dupa 3-5 esecuri), campuri extra la login, intrebari de securitate, placeholder cu exemple de parola.`,
+    anchor:"INTRAREA STANDARD A SEIFULUI",
+    anchorExp:`Un seif bun are o singura deschizatura pentru cheie, exact cat trebuie — fara ornamente inutile care ar putea fi puncte de intrare. Instructiunile de utilizare sunt clare si nu dezvaluie informatii despre continut.`,
+    bad:`Form cu GET, fara CSRF token, cu <code>autocomplete="off"</code>, CAPTCHA de la prima incercare, 5 campuri inutile.`,
+    good:`POST, CSRF token, autocomplete activat, loading state, 2 campuri, CAPTCHA doar dupa N esecuri.`,
+    retrieval:["Inchide fisierul.","Scrie lista completa de atribute si elemente ale unui login form corect.","Scrie 3 lucruri pe care NU le incluzi si de ce.","Deschide si compara."],
+    exercise:`Tu esti PO la Avise si primesti designul unui nou login form de la designer. Contine: email, parola, intrebare de securitate ("orasul natal"), checkbox "nu sunt robot" (CAPTCHA vizibil de la inceput), si un link care spune "Nu aveti cont? Emailul nu exista". Identifica toate problemele si propune varianta corecta.`,
+    cal:["Stiu de ce autocomplete='off' pentru parola e o practica gresita?","Pot explica de ce CAPTCHA de la prima incercare e o decizie UX si de securitate proasta?","Inteleg rolul CSRF token-ului pe form-ul de login?"]
+  },
+  // 8
+  { id:8, title:"Error Handling la Login", sub:"Ce arati, ce nu arati, si de ce discret inseamna sigur", branch:2,
+    break_:`"Emailul nu exista in sistem" pare un mesaj helpful pentru user. De fapt, e un enumeration attack vector: un atacator verifica sistematic care emailuri au cont in aplicatia ta, pe care le tinteste cu credential stuffing sau phishing targetat. Mesajele de eroare prea specifice sunt o scurgere de informatie intentionata.`,
+    concept:`<strong>Regula de aur</strong>: mesajele de eroare la login nu confirma si nu infirma existenta unui email. Mesaj corect (indiferent de ce a esuat): <em>"Email sau parola incorecte."</em> Mesaje gresite: "Emailul nu exista", "Parola gresita pentru acest email", "Contul nu e activat" (dezvaluie ca emailul exista). <strong>Exceptii acceptabile</strong>: "Contul tau a fost temporar blocat din motive de securitate — vei primi un email cu instructiuni." (OK sa spui blocat, nu OK sa spui de ce exact si nu OK sa confirmi emailul daca nu e al userului). <strong>Forgot password</strong>: identic indiferent daca emailul exista sau nu: <em>"Daca acest email e inregistrat, vei primi un link de reset in cateva minute."</em> — nu "Emailul nu exista in sistem". <strong>UX vs securitate</strong>: aceasta este o tensiune reala — userii legitimi sunt frustrati de mesajul generic. Solutia: mesaj generic + indicator vizual despre ce campuri pot fi problematice (fara a specifica care a esuat).`,
+    anchor:"RECEPTIONERUL DISCRET AL HOTELULUI DE LUX",
+    anchorExp:`"Nu pot confirma sau infirma prezenta clientilor nostri." Ofera o cale alternativa (contacteaza managementul) fara sa dezvaluie informatii. Discret nu e rece — e politica de protectie a clientilor.`,
+    bad:`"Parola gresita pentru ana@avise.ro" — confirma ca emailul exista + dezvaluie exact ce a esuat.`,
+    good:`"Email sau parola incorecte." — identic indiferent de ce a esuat. Forgot password: "Daca emailul e inregistrat, vei primi un link."`,
+    retrieval:["Inchide fisierul.","Scrie mesajul corect de eroare la login (exact, nu parafrazat).","Scrie mesajul corect pentru forgot password.","Explica ce e enumeration attack in 2 propozitii.","Deschide si compara."],
+    exercise:`Revizuieste flow-ul de autentificare al Avise si identifica toate locurile unde un mesaj de eroare ar putea dezvalui informatii despre existenta unui cont. Propune mesajele corecte pentru: (1) email gresit la login, (2) parola gresita la login, (3) cont blocat, (4) forgot password cu email inexistent.`,
+    cal:["Pot explica ce e user enumeration si de ce e o vulnerabilitate?","Stiu mesajul corect exact pentru fiecare scenariu de eroare la login?","Inteleg tensiunea UX vs securitate si cum o echilibrez?"]
+  },
+  // 9
+  { id:9, title:"CAPTCHA si Rate Limiting", sub:"Echilibrul intre protectie si UX", branch:2,
+    break_:`Un endpoint /login fara rate limiting poate fi atacat cu milioane de incercari pe ora de pe un singur IP. Un CAPTCHA de la prima incercare frustreaza toti utilizatorii legitimi pentru a apara contra robotilor care oricum vor trece CAPTCHA-ul. Echilibrul corect e progresiv: protectia creste odata cu numarul de incercari.`,
+    concept:`<strong>Rate limiting progresiv</strong>: dupa 3 incercari esuate → delay 2 secunde. Dupa 5 → CAPTCHA vizibil. Dupa 10 per IP → lockout 15 minute. Dupa 5 per cont (indiferent de IP) → lockout temporar + notificare email. <strong>Diferentiaza</strong>: per IP (contra brute force distribuit pe un singur cont) vs per cont (contra targeted attack pe un user specific). <strong>Tipuri de CAPTCHA</strong>: reCAPTCHA v2 (checkbox "nu sunt robot") — simplu dar botii rezolvabili cu CAPTCHA farms. reCAPTCHA v3 (invizibil — scor 0.0–1.0 bazat pe comportament, nu intrerupi userul) — scor sub prag declanseaza actiune suplimentara. hCaptcha — alternativa privacy-friendly. <strong>Honeypot field</strong>: camp ascuns vizual (<code>display:none</code>) cu un nume atragator (<code>username</code>, <code>email_confirm</code>) — robotii simplisti il completeaza, userii legitimi nu il vad. Simplu si eficient contra botilor naive. <strong>Account lockout vs IP lockout</strong>: lockout per cont e vector de DoS (atacatorul blocheaza conturile tuturor). Rate limit per IP e mai robust dar atacatorii distribuiti folosesc mii de IP-uri.`,
+    anchor:"TURNICHETA CU MEMORIE SI TIMP DE ASTEPTARE CRESCATOR",
+    anchorExp:`Prima trecere: treci usor. A treia trecere rapida: turnicheta incetineste. A cincea: trebuie sa rezolvi un puzzle. A zecea: turnicheta se blocheaza 15 minute. Turnicheta tine minte cate incercari ai facut si creste pretul cu fiecare una.`,
+    bad:`Niciun rate limit (10M incercari/ora) SAU lockout permanent dupa 3 incercari (DoS trivial pe orice cont) SAU CAPTCHA de la primul request (frustrare maxima).`,
+    good:`Delay progresiv → CAPTCHA dupa N → lockout temporar → notificare → diferentiere IP vs cont.`,
+    retrieval:["Inchide fisierul.","Scrie strategia de rate limiting progresiv in 4 etape.","Scrie diferenta dintre reCAPTCHA v2 si v3.","Scrie ce e honeypot field si cum functioneaza.","Deschide si compara."],
+    exercise:`Avise are un endpoint de login. In ultima luna a avut 3 incercari de brute force. Bogdan (DevOps) propune lockout permanent dupa 5 incercari. Tu si Harris trebuie sa evaluati propunerea. Identifica riscul din propunerea Bogdan si propune strategia corecta de rate limiting si lockout.`,
+    cal:["Pot explica de ce lockout permanent per cont e un vector de DoS?","Inteleg diferenta dintre rate limiting per IP si per cont si cand folosesc fiecare?","Stiu ce e un honeypot field si de ce functioneaza contra botilor simpli?"]
+  },
+  // 10
+  { id:10, title:"Social Login — Flow Complet din Browser", sub:"Ce se intampla la fiecare redirecturi cand te loghezi cu Google", branch:3,
+    break_:`"Login with Google" pare un singur click. In realitate e un dans cu 6 redirecturi intre 3 actori. Fara sa urmaresti fiecare pas — ce e in URL, ce verifica serverul, unde ajunge fiecare token — nu poti implementa corect, nu poti depana, si nu poti raspunde la intrebari de interviu despre OAuth 2 + OIDC in practica.`,
+    concept:`Flow complet pas cu pas:<br><strong>1.</strong> User click "Login with Google" pe avise.ro. <strong>2.</strong> Avise genereaza: <code>state</code> (aleator), <code>nonce</code>, <code>code_verifier</code>, <code>code_challenge=SHA256(code_verifier)</code>. Le stocheaza in sesiune temporara. Redirect la Google: <code>GET https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=...&redirect_uri=https://avise.ro/callback&scope=openid+email&state=xK9&nonce=pQ2&code_challenge=abc&code_challenge_method=S256</code> <strong>3.</strong> Google arata interfata de login/consent (daca nu e deja logat). User aproba. <strong>4.</strong> Google redirect: <code>GET https://avise.ro/callback?code=4/P7Q&state=xK9</code> <strong>5.</strong> Avise verifica <code>state == xK9</code> (ce a generat). Fa POST server-to-server catre Google: <code>/token?code=4/P7Q&code_verifier=original</code>. Google returneaza <code>access_token</code> + <code>id_token</code> (JWT). <strong>6.</strong> Avise valideaza id_token: semnatura, <code>iss=accounts.google.com</code>, <code>aud=client_id</code>, <code>nonce</code>. Extrage <code>email</code>, <code>sub</code> (Google user ID stabil). Cauta userul in DB sau creeaza (just-in-time provisioning). Seteaza sesiunea Avise. Redirect la /dashboard. Tokenul Google nu ajunge niciodata in browser.`,
+    anchor:"CURSA DE STAFETA CU 4 ALERGATORI",
+    anchorExp:`Tu (user) → Avise (genereaza stafeta: state+nonce+PKCE) → Google (autentifica, returneaza stafeta + codul) → Avise (verifica stafeta, schimba codul pe token server-to-server) → tu primesti acces. Stafeta (state) trebuie sa ajunga inapoi intacta — altfel cursa e invalida.`,
+    bad:`State lipsa (CSRF pe OAuth), redirect_uri fara whitelist, codul schimbat in browser (Implicit flow — deprecat), nonce lipsa.`,
+    good:`State generat + stocat + verificat, PKCE, code exchange server-to-server, redirect_uri exact match, nonce in ID token verificat.`,
+    retrieval:["Inchide fisierul.","Scrie cei 6 pasi ai social login flow fara sa te uiti.","Scrie ce e state si de ce e obligatoriu verificat.","Scrie de ce codul se schimba pe token server-to-server, nu in browser.","Deschide si compara."],
+    exercise:`Francisc implementeaza "Login with Google" pentru Avise. La pasul 5, propune sa faca code exchange in frontend (JavaScript) pentru simplitate. Explica-i de ce e gresit si ce riscuri introduce. Ce face un atacator daca code exchange e in browser?`,
+    cal:["Pot descrie flow-ul complet de social login in 6 pasi fara sa ma uit?","Inteleg rolul fiecarui element de securitate: state, nonce, PKCE?","Stiu ce e just-in-time provisioning si ce date stochezi local dupa primul social login?"]
+  },
+  // 11
+  { id:11, title:"Token Management in SPA", sub:"Silent refresh, BFF pattern, si de ce access token nu sta in localStorage", branch:3,
+    break_:`Intr-un Single Page Application, aplicatia nu face reload la fiecare navigare. Cand access token-ul expira la minutul 15, UX-ul ar trebui sa continue fara intrerupere. Dar fara un mecanism de refresh transparent, userul e delogat brusc — sau, mai rau, token-ul e stocat in localStorage unde un XSS il poate fura.`,
+    concept:`<strong>Problema</strong>: SPA-ul nu poate pastra access token in memorie permanent (se pierde la refresh pagina) si nu poate pune in localStorage (XSS). <strong>Solutia actuala recomandata — BFF (Backend For Frontend)</strong>: un thin server (BFF) se pozitioneaza intre SPA si Auth Server. SPA nu atinge niciodata token-urile direct. BFF gestioneaza: token-urile sunt in httpOnly cookies intre SPA si BFF, BFF face token exchange si refresh server-to-server. SPA cere resurse → BFF verifica tokenul → daca expirat, face refresh → transmite requestul. <strong>Alternativa simpla (fara BFF)</strong>: access token in memorie JavaScript (variabila, nu localStorage) + refresh token in httpOnly cookie. La expirare (detectata din 401 sau expiry in token): SPA trimite request la /token cu cookie-ul httpOnly → primeste access token nou in body → il stocheaza in memorie. La refresh pagina: access token pierdut → imediat o cerere de refresh → daca refresh token valid, token nou fara re-login vizibil. <strong>Interceptor</strong>: toate requesturile API trec prin un interceptor (Axios interceptor, fetch wrapper) care verifica daca token-ul expira in curind si face refresh preventiv.`,
+    anchor:"POMPA DE APA CU PRESIUNE AUTOMATA",
+    anchorExp:`Deschizi robinetul (request API). Daca presiunea scade (access token expira), pompa (interceptor + silent refresh) reumple automat rezervorul. Tu nu stii ca s-a intamplat — apa curge continuu. Daca pompa se defecteaza (refresh token expirat) — re-login manual.`,
+    bad:`Access token in localStorage + refresh token in localStorage — XSS fura ambele tokeni permanent, fara expirare efectiva.`,
+    good:`Access token in memorie JS + refresh token in httpOnly cookie + interceptor pentru refresh automat. Sau BFF pattern (cea mai sigura varianta).`,
+    retrieval:["Inchide fisierul.","Explica BFF pattern in 3 propozitii simple.","Scrie de ce access token nu se stocheaza in localStorage (1 motiv concret).","Scrie ce face interceptorul in flow-ul de refresh.","Deschide si compara."],
+    exercise:`Avise e o SPA React cu un backend Node.js. Emi implementeaza autentificarea si pune access token in localStorage "pentru ca e mai simplu". Harris obiectează. Tu, ca PO, trebuie sa intelegi argumentele si sa decizi directia tehnica. Scrie argumentul de securitate complet si cea mai simpla solutie alternativa pe care o propui echipei.`,
+    cal:["Pot explica BFF pattern fara jargon tehnic?","Inteleg de ce access token in memorie e mai sigur decat in localStorage (dar are un dezavantaj)?","Stiu ce face un request interceptor si de ce e necesar?"]
+  },
+  // 12
+  { id:12, title:"SCA si PSD2", sub:"Autentificarea puternica impusa legal pentru aplicatii financiare europene", branch:4,
+    break_:`In Europa, aplicatiile financiare nu pot alege daca sa implementeze autentificare puternica sau nu. PSD2 (Payment Services Directive 2) o impune legal pentru accesul la conturi si initierea de plati, cu amenzi pentru neconformare. Fara sa intelegi SCA, nu poti fi PO sau BA pe un produs financiar european.`,
+    concept:`<strong>SCA (Strong Customer Authentication)</strong>: minim 2 din 3 factori independenti pentru (1) acces la conturi online si (2) initierea de plati. Factorii: Cunostinte (parola, PIN), Posesie (telefon + TOTP/push, card fizic), Inherenta (biometrie). <strong>Dynamic linking</strong> (cel mai important pentru plati): codul de autentificare trebuie legat de suma specifica si beneficiarul specific. Un cod generat anterior pentru alta suma nu poate fi reutilizat. Implementare: codul de confirmare a platii include hash(suma + IBAN beneficiar) — serverul verifica ca autentificarea acopera exact aceasta tranzactie. <strong>Exemptii SCA</strong>: tranzactii mici (<30 EUR, maxim 5 consecutive sau 100 EUR cumulate), beneficiari in whitelist (trusted beneficiaries), TRA (Transaction Risk Analysis) — banca evalueaza riscul tranzactiei si poate exempta. <strong>90-day re-auth</strong>: pentru acces la conturi (nu plati), exceptia dureaza max 90 zile — dupa care SCA completa e necesara din nou. <strong>Aplicabilitate</strong>: orice aplicatie care initiaza plati sau acceseaza conturi bancare in EU/EEA — inclusiv aplicatii de contabilitate care se integreaza cu conturi bancare.`,
+    anchor:"SEIFUL CU COD LEGAT DE SUMA SI DESTINATAR",
+    anchorExp:`Seiful nu se deschide cu un cod generic — se deschide cu un cod care include suma exacta si destinatarul exact al acestei tranzactii. Codul de ieri pentru alta suma nu functioneaza azi. Fiecare tranzactie are propria cheie unica.`,
+    bad:`MFA la login + plata initiata fara re-autentificare sau fara dynamic linking — contrar PSD2 pentru plati.`,
+    good:`MFA la login + SCA separata la fiecare initiere de plata cu dynamic linking (suma + IBAN beneficiar in codul de autentificare).`,
+    retrieval:["Inchide fisierul.","Scrie ce inseamna SCA si cati factori cere.","Scrie ce e dynamic linking si de ce e necesar pentru plati (nu pentru acces la conturi).","Scrie 3 exemptii SCA.","Deschide si compara."],
+    exercise:`Avise vrea sa adauge o functionalitate de initiere de plati bancare pentru clientii din Romania (EU). Tu esti PO. Ce impune PSD2 pentru aceasta functionalitate? Scrie AC-urile de conformitate PSD2 pentru flow-ul de initiere a unei plati de 5000 EUR.`,
+    cal:["Pot explica SCA fara jargon legal, ca si cum as explica unui developer?","Inteleg diferenta dintre SCA pentru acces la cont vs SCA pentru initiere plata?","Stiu ce e dynamic linking si de ce nu e suficient un simplu al doilea factor?"]
+  },
+  // 13
+  { id:13, title:"Step-up Authentication", sub:"Re-verificare pentru actiuni riscante fara a pierde sesiunea", branch:4,
+    break_:`Userul e logat de 2 ore. Initiaza un transfer de 50,000 EUR. Re-autentificarea completa (re-login) rupe UX-ul si e excesiva daca userul a facut MFA la login. Fara step-up, insa, oricine a furat sesiunea activa poate executa actiuni ireversibile fara nicio verificare suplimentara.`,
+    concept:`Step-up authentication: cere verificare suplimentara pentru actiuni cu risc inalt, <em>fara sa anuleze sesiunea existenta</em>. <strong>Trigger-uri tipice</strong>: schimbare email/parola/telefon, adaugare/stergere metoda de plata, transfer peste prag valoric (ex: >1000 EUR), adaugare beneficiar nou, revocare alte sesiuni, export de date sensibile. <strong>Metode</strong>: (1) Re-introdu parola — simpla, adecvata pentru actiuni mediu riscante. (2) TOTP / push notification — puternica, adecvata pentru plati mari. (3) Biometrie pe mobile. <strong>Implementare tehnica</strong>: actiunea riscanta returneaza <code>403</code> + <code>X-Requires-Step-Up: payment.large</code> → frontend detecteaza → afiseaza modal cu metoda de verificare → user se autentifica → frontend primeste <em>step-up token</em> (JWT scurt: 5 minute, cu claim <code>scope: payment.large</code>) → trimite actiunea cu <code>X-Step-Up-Token: ...</code> → backend valideaza si executa. <strong>Token de step-up legat de actiune</strong>: nu generic — un token pentru "initiere plata" nu poate fi folosit pentru "schimbare email". Scopul limitat previne refolosirea.`,
+    anchor:"CAMERA CU DOUA USI — PRIMA RAMANE DESCHISA",
+    anchorExp:`Prima usa (login) e deschisa si ramane deschisa. Actiunea riscanta e dupa a doua usa (step-up). A doua usa cere o cheie separata, pentru aceasta usa specifica. Sesiunea ta la prima usa nu e afectata — nu trebuie sa iesi si sa intri din nou.`,
+    bad:`Niciun step-up: sesiunea activa permite orice actiune, inclusiv ireversibile. SAU re-login complet pentru orice actiune sensibila (UX dezastruos).`,
+    good:`Step-up cu token legat de actiunea specifica, TTL scurt (5 min), invalidat dupa utilizare.`,
+    retrieval:["Inchide fisierul.","Scrie 4 trigger-uri de step-up authentication.","Scrie fluxul tehnic de step-up in 5 pasi.","Scrie de ce token-ul de step-up trebuie sa fie legat de actiunea specifica.","Deschide si compara."],
+    exercise:`Avise vrea sa implementeze step-up authentication pentru exportul de date financiare (export complet al tuturor JE-urilor). Tu scrii story-ul tehnic. Defineste: trigger, metoda de verificare, durata token-ului, ce se intampla daca token-ul expira in mijlocul exportului, si AC-urile testabile.`,
+    cal:["Pot explica diferenta dintre step-up si re-login in termeni de UX si implementare?","Inteleg de ce token-ul de step-up trebuie sa fie specific actiunii si nu generic?","Stiu sa identific actiunile care cer step-up intr-o aplicatie financiara?"]
+  },
+  // 14
+  { id:14, title:"Adaptive / Risk-Based Authentication", sub:"Acelasi user, context diferit — cerinte diferite", branch:4,
+    break_:`Autentificarea standard trateaza identic loginul Anei de pe laptopul ei de acasa la 9:00 dimineata si loginul "Anei" de pe un IP din Rusia la 3:00 noaptea, pe un device pe care nu l-a mai folosit niciodata. Un sistem robust nu aplica acelasi nivel de verificare la ambele — evalueaza contextul si ajusteaza.`,
+    concept:`Adaptive authentication: sistemul ajusteaza cerintele de autentificare in functie de <strong>semnalele de risc</strong>. <em>Semnale</em>: IP nou / IP din tara neobisnuita, device nou (fingerprint: user-agent + timezone + rezolutie + fonts), ora neobisnuita, viteza imposibila (login din Bucuresti, 2 minute mai tarziu login din Tokyo — "impossible travel"), IP pe liste negre (Tor, VPN comerciale, proxies), multe incercari esuate recente. <strong>Raspunsuri la risc inalt</strong>: cere al doilea factor (daca nu era cerut), cere re-autentificarea (chiar daca sesiunea e activa), trimite email "Am detectat un login nou din Moscova — ati fost voi?", blocheaza temporar si cere verificare manuala, notifica echipa de securitate (SIEM alert). <strong>Device fingerprinting</strong>: nu e 100% unic dar e suficient pentru detectie anomalii. Se schimba la browser update sau incognito — nu il folosi ca unic identificator, ci ca semnal de risc. <strong>Implementari</strong>: Auth0 Adaptive MFA, Okta ThreatInsight, AWS Cognito Advanced Security Mode. Se pot implementa si custom cu un risk scoring engine.`,
+    anchor:"DETECTIVUL CU DOSAR DE COMPORTAMENT PE FIECARE CLIENT",
+    anchorExp:`Detectivul stie cum se comporta fiecare client de obicei: ora, locatia, dispozitivul, ritmul. Cand ceva se schimba brusc, pune intrebari suplimentare inainte sa lase sa intre. Nu toti clientii noi sunt suspecti — dar schimbarile bruste necesita verificare.`,
+    bad:`Acelasi flow pentru toate contextele: loginul din Moscova la 3:00 AM trece identic cu loginul normal de acasa.`,
+    good:`Risk score per request + MFA challenge suplimentar la scor inalt + email de notificare + logging detaliat al contextului + escalare la securitate.`,
+    retrieval:["Inchide fisierul.","Scrie 5 semnale de risc folosite in adaptive authentication.","Scrie 3 raspunsuri posibile ale sistemului la risc inalt.","Explica ce e impossible travel in 2 propozitii.","Deschide si compara."],
+    exercise:`Avise a primit un raport ca un cont de accountant a fost accesat simultan din doua tari diferite in interval de 5 minute. Tu esti PO si trebuie sa propui ce sa implementeze echipa pentru a preveni astfel de scenarii in viitor. Scrie story-ul pentru adaptive authentication cu cel putin 3 semnale de risc si 2 raspunsuri ale sistemului.`,
+    cal:["Pot numi 5 semnale de risc fara sa ma uit?","Inteleg de ce device fingerprinting nu e un identificator unic ci un semnal de risc?","Stiu sa propun o strategie de adaptive auth pentru o aplicatie financiara?"]
+  },
+  // 15
+  { id:15, title:"Audit Trail la Login", sub:"Ce loghezi, ce nu loghezi, si de ce conteaza la o investigatie", branch:4,
+    break_:`Intr-o aplicatie financiara, un login reusit sau esuat nu e doar un eveniment de autentificare — e o intrare in audit trail. Daca nu loghezi corect, nu poti investiga un breach, nu poti raspunde unui regulator, si nu poti detecta pattern-uri de atac. Daca loghezi gresit (parola in log), ai creat tu insuti o vulnerabilitate.`,
+    concept:`<strong>Ce loghezi</strong> la fiecare eveniment de autentificare: <code>timestamp</code> (UTC), <code>userId</code> (daca cunoscut), <code>ip_address</code>, <code>user_agent</code> (parsed: browser, OS), <code>event_type</code> (login_success, login_failure, logout, mfa_challenge, mfa_success, mfa_failure, session_revoked, password_reset_requested, account_locked), <code>failure_reason</code> (invalid_password, invalid_totp, account_locked — nu "parola gresita: abc123"), <code>session_id</code> (hashed — nu plain), <code>device_fingerprint</code>, <code>geolocation</code> (oras derivat din IP). <strong>Ce NU loghezi niciodata</strong>: parola (nici macar cea introdusa gresit), token-uri complete (logheaza prefix sau hash), date de card, raspunsuri complete la security questions. <strong>Log integrity</strong>: log-urile trebuie sa fie append-only — o baza de date relationala standard poate fi alterata. Solutii: SIEM (Splunk, Datadog, ELK), write-only storage, log-uri semnate criptografic. <strong>Retentie</strong>: PSD2 impune minimum 5 ani pentru tranzactii, GDPR impune minimizare — conflict real care necesita politica explicita.`,
+    anchor:"REGISTRUL NOTARIAL",
+    anchorExp:`Registrul notarial inregistreaza fiecare act semnat, cine a semnat, cand, si ce s-a semnat — nu ce parola a zis cineva. E append-only. E pastrat ani de zile. E verificabil la audit sau in instanta. In investigatii, registrul e ce dovedeste ce s-a intamplat sau ce nu s-a intamplat.`,
+    bad:`<code>LOG: Login failed for user ana@avise.ro with password: myCat123!</code> — parola in log = breach de date sensibile la primul acces la fisierul de log.`,
+    good:`<code>{ event: "login_failure", userId: null, ip: "1.2.3.4", reason: "invalid_password", ua: "Chrome/120/Mac", ts: "2024-01-15T09:32:11Z" }</code>`,
+    retrieval:["Inchide fisierul.","Scrie 8 campuri pe care le loghezi la fiecare eveniment de autentificare.","Scrie 3 lucruri pe care NU le loghezi niciodata.","Scrie de ce log-urile trebuie sa fie append-only.","Deschide si compara."],
+    exercise:`Avise trebuie sa raspunda unui audit PSD2 si sa demonstreze ca stie cine a accesat aplicatia in ultimele 12 luni si din ce locatie. Ce structura de audit log ai proiectat? Scrie schema tabelului de audit si 3 query-uri pe care auditorul le-ar folosi.`,
+    cal:["Pot lista 8 campuri de audit log fara sa ma uit?","Inteleg de ce parola gresita nu se stocheaza in log (nici macar ca eroare)?","Stiu diferenta dintre log-uri pentru debugging si audit trail pentru compliance?"]
+  },
+  // 16
+  { id:16, title:"Login pe Mobile", sub:"Keychain, deep links, biometrie, si diferentele fata de web", branch:5,
+    break_:`Un developer web care implementeaza login pe mobile folosind aceleasi pattern-uri ca pe web face greseli structurale: cookie-urile nu se comporta la fel in WebView, redirect URI-urile cu custom scheme sunt interceptabile, si localStorage nu exista. Mobile are propriile primitive de securitate.`,
+    concept:`<strong>Stocare token-uri</strong>: nu in SharedPreferences (Android) sau UserDefaults (iOS) — accesibile, necriptate implicit. Folosesti: <em>Keychain</em> (iOS) — stocare hardware-backed pentru secrete, accesibila doar propriei aplicatii, protejata de Secure Enclave. <em>Keystore</em> (Android) — similar, chei legate de hardware pe dispozitive moderne. <strong>Redirect URI in OAuth</strong>: pe mobile, redirect_uri nu poate fi URL web — browser-ul extern nu intoarce controlul aplicatiei. Solutii: custom scheme (<code>avise://auth/callback</code>) — interceptabil de alte aplicatii; <em>Universal Links (iOS) / App Links (Android)</em> — link HTTPS care deschide direct aplicatia daca e instalata, nu poate fi interceptat de alte aplicatii. Preferat. <strong>PKCE obligatoriu</strong> pe mobile — nu exista client_secret securizat in binar (poate fi extras prin reverse engineering). <strong>Biometrie</strong>: nu inlocuieste autentificarea la server — biometria e locala, deblocheaza token-ul din Keychain. Serverul nu stie de biometrie. <strong>Certificate pinning</strong>: aplicatia accepta doar certificatul SSL specific al serverului tau — protejeaza contra MITM chiar daca atacatorul are certificat valid de la alta CA.`,
+    anchor:"SEIF PORTABIL CU AMPRENTA LOCALA",
+    anchorExp:`Tokenul traieste intr-un seif portabil (Keychain/Keystore) cu amprenta pentru deschidere locala. Amprenta deschide seiful pe telefon, nu dovedeste nimic serverului. Seiful e legat hardware de dispozitiv — nu poti copia seiful pe alt telefon.`,
+    bad:`Tokeni in SharedPreferences fara criptare, custom scheme redirect URI fara validare, client_secret inclus in binar (extractabil).`,
+    good:`Tokeni in Keychain/Keystore, Universal Links pentru redirect, PKCE (fara client_secret), biometrie ca deblocator local al Keychain-ului.`,
+    retrieval:["Inchide fisierul.","Scrie diferenta dintre Keychain si SharedPreferences.","Scrie de ce PKCE e obligatoriu pe mobile si de ce nu poti folosi client_secret.","Scrie rolul biometriei pe mobile (ce face si ce nu face).","Deschide si compara."],
+    exercise:`Avise lanseaza o aplicatie mobile iOS si Android. Francisc propune sa foloseasca un WebView in aplicatie si sa gestioneze autentificarea exact ca pe web (cookies, localStorage). Tu si Harris evaluati propunerea. Care sunt problemele specifice WebView pentru autentificare si ce alternativa propuneti?`,
+    cal:["Inteleg diferenta dintre Keychain/Keystore si stocare nesigura pe mobile?","Stiu de ce biometria pe mobile nu e autentificare server-side?","Pot explica de ce PKCE e obligatoriu si client_secret e periculos pe mobile?"]
+  },
+  // 17
+  { id:17, title:"Checklist Complet de Login", sub:"Tot ce trebuie bifat inainte de deploy — pentru orice aplicatie, mai ales financiare", branch:5,
+    break_:`Un developer sau PO care nu are un checklist structurat va uita invariabil un item critic: CSRF token pe form, session regeneration dupa login, audit log la fiecare eveniment, step-up pentru actiuni riscante. Fara lista, securitatea depinde de memorie si noroc — si in aplicatii financiare, noroc nu e suficient.`,
+    concept:`<strong>Form si transport</strong>: POST action + CSRF token + autocomplete activat + loading state + HTTPS everywhere + HSTS header. <strong>Credentiale</strong>: bcrypt/Argon2id (cost>=12), niciodata MD5/SHA pentru parole. <strong>Sesiune</strong>: regenerare session ID dupa login, cookie httpOnly+Secure+SameSite=Strict, Max-Age adecvat, invalidare completa la logout. <strong>Erori</strong>: mesaj generic ("email sau parola incorecte"), niciun enumeration. <strong>Protectie automata</strong>: rate limiting progresiv + CAPTCHA dupa N incercari + lockout temporar + notificare email + honeypot field. <strong>Sesiuni avansate</strong>: remember-me cu token rotation, multi-device management cu revocare, notificari la login nou. <strong>MFA</strong>: oferit (TOTP recomandat), impus pentru roluri privilegiate. <strong>Social login</strong>: state+nonce+PKCE+redirect_uri whitelist exact match. <strong>Step-up</strong>: definit si implementat pentru actiuni riscante. <strong>Audit</strong>: toate evenimentele loggate, fara date sensibile, append-only, retentie conform legislatiei. <strong>Mobile</strong>: Keychain/Keystore, PKCE, Universal Links, certificate pinning. <strong>SPA</strong>: access token in memorie, refresh in httpOnly cookie, interceptor pentru silent refresh. <strong>Financiar/PSD2</strong>: SCA la acces conturi + SCA cu dynamic linking la plati, step-up obligatoriu la plati, re-auth la 90 zile, exemptii documentate.`,
+    anchor:"LISTA DE CONTROL A PILOTULUI",
+    anchorExp:`Pilotul bifeza fiecare item inainte de zbor, indiferent de experienta sau de cate ori a facut-o. Nu exista "stiu deja" — exista lista bifata sau lista nebifata. Aplicatia decolezi in productie fara lista = zbori cu verificarile facute dupa decolare.`,
+    bad:`"Am implementat login-ul, functioneaza in dev, facem deploy." Checklist: zero.`,
+    good:`Bifat toti itemii, code review cu focus pe securitate, testate manual toate flow-urile de eroare, security headers verificate cu SecurityHeaders.com.`,
+    retrieval:["Inchide fisierul.","Scrie checklist-ul din memorie — tinteste 15 din 20 de itemi.","Noteaza itemul pe care crezi ca il uiti cel mai des.","Deschide si compara. Repeta exercitiul peste 24 de ore fara sa te uiti."],
+    exercise:`Ia aplicatia Avise in starea ei curenta. Folosind checklist-ul din acest capitol, fa o analiza gap: pentru fiecare categorie (Form, Credentiale, Sesiune, Erori, Rate limiting, MFA, Audit, Financiar) noteaza: implementat (✓), partial (∼), necunoscut (?), sau neaplicabil (n/a). Ce prioritizezi imediat si de ce?`,
+    cal:["Pot recita cel putin 15 itemi din checklist fara sa ma uit?","Stiu sa fac un gap analysis de securitate pe un produs real?","Am claritate despre care itemi sunt obligatorii legal (PSD2) vs best practice?"]
+  }
+];
+
+// ── STATE ──
+let currentChunk = 0;
+const completed = new Set();
+const calStates = {};
+const textStates = {};
+
+// ══════════════════════════════════════════════════════
+// MIND MAP
+// ══════════════════════════════════════════════════════
+function initMindMap() {
+  const svg = document.getElementById('mapSvg');
+  const cx = 490, cy = 310;
+
+  function toXY(angleDeg, r) {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function el(tag, attrs, text) {
+    const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  svg.appendChild(el('rect', {width:'980', height:'620', fill:'#0f1117', rx:'8'}));
+
+  BRANCHES.forEach((branch, bi) => {
+    const baseAngle = (360 / BRANCHES.length) * bi;
+    const bp = toXY(baseAngle, 158);
+    const nc = branch.children.length;
+    const spread = nc <= 2 ? 20 : nc <= 3 ? 16 : 13;
+
+    branch.children.forEach((child, ci) => {
+      const offset = (ci - (nc - 1) / 2) * spread * 2;
+      const cp = toXY(baseAngle + offset, 278);
+
+      svg.appendChild(el('line', { x1:bp.x, y1:bp.y, x2:cp.x, y2:cp.y,
+        stroke:branch.color, 'stroke-width':'1.5', opacity:'0.45' }));
+
+      const pill = el('g', {cursor:'pointer'});
+      pill.onclick = () => goToChunk(child.chunk);
+
+      const words = child.label.split(' ');
+      const lines = []; let cur = '';
+      for (const w of words) {
+        if ((cur+' '+w).trim().length > 16 && cur) { lines.push(cur.trim()); cur=w; }
+        else cur=(cur+' '+w).trim();
+      }
+      if (cur) lines.push(cur);
+      const ph = lines.length > 1 ? 30 : 24, pw = 124;
+      pill.appendChild(el('rect', { x:cp.x-pw/2, y:cp.y-ph/2, width:pw, height:ph,
+        rx:'4', fill:'rgba(22,27,34,0.92)', stroke:branch.color, 'stroke-width':'1' }));
+      const fs = lines.length > 1 ? 9 : 10, lh = fs * 1.3;
+      lines.forEach((l, i) => {
+        pill.appendChild(el('text', { x:cp.x,
+          y: cp.y - (lines.length-1)*lh/2 + i*lh + fs*0.38,
+          'text-anchor':'middle', fill:branch.color, 'font-size':fs,
+          'font-family':'JetBrains Mono,monospace', 'font-weight':'500' }, l));
+      });
+      svg.appendChild(pill);
+    });
+
+    const cp1 = toXY(baseAngle, 55), cp2 = toXY(baseAngle, 115);
+    svg.appendChild(el('path', { d:`M ${cx} ${cy} C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${bp.x} ${bp.y}`,
+      stroke:branch.color, 'stroke-width':'2.5', fill:'none', opacity:'0.7' }));
+
+    const bg = el('g', {cursor:'pointer'});
+    bg.onclick = () => goToChunk(branch.children[0].chunk);
+    bg.appendChild(el('circle', {cx:bp.x, cy:bp.y, r:'28',
+      fill:branch.color+'20', stroke:branch.color, 'stroke-width':'2'}));
+    const bw = branch.label.split(' '), bl=[], bc='';
+    let bcur='';
+    for (const w of bw) {
+      if ((bcur+' '+w).trim().length > 9 && bcur) { bl.push(bcur.trim()); bcur=w; }
+      else bcur=(bcur+' '+w).trim();
+    }
+    if (bcur) bl.push(bcur);
+    const bfs=bl.length>1?7.5:8.5, blh=bfs*1.3;
+    bl.forEach((l,i)=>{
+      bg.appendChild(el('text',{x:bp.x,
+        y:bp.y-(bl.length-1)*blh/2+i*blh+bfs*0.38,
+        'text-anchor':'middle',fill:branch.color,'font-size':bfs,
+        'font-family':'JetBrains Mono,monospace','font-weight':'600'},l));
+    });
+    svg.appendChild(bg);
+  });
+
+  const cg = el('g', {});
+  cg.appendChild(el('circle', {cx, cy, r:'44', fill:'#e6b42218', stroke:'#e6b422', 'stroke-width':'2.5'}));
+  ['LOGIN', 'ROBUST'].forEach((l, i) => {
+    cg.appendChild(el('text', {x:cx, y:cy+(i-0.5)*13,
+      'text-anchor':'middle', fill:'#e6b422', 'font-size':'10',
+      'font-family':'JetBrains Mono,monospace', 'font-weight':'700'}, l));
+  });
+  svg.appendChild(cg);
+
+  const legend = document.getElementById('mapLegend');
+  BRANCHES.forEach(b => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-dot" style="background:${b.color}"></span>${b.label} (${b.children.length})`;
+    item.style.borderColor = b.color + '44';
+    item.onclick = () => goToChunk(b.children[0].chunk);
+    legend.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function goToMap() {
+  document.getElementById('viewCourse').style.display = 'none';
+  document.getElementById('viewMap').style.display = 'flex';
+  window.scrollTo(0,0);
+}
+
+function goToChunk(idx) {
+  currentChunk = idx;
+  document.getElementById('viewMap').style.display = 'none';
+  document.getElementById('viewCourse').style.display = 'block';
+  renderChunk(idx);
+  window.scrollTo(0,0);
+}
+
+function nextChunk() {
+  completed.add(currentChunk);
+  currentChunk++;
+  if (currentChunk >= CHUNKS.length) { renderComplete(); return; }
+  renderChunk(currentChunk); window.scrollTo(0,0);
+}
+
+function prevChunk() {
+  if (currentChunk > 0) { currentChunk--; renderChunk(currentChunk); window.scrollTo(0,0); }
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+function updateHeader(c, idx) {
+  const b = BRANCHES[c.branch];
+  const badge = document.getElementById('catBadge');
+  badge.textContent = b.label;
+  badge.style.cssText = `background:${b.color}18;color:${b.color};border:1px solid ${b.color}40;`;
+  document.getElementById('courseCounter').textContent = `${idx+1} / ${CHUNKS.length}`;
+  const fill = document.getElementById('progFill');
+  fill.style.width = ((idx+1)/CHUNKS.length*100)+'%';
+  fill.style.background = b.color;
+  const row = document.getElementById('dotsRow');
+  row.innerHTML = '';
+  CHUNKS.forEach((ch,i) => {
+    const d = document.createElement('button');
+    d.className = 'dot'+(i===idx?' active':'')+(completed.has(i)&&i!==idx?' done':'');
+    d.style.background = i===idx ? BRANCHES[ch.branch].color : (completed.has(i) ? BRANCHES[ch.branch].color+'80' : '');
+    d.title = ch.title;
+    d.onclick = () => { completed.add(currentChunk); goToChunk(i); };
+    row.appendChild(d);
+  });
+}
+
+function renderChunk(idx) {
+  const c = CHUNKS[idx];
+  const b = BRANCHES[c.branch];
+  updateHeader(c, idx);
+
+  // Build flow steps if present
+  let flowHTML = '';
+  if (c.flowSteps) {
+    flowHTML = '<div class="flow-steps">' + c.flowSteps.map(s => `
+      <div class="flow-step">
+        <div class="flow-step-left"><div class="flow-num">${s.n}</div><div class="flow-line"></div></div>
+        <div class="flow-body"><strong>${s.strong}</strong>: ${s.body}</div>
+      </div>`).join('') + '</div>';
+  }
+
+  const retHTML = c.retrieval.map(s => `<li>${s}</li>`).join('');
+  const calHTML = c.cal.map((q,i) => {
+    const key = `c${c.id}_q${i}`;
+    const ticked = calStates[key] ? ' ticked' : '';
+    return `<div class="cal-item${ticked}" onclick="toggleCal(this,'${key}')">
+      <div class="cal-box">${calStates[key]?'✓':''}</div>
+      <div class="cal-text">${q}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('courseMain').innerHTML = `
+    <div class="chunk-cat" style="color:${b.color}">${b.label}</div>
+    <h1 class="chunk-title">${c.title}</h1>
+    <p class="chunk-sub">${c.sub}</p>
+
+    <div class="section">
+      <div class="block-break">
+        <span class="slabel">&#x26A1; ce se strica fara asta</span>
+        <p>${c.break_}</p>
+      </div>
+    </div>
+
+    <div class="section block-concept">
+      <span class="slabel" style="color:var(--text-dim)">conceptul</span>
+      <p>${c.concept}</p>
+      ${flowHTML}
+    </div>
+
+    <div class="section">
+      <div class="block-anchor">
+        <span class="slabel">&#x1F511; ancora</span>
+        <span class="anchor-word">${c.anchor}</span>
+        <span class="anchor-exp">${c.anchorExp}</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-contrast">
+        <span class="slabel">contrast</span>
+        <div class="contrast-pair">
+          <div class="c-bad"><span class="c-tag">&#x2716; varianta gresita</span>${c.bad}</div>
+          <div class="c-good"><span class="c-tag">&#x2714; varianta corecta</span>${c.good}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-retrieval">
+        <span class="slabel">&#x1F9E0; retrieval activ — fa asta inainte sa bifezi calibrarea</span>
+        <div class="retrieval-intro">Memoria nu se construieste prin citire. Se construieste prin recuperare activa. Urmeaza pasii exacti — nu sari peste ei.</div>
+        <ol class="retrieval-steps">${retHTML}</ol>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-exercise">
+        <span class="slabel">&#x1F3AF; exercitiu — aplica in contextul Avise</span>
+        <div class="exercise-prompt">${c.exercise}</div>
+        <textarea placeholder="Scrie raspunsul tau aici..." oninput="textStates[${c.id}]=this.value">${textStates[c.id]||''}</textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-cal">
+        <span class="slabel">&#x1F4E1; calibrare — bifezi doar ce simti ca ai cu adevarat</span>
+        ${calHTML}
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn" onclick="prevChunk()" ${idx===0?'disabled':''}>&#x2190; anterior</button>
+      <span style="font-family:var(--mono);font-size:0.62rem;color:var(--text-dim)">${idx+1} din ${CHUNKS.length}</span>
+      <button class="btn btn-primary" onclick="nextChunk()" style="background:${b.color};border-color:${b.color};color:#0f1117">
+        ${idx===CHUNKS.length-1?'finalizeaza &#x2713;':'urmator &#x2192;'}
+      </button>
+    </div>
+  `;
+}
+
+function renderComplete() {
+  document.getElementById('courseMain').innerHTML = `
+    <div class="complete-wrap">
+      <h1>Curs complet. &#x2713;</h1>
+      <p>Toate cele ${CHUNKS.length} capitole — procesul de login de la A la Z.</p>
+      <div class="anchors-grid">
+        ${CHUNKS.map((c,i)=>`
+          <div class="anchor-card" onclick="goToChunk(${i})">
+            <span class="ac-num">${String(i+1).padStart(2,'0')}</span>
+            <div>
+              <span class="ac-word" style="color:${BRANCHES[c.branch].color}">${c.anchor}</span>
+              <span class="ac-chunk">${c.title}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+      <p style="font-size:0.85rem;color:var(--text-dim);margin-bottom:1.5rem">
+        Asociaza fiecare ancora cu titlul ei fara sa te uiti — atunci ai construit modelul complet.<br>
+        Click pe ancora pentru a relua capitolul.
+      </p>
+      <button class="btn" onclick="goToMap()">&#x2190; Inapoi la harta</button>
+    </div>
+  `;
+}
+
+function toggleCal(el, key) {
+  calStates[key] = !calStates[key];
+  el.classList.toggle('ticked');
+  el.querySelector('.cal-box').textContent = calStates[key]?'✓':'';
+}
+
+initMindMap();
+</script>
+</body>
+</html>

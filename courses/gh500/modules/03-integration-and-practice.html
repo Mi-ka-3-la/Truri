@@ -1,0 +1,324 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Module 3 · Integration &amp; practice</span>
+      <h1 class="module-title">How the three features work together</h1>
+      <p class="module-subtitle">Plus six exam-style questions to lock in the Domain 1 material.</p>
+    </header>
+
+    <!-- SCREEN 1: Synthesis — the integration story -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Three features, one secure software development lifecycle</h2>
+
+      <p>The exam asks how these features fit together more often than you'd guess. The story to remember: <strong>each feature defends a different layer of risk, and together they cover the lifecycle from "before code is written" to "after code is running."</strong></p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="layers" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">The SDLC defense in depth</h3>
+            <p class="schema-card-sub">Read left to right: where in the lifecycle each feature catches what.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+graph LR
+  DEV["👨‍💻 Developer writes code"]
+  PUSH{"git push"}
+  PR["📥 Pull Request opened"]
+  MERGE["✅ Code merged"]
+  PROD["🚀 In production"]
+
+  PP["🔐 Push protection<br/>(blocks secrets at push)"]
+  DR["🔍 Dependency Review<br/>(blocks vulnerable deps in PR)"]
+  CS["🔬 Code scanning<br/>(finds vulns in PR or main)"]
+  SS["🛡️ Secret scanning<br/>(catches secrets that slipped past)"]
+  DA["📦 Dependabot alerts<br/>(catches deps that turn vulnerable later)"]
+
+  DEV --> PUSH
+  PUSH -.-> PP
+  PUSH --> PR
+  PR -.-> DR
+  PR -.-> CS
+  PR --> MERGE
+  MERGE -.-> SS
+  MERGE -.-> CS
+  MERGE --> PROD
+  PROD -.-> DA
+
+  classDef anchor fill:#FDEEE9,stroke:#D94F30,stroke-width:2px,color:#1F1D1B;
+  classDef defense fill:#E8F5EE,stroke:#2D8B55,stroke-width:1.5px,color:#1F1D1B;
+  class DEV,PUSH,PR,MERGE,PROD anchor;
+  class PP,DR,CS,SS,DA defense;
+        </pre>
+        <p class="schema-card-note">Orange boxes (top row): the developer workflow. Green boxes: the GHAS features that intervene at each stage. Notice the redundancy — code scanning runs both on PRs and on the main branch; the system never relies on one gate alone.</p>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="shield-check" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The "defense in depth" framing</strong>
+          <p>If you're asked why GHAS uses multiple features instead of one big scanner, the answer is <strong>defense in depth</strong>. No single gate is perfect — push protection might be bypassed, code scanning might miss a new vulnerability class, dependencies might turn vulnerable after merge. Each feature is a layer; the layers cover each other's gaps.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Where each feature lives in the UI -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Where you find each feature in the UI</h2>
+
+      <p>The exam will occasionally test "where does this show up in GitHub?" Knowing the menu path saves you on those questions.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>The Security tab — the main entry point</strong>
+            <p>On any repository, the Security tab is where all GHAS alerts surface. Subsections inside: Code scanning alerts, Secret scanning alerts, Dependabot alerts. Each can be filtered, dismissed (with a reason), or marked resolved.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Settings → Code security &amp; analysis</strong>
+            <p>The configuration page for the repo. Toggle individual features on or off, configure custom secret scanning patterns, enable push protection, manage Dependabot. Available at repo, organization, and enterprise level (with higher levels setting policy for the levels below).</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Security Overview (org &amp; enterprise level)</strong>
+            <p>An aggregated dashboard across all repos in the organization. Shows alert counts by feature, by severity, by repository. The cross-repo view is what makes GHAS administration possible at scale.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Pull request checks (inline)</strong>
+            <p>Dependency Review and Code scanning PR checks appear directly on every pull request as status checks. The reviewer sees them without leaving the PR — that's the design intent.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Exam-style quiz (Pattern D — Application) -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 1 practice — exam-style questions</h2>
+
+      <p>Six questions in the format you'll meet on test day. Read each stem carefully — the trap is almost always in a scope word ("public" vs "private", "with GHAS" vs "without") or a timing word ("before merge" vs "continuously").</p>
+
+      <div class="exam-quiz-container" id="exam-quiz-module-3">
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. Code scanning analyzes source code for vulnerability patterns (SQL injection, XSS, etc.). It does not look for credentials. Confused feature."
+             data-explanation-b="Wrong. Dependabot watches third-party packages declared in your manifest files. It doesn't scan your own source code for embedded credentials."
+             data-explanation-c="Correct. Secret scanning's job is exactly this — detecting credentials and tokens that have ended up in source code, matched against partner-supplied patterns."
+             data-explanation-d="Wrong. Push protection prevents secrets from being committed in the first place, but the question asks which feature DETECTS secrets already in the repository. That's secret scanning, not push protection.">
+          <h3 class="exam-question-stem">1. Which GHAS feature is designed to detect API keys, OAuth tokens, and database credentials that developers may have accidentally committed to a repository's source code?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Code scanning with CodeQL</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Dependabot</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Secret scanning</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Push protection</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. Secret scanning ALERTS are free on public repos, but they only catch secrets after the commit reaches the repo. The scenario says no GHAS license — and on a private repo without GHAS, secret scanning is not available at all."
+             data-explanation-b="Correct. Dependabot alerts are free for everyone, on public AND private repos, with or without a GHAS license. That's the one feature that doesn't require GHAS on private repos."
+             data-explanation-c="Wrong. Code scanning requires GHAS on private repositories. With no GHAS license, it's simply unavailable in this scope."
+             data-explanation-d="Wrong. Dependency Review (the PR check) requires GHAS on private repos. Without GHAS, it's not available — even though Dependabot alerts ARE.">
+          <h3 class="exam-question-stem">2. An organization has a private repository with no GHAS license. Which of these GHAS-related capabilities is still available to them?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Secret scanning alerts</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Dependabot alerts</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Code scanning with CodeQL</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Dependency Review on pull requests</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-a"
+             data-explanation-a="Correct. Dependency Review runs on every pull request and inspects only the dependencies being added or changed in the PR diff. It can block the merge if those dependencies are vulnerable. The verb 'before merge' is the giveaway."
+             data-explanation-b="Wrong. Dependabot alerts watch existing dependencies and trigger continuously after a dependency becomes vulnerable — they are not a pre-merge gate."
+             data-explanation-c="Wrong. Code scanning analyzes your source code for vulnerability patterns, not your dependencies. Wrong target."
+             data-explanation-d="Wrong. Secret scanning detects credentials in source code. It doesn't watch dependencies at all.">
+          <h3 class="exam-question-stem">3. A team wants vulnerable open-source dependencies to be flagged on a pull request <strong>before</strong> the PR is merged. Which feature provides exactly this capability?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Dependency Review</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Dependabot alerts</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Code scanning with CodeQL</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Secret scanning</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-d"
+             data-explanation-a="Wrong. Push protection is a feature inside the Secret Protection product, not Code Security. The two products separate secrets (credentials in code) from code vulnerabilities (insecure code patterns)."
+             data-explanation-b="Wrong. Secret scanning is part of Secret Protection, not Code Security."
+             data-explanation-c="Wrong. Dependabot is the open-source dependency watcher and stands on its own — it is included free for everyone and is not part of either GHAS product bucket."
+             data-explanation-d="Correct. CodeQL code scanning is the static analysis engine for source code vulnerabilities, and it sits inside the Code Security product. Copilot Autofix and third-party SARIF upload also live under Code Security.">
+          <h3 class="exam-question-stem">4. Under the current GHAS product structure, which of these features is part of the <strong>Code Security</strong> product?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Push protection</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Secret scanning</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Dependabot alerts</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>CodeQL code scanning</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. GitHub Actions is a CI/CD platform — it runs the workflows, but it is not itself a security feature. The CodeQL scanner is invoked via a workflow on Actions, but the security feature is code scanning, not Actions."
+             data-explanation-b="Wrong. While CodeQL is built and maintained by GitHub, the static analysis engine that performs code scanning is specifically CodeQL — that's what the question targets."
+             data-explanation-c="Correct. CodeQL is GitHub's static analysis engine, and it powers code scanning by default. It treats code as queryable data and ships with thousands of pre-written security queries."
+             data-explanation-d="Wrong. Trivy is a third-party scanner. While GitHub accepts SARIF output from third-party scanners, the default engine for code scanning is CodeQL, not Trivy.">
+          <h3 class="exam-question-stem">5. Which technology serves as the default static analysis engine that powers GitHub code scanning?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>GitHub Actions</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Copilot Autofix</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>CodeQL</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Trivy</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. Public repositories receive secret scanning alerts AUTOMATICALLY and free of charge — no GHAS license is required, and no toggle is needed."
+             data-explanation-b="Correct. The dependency graph is on by default for public repositories. For private repositories, the dependency graph is available but typically must be enabled in repo settings before Dependabot can use it."
+             data-explanation-c="Wrong. Code scanning is NOT enabled automatically — even on public repositories. The repo owner must set up a workflow (often using the CodeQL action) to opt in. CodeQL is free on public repos, but it does not run by default."
+             data-explanation-d="Wrong. Push protection for partner-supplied secret patterns has been enabled by default on public repositories since 2024 — it does not require any explicit configuration in that scope.">
+          <h3 class="exam-question-stem">6. For repositories on GitHub, which of these statements correctly describes a feature's default behavior?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Secret scanning alerts require explicit activation on every public repository</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>The dependency graph is on automatically for public repos but may need enabling on private repos</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Code scanning runs automatically on every public repository as soon as code is pushed</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Push protection requires manual setup on every public repository before it will block secrets</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-quiz-footer">
+          <button class="exam-check-btn" onclick="checkExamQuiz('exam-quiz-module-3')">Reveal Answers</button>
+          <button class="exam-reset-btn" onclick="resetExamQuiz('exam-quiz-module-3')">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: What's next -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">You've finished Domain 1. What's next on the exam?</h2>
+
+      <p>Domain 1 is the foundation — it appears at the front of the exam and its concepts come back in every other domain. With Domain 1 internalized, the next thing to study is whichever domain weighs heaviest for you on the score breakdown.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="bar-chart-3" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">If you go by exam weight</h3>
+          <p class="pattern-desc">Next priority is <strong>Domain 3: Dependabot &amp; Dependency Review</strong> at 35% of the exam — the biggest chunk of points. Then Domain 4: Code scanning with CodeQL (25%). Then Domain 2: Secret scanning (15%). Then Domain 5: Best practices (10%).</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="brain" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">If you go by what feels weakest</h3>
+          <p class="pattern-desc">Check your practice quiz score above. The questions you missed point to which feature you understood least. Study that feature's deep-dive module next — even if it's a lower-weight domain. Closing knowledge gaps is more valuable than rehearsing what you already know.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Domain 1 complete — continue to Domain 2</strong>
+          <p>You've finished GH-500 Domain 1. The Domain 1 questions on test day shouldn't surprise you anymore — they'll be variations on the patterns you just practiced. Next up: Domain 2 (Secret Scanning) — same exam weight but more procedural, with specific paths, limits, and lifecycle rules to memorize.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Continue CTA -->
+    <div class="continue-cta animate-in">
+      <a href="#module-4" class="btn btn-continue">
+        Continue to Module 4: Configure secret scanning <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-0" class="btn-back-link">
+        <i data-lucide="arrow-left" class="icon-sm"></i> Back to course overview
+      </a>
+    </div>
+  </div>
+</section>

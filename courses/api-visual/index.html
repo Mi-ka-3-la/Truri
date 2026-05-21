@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build APIs You Won't Hate — Visual Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a40;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --accent: #7c6af7;
+    --accent2: #f76a8a;
+    --accent3: #6af7c8;
+    --accent4: #f7c86a;
+    --accent5: #6ab4f7;
+    --green: #4af59a;
+    --red: #f54a6b;
+    --yellow: #f5c84a;
+    --blue: #4a9ef5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+  }
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  nav a:hover { color: var(--text); background: var(--surface2); }
+  nav a.active { color: var(--accent); background: rgba(124,106,247,0.12); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,247,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,247,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(124,106,247,0.12) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: rgba(124,106,247,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124,106,247,0.3);
+    padding: 0.3rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  h1.hero-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    color: var(--muted);
+    font-size: 1.1rem;
+    max-width: 560px;
+    margin: 0 auto 3rem;
+    position: relative;
+  }
+
+  /* REQUEST ANIMATION */
+  .request-demo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 2.5rem;
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .req-box, .res-box {
+    flex: 1;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .req-box .label { color: var(--accent5); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.7rem; letter-spacing: 0.1em; }
+  .res-box .label { color: var(--accent3); font-weight: 700; margin-bottom: 0.4rem; font-size: 0.7rem; letter-spacing: 0.1em; }
+
+  .arrow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+  }
+
+  .arrow {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .arrow-line {
+    width: 40px;
+    height: 2px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .arrow-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, var(--accent3), transparent);
+    animation: flow 2s ease-in-out infinite;
+  }
+
+  .arrow-line.req-line { background: rgba(74,158,245,0.3); }
+  .arrow-line.res-line { background: rgba(106,247,200,0.3); }
+  .arrow-line.res-line::after { background: linear-gradient(90deg, transparent, var(--accent3), transparent); animation-delay: 1s; }
+  .arrow-line.req-line::after { background: linear-gradient(90deg, transparent, var(--accent5), transparent); }
+
+  @keyframes flow {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* SECTIONS */
+  .section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+
+  .section-header {
+    margin-bottom: 3rem;
+  }
+
+  .chapter-num {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+
+  .section-intro {
+    color: var(--muted);
+    font-size: 1.05rem;
+    max-width: 600px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 2rem;
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+  }
+
+  .code-header {
+    background: var(--surface2);
+    padding: 0.6rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.red { background: #f54a6b; }
+  .dot.yellow { background: #f5c84a; }
+  .dot.green { background: #4af59a; }
+
+  .code-body {
+    padding: 1.2rem 1.5rem;
+    line-height: 1.8;
+  }
+
+  .kw { color: #7c6af7; }
+  .str { color: #f7c86a; }
+  .fn { color: #6af7c8; }
+  .num { color: #f76a8a; }
+  .cm { color: #4a4a6a; font-style: italic; }
+  .key { color: #6ab4f7; }
+  .val { color: #f7c86a; }
+  .method-get { color: #4af59a; font-weight: 700; }
+  .method-post { color: #f76a8a; font-weight: 700; }
+  .method-put { color: #f7c86a; font-weight: 700; }
+  .method-delete { color: #f54a6b; font-weight: 700; }
+  .url { color: #6ab4f7; }
+  .status-2xx { color: #4af59a; font-weight: 700; }
+  .status-4xx { color: #f7c86a; font-weight: 700; }
+  .status-5xx { color: #f54a6b; font-weight: 700; }
+
+  /* VISUAL CARDS */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(124,106,247,0.15);
+  }
+
+  .card-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .card-title { font-weight: 700; margin-bottom: 0.3rem; font-size: 0.95rem; }
+  .card-desc { color: var(--muted); font-size: 0.82rem; line-height: 1.5; }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    border: 1px solid;
+  }
+
+  .highlight-box.tip { background: rgba(124,106,247,0.08); border-color: rgba(124,106,247,0.25); }
+  .highlight-box.warn { background: rgba(247,200,106,0.08); border-color: rgba(247,200,106,0.25); }
+  .highlight-box.danger { background: rgba(245,74,107,0.08); border-color: rgba(245,74,107,0.25); }
+  .highlight-box.good { background: rgba(74,245,154,0.08); border-color: rgba(74,245,154,0.25); }
+
+  .highlight-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .highlight-content { font-size: 0.9rem; line-height: 1.6; }
+  .highlight-content strong { font-weight: 700; display: block; margin-bottom: 0.2rem; }
+
+  /* STATUS CODE DIAGRAM */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.8rem;
+    margin: 2rem 0;
+  }
+
+  .status-card {
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    border: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: default;
+    transition: transform 0.2s;
+  }
+  .status-card:hover { transform: scale(1.03); }
+
+  .status-card.s2 { background: rgba(74,245,154,0.07); border-color: rgba(74,245,154,0.25); }
+  .status-card.s3 { background: rgba(74,158,245,0.07); border-color: rgba(74,158,245,0.25); }
+  .status-card.s4 { background: rgba(247,200,106,0.07); border-color: rgba(247,200,106,0.25); }
+  .status-card.s5 { background: rgba(245,74,107,0.07); border-color: rgba(245,74,107,0.25); }
+
+  .status-num { font-size: 1.3rem; font-weight: 700; }
+  .status-name { font-size: 0.72rem; color: var(--muted); margin: 0.1rem 0 0.4rem; font-family: 'Space Grotesk', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .status-desc { font-size: 0.78rem; color: var(--muted); font-family: 'Space Grotesk', sans-serif; line-height: 1.4; }
+
+  .s2 .status-num { color: var(--green); }
+  .s3 .status-num { color: var(--blue); }
+  .s4 .status-num { color: var(--yellow); }
+  .s5 .status-num { color: var(--red); }
+
+  /* FLOW DIAGRAM */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+    position: relative;
+  }
+
+  .flow-step {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  .flow-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 48px;
+    flex-shrink: 0;
+  }
+
+  .flow-circle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+
+  .flow-line {
+    width: 2px;
+    flex: 1;
+    min-height: 30px;
+    background: linear-gradient(180deg, var(--border), transparent);
+    margin: 4px 0;
+  }
+
+  .flow-content {
+    padding: 0.8rem 0 2rem;
+    flex: 1;
+  }
+
+  .flow-title { font-weight: 700; margin-bottom: 0.3rem; }
+  .flow-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+  }
+
+  .compare-table th {
+    background: var(--surface2);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(42,42,64,0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    vertical-align: top;
+  }
+
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .compare-table tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .badge-get { background: rgba(74,245,154,0.15); color: var(--green); }
+  .badge-post { background: rgba(247,106,138,0.15); color: var(--accent2); }
+  .badge-put { background: rgba(247,200,106,0.15); color: var(--yellow); }
+  .badge-delete { background: rgba(245,74,107,0.15); color: var(--red); }
+  .badge-patch { background: rgba(106,180,247,0.15); color: var(--blue); }
+
+  /* BIG TEXT QUOTE */
+  .big-quote {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--text);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    background: rgba(124,106,247,0.05);
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* INTERACTIVE HTTP METHOD DEMO */
+  .method-demo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+  }
+
+  .method-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .method-tab {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+
+  .method-tab:hover { border-color: var(--accent); color: var(--text); }
+  .method-tab.active-get { background: rgba(74,245,154,0.12); border-color: var(--green); color: var(--green); }
+  .method-tab.active-post { background: rgba(247,106,138,0.12); border-color: var(--accent2); color: var(--accent2); }
+  .method-tab.active-put { background: rgba(247,200,106,0.12); border-color: var(--yellow); color: var(--yellow); }
+  .method-tab.active-delete { background: rgba(245,74,107,0.12); border-color: var(--red); color: var(--red); }
+
+  .method-content { display: none; }
+  .method-content.visible { display: block; animation: fadeIn 0.3s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* PAGINATION VISUAL */
+  .pagination-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .page-bar {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .page-label { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; font-family: 'Space Grotesk', sans-serif; }
+
+  .page-items {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .page-item {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+
+  .page-item.active { background: var(--accent); color: white; }
+  .page-item.inactive { background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+
+  /* AUTH FLOW */
+  .auth-flow {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .auth-actor {
+    flex: 1;
+    min-width: 140px;
+    background: var(--surface2);
+    border-radius: 12px;
+    padding: 1.2rem;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .auth-actor-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .auth-actor-name { font-weight: 700; font-size: 0.85rem; margin-bottom: 0.3rem; }
+  .auth-actor-desc { color: var(--muted); font-size: 0.75rem; }
+
+  .auth-arrows {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 60px;
+    align-items: center;
+  }
+
+  .auth-arrow {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* PILL */
+  .pill {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .pill-purple { background: rgba(124,106,247,0.15); color: var(--accent); border: 1px solid rgba(124,106,247,0.25); }
+  .pill-green { background: rgba(74,245,154,0.1); color: var(--green); border: 1px solid rgba(74,245,154,0.2); }
+  .pill-red { background: rgba(245,74,107,0.1); color: var(--red); border: 1px solid rgba(245,74,107,0.2); }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* RELATIONSHIP DIAGRAM */
+  .rel-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rel-entity {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    cursor: default;
+    transition: all 0.2s;
+  }
+  .rel-entity:hover { border-color: var(--accent); transform: scale(1.03); }
+
+  .rel-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
+  }
+
+  .rel-connector {
+    height: 2px;
+    flex: 1;
+    min-width: 30px;
+    background: var(--border);
+    position: relative;
+    max-width: 80px;
+  }
+
+  .rel-connector::before, .rel-connector::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6rem;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  .pro-con {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .pro-box {
+    background: rgba(74,245,154,0.05);
+    border: 1px solid rgba(74,245,154,0.2);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+
+  .con-box {
+    background: rgba(245,74,107,0.05);
+    border: 1px solid rgba(245,74,107,0.2);
+    border-radius: 10px;
+    padding: 1rem;
+  }
+
+  .pro-box .box-title { color: var(--green); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+  .con-box .box-title { color: var(--red); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+
+  .box-list { list-style: none; font-size: 0.82rem; color: var(--muted); }
+  .box-list li { padding: 0.2rem 0; padding-left: 1rem; position: relative; }
+  .box-list li::before { content: '→'; position: absolute; left: 0; color: inherit; opacity: 0.6; }
+  .pro-box .box-list li::before { color: var(--green); }
+  .con-box .box-list li::before { color: var(--red); }
+
+  @media (max-width: 600px) {
+    .pro-con { grid-template-columns: 1fr; }
+    .auth-flow { flex-direction: column; }
+    .auth-arrows { flex-direction: row; }
+    .request-demo { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#hero" class="active">Intro</a>
+  <a href="#what">What is an API?</a>
+  <a href="#endpoints">Endpoints</a>
+  <a href="#methods">HTTP Methods</a>
+  <a href="#status">Status Codes</a>
+  <a href="#io">Input & Output</a>
+  <a href="#relationships">Relationships</a>
+  <a href="#auth">Authentication</a>
+  <a href="#pagination">Pagination</a>
+  <a href="#versioning">Versioning</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+
+  <span class="hero-tag">📖 Visual Book Summary</span>
+  <h1 class="hero-title">Build APIs <br><span class="gradient-text">You Won't Hate</span></h1>
+  <p class="hero-sub">Phil Sturgeon's complete guide — visualized. No jargon. Just the concepts, the patterns, and the "oh, NOW I get it" moments.</p>
+
+  <div class="request-demo reveal">
+    <div class="req-box">
+      <div class="label">→ REQUEST</div>
+      <div><span class="method-get">GET</span> <span class="url">/users/42</span></div>
+      <div style="margin-top:0.4rem; color: #4a4a6a; font-size:0.72rem;">Authorization: Bearer token</div>
+    </div>
+    <div class="arrow-container">
+      <div class="arrow" style="color:#6ab4f7; font-size:0.7rem;">
+        <div class="arrow-line req-line"></div>
+        <span>→</span>
+      </div>
+      <div style="font-size:1.2rem; color: var(--muted);">🖥️</div>
+      <div class="arrow" style="color:#6af7c8; font-size:0.7rem;">
+        <span>←</span>
+        <div class="arrow-line res-line"></div>
+      </div>
+    </div>
+    <div class="res-box">
+      <div class="label">← RESPONSE</div>
+      <div><span class="status-2xx">200</span> <span style="color:var(--muted)">OK</span></div>
+      <div style="margin-top:0.4rem; font-size:0.72rem;">
+        <span class="key">"data"</span>: {<br>
+        &nbsp;&nbsp;<span class="key">"id"</span>: <span class="num">42</span>,<br>
+        &nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Mihaela"</span><br>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHAT IS AN API -->
+<section id="what" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 0 — Foundation</div>
+    <h2>What even <em>is</em> an API?</h2>
+    <p class="section-intro">Think of a restaurant. You don't go into the kitchen and cook. You talk to the waiter. The waiter is the API.</p>
+  </div>
+
+  <div class="cards reveal">
+    <div class="card">
+      <div class="card-icon">🍽️</div>
+      <div class="card-title">You (Client)</div>
+      <div class="card-desc">Your app, mobile, browser. Asks for data. Doesn't know how the kitchen works.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧾</div>
+      <div class="card-title">The Waiter (API)</div>
+      <div class="card-desc">The contract between client and server. Speaks a clear language both sides understand.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">👨‍🍳</div>
+      <div class="card-title">The Kitchen (Server)</div>
+      <div class="card-desc">The database, business logic, the actual data. Hidden from the outside world.</div>
+    </div>
+  </div>
+
+  <div class="big-quote reveal">
+    "REST has been so utterly misused that it actually means nothing anymore. This book doesn't get hung up on politics — it gives you what actually works."
+    <div style="margin-top:0.5rem; font-size:0.8rem; color:var(--muted); font-family:'Space Grotesk',sans-serif; font-style:normal;">— Phil Sturgeon</div>
+  </div>
+
+  <div class="highlight-box tip reveal">
+    <div class="highlight-icon">💡</div>
+    <div class="highlight-content">
+      <strong>The whole book in one sentence</strong>
+      Use HTTP the way it was designed: nouns as URLs, verbs as methods, status codes as meaning — then build a clean contract on top.
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ENDPOINTS -->
+<section id="endpoints" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 2 — Planning</div>
+    <h2>Designing Good <em>Endpoints</em></h2>
+    <p class="section-intro">The URL is a noun. Never, ever a verb. This one rule saves you from 80% of bad API design.</p>
+  </div>
+
+  <div class="highlight-box danger reveal">
+    <div class="highlight-icon">❌</div>
+    <div class="highlight-content">
+      <strong>Never put actions in your URL</strong>
+      <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:var(--red)">POST /sendUserMessage</code> &nbsp;or&nbsp;
+      <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:var(--red)">GET /getUserById?id=5</code>
+      <br>URLs describe <em>things</em>, not actions. The HTTP method IS the action.
+    </div>
+  </div>
+
+  <div class="highlight-box good reveal">
+    <div class="highlight-icon">✅</div>
+    <div class="highlight-content">
+      <strong>Nouns only. Use HTTP verbs for the action.</strong>
+      <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:var(--green)">POST /messages</code> &nbsp;—&nbsp;
+      <code style="font-family:'JetBrains Mono',monospace; font-size:0.82rem; color:var(--green)">GET /users/5</code>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+      <span style="margin-left:0.5rem">endpoint-plan.txt — Your API action plan</span>
+    </div>
+    <div class="code-body">
+      <span class="cm">// For any resource, you get these 5 actions:</span><br><br>
+      <span class="method-post">POST</span>   <span class="url">/users</span>          <span class="cm">// Create a new user</span><br>
+      <span class="method-get">GET</span>    <span class="url">/users/{id}</span>     <span class="cm">// Read one user</span><br>
+      <span class="method-put">PUT</span>    <span class="url">/users/{id}</span>     <span class="cm">// Update a user (full replace)</span><br>
+      <span class="method-delete">DELETE</span> <span class="url">/users/{id}</span>     <span class="cm">// Delete a user</span><br>
+      <span class="method-get">GET</span>    <span class="url">/users</span>          <span class="cm">// List all users</span><br><br>
+      <span class="cm">// Sub-resources for relationships:</span><br>
+      <span class="method-get">GET</span>    <span class="url">/users/{id}/checkins</span>   <span class="cm">// User's checkins</span><br>
+      <span class="method-get">GET</span>    <span class="url">/users/{id}/favorites</span>  <span class="cm">// User's favorites</span>
+    </div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem; font-size:1.1rem; font-weight:700;">Plural vs Singular?</h3>
+  <div class="highlight-box tip reveal">
+    <div class="highlight-icon">📐</div>
+    <div class="highlight-content">
+      <strong>Always plural. Always.</strong>
+      <code style="font-family:'JetBrains Mono',monospace; color:var(--green)">/users</code> not <code style="font-family:'JetBrains Mono',monospace; color:var(--red)">/user</code>.
+      If everything is plural, there's no ambiguity. <code style="font-family:'JetBrains Mono',monospace">/user</code> — is that "me"? One user? A collection? Confusing.
+    </div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem; font-size:1.1rem; font-weight:700;">POST vs PUT — the eternal fight</h3>
+  <div class="cards reveal">
+    <div class="card">
+      <div class="card-icon" style="font-family:'JetBrains Mono',monospace; font-size:1.2rem; color:var(--accent2)">POST</div>
+      <div class="card-title">When you don't know the URL</div>
+      <div class="card-desc">Creating something new where the server assigns the ID. <code style="font-size:0.75rem">POST /users</code> → server returns new ID.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="font-family:'JetBrains Mono',monospace; font-size:1.2rem; color:var(--yellow)">PUT</div>
+      <div class="card-title">When you know the full URL</div>
+      <div class="card-desc">Idempotent — do it 10 times, same result. <code style="font-size:0.75rem">PUT /users/5/settings</code> → replaces entire resource.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon" style="font-family:'JetBrains Mono',monospace; font-size:1.2rem; color:var(--blue)">PATCH</div>
+      <div class="card-title">Partial update</div>
+      <div class="card-desc">Only send the fields you want to change. Not all APIs implement this but it's the "right" way for partial updates.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HTTP METHODS -->
+<section id="methods" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 2 — HTTP Verbs</div>
+    <h2>HTTP Methods <em>in Action</em></h2>
+    <p class="section-intro">The verb is not part of the URL. It IS the URL. Click each method to see it in context.</p>
+  </div>
+
+  <div class="method-demo reveal">
+    <div class="method-tabs">
+      <button class="method-tab active-get" onclick="showMethod('get', this, 'active-get')">GET</button>
+      <button class="method-tab" onclick="showMethod('post', this, 'active-post')">POST</button>
+      <button class="method-tab" onclick="showMethod('put', this, 'active-put')">PUT</button>
+      <button class="method-tab" onclick="showMethod('delete', this, 'active-delete')">DELETE</button>
+    </div>
+
+    <div id="method-get" class="method-content visible">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Request</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              <span class="method-get">GET</span> <span class="url">/users/42</span> HTTP/1.1<br>
+              Host: api.example.com<br>
+              Authorization: Bearer <span class="str">abc123</span><br>
+              Accept: <span class="str">application/json</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Response</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              HTTP/1.1 <span class="status-2xx">200 OK</span><br>
+              Content-Type: application/json<br><br>
+              {<br>
+              &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"id"</span>: <span class="num">42</span>,<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Mihaela"</span><br>
+              &nbsp;&nbsp;}<br>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box good" style="margin-top:1rem">
+        <div class="highlight-icon">✅</div>
+        <div class="highlight-content"><strong>GET is safe and idempotent</strong> — no side effects, can be called 100x, same result. Never use GET to modify data.</div>
+      </div>
+    </div>
+
+    <div id="method-post" class="method-content">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Request</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              <span class="method-post">POST</span> <span class="url">/users</span> HTTP/1.1<br>
+              Content-Type: application/json<br><br>
+              {<br>
+              &nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Mihaela"</span>,<br>
+              &nbsp;&nbsp;<span class="key">"email"</span>: <span class="str">"m@example.com"</span><br>
+              }
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Response</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              HTTP/1.1 <span class="status-2xx">201 Created</span><br>
+              Location: /users/43<br><br>
+              {<br>
+              &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"id"</span>: <span class="num">43</span>,<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Mihaela"</span><br>
+              &nbsp;&nbsp;}<br>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box warn" style="margin-top:1rem">
+        <div class="highlight-icon">⚠️</div>
+        <div class="highlight-content"><strong>POST is NOT idempotent</strong> — call it twice, create two users. The server assigns the new ID, which is why you see it in the response.</div>
+      </div>
+    </div>
+
+    <div id="method-put" class="method-content">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Request</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              <span class="method-put">PUT</span> <span class="url">/users/42</span> HTTP/1.1<br>
+              Content-Type: application/json<br><br>
+              {<br>
+              &nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Mihaela B."</span>,<br>
+              &nbsp;&nbsp;<span class="key">"email"</span>: <span class="str">"new@example.com"</span><br>
+              }
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Response</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              HTTP/1.1 <span class="status-2xx">200 OK</span><br><br>
+              {<br>
+              &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"id"</span>: <span class="num">42</span>,<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Mihaela B."</span><br>
+              &nbsp;&nbsp;}<br>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box tip" style="margin-top:1rem">
+        <div class="highlight-icon">💡</div>
+        <div class="highlight-content"><strong>PUT replaces the entire resource.</strong> Omit a field? It gets wiped. Use PATCH for partial updates (only the fields you send get changed).</div>
+      </div>
+    </div>
+
+    <div id="method-delete" class="method-content">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Request</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              <span class="method-delete">DELETE</span> <span class="url">/users/42</span> HTTP/1.1<br>
+              Authorization: Bearer <span class="str">abc123</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Response</div>
+          <div class="code-block">
+            <div class="code-body" style="font-size:0.78rem;">
+              HTTP/1.1 <span class="status-2xx">204 No Content</span><br><br>
+              <span class="cm">// Empty body — nothing to return,</span><br>
+              <span class="cm">// the resource is gone.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="highlight-box tip" style="margin-top:1rem">
+        <div class="highlight-icon">💡</div>
+        <div class="highlight-content"><strong>204 No Content</strong> is the correct response for DELETE. The thing is gone — there's nothing to show. Some APIs return 200 with a confirmation message, which is also fine.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- STATUS CODES -->
+<section id="status" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 4 — Errors</div>
+    <h2>Status Codes & <em>Error Handling</em></h2>
+    <p class="section-intro">HTTP already has a language for "it worked" and "it broke." Use it. Don't return 200 OK with an error body — that's lying.</p>
+  </div>
+
+  <div class="status-grid reveal">
+    <div class="status-card s2">
+      <div class="status-num">2xx</div>
+      <div class="status-name">Success</div>
+      <div class="status-desc">It worked.</div>
+    </div>
+    <div class="status-card s2">
+      <div class="status-num">200</div>
+      <div class="status-name">OK</div>
+      <div class="status-desc">Generic success. Good for GET and PUT.</div>
+    </div>
+    <div class="status-card s2">
+      <div class="status-num">201</div>
+      <div class="status-name">Created</div>
+      <div class="status-desc">POST success. New resource was made.</div>
+    </div>
+    <div class="status-card s2">
+      <div class="status-num">204</div>
+      <div class="status-name">No Content</div>
+      <div class="status-desc">Success but nothing to return. Use for DELETE.</div>
+    </div>
+    <div class="status-card s3">
+      <div class="status-num">301</div>
+      <div class="status-name">Moved</div>
+      <div class="status-desc">URL changed permanently. Update your bookmarks.</div>
+    </div>
+    <div class="status-card s4">
+      <div class="status-num">400</div>
+      <div class="status-name">Bad Request</div>
+      <div class="status-desc">Client sent garbage. Fix your request.</div>
+    </div>
+    <div class="status-card s4">
+      <div class="status-num">401</div>
+      <div class="status-name">Unauthorized</div>
+      <div class="status-desc">Not logged in. Go authenticate first.</div>
+    </div>
+    <div class="status-card s4">
+      <div class="status-num">403</div>
+      <div class="status-name">Forbidden</div>
+      <div class="status-desc">Logged in, but you don't have permission.</div>
+    </div>
+    <div class="status-card s4">
+      <div class="status-num">404</div>
+      <div class="status-name">Not Found</div>
+      <div class="status-desc">That resource doesn't exist.</div>
+    </div>
+    <div class="status-card s4">
+      <div class="status-num">422</div>
+      <div class="status-name">Unprocessable</div>
+      <div class="status-desc">Right format, wrong data. Validation failed.</div>
+    </div>
+    <div class="status-card s5">
+      <div class="status-num">500</div>
+      <div class="status-name">Server Error</div>
+      <div class="status-desc">Something blew up on our side. Not your fault.</div>
+    </div>
+    <div class="status-card s5">
+      <div class="status-num">503</div>
+      <div class="status-name">Unavailable</div>
+      <div class="status-desc">Server is down or overloaded. Try later.</div>
+    </div>
+  </div>
+
+  <div class="highlight-box danger reveal">
+    <div class="highlight-icon">☠️</div>
+    <div class="highlight-content">
+      <strong>The biggest sin in API design</strong>
+      Returning <code style="font-family:'JetBrains Mono',monospace; color:var(--green)">200 OK</code> with <code style="font-family:'JetBrains Mono',monospace; color:var(--red)">"error": "Something went wrong"</code> in the body. 
+      The status code IS the error. Use it.
+    </div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem; font-size:1.1rem; font-weight:700;">Good error response structure</h3>
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+      <span style="margin-left:0.5rem">error-response.json — The right way</span>
+    </div>
+    <div class="code-body">
+      HTTP/1.1 <span class="status-4xx">422 Unprocessable Entity</span><br><br>
+      {<br>
+      &nbsp;&nbsp;<span class="key">"errors"</span>: [<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"status"</span>: <span class="str">"422"</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"code"</span>: <span class="str">"VAL-001"</span>,     <span class="cm">// machine-readable code</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"title"</span>: <span class="str">"Invalid email"</span>, <span class="cm">// short human summary</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"detail"</span>: <span class="str">"'foo' is not a valid email address"</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;]<br>
+      }
+    </div>
+  </div>
+
+  <div class="highlight-box tip reveal">
+    <div class="highlight-icon">💡</div>
+    <div class="highlight-content">
+      <strong>Always return multiple errors at once.</strong>
+      If validation fails on 3 fields, tell the user about all 3 in one response — not one at a time. Returning errors one-by-one is lazy and wastes round trips.
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- INPUT & OUTPUT -->
+<section id="io" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 3 & 6 — Data</div>
+    <h2>Input & Output <em>Design</em></h2>
+    <p class="section-intro">What you accept and what you return. The #1 mistake: dumping raw database rows directly into the response.</p>
+  </div>
+
+  <div class="highlight-box danger reveal">
+    <div class="highlight-icon">💣</div>
+    <div class="highlight-content">
+      <strong>Never do this</strong>
+      <code style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--red)">return json_encode(User::find($id)->toArray())</code>
+      <br>This leaks password hashes, internal tokens, and fields you never meant to expose. The database schema is not your API contract.
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+      <span style="margin-left:0.5rem">transformer.php — Use a transformer layer</span>
+    </div>
+    <div class="code-body">
+      <span class="kw">class</span> <span class="fn">UserTransformer</span> {<br><br>
+      &nbsp;&nbsp;<span class="kw">public function</span> <span class="fn">transform</span>(<span class="key">User</span> $user) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> [<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">'id'</span>     => (<span class="kw">int</span>) $user->id,      <span class="cm">// ← cast to int</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">'name'</span>   => $user->name,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">'email'</span>  => $user->email,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="str">'joined'</span> => (<span class="kw">string</span>) $user->created_at<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// ← NO password, NO tokens, NO internal fields</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;];<br>
+      &nbsp;&nbsp;}<br>
+      }
+    </div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem; font-size:1.1rem; font-weight:700;">Response structure: always wrap in "data"</h3>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0;" class="reveal">
+    <div>
+      <div style="color:var(--muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Single resource</div>
+      <div class="code-block">
+        <div class="code-body" style="font-size:0.78rem;">
+          {<br>
+          &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"id"</span>: <span class="num">42</span>,<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Mihaela"</span><br>
+          &nbsp;&nbsp;}<br>
+          }
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="color:var(--muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Collection</div>
+      <div class="code-block">
+        <div class="code-body" style="font-size:0.78rem;">
+          {<br>
+          &nbsp;&nbsp;<span class="key">"data"</span>: [{...}, {...}],<br>
+          &nbsp;&nbsp;<span class="key">"meta"</span>: {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"total"</span>: <span class="num">156</span>,<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"page"</span>: <span class="num">1</span><br>
+          &nbsp;&nbsp;}<br>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box tip reveal">
+    <div class="highlight-icon">🏗️</div>
+    <div class="highlight-content">
+      <strong>Why wrap in "data"?</strong>
+      It gives you space. You can add pagination metadata, links, warnings — all alongside your data without breaking the structure. Start with the wrapper and you never have to break backwards compatibility.
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- RELATIONSHIPS -->
+<section id="relationships" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 7 — Relationships</div>
+    <h2>Data <em>Relationships</em></h2>
+    <p class="section-intro">A user has checkins. A place has photos. How you represent these relationships defines how painful your API is to consume.</p>
+  </div>
+
+  <div class="cards reveal">
+    <div class="card">
+      <div class="card-icon">🔗</div>
+      <div class="card-title">Subresources</div>
+      <div class="card-desc">A separate URL for related data. Simple, clear. Extra HTTP request to fetch.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔑</div>
+      <div class="card-title">Foreign Keys</div>
+      <div class="card-desc">Include just the IDs. <code style="font-size:0.75rem">"checkin_ids": [1,2,3]</code>. Client fetches what it needs.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📦</div>
+      <div class="card-title">Sideloading</div>
+      <div class="card-desc">Include related data in a separate key. No duplication. Complex to implement.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🪆</div>
+      <div class="card-title">Nesting/Embedding</div>
+      <div class="card-desc">Embed related objects inside the parent. Easy to read. Can get big and slow.</div>
+    </div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem; font-size:1.1rem; font-weight:700;">The tradeoff visualized</h3>
+
+  <div class="rel-diagram reveal">
+    <div style="margin-bottom:1rem;">
+      <span class="pill pill-purple">Subresources</span>
+    </div>
+    <div class="code-block" style="margin:0;">
+      <div class="code-body" style="font-size:0.78rem;">
+        <span class="method-get">GET</span> <span class="url">/places/5</span>             <span class="cm">→ place data</span><br>
+        <span class="method-get">GET</span> <span class="url">/places/5/checkins</span>    <span class="cm">→ 2nd request needed</span><br>
+        <span class="method-get">GET</span> <span class="url">/places/5/photos</span>      <span class="cm">→ 3rd request needed</span>
+      </div>
+    </div>
+    <div style="margin:1.5rem 0 1rem;">
+      <span class="pill pill-green">Embedding with ?include= (the best of both)</span>
+    </div>
+    <div class="code-block" style="margin:0;">
+      <div class="code-body" style="font-size:0.78rem;">
+        <span class="method-get">GET</span> <span class="url">/places/5?include=checkins,photos</span>   <span class="cm">→ 1 request, everything included</span><br><br>
+        {<br>
+        &nbsp;&nbsp;<span class="key">"data"</span>: {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"id"</span>: <span class="num">5</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"name"</span>: <span class="str">"Barcade"</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"checkins"</span>: [{...}, {...}],   <span class="cm">// only when asked</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"photos"</span>: [{...}]<br>
+        &nbsp;&nbsp;}<br>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="pro-con reveal">
+    <div class="pro-box">
+      <div class="box-title">✅ Sideloading wins when...</div>
+      <ul class="box-list">
+        <li>Many items share the same related object (50 comments, 3 authors)</li>
+        <li>You want no duplication in the payload</li>
+        <li>Mobile clients need to minimize bandwidth</li>
+      </ul>
+    </div>
+    <div class="con-box">
+      <div class="box-title">⚠️ Nesting hurts when...</div>
+      <ul class="box-list">
+        <li>Same sub-object repeats 50 times</li>
+        <li>Client doesn't need that data at all</li>
+        <li>Response balloons to megabytes</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- AUTHENTICATION -->
+<section id="auth" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 9 — Security</div>
+    <h2>Authentication <em>& OAuth 2.0</em></h2>
+    <p class="section-intro">Who are you, and are you allowed to do that? Two separate questions. 401 = who are you? 403 = I know who you are, still no.</p>
+  </div>
+
+  <div class="cards reveal">
+    <div class="card">
+      <div class="card-icon">🔑</div>
+      <div class="card-title">API Keys</div>
+      <div class="card-desc">Simplest. One string that identifies you. Good for server-to-server. Bad for mobile apps (keys get stolen).</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎟️</div>
+      <div class="card-title">Bearer Tokens</div>
+      <div class="card-desc">Short-lived token in the Authorization header. Modern standard. Issued by OAuth 2.0.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔐</div>
+      <div class="card-title">OAuth 2.0</div>
+      <div class="card-desc">The industry standard. Handles "Login with Google", app permissions, token refresh. Complex but right.</div>
+    </div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem; font-size:1.1rem; font-weight:700;">OAuth 2.0 flow — simplified</h3>
+
+  <div class="auth-flow reveal">
+    <div class="auth-actor">
+      <div class="auth-actor-icon">📱</div>
+      <div class="auth-actor-name">Your App</div>
+      <div class="auth-actor-desc">Wants to access user data</div>
+    </div>
+    <div class="auth-arrows">
+      <div class="auth-arrow">1. "Login with..."</div>
+      <div style="font-size:1.2rem; color:var(--muted)">⇄</div>
+      <div class="auth-arrow">4. access token</div>
+    </div>
+    <div class="auth-actor">
+      <div class="auth-actor-icon">🔐</div>
+      <div class="auth-actor-name">Auth Server</div>
+      <div class="auth-actor-desc">Issues tokens, manages sessions</div>
+    </div>
+    <div class="auth-arrows">
+      <div class="auth-arrow">5. token →</div>
+      <div style="font-size:1.2rem; color:var(--muted)">→</div>
+      <div class="auth-arrow">← data</div>
+    </div>
+    <div class="auth-actor">
+      <div class="auth-actor-icon">🖥️</div>
+      <div class="auth-actor-name">Resource API</div>
+      <div class="auth-actor-desc">Returns protected data</div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+      <span style="margin-left:0.5rem">auth-header.txt — How to send a token</span>
+    </div>
+    <div class="code-body">
+      <span class="method-get">GET</span> <span class="url">/users/me</span> HTTP/1.1<br>
+      Host: api.example.com<br>
+      Authorization: Bearer <span class="str">vr5HmMkzlxKE70W1y4MibiJUusZwZC25NOVBEx3BD1</span><br><br>
+      <span class="cm">// Never put tokens in the URL like /users/me?token=abc</span><br>
+      <span class="cm">// It ends up in server logs. In headers = private.</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PAGINATION -->
+<section id="pagination" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 10 — Pagination</div>
+    <h2>Pagination — <em>Never Return Everything</em></h2>
+    <p class="section-intro">Your database has 10 million rows. The client wants a list. You don't send 10 million rows. You send a page.</p>
+  </div>
+
+  <div class="cards reveal">
+    <div class="card">
+      <div class="card-icon">📄</div>
+      <div class="card-title">Offset Pagination</div>
+      <div class="card-desc"><code style="font-size:0.75rem">?page=3&per_page=20</code><br>Simple. Fast to implement. But page 3 shifts if new data is inserted. Classic for admin UIs.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔖</div>
+      <div class="card-title">Cursor Pagination</div>
+      <div class="card-desc"><code style="font-size:0.75rem">?after=abc123</code><br>Stable even when data changes. Used by Twitter/Instagram. The right choice for feeds.</div>
+    </div>
+  </div>
+
+  <div class="pagination-demo reveal">
+    <div class="page-bar">
+      <div>
+        <div class="page-label">Offset — Page 2 of 8</div>
+        <code style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--blue)">GET /posts?page=2&per_page=10</code>
+      </div>
+      <div class="page-items">
+        <div class="page-item inactive">1</div>
+        <div class="page-item active">2</div>
+        <div class="page-item inactive">3</div>
+        <div class="page-item inactive">…</div>
+        <div class="page-item inactive">8</div>
+      </div>
+    </div>
+    <div class="page-bar">
+      <div>
+        <div class="page-label">Cursor — "give me what comes after this"</div>
+        <code style="font-family:'JetBrains Mono',monospace; font-size:0.8rem; color:var(--accent3)">GET /posts?after=eyJpZCI6MTUwfQ==</code>
+      </div>
+      <div style="font-size:0.78rem; color:var(--muted)">← prev &nbsp;|&nbsp; next →</div>
+    </div>
+  </div>
+
+  <div class="code-block reveal">
+    <div class="code-header">
+      <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+      <span style="margin-left:0.5rem">pagination-response.json — Include navigation links</span>
+    </div>
+    <div class="code-body">
+      {<br>
+      &nbsp;&nbsp;<span class="key">"data"</span>: [{...}, {...}],<br>
+      &nbsp;&nbsp;<span class="key">"meta"</span>: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"total"</span>:    <span class="num">156</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"per_page"</span>: <span class="num">10</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"page"</span>:     <span class="num">2</span><br>
+      &nbsp;&nbsp;},<br>
+      &nbsp;&nbsp;<span class="key">"links"</span>: {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"self"</span>:  <span class="str">"/posts?page=2"</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"next"</span>:  <span class="str">"/posts?page=3"</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"prev"</span>:  <span class="str">"/posts?page=1"</span>,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">"last"</span>:  <span class="str">"/posts?page=16"</span><br>
+      &nbsp;&nbsp;}<br>
+      }
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- VERSIONING -->
+<section id="versioning" class="section">
+  <div class="section-header reveal">
+    <div class="chapter-num">Chapter 13 — Versioning</div>
+    <h2>API Versioning — <em>Change Without Breaking</em></h2>
+    <p class="section-intro">You will need to change your API. Clients will not update immediately. Versioning is how you change the world without burning it down.</p>
+  </div>
+
+  <div class="cards reveal">
+    <div class="card">
+      <div class="card-icon">🛣️</div>
+      <div class="card-title">URL Versioning</div>
+      <div class="card-desc"><code style="font-size:0.75rem">/v1/users</code><br>Most visible. Easy to route. Most developers use this. Not "pure REST" but very practical.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📬</div>
+      <div class="card-title">Header Versioning</div>
+      <div class="card-desc"><code style="font-size:0.75rem">Accept: application/vnd.api+json;version=2</code><br>Cleaner URLs. Much harder to test (can't just paste in browser).</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔀</div>
+      <div class="card-title">Content Negotiation</div>
+      <div class="card-desc">Like header versioning but uses mime types. Used by GitHub API. Elegant but complex.</div>
+    </div>
+  </div>
+
+  <div class="highlight-box tip reveal">
+    <div class="highlight-icon">🏆</div>
+    <div class="highlight-content">
+      <strong>Phil's recommendation: URL versioning is fine</strong>
+      Yes, purists will complain. But your developers can read it, test it with a browser, and your ops team can route it. Pragmatism beats purity.
+      <br><br>
+      <code style="font-family:'JetBrains Mono',monospace; color:var(--accent)">/v2/users</code> is infinitely better than a broken API with no versioning at all.
+    </div>
+  </div>
+
+  <h3 style="margin: 2rem 0 1rem; font-size:1.1rem; font-weight:700;">The golden rule of versioning</h3>
+
+  <div class="flow reveal">
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-circle" style="border-color:var(--green); color:var(--green)">✓</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <div class="flow-title">Additive changes — no version needed</div>
+        <div class="flow-desc">Adding new fields to a response, new optional query params, new endpoints. Old clients ignore new fields — no harm done.</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-circle" style="border-color:var(--yellow); color:var(--yellow)">!</div>
+        <div class="flow-line"></div>
+      </div>
+      <div class="flow-content">
+        <div class="flow-title">Renaming fields — bump the version</div>
+        <div class="flow-desc"><code style="font-family:'JetBrains Mono',monospace; font-size:0.8rem">"username"</code> → <code style="font-family:'JetBrains Mono',monospace; font-size:0.8rem">"handle"</code> breaks every client that expects "username". This needs v2.</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-left">
+        <div class="flow-circle" style="border-color:var(--red); color:var(--red)">✕</div>
+      </div>
+      <div class="flow-content">
+        <div class="flow-title">Removing fields — always a breaking change</div>
+        <div class="flow-desc">Never remove a field from an existing version. Clients depend on it. Deprecate it first, remove it only in the new version after warning clients.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SUMMARY -->
+<section class="section" style="padding-bottom:2rem;">
+  <div class="section-header reveal">
+    <div class="chapter-num">The Whole Book</div>
+    <h2>The <em>10 Rules</em> to Remember</h2>
+  </div>
+
+  <div class="cards reveal" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+    <div class="card">
+      <div class="card-icon">1️⃣</div>
+      <div class="card-title">URLs are nouns</div>
+      <div class="card-desc">Never put actions in the URL. The HTTP method is the verb.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">2️⃣</div>
+      <div class="card-title">Always plural</div>
+      <div class="card-desc"><code style="font-size:0.75rem">/users</code> not <code style="font-size:0.75rem">/user</code>. No ambiguity.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">3️⃣</div>
+      <div class="card-title">Use status codes correctly</div>
+      <div class="card-desc">200 with error body = lying. The status IS the message.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">4️⃣</div>
+      <div class="card-title">Always use a transformer</div>
+      <div class="card-desc">Never dump raw DB rows. Control every field you expose.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">5️⃣</div>
+      <div class="card-title">Wrap in "data"</div>
+      <div class="card-desc">Gives you room to add metadata without breaking changes.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">6️⃣</div>
+      <div class="card-title">Return all validation errors</div>
+      <div class="card-desc">Don't make users submit 5 times to discover 5 errors.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">7️⃣</div>
+      <div class="card-title">Tokens in headers, not URLs</div>
+      <div class="card-desc">URLs end up in server logs. Auth tokens don't belong there.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">8️⃣</div>
+      <div class="card-title">Always paginate collections</div>
+      <div class="card-desc">Never return an unbounded list. Always include navigation links.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">9️⃣</div>
+      <div class="card-title">Support ?include= for relations</div>
+      <div class="card-desc">Let clients ask for what they need. Don't force everything into every response.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔟</div>
+      <div class="card-title">Version for breaking changes</div>
+      <div class="card-desc">Adding = fine. Changing/removing = bump to v2. Never break old clients.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>Visual summary of <strong>Build APIs You Won't Hate</strong> by Phil Sturgeon</div>
+  <div style="margin-top:0.3rem; font-size:0.75rem;">Inspired by Lydia Hallie's visual learning style · Made for Mihaela 💜</div>
+</footer>
+
+<script>
+  // Nav highlight on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 60);
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  reveals.forEach(el => revealObserver.observe(el));
+
+  // Method tabs
+  let currentMethod = 'get';
+
+  function showMethod(method, btn, activeClass) {
+    document.getElementById(`method-${currentMethod}`).classList.remove('visible');
+    document.getElementById(`method-${method}`).classList.add('visible');
+
+    document.querySelectorAll('.method-tab').forEach(t => {
+      t.className = 'method-tab';
+    });
+    btn.className = `method-tab ${activeClass}`;
+    currentMethod = method;
+  }
+</script>
+</body>
+</html>

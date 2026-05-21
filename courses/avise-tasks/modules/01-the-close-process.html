@@ -1,0 +1,291 @@
+<section class="module" id="module-1" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">The Accounting Close Process</h1>
+      <p class="module-subtitle">What is a task, where does it come from, and what makes it done?</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — The 4 task types -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Every item on your close checklist belongs to one of four task types</h2>
+        <p>
+          You open the Tasks page in Avise and see a list of items to complete this month.
+          Each task is the <span class="term" data-definition="The smallest, indivisible unit of work in the close process — one task covers one account, reconciliation, category, or flux analysis for a single accounting period.">atomic unit</span> of the
+          <span class="term" data-definition="The accounting close process is the set of steps a finance team completes at the end of each period (month, quarter, year) to finalize their books — reconciling accounts, reviewing balances, and signing off on all work.">accounting close process</span>,
+          giving every piece of work a named owner, a due date, a reviewer, and a status.
+          Nothing falls through the cracks because the system refuses to let work exist without those fields.
+        </p>
+
+        <div class="pattern-cards stagger-children animate-in">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">
+              <i data-lucide="clipboard-list" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Account</h4>
+            <p class="pattern-desc">
+              A general ledger account task — verify the ending balance and make sure every transaction is
+              accounted for before the books are closed.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">
+              <i data-lucide="scale" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Reconciliation</h4>
+            <p class="pattern-desc">
+              Verifies that an account balance matches its supporting documents — bank statements, sub-ledgers,
+              or third-party confirmations — at period end.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">
+              <i data-lucide="tag" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Category</h4>
+            <p class="pattern-desc">
+              Groups a set of related accounts under a single review — useful when a preparer owns an entire
+              expense category rather than individual line items.
+            </p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">
+              <i data-lucide="trending-up" class="icon"></i>
+            </div>
+            <h4 class="pattern-title">Flux</h4>
+            <p class="pattern-desc">
+              Tracks and explains unusual swings in an account balance from one period to the next —
+              the system flags outliers so reviewers know where to look.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="book-open" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Closing a period is like finishing a chapter of a book</strong>
+            <p>
+              The writer (preparer) drafts and submits each section; the editor (reviewer) approves it or sends
+              it back with notes. The accounting period is one chapter — it cannot be sealed until every section
+              has been reviewed and signed off.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — TaskStatus enum code translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The status field is the system vocabulary — every state a task can ever be in is listed exactly once</h2>
+        <p>
+          An <span class="term" data-definition="An enum (enumeration) is a type that can only hold one of a fixed set of named values. The database enforces this — it will reject any value not on the list, making impossible states unrepresentable.">enum</span> in the
+          <span class="term" data-definition="A database schema is the formal definition of every table, column, type, and relationship in the database. In this project, Prisma reads the schema.prisma file and uses it to generate the database structure and TypeScript types simultaneously.">schema</span>
+          locks the field to a known set of values.
+          If code tries to write a status of, say, <code>pending</code> — a word not in the list — the
+          <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a tool that lets you write TypeScript instead of raw SQL to read and write database records, and that generates type-safe TypeScript types from your schema automatically.">Prisma</span>
+          <span class="term" data-definition="An ORM (Object-Relational Mapper) is a library that translates between the TypeScript objects in your code and the rows in your database, so you never have to write raw SQL for standard operations.">ORM</span>
+          will refuse the write before it ever reaches the database.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">enum</span> <span class="code-function">TaskStatus</span> {</span>
+<span class="code-line">  unprepared</span>
+<span class="code-line">  in_progress</span>
+<span class="code-line">  prepared</span>
+<span class="code-line">  reopened</span>
+<span class="code-line">  rejected</span>
+<span class="code-line">  reviewed</span>
+<span class="code-line">  wont_do</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">@@map(name: "task_status")</span></span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This is the complete list of states a task can ever be in. No other value is allowed — ever.</p>
+              <p class="tl"><strong>unprepared</strong> — No work has started. Every new task begins here.</p>
+              <p class="tl"><strong>in_progress</strong> — The preparer has started but not yet submitted.</p>
+              <p class="tl"><strong>prepared</strong> — The preparer clicked submit. Now waiting for a reviewer.</p>
+              <p class="tl"><strong>reopened</strong> — The reviewer sent it back. The preparer must fix and resubmit.</p>
+              <p class="tl"><strong>rejected</strong> — Permanently declined; the work is recorded but not accepted.</p>
+              <p class="tl"><strong>reviewed</strong> — The reviewer approved it. The task is complete.</p>
+              <p class="tl"><strong>wont_do</strong> — Deliberately skipped this period with a recorded reason.</p>
+              <p class="tl"><code>@@map</code> tells Prisma what name to use for this type in the actual database table.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="shield-check" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">A status enum is the system vocabulary — it makes impossible states unrepresentable</strong>
+            <p>
+              Constraining a field to a known set means the database can never hold a value the application
+              does not understand. Every layer of the system — the database, the API, the UI — shares the same
+              vocabulary with no ambiguity.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Flow animation: close process cycle -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task moves through four actors before the period is closed</h2>
+        <p>
+          The accounting <span class="term" data-definition="An accounting period is a fixed time window — typically one month — for which the finance team finalizes all transactions. A period must be explicitly opened before tasks can be created for it, and closed once all tasks are reviewed.">period</span>
+          acts as the container; tasks flow from creation through preparation, review, and back if needed.
+          Each arrow below represents a handoff that the system records and enforces.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-period","label":"A new accounting period opens. The system is now ready to create tasks for this month."},
+          {"highlight":"flow-actor-tasks","label":"The task system generates tasks — one per account, reconciliation, category, or flux item — all starting at status: unprepared.","packet":true,"from":"actor-period","to":"actor-tasks"},
+          {"highlight":"flow-actor-assignee","label":"Each task is assigned to a preparer. They receive their checklist and begin working through it.","packet":true,"from":"actor-tasks","to":"actor-assignee"},
+          {"highlight":"flow-actor-assignee","label":"The preparer completes their work and clicks submit. Status changes from in_progress to prepared."},
+          {"highlight":"flow-actor-reviewer","label":"The task lands in the reviewer queue. The reviewer inspects the work.","packet":true,"from":"actor-assignee","to":"actor-reviewer"},
+          {"highlight":"flow-actor-reviewer","label":"If the work is good, the reviewer approves it. Status becomes: reviewed. Task is done."},
+          {"highlight":"flow-actor-assignee","label":"If the reviewer finds an issue, they reject and send it back. Status becomes: reopened. The cycle restarts.","packet":true,"from":"actor-reviewer","to":"actor-assignee"}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-period">
+              <div class="flow-actor-icon"><i data-lucide="calendar" class="icon-lg"></i></div>
+              <span>Period</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-tasks">
+              <div class="flow-actor-icon"><i data-lucide="list-checks" class="icon-lg"></i></div>
+              <span>Task System</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-assignee">
+              <div class="flow-actor-icon"><i data-lucide="user" class="icon-lg"></i></div>
+              <span>Assignee</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-reviewer">
+              <div class="flow-actor-icon"><i data-lucide="user-check" class="icon-lg"></i></div>
+              <span>Reviewer</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply what you know — three scenarios from the real system</h2>
+        <p>
+          These questions test whether you can use the concepts in a new situation — not whether you remember
+          the definitions. Read each scenario carefully before choosing.
+        </p>
+
+        <div class="quiz-container" id="quiz-module1">
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Flux tasks are specifically designed to track and explain unusual movements in account balances from period to period. That is their entire purpose — the name comes from the word for change or flow."
+               data-explanation-wrong="Think about which task type deals with changes over time rather than a single balance or a set of documents. The answer is in what the word itself means.">
+            <h3 class="quiz-question">
+              Scenario: Your CFO wants the finance team to document and explain why the Marketing Expenses account
+              jumped by 40% compared to last month. Which task type is the right fit?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Account — because it covers a general ledger account</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Reconciliation — because you are comparing two numbers</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Flux — because you need to track and explain a period-over-period swing</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Category — because Marketing is a category of expenses</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="When a reviewer sends a task back after it was submitted (prepared), the status becomes reopened. This is different from rejected, which is a permanent outcome — reopened means the preparer must fix and resubmit."
+               data-explanation-wrong="Check the status enum again. There is a specific status for tasks that were submitted and then returned by the reviewer. It is not the same as rejected, which is permanent.">
+            <h3 class="quiz-question">
+              Scenario: A preparer submits their reconciliation work. The reviewer examines it, finds a missing
+              journal entry, and sends it back for correction. What status does the task carry right now?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>rejected — the reviewer did not accept the work</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>reopened — it was sent back for the preparer to fix and resubmit</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>in_progress — the preparer must work on it again</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>unprepared — it is back to the beginning</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="The Period model has an allowTaskCreation flag. Setting it to false prevents the task system from generating new tasks for that period — the period exists in the database but is locked against task creation while the migration runs."
+               data-explanation-wrong="The task types and status enum do not control whether tasks are created in the first place. Think about what controls the period itself — there is a field on the Period record that acts as a gate for task creation.">
+            <h3 class="quiz-question">
+              Scenario: Your team is running a one-week data migration. You want the system to stop generating
+              new tasks for the current period until the migration completes. What field on the Period record
+              controls this gate?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>allowTaskCreation — the Period has a flag that enables or disables task generation</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>status on each Task — set all tasks to wont_do to pause work</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>TaskType — remove all task types for this period until migration is done</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>There is no such field — you would need to delete the period entirely</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,376 @@
+<section class="module" id="module-5" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Notes, Search & Clever Tricks</h1>
+      <p class="module-subtitle">Two databases, instant feedback, cache invalidation on demand, and a search engine built into the filing cabinet.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: Two databases, two jobs — hero visual -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Why two databases? Because they solve different problems.</h2>
+
+        <!-- Hero visual: side-by-side database comparison -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin: var(--space-8) 0;" class="animate-in">
+          <div style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-4);">
+            <div style="font-size: 2rem; margin-bottom: var(--space-3);">🏛️</div>
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">PostgreSQL</h3>
+            <div class="badge-list" style="margin: 0;">
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">READ ONLY</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Trace Viewer never writes here</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">PRODUCTION DATA</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Came from the live Avise platform</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">MILLIONS OF ROWS</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Needs a full server, indexes, complex queries</span>
+              </div>
+            </div>
+          </div>
+          <div style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-5);">
+            <div style="font-size: 2rem; margin-bottom: var(--space-3);">🗂️</div>
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">SQLite</h3>
+            <div class="badge-list" style="margin: 0;">
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">WRITABLE</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Only data the Trace Viewer creates</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">SINGLE FILE</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Lives on disk, needs no server process</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">FTS5 INDEX</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Built-in full-text search across all comments</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p>Here is the SQLite <span class="term" data-definition="A schema is the blueprint of a database — it defines what tables exist, what columns each table has, and what type of data each column holds. Like the column headers of a spreadsheet, defined before you fill in any rows.">schema</span> for reviewer comments — from <code>infrastructure/sqlite.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">CREATE TABLE IF NOT EXISTS</span> comments (</span>
+<span class="code-line">  id              TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  conversation_id TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  user_email      TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  user_name       TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  content         TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  created_at      TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  <span class="code-keyword">PRIMARY KEY</span> (id)</span>
+<span class="code-line">);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create this table if it does not already exist — safe to run on every server startup.</p>
+              <p class="tl">id: a unique identifier for this comment (like a serial number on a receipt).</p>
+              <p class="tl">conversation_id: which conversation this comment belongs to — a link back to PostgreSQL.</p>
+              <p class="tl">user_email: who wrote the comment — the identity key for the commenter.</p>
+              <p class="tl">user_name: their display name for the UI.</p>
+              <p class="tl">content: the actual comment text — what gets searched by the FTS index.</p>
+              <p class="tl">created_at: timestamp stored as text in ISO 8601 format (e.g. "2025-05-13T14:30:00Z").</p>
+              <p class="tl">PRIMARY KEY means id must be unique — the database refuses duplicate comment IDs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: FTS5 — the search engine inside SQLite -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The search engine built inside the filing cabinet</h2>
+
+        <p>The Trace List keyword search finds conversations whose reviewer notes contain the search term — instantly, across thousands of comments. The mechanism is <span class="term" data-definition="FTS5 (Full-Text Search 5) is a search extension built into SQLite. It maintains an inverted index — a pre-built map from every word to every document containing that word. Searching is a dictionary lookup, not a scan of every document.">FTS5</span>: a full-text search engine built into SQLite itself.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">CREATE VIRTUAL TABLE IF NOT EXISTS</span></span>
+<span class="code-line">  comments_fts <span class="code-keyword">USING</span> fts5(</span>
+<span class="code-line">    content,</span>
+<span class="code-line">    tokenize = <span class="code-string">'unicode61 remove_diacritics 1'</span></span>
+<span class="code-line">  )</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a special virtual table (only if it does not already exist).</p>
+              <p class="tl">Name it "comments_fts" — it mirrors the content of the comments table as a search index.</p>
+              <p class="tl">We want to search the "content" field — the comment text.</p>
+              <p class="tl">"unicode61" handles international characters correctly. "remove_diacritics 1" means "cafe" and "café" match — the accent mark is ignored. This makes the search feel forgiving and natural.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">📖</div>
+          <div class="callout-content">
+            <strong class="callout-title">The book-index metaphor</strong>
+            <p>Without an index, finding "reconciliation" in 100,000 comments means reading all 100,000. With FTS5, the database pre-builds a word list — like the index at the back of a textbook. You look up "reconciliation," it tells you exactly which comments contain it, done. This is why keyword search feels instant even on large datasets.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: The cross-database keyword search -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The keyword search that crosses two databases</h2>
+
+        <p>The most architecturally interesting feature: when you type a keyword in the Trace List, the app searches <em>two completely separate databases</em> and merges the results. From <code>services/trace-service.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> titleRows = <span class="code-keyword">await</span> prisma.<span class="code-property">aiConversation</span>.<span class="code-function">findMany</span>({</span>
+<span class="code-line">  <span class="code-property">where</span>: { <span class="code-property">title</span>: { <span class="code-property">contains</span>: kw, <span class="code-property">mode</span>: <span class="code-string">"insensitive"</span> } },</span>
+<span class="code-line">  <span class="code-property">select</span>: { <span class="code-property">id</span>: <span class="code-keyword">true</span> },</span>
+<span class="code-line">});</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> noteIds = commentsService.<span class="code-function">searchConversationIds</span>(kw);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> keywordIds = [</span>
+<span class="code-line">  ...<span class="code-keyword">new</span> <span class="code-function">Set</span>([...titleRows.<span class="code-function">map</span>(r <span class="code-operator">=></span> r.id), ...noteIds]),</span>
+<span class="code-line">];</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Search PostgreSQL: ask Prisma to find conversations whose title contains the keyword.</p>
+              <p class="tl">"contains" = anywhere in the string. "insensitive" = upper/lowercase does not matter.</p>
+              <p class="tl">Only return the conversation IDs — we just need the list, not the full records.</p>
+              <p class="tl">End of the PostgreSQL search.</p>
+              <p class="tl">Search SQLite separately: use the FTS5 index to find conversation IDs whose comments contain the keyword. This is the cross-database join that the application code handles manually.</p>
+              <p class="tl">Now merge both result lists into one.</p>
+              <p class="tl"><span class="term" data-definition="Set is a JavaScript data structure that only holds unique values — duplicates are automatically removed. new Set([1,1,2,3]) gives {1,2,3}. Spreading it back into an array with [...new Set(...)] is the standard pattern for deduplication.">new Set()</span> removes duplicates — a conversation that matched both a title search AND a notes search would otherwise appear twice. This is a <span class="term" data-definition="A union in set theory (and SQL) is the combination of two sets, keeping all unique items from both. If PostgreSQL returns [A, B, C] and SQLite returns [B, C, D], the union is [A, B, C, D] — no duplicates.">union</span> of the two result sets.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Optimistic updates -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Why your comment appears instantly — optimistic updates</h2>
+
+        <p>When you post a comment, it appears in the Notes panel <em>before</em> the server has confirmed it was saved. This is an <span class="term" data-definition="An optimistic update is when the UI immediately shows the result of an action as if it succeeded, before waiting for the server to confirm. If the server later reports failure, the UI rolls back. The name comes from being optimistic that the action will succeed — which it almost always does.">optimistic update</span>. From <code>features/notes/components/NotesPanel.tsx</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> optimistic: Comment = {</span>
+<span class="code-line">  <span class="code-property">id</span>: <span class="code-string">`temp-${</span><span class="code-function">Date</span>.<span class="code-function">now</span>()<span class="code-string">}`</span>,</span>
+<span class="code-line">  <span class="code-property">content</span>: draft.<span class="code-function">trim</span>(),</span>
+<span class="code-line">  <span class="code-comment">// ...other fields</span></span>
+<span class="code-line">};</span>
+<span class="code-line"><span class="code-function">setComments</span>(prev <span class="code-operator">=></span> [...prev, optimistic]);</span>
+<span class="code-line"><span class="code-function">setDraft</span>(<span class="code-string">""</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> saved = <span class="code-keyword">await</span> <span class="code-function">postComment</span>(...);</span>
+<span class="code-line"><span class="code-function">setComments</span>(prev <span class="code-operator">=></span></span>
+<span class="code-line">  prev.<span class="code-function">map</span>(c <span class="code-operator">=></span> c.id <span class="code-operator">===</span> optimistic.id ? saved : c)</span>
+<span class="code-line">);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a fake "optimistic" comment object right now, before saving to the server.</p>
+              <p class="tl">Give it a temporary ID using the current timestamp — just needs to be unique for now.</p>
+              <p class="tl">Use the text the reviewer typed as the content.</p>
+              <p class="tl">End of the fake comment.</p>
+              <p class="tl">Add the fake comment to the displayed list immediately — the reviewer sees it appear right now.</p>
+              <p class="tl">Clear the input field — the reviewer knows their message was captured.</p>
+              <p class="tl">Now actually send the comment to the server (this takes ~100ms over the network).</p>
+              <p class="tl">When the server confirms success, swap the temporary fake comment for the real one (with a permanent database ID). Visually, nothing changes — it just becomes permanent. On failure, the rollback code removes the optimistic entry.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: NEW — revalidateTag: the cache invalidation on demand -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The closing loop: how a new note clears the cache</h2>
+
+        <p>After a comment is saved, something important happens that was easy to miss. The server-side action that saves the comment also calls <code>revalidateTag</code> — the on-demand cache-clearing mechanism first mentioned in Module 3.</p>
+
+        <p>Here is why this matters:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Reviewer Alice posts a note on conversation #abc</strong>
+              <p>The <span class="term" data-definition="A Server Action is a Next.js function that runs on the server but can be called directly from browser code — like a function call that secretly travels over the network. No API endpoint needed. The browser calls postComment(), the server runs it.">Server Action</span> <code>postComment</code> writes the comment to SQLite.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>The Server Action calls revalidateTag("trace")</strong>
+              <p>This tells Next.js: <em>"Throw away every cached trace result right now."</em> The in-memory store for all conversation traces is wiped.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Reviewer Bob opens conversation #abc 10 seconds later</strong>
+              <p>The cache is empty — no stored result. Next.js re-fetches from PostgreSQL and SQLite. The fresh data includes the note count Alice just added.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>The fresh result is cached again</strong>
+              <p>And the 2-minute clock resets. The two mechanisms work together: tags for instant invalidation, time-based expiry for normal freshness.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🔄</div>
+          <div class="callout-content">
+            <strong class="callout-title">Tags + time = a complete cache strategy</strong>
+            <p>Without tags, you would wait up to 2 minutes for a new note to appear. Without time-based expiry, you would need a revalidateTag call after every conceivable data change. Together they cover both cases: <em>known changes</em> (tags for immediate clearing) and <em>unknown drift</em> (automatic expiry for everything else). This two-pronged pattern scales to any size of app.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Identity — localStorage -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">How the app remembers who you are — without a login</h2>
+
+        <p>The Notes panel asks for your name and email the first time — and never asks again. There is no login system. Instead, a custom React <span class="term" data-definition="A hook is a special React function that starts with 'use' — like useIdentity, useState, useEffect. Hooks let components tap into React features (state, side effects, context) without writing class-based code. They are the building blocks of React component logic.">hook</span> called <code>useIdentity</code> stores your details in <span class="term" data-definition="localStorage is a small storage area inside every browser — like a sticky note attached to a specific website. Data saved there persists even after you close the tab or browser. Each browser on each device has its own separate localStorage.">localStorage</span>:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔍</div>
+            <h4 class="pattern-title">On startup</h4>
+            <p class="pattern-desc">useIdentity reads name + email from localStorage. If found, the comment input shows immediately — no prompt.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">💾</div>
+            <h4 class="pattern-title">On save()</h4>
+            <p class="pattern-desc">Writes name + email to localStorage. Future sessions on this browser remember you automatically.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">🗑️</div>
+            <h4 class="pattern-title">On clear()</h4>
+            <p class="pattern-desc">Removes identity from localStorage. Useful if someone else uses your machine or you need to switch accounts.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">⚖️</div>
+          <div class="callout-content">
+            <strong class="callout-title">The tradeoff: simplicity vs. security</strong>
+            <p>localStorage is fast to build and fine for an internal team tool. But anyone who sits at your computer can post as you. For a public-facing tool, replace this with a proper <span class="term" data-definition="Authentication (auth) is the process of verifying who you are — typically via login credentials, tokens, or OAuth (sign in with Google). It is different from authorisation, which is about what you are allowed to do once identified.">authentication</span> system. Knowing this tradeoff lets you make the right call consciously when building similar features.">
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 7: Final quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — the FTS5 virtual table maintains an inverted index of every word in every comment. Searching it is a dictionary lookup, not a scan — it is nearly instant regardless of the number of comments."
+               data-explanation-wrong="Scanning every comment in JavaScript would get very slow at scale — O(n) time, meaning it takes twice as long for twice as many comments. The FTS5 index gives O(log n) search — effectively constant time regardless of dataset size.">
+            <h3 class="quiz-question">There are 500,000 reviewer comments. A user types a keyword and expects results in under a second. How does the app achieve this?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It filters all 500,000 comments in JavaScript after fetching them from the database</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It queries the FTS5 index in SQLite — a pre-built word lookup table that finds matches instantly</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It caches all comments in server memory on startup and searches that in-memory copy</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — an optimistic update displays the result immediately while the server works in the background. If the server fails, the UI rolls back by removing the temporary entry. This is how the comment system already works, and it is the right pattern for the like button too."
+               data-explanation-wrong="Waiting for the server before showing anything makes the UI feel slow and unresponsive. Optimistic updates solve this by trusting that the action will succeed (which it almost always does) and only rolling back on failure. This app already implements this pattern for comments.">
+            <h3 class="quiz-question">You are building a "like" button on comments. Likes should appear instantly on click. Which pattern does this app already use for exactly this scenario?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Optimistic update — show the result immediately, confirm with the server in the background, roll back on failure</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Server-side rendering — pre-render the updated count on the server before sending to the browser</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Polling — ask the server for the current like count every second</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right — posting a comment triggers revalidateTag, which immediately clears all cached trace results. The next request re-fetches from the database, picks up the updated note count, and re-caches the fresh result. The automatic 2-minute expiry handles cases where you do not know data has changed."
+               data-explanation-wrong="Automatic expiry alone would make other reviewers wait up to 2 minutes. revalidateTag handles the known-change case — you just wrote a comment, so you know the cached data is now stale. The two mechanisms complement each other: tags for immediate known-invalidation, time-based expiry as a catch-all safety net.">
+            <h3 class="quiz-question">Alice posts a comment on a conversation. Bob opens the same conversation 30 seconds later — within the 2-minute cache window. How does Bob see Alice's comment without waiting for the cache to expire?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>SQLite is not cached — comments always come fresh from the database regardless of the cache</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The 2-minute cache is per-user — Bob gets his own fresh fetch anyway</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Posting Alice's comment calls revalidateTag("trace"), which clears the shared cache immediately — Bob's request finds no cached result and re-fetches fresh data</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info animate-in" style="margin-top: var(--space-12)">
+          <div class="callout-icon">🎓</div>
+          <div class="callout-content">
+            <strong class="callout-title">You finished the course</strong>
+            <p>You now understand the full system: the five actors, the data flow on every click, cache tags and invalidation, parallel queries, dual databases with FTS5, optimistic updates, and cross-database search. That is real architectural knowledge — use it to give AI coding agents precise instructions and to debug problems by tracing exactly which layer broke.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

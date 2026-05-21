@@ -1,0 +1,815 @@
+<section class="module" id="module-6">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Module 6 · Domain 4 deep dive</span>
+      <h1 class="module-title">Configure &amp; use Code Scanning with CodeQL</h1>
+      <p class="module-subtitle">Domain 4 of GH-500 — 25% of the exam. The second-largest domain. Two setup modes, three query suites, language extraction quirks, and SARIF interoperability.</p>
+    </header>
+
+    <!-- SCREEN 1: Foundation — what code scanning is and what powers it -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Code scanning in one breath: SARIF in, alerts out</h2>
+
+      <p>Code scanning is a <strong>platform</strong>, not a single tool. CodeQL is the default engine, but any scanner that emits <span class="term" data-definition="SARIF: Static Analysis Results Interchange Format. A standard JSON format for static analysis tools. GitHub ingests SARIF files from any compatible scanner — not just CodeQL.">SARIF</span> can feed into it. The exam tests the distinction.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="search-code" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">CodeQL — the default engine</h3>
+          <p class="pattern-desc">GitHub's own semantic static analyzer. Treats code as a queryable database. Ships with curated security and quality query packs maintained by the GitHub Security Lab.</p>
+          <p style="margin-top: 0.5rem; font-size: 0.87rem; color: var(--color-text-secondary);">Free on public repos. Requires GHAS for private repos.</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="puzzle" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Third-party scanners — via SARIF</h3>
+          <p class="pattern-desc">ESLint, Semgrep, Snyk, Checkmarx — any tool that produces SARIF can upload its findings using the <code>github/codeql-action/upload-sarif</code> action or the SARIF upload API. Results appear in the same Security tab next to CodeQL findings.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: "CodeQL is the only scanner GitHub supports"</strong>
+          <p>Wrong. Code scanning accepts SARIF from any tool. The exam may try to anchor you to "CodeQL only" — remember the platform/engine distinction. SARIF is what makes interoperability work.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 1b: How CodeQL turns code into a queryable database (mechanism) -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">How CodeQL turns your code into a queryable database</h2>
+
+      <p>"CodeQL treats code as data you can query" is the headline. The mechanism behind that headline is a three-stage pipeline that runs every time code scanning fires. Understanding it explains <strong>why builds are required for compiled languages</strong>, <strong>why workflows take longer the first time</strong>, and <strong>what "continuous" scanning actually means in this context</strong>.</p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="database" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">The CodeQL pipeline — extract → analyze → upload</h3>
+            <p class="schema-card-sub">Runs end-to-end inside the Actions runner on every trigger.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+graph TB
+  SRC["📄 Source code<br/>(in the runner's workspace)"]
+  EXTRACT["🛠️ EXTRACT<br/>(init step + build step)"]
+  INTERPRETED["Interpreted langs<br/>(JS/TS, Python, Ruby):<br/>extractor parses files directly<br/>— no build needed"]
+  COMPILED["Compiled langs<br/>(Java, C/C++, C#, Swift):<br/>extractor wraps the COMPILER<br/>(autobuild OR your manual build)<br/>and observes every translation unit"]
+  DB["🗄️ CodeQL database<br/>(a relational store of every AST node,<br/>data-flow edge, type, symbol)"]
+  ANALYZE["🔍 ANALYZE<br/>Run a query suite over the database.<br/>Each query is a logical predicate<br/>that returns matching rows."]
+  SARIF["📤 SARIF file"]
+  UPLOAD["☁️ Upload to the Security tab<br/>(needs security-events: write)"]
+
+  SRC --> EXTRACT
+  EXTRACT --> INTERPRETED
+  EXTRACT --> COMPILED
+  INTERPRETED --> DB
+  COMPILED --> DB
+  DB --> ANALYZE
+  ANALYZE --> SARIF
+  SARIF --> UPLOAD
+
+  classDef anchor fill:#FDEEE9,stroke:#D94F30,stroke-width:2px,color:#1F1D1B;
+  class SRC,EXTRACT,DB,ANALYZE,SARIF,UPLOAD anchor;
+        </pre>
+        <p class="schema-card-note">The database is the central object. Once it exists, the same database can be analyzed by many different query suites without re-extracting.</p>
+      </div>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="file-search" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Why interpreted languages don't need a build</h3>
+          <p class="pattern-desc">For JS/TS, Python, Ruby (and Go, by exception), the source is already the program. The CodeQL extractor reads the files, parses them into ASTs, resolves imports, and writes the relational facts directly into the database. <strong>No compiler involvement, no build commands needed.</strong></p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="cpu" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Why compiled languages DO need a build</h3>
+          <p class="pattern-desc">For Java, C/C++, C#, Swift, source files alone are insufficient — types, generics, macros, and conditional compilation are only resolved during compilation. CodeQL's extractor works as a <strong>compiler tracer</strong>: it sits between you and <code>javac</code>/<code>gcc</code>/<code>csc</code>/<code>swiftc</code>, intercepts each translation unit, and records what the compiler saw. <strong>If the compiler isn't invoked, the extractor sees nothing</strong> — that's why "no source code seen" is the error you get when autobuild fails.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">What "continuous scanning" actually means</strong>
+          <p>Code scanning is "continuous" because the workflow re-runs the entire pipeline on every relevant event: every <code>push</code> to a watched branch, every <code>pull_request</code> against one, and on a <code>schedule:</code> cron (commonly weekly). Each run builds a fresh database, runs the suite, uploads a fresh SARIF. There's no live, always-on daemon — "continuous" means "re-run on every change plus a scheduled backstop."</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Default vs Advanced setup -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Default setup vs Advanced setup — the central choice</h2>
+
+      <p>When you enable code scanning, GitHub asks you to pick one of two setup modes. The exam tests when each is appropriate and what each can/can't do.</p>
+
+      <table class="scope-matrix animate-in">
+        <caption class="scope-matrix-caption">
+          <i data-lucide="grid" class="icon"></i>
+          Default setup vs Advanced setup
+        </caption>
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th>Default setup</th>
+            <th>Advanced setup</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>How is it configured?</strong></td>
+            <td>One click in <code>Settings → Code security and analysis</code></td>
+            <td>You author and commit a workflow file at <code>.github/workflows/codeql.yml</code></td>
+          </tr>
+          <tr>
+            <td><strong>Languages</strong></td>
+            <td>Auto-detects all CodeQL-supported languages in the repo</td>
+            <td>You specify the <code>languages:</code> matrix manually</td>
+          </tr>
+          <tr>
+            <td><strong>Query suite</strong></td>
+            <td>Default suite — cannot be changed without switching to advanced</td>
+            <td>Any suite: <code>default</code>, <code>security-extended</code>, <code>security-and-quality</code></td>
+          </tr>
+          <tr>
+            <td><strong>Custom build steps</strong></td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> No — autobuild only</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes — full control of build steps</td>
+          </tr>
+          <tr>
+            <td><strong>Triggers</strong></td>
+            <td>Push to default branch, PRs to default branch, weekly schedule (managed)</td>
+            <td>Whatever you put in <code>on:</code> — push, pull_request, schedule, workflow_dispatch</td>
+          </tr>
+          <tr>
+            <td><strong>Third-party SARIF upload</strong></td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Not within default setup</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Add an <code>upload-sarif</code> step</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">When to pick which</strong>
+          <p><strong>Default setup</strong>: a JavaScript/Python/Ruby repo with no exotic build process — the fastest path to coverage. <strong>Advanced setup</strong>: any compiled-language repo needing custom build commands (Maven, Gradle, MSBuild flags), monorepos with multiple sub-projects, or repos that need security-extended queries. You can also start with default and "switch to advanced" later from the same UI.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Supported languages — compiled vs interpreted -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">CodeQL-supported languages and the build-mode split</h2>
+
+      <p>CodeQL has to <em>extract</em> code into its database before queries can run. How extraction happens depends on whether the language is compiled or interpreted — and the exam loves this distinction.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Language</th>
+            <th>Compiled or interpreted?</th>
+            <th>Build required to extract?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>JavaScript / TypeScript</td><td>Interpreted</td><td>No — extracted directly from source</td></tr>
+          <tr><td>Python</td><td>Interpreted</td><td>No</td></tr>
+          <tr><td>Ruby</td><td>Interpreted</td><td>No</td></tr>
+          <tr><td>Go</td><td>Compiled (but treated like interpreted by CodeQL)</td><td>No — source-only extraction supported</td></tr>
+          <tr><td>Java / Kotlin</td><td>Compiled</td><td>Yes — autobuild or manual build steps</td></tr>
+          <tr><td>C / C++</td><td>Compiled</td><td>Yes — autobuild or manual</td></tr>
+          <tr><td>C#</td><td>Compiled</td><td>Yes — autobuild or manual (build-mode: none also supported)</td></tr>
+          <tr><td>Swift</td><td>Compiled</td><td>Yes — manual build typically required</td></tr>
+        </tbody>
+      </table>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="cog" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Three build modes for compiled languages</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><code>autobuild</code> — CodeQL attempts to detect and run your build automatically</li>
+            <li><code>manual</code> — you write the exact build commands between init and analyze steps</li>
+            <li><code>none</code> — source-only extraction (available for C# and Java in newer CodeQL versions)</li>
+          </ul>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="alert-octagon" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">When autobuild fails</h3>
+          <p class="pattern-desc">Autobuild has heuristics — Maven, Gradle, MSBuild, make. If your project has non-standard build commands, autobuild fails and the analyze step reports "no source code seen." The fix: switch to <code>build-mode: manual</code> and add your real build steps explicitly.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: The CodeQL workflow file -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The CodeQL workflow file — anatomy of <code>codeql.yml</code></h2>
+
+      <p>Advanced setup gives you a workflow file with three core steps: checkout, init, analyze. The exam tests recognition of valid vs invalid structure.</p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="file-code" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">Minimum valid CodeQL workflow</h3>
+            <p class="schema-card-sub">Place at <code>.github/workflows/codeql.yml</code>.</p>
+          </div>
+        </div>
+        <pre style="background: var(--color-surface-2, #F4EFE6); padding: 1.25rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.6; overflow-x: auto; margin: 1rem 0 0;"><code>name: "CodeQL"
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 6 * * 1'   # weekly Monday 06:00 UTC
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'python' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"</code></pre>
+        <p class="schema-card-note">Required permission: <code>security-events: write</code>. Without it the analyze step can't upload SARIF — and CodeQL fails silently as far as the Security tab is concerned.</p>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: missing <code>security-events: write</code></strong>
+          <p>A frequent scenario: "the workflow runs successfully but no alerts appear in the Security tab." The cause is almost always missing <code>security-events: write</code> permissions. The job logs may look green because analyze finished, but the upload step couldn't write to the security tab.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Query suites -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The three query suites — pick one</h2>
+
+      <p>CodeQL ships with three built-in query suites. You set them in <code>init</code> via the <code>queries:</code> input. The exam tests the names exactly and what each contains.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong><code>default</code> (used when <code>queries:</code> is omitted)</strong>
+            <p>The baseline suite. Optimized for low false-positive rate and short runtime. Includes the most important high-confidence security queries.</p>
+            <p style="margin-top: 0.4rem; font-size: 0.87rem; color: var(--color-text-secondary);">Use when: you want fast, low-noise scans on a high-traffic repo.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong><code>security-extended</code></strong>
+            <p>The default suite PLUS additional security queries with slightly higher false-positive rates. More coverage, more noise.</p>
+            <p style="margin-top: 0.4rem; font-size: 0.87rem; color: var(--color-text-secondary);">Use when: you need broader coverage and are willing to triage more findings.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong><code>security-and-quality</code></strong>
+            <p>The widest suite. Includes everything in security-extended PLUS code-quality queries (maintainability, reliability, style violations).</p>
+            <p style="margin-top: 0.4rem; font-size: 0.87rem; color: var(--color-text-secondary);">Use when: you want the firehose — security and quality, all at once.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Suites are nested — not exclusive</strong>
+          <p>The suites are concentric, not different paths: <code>default</code> ⊂ <code>security-extended</code> ⊂ <code>security-and-quality</code>. Picking <code>security-extended</code> doesn't <em>replace</em> default — it adds to it. You don't list multiple suites; you list the widest one you want.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 6: Alert lifecycle and dismissal -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Code scanning alert lifecycle and dismissal reasons</h2>
+
+      <p>When a code scanning run finds an issue, GitHub creates an alert. The lifecycle has four states and exactly three dismissal reasons — the exam tests the names verbatim.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="bell" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Alert states</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><strong>Open</strong> — created by a scan and not yet resolved</li>
+            <li><strong>Dismissed</strong> — manually closed with a reason</li>
+            <li><strong>Fixed</strong> — auto-closed when a later scan no longer detects the issue</li>
+            <li><strong>Reopened</strong> — was dismissed/fixed but reappeared on a later scan</li>
+          </ul>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="x-octagon" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">The three dismissal reasons</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><strong>False positive</strong> — the query matched but the code isn't actually vulnerable</li>
+            <li><strong>Used in tests</strong> — the pattern exists only in test code, not in production paths</li>
+            <li><strong>Won't fix</strong> — accepted risk; the team has chosen not to remediate</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: the dismissal reasons must be EXACTLY these three</strong>
+          <p>Distractors will include plausible-sounding fake reasons: "not applicable", "accepted risk", "duplicate", "in backlog". They aren't real options. Only <strong>false positive</strong>, <strong>used in tests</strong>, and <strong>won't fix</strong> exist in the UI.</p>
+        </div>
+      </div>
+
+      <div class="schema-card animate-in" style="margin-top: 1.5rem;">
+        <div class="schema-card-header">
+          <i data-lucide="users" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">Who can dismiss alerts</h3>
+            <p class="schema-card-sub">Permission model — frequently tested.</p>
+          </div>
+        </div>
+        <p style="margin-top: 0.75rem;">Users with <strong>write access</strong> to the repository can dismiss alerts. Repository admins can additionally configure who has access to alerts under <code>Settings → Code security and analysis → Access to alerts</code>. The author of a PR cannot dismiss alerts they introduced without that write access.</p>
+      </div>
+    </section>
+
+    <!-- SCREEN 7: SARIF and third-party uploads -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">SARIF upload — bringing in third-party scanners</h2>
+
+      <p>Code scanning's superpower is that it accepts findings from anything. The standard format is SARIF, uploaded via either an action step or the API.</p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="upload-cloud" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">SARIF upload via the action</h3>
+            <p class="schema-card-sub">Drop this into any workflow that already produces a SARIF file.</p>
+          </div>
+        </div>
+        <pre style="background: var(--color-surface-2, #F4EFE6); padding: 1.25rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.6; overflow-x: auto; margin: 1rem 0 0;"><code>- name: Upload SARIF
+  uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
+    category: "semgrep"</code></pre>
+        <p class="schema-card-note">The <code>category</code> distinguishes uploads from different tools so they don't overwrite each other in the same repo. Same repo can have multiple SARIF uploads as long as each uses a unique category.</p>
+      </div>
+
+      <table class="comparison-table animate-in" style="margin-top: 1.5rem;">
+        <thead>
+          <tr>
+            <th>Limit</th>
+            <th>Value</th>
+            <th>What happens at the limit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Max SARIF file size</strong></td>
+            <td><strong>10 MB</strong></td>
+            <td>Upload rejected — must shrink the file</td>
+          </tr>
+          <tr>
+            <td><strong>Max results per SARIF run</strong></td>
+            <td><strong>25,000</strong></td>
+            <td>Only the first 25,000 are processed</td>
+          </tr>
+          <tr>
+            <td><strong>Max results per <code>rule</code> ID</strong></td>
+            <td><strong>5,000</strong></td>
+            <td>Excess results dropped silently</td>
+          </tr>
+          <tr>
+            <td><strong>Max runs per SARIF file</strong></td>
+            <td><strong>20</strong></td>
+            <td>Additional runs rejected</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: silent truncation</strong>
+          <p>When SARIF exceeds the result limits, GitHub doesn't fail loudly — it silently caps. If a tool reports 30,000 issues but only 25,000 appear in the Security tab, this is the cause. The fix: filter at the tool level before uploading, or split into multiple categories.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 8: Branch protection integration -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Code scanning as a required check</h2>
+
+      <p>Findings alone don't block merges — you have to wire code scanning into branch protection rules.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Make code scanning a required status check</strong>
+            <p><code>Settings → Branches → Branch protection rules → Add rule</code>. Tick "Require status checks to pass before merging" → search for and add <strong>CodeQL</strong> (or your third-party tool's check name) as a required check.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Configure merge blocking by severity</strong>
+            <p>Under <code>Settings → Code security and analysis → Code scanning → Protection rules</code>, choose the severity threshold that blocks PR merges. Default values: <code>error</code>, <code>warning</code>, <code>note</code> (SARIF levels) — and <code>critical</code>, <code>high</code>, <code>medium</code>, <code>low</code> for security severities.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>PR annotations — and why you only see <em>new</em> findings inline</strong>
+            <p>When code scanning runs on a pull request, GitHub actually performs <strong>two analyses</strong> and compares them: one on the PR's <code>head</code> commit and one on the <code>base</code> branch the PR targets. The <span class="term" data-definition="The set difference between findings on the PR head and findings on the base branch, computed by matching alert location, rule ID, and message. Alerts that exist on both sides are treated as 'pre-existing'; alerts on the head only are treated as 'introduced by this PR'.">delta</span> — alerts present on head but not on base — is what gets posted as inline annotations on the changed lines of the PR. Pre-existing alerts (present in both base and head) are kept out of the way: they appear under a separate "existing alerts" tab in the PR's Checks panel rather than as inline noise on the diff.</p>
+            <p style="margin-top: 0.4rem;">This is why CodeQL on a long-lived branch usually surfaces zero PR annotations even when the Security tab shows hundreds of open alerts — the PR didn't introduce any new findings, even though the repo has plenty.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 9: CodeQL CLI -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">CodeQL CLI — running outside Actions</h2>
+
+      <p>The CodeQL CLI is a standalone command-line tool. The exam tests when to use it and the three-step workflow.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="terminal" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">When to use the CLI</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li>Running CodeQL outside GitHub Actions (e.g., third-party CI like Jenkins, CircleCI)</li>
+            <li>Developing and testing your own custom CodeQL queries locally</li>
+            <li>Producing SARIF files to upload via the SARIF upload API</li>
+          </ul>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="list-ordered" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">The three-step CLI workflow</h3>
+          <ol style="padding-left: 1.25rem; line-height: 1.8; color: var(--color-text-secondary);">
+            <li><code>codeql database create</code> — extract code into a database</li>
+            <li><code>codeql database analyze</code> — run queries against it, emit SARIF</li>
+            <li><code>codeql github upload-results</code> — upload SARIF to the Security tab</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Authentication for upload-results</strong>
+          <p>The CLI needs a token with <code>security-events: write</code> scope to upload SARIF. Use a fine-grained PAT or a GitHub App token. The same permission requirement applies in Actions workflows — only the delivery mechanism is different.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 10: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 4 practice — exam-style questions</h2>
+
+      <p>Eight questions targeting the most common Domain 4 traps: setup modes, query suites, build modes, SARIF interoperability, dismissal reasons.</p>
+
+      <div class="exam-quiz-container" id="exam-quiz-module-6">
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. CodeQL is the default engine but it is not the only option. Code scanning accepts SARIF from any compatible third-party scanner."
+             data-explanation-b="Wrong. SARIF is a format, not a scanner — but it IS the format third-party tools use to feed into code scanning."
+             data-explanation-c="Correct. Code scanning is a platform that accepts SARIF from any compatible scanner. CodeQL is the default engine but third-party tools (ESLint, Semgrep, Snyk, etc.) integrate via SARIF upload."
+             data-explanation-d="Wrong. Dependabot is for dependency-level vulnerabilities, not source code analysis. Different domain entirely (Domain 3).">
+          <h3 class="exam-question-stem">1. A team uses Semgrep as their static analyzer and wants its findings to appear in the GitHub Security tab alongside CodeQL alerts. What makes this possible?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>It isn't — code scanning only supports CodeQL.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Semgrep must be replaced with SARIF as the scanner.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Semgrep emits SARIF, which can be uploaded via the upload-sarif action or API.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>The team must switch to Dependabot instead.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. The default suite is the smallest — it contains the highest-confidence security queries with the lowest false-positive rate."
+             data-explanation-b="Correct. security-and-quality is the widest suite. It includes everything in default and security-extended, PLUS code quality queries covering maintainability, reliability, and style."
+             data-explanation-c="Wrong. security-extended adds additional security queries with higher false-positive rates, but doesn't include the code-quality queries."
+             data-explanation-d="Wrong. quality-only is not a valid CodeQL query suite name.">
+          <h3 class="exam-question-stem">2. A team wants the widest possible CodeQL coverage, including both security and code-quality issues. Which query suite should they select?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span><code>default</code></span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span><code>security-and-quality</code></span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span><code>security-extended</code></span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span><code>quality-only</code></span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-d"
+             data-explanation-a="Wrong. 'Not applicable' is not one of the official dismissal reasons in the UI."
+             data-explanation-b="Wrong. 'Accepted risk' is a plausible-sounding distractor but not one of the three valid options. The correct term for that case is 'Won't fix'."
+             data-explanation-c="Wrong. 'Duplicate' is not a code scanning dismissal reason."
+             data-explanation-d="Correct. The three (and only three) dismissal reasons are: False positive, Used in tests, and Won't fix.">
+          <h3 class="exam-question-stem">3. Which set of dismissal reasons is valid for code scanning alerts?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Not applicable, Used in tests, Won't fix</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>False positive, Used in tests, Accepted risk</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>False positive, Won't fix, Duplicate</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>False positive, Used in tests, Won't fix</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. Repository visibility doesn't affect whether SARIF uploads. The cause is in the workflow permissions."
+             data-explanation-b="Wrong. The languages matrix is for what CodeQL extracts, not for SARIF upload permissions."
+             data-explanation-c="Correct. The analyze step uploads SARIF to the Security tab, which requires security-events: write. Without it, the workflow looks green but uploads silently fail and no alerts appear."
+             data-explanation-d="Wrong. The on: schedule isn't relevant — push and pull_request triggers also upload SARIF if permissions are correct.">
+          <h3 class="exam-question-stem">4. A CodeQL workflow runs successfully (all green) but no alerts appear in the Security tab. What is the most likely cause?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>The repository is private without GHAS.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>The languages matrix only includes interpreted languages.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>The workflow is missing the <code>security-events: write</code> permission.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>The workflow has no <code>on: schedule</code> trigger.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. Default setup does not let you specify custom build commands — autobuild is the only build approach available."
+             data-explanation-b="Correct. Default setup uses autobuild only. For non-standard build processes (custom Maven goals, environment-specific build scripts), you need to switch to advanced setup and supply manual build steps."
+             data-explanation-c="Wrong. Default setup supports Java — it just uses autobuild for it, which may fail on non-standard builds."
+             data-explanation-d="Wrong. Default setup supports compiled languages; it just doesn't allow custom build commands.">
+          <h3 class="exam-question-stem">5. A Java repository uses a custom Maven goal during build. CodeQL default setup keeps failing at the build step. What is the recommended fix?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Add a custom build script to default setup.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Switch to advanced setup and specify <code>build-mode: manual</code> with the custom Maven goal in the workflow.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Default setup does not support Java; choose another language.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Default setup does not support compiled languages; use an interpreted alternative.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-d"
+             data-explanation-a="Wrong. Repositories can have multiple SARIF uploads — that is exactly what categories enable."
+             data-explanation-b="Wrong. Severity filtering happens at scan or display time, not via categories."
+             data-explanation-c="Wrong. Categories don't deduplicate results; they keep tool runs distinct."
+             data-explanation-d="Correct. The category distinguishes SARIF uploads from different tools (or different parts of the same project) so they don't overwrite each other in the Security tab.">
+          <h3 class="exam-question-stem">6. What is the purpose of the <code>category</code> input on the <code>upload-sarif</code> action?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>To allow more than one SARIF upload per repository per scan.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>To filter alerts by severity before display.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>To deduplicate identical findings from different scanners.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>To distinguish uploads from different tools or scan configurations so they don't overwrite each other.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-a"
+             data-explanation-a="Correct. SARIF result limits cause silent truncation. Beyond 25,000 results per run, additional results are dropped. The Security tab will show only what got through the upload."
+             data-explanation-b="Wrong. CodeQL doesn't suppress JavaScript queries by language type. The cause is the upload limits, not language-based filtering."
+             data-explanation-c="Wrong. The dependency graph is for Dependabot, not for CodeQL alerts. Different domain."
+             data-explanation-d="Wrong. There is no requirement to dismiss old alerts before new ones can appear.">
+          <h3 class="exam-question-stem">7. A JavaScript repo's nightly scan produces 30,000 findings in a SARIF file, but only ~25,000 show up in the Security tab. What is happening?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>SARIF uploads silently cap at 25,000 results per run. Excess results are dropped.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>CodeQL suppresses results in interpreted languages above a fixed threshold.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>The dependency graph needs to be regenerated before all findings appear.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Old alerts must be dismissed before new ones can be displayed.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. database create only extracts the code; it does not run queries or emit SARIF."
+             data-explanation-b="Wrong. github upload-results sends an existing SARIF file to GitHub — it doesn't produce one."
+             data-explanation-c="Correct. database analyze runs queries against the extracted database and produces a SARIF file as output. This is the second step in the three-step CLI workflow."
+             data-explanation-d="Wrong. resolve queries is a metadata command for inspecting query suites, not for analysis.">
+          <h3 class="exam-question-stem">8. Which CodeQL CLI command runs queries against an extracted database and produces a SARIF file?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span><code>codeql database create</code></span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span><code>codeql github upload-results</code></span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span><code>codeql database analyze</code></span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span><code>codeql resolve queries</code></span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-quiz-footer">
+          <button class="exam-check-btn" onclick="checkExamQuiz('exam-quiz-module-6')">Reveal Answers</button>
+          <button class="exam-reset-btn" onclick="resetExamQuiz('exam-quiz-module-6')">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 11: Cheat sheet -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 4 exam traps — rapid-fire summary</h2>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>If the question says…</th>
+            <th>The trap answer</th>
+            <th>The correct answer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"third-party scanner — Semgrep, ESLint, Snyk"</td>
+            <td>"Not supported by code scanning"</td>
+            <td><strong>SARIF upload</strong> — any tool that emits SARIF works</td>
+          </tr>
+          <tr>
+            <td>"widest CodeQL coverage including code quality"</td>
+            <td>security-extended</td>
+            <td><strong>security-and-quality</strong></td>
+          </tr>
+          <tr>
+            <td>Dismissal reasons</td>
+            <td>"Not applicable" / "Accepted risk" / "Duplicate"</td>
+            <td><strong>False positive · Used in tests · Won't fix</strong> (exactly these)</td>
+          </tr>
+          <tr>
+            <td>"workflow green but no alerts appear"</td>
+            <td>Repo settings need re-enabling</td>
+            <td>Missing <strong><code>security-events: write</code></strong> permission</td>
+          </tr>
+          <tr>
+            <td>"custom Maven / Gradle build for compiled language"</td>
+            <td>Default setup with autobuild</td>
+            <td><strong>Advanced setup</strong> with <code>build-mode: manual</code></td>
+          </tr>
+          <tr>
+            <td>"multiple SARIF uploads in the same repo"</td>
+            <td>"Only one upload allowed"</td>
+            <td>Use a unique <strong><code>category</code></strong> per upload</td>
+          </tr>
+          <tr>
+            <td>"30,000 findings but only 25,000 in Security tab"</td>
+            <td>"Filter setting somewhere is hiding them"</td>
+            <td><strong>25,000 results/run cap</strong> — silent truncation</td>
+          </tr>
+          <tr>
+            <td>"running CodeQL in Jenkins / CircleCI"</td>
+            <td>"CodeQL only works in GitHub Actions"</td>
+            <td>Use the <strong>CodeQL CLI</strong>: database create → analyze → upload-results</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SCREEN 12: Closing -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 4 done — where you stand now</h2>
+
+      <p>Domains 1, 2, 3, and 4 covered. That's <strong>90% of GH-500's exam weight</strong>. Only Domain 5 (Best Practices, 10%) remains.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="bar-chart-3" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Points covered so far</h3>
+          <p class="pattern-desc">Domain 1 (15%) + Domain 2 (15%) + Domain 3 (35%) + Domain 4 (25%) = <strong>90% of the exam</strong>. Domain 5 is the remaining 10% — high-leverage best practices and remediation workflows.</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="brain" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Domain 5 preview</h3>
+          <p class="pattern-desc">Final module: triage workflows, security policies (<code>SECURITY.md</code>), private vulnerability reporting, security advisories, audit log, security overview dashboard, and the corrective-measures playbook.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Module complete</strong>
+          <p>Domain 4 done. Highest-value retentions: (1) default vs advanced setup tradeoffs, (2) the three query suite names exactly, (3) the three dismissal reasons exactly, (4) <code>security-events: write</code> is the most common silent-failure cause.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Continue CTA -->
+    <div class="continue-cta animate-in">
+      <a href="#module-7" class="btn btn-continue">
+        Continue to Module 7: Best Practices &amp; Corrective Measures <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-5" class="btn-back-link">
+        <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 5
+      </a>
+    </div>
+  </div>
+</section>

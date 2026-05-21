@@ -1,0 +1,1692 @@
+/* =============================================================
+   STYLES-POLISH — 2026 visual upgrade overlay
+   Loaded AFTER styles.css in _base.html. Modernizes the look
+   with glassmorphism, mesh gradients, vibrant accents, dramatic
+   typography, and spring-based motion.
+
+   Design philosophy: still warm and inviting (NOT cold/corporate),
+   but with the visual sophistication of Linear, Vercel, Stripe,
+   and Arc Browser — the references for modern web UI in 2026.
+
+   To remove: delete this file and remove the <link> in _base.html.
+   ============================================================= */
+
+/* ── 2026 DESIGN TOKENS ────────────────────────────────────────
+   The big shifts:
+   - Background goes from beige to a warmer-cream-with-mesh-gradient
+   - Accent gains a second "electric" complement for depth
+   - Shadows are layered + colored (warm-tinted)
+   - Borders thin and almost invisible — depth comes from gradient + shadow
+   - Typography tightens letter-spacing on display text (2026 hallmark)
+   ──────────────────────────────────────────────────────────── */
+:root {
+  /* Backgrounds — clean modern off-white, deeper warmth in alt zones */
+  --color-bg:             #FBFAF7;
+  --color-bg-warm:        #F4EFE6;
+  --color-bg-deep:        #EAE3D4;
+  --color-bg-mesh-1:      #FFE9DD;
+  --color-bg-mesh-2:      #E8E4FF;
+  --color-bg-mesh-3:      #DDFCEC;
+
+  /* Surfaces — much higher contrast surface-to-bg for crisper cards */
+  --color-surface:        #FFFFFF;
+  --color-surface-warm:   #FFFDF8;
+  --color-surface-glass:  rgba(255, 255, 255, 0.65);
+  --color-surface-elevated: #FFFFFF;
+
+  /* Text — slightly richer */
+  --color-text:           #14110E;
+  --color-text-secondary: #4F4A44;
+  --color-text-muted:     #8B847B;
+
+  /* Borders — nearly invisible, replaced mostly by shadow */
+  --color-border:         #E8DFCE;
+  --color-border-light:   #F2EBDE;
+  --color-border-strong:  #D4C8B0;
+  --color-border-glass:   rgba(255, 255, 255, 0.4);
+
+  /* Accent — keep vermillion as primary but add electric secondary */
+  --color-accent-secondary: #5B6CFF;
+  --color-accent-secondary-light: #EEF0FF;
+  --color-accent-gradient: linear-gradient(135deg, var(--color-accent) 0%, #FF8866 50%, var(--color-accent-secondary) 100%);
+
+  /* Shadows — multi-layer + colored. The 2026 signature.
+     Warm cream undertones, never pure black. */
+  --shadow-xs:
+    0 1px 1px rgba(60, 50, 40, 0.04);
+  --shadow-sm:
+    0 1px 2px rgba(60, 50, 40, 0.05),
+    0 2px 4px rgba(60, 50, 40, 0.04);
+  --shadow-md:
+    0 2px 4px rgba(60, 50, 40, 0.05),
+    0 6px 16px rgba(60, 50, 40, 0.06),
+    0 12px 28px rgba(60, 50, 40, 0.04);
+  --shadow-lg:
+    0 4px 8px rgba(60, 50, 40, 0.05),
+    0 12px 28px rgba(60, 50, 40, 0.08),
+    0 24px 56px rgba(60, 50, 40, 0.06);
+  --shadow-xl:
+    0 8px 16px rgba(60, 50, 40, 0.06),
+    0 24px 56px rgba(60, 50, 40, 0.10),
+    0 48px 112px rgba(60, 50, 40, 0.08);
+  --shadow-glow-accent:
+    0 0 0 4px color-mix(in srgb, var(--color-accent) 12%, transparent),
+    0 12px 28px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  --shadow-inner-glow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(60, 50, 40, 0.04);
+
+  /* Motion — spring-based easings (2026 hallmark) */
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce:  cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  --duration-fast:   180ms;
+  --duration-normal: 360ms;
+  --duration-slow:   600ms;
+
+  /* Radii — slightly bigger for a softer, modern feel */
+  --radius-sm:   10px;
+  --radius-md:   16px;
+  --radius-lg:   22px;
+  --radius-xl:   28px;
+  --radius-full: 9999px;
+}
+
+/* ── BODY: MESH GRADIENT BACKGROUND ─────────────────────────────
+   The 2026 hallmark — a soft multi-color mesh gradient that gives
+   depth without overwhelming. Subtle enough to feel like texture,
+   visible enough to feel modern.
+   ──────────────────────────────────────────────────────────── */
+body {
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 15% 10%, color-mix(in srgb, var(--color-bg-mesh-1) 65%, transparent) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 30%, color-mix(in srgb, var(--color-bg-mesh-2) 55%, transparent) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in srgb, var(--color-bg-mesh-3) 50%, transparent) 0%, transparent 55%);
+  background-attachment: fixed;
+}
+
+/* Alternating module zones — subtle vertical band gradients */
+.module:nth-child(odd) {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--color-bg) 100%, transparent) 0%,
+      color-mix(in srgb, var(--color-bg-warm) 30%, transparent) 100%);
+}
+.module:nth-child(even) {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--color-bg-warm) 30%, transparent) 0%,
+      color-mix(in srgb, var(--color-bg) 100%, transparent) 100%);
+}
+
+/* ── TYPOGRAPHY: 2026 HIERARCHY ────────────────────────────────
+   Tighter letter-spacing, bigger size jumps, more confident weights.
+   The display font gets a slight gradient treatment for liveliness.
+   ──────────────────────────────────────────────────────────── */
+.module-number {
+  font-size: clamp(5rem, 14vw, 9.5rem);
+  font-weight: 800;
+  opacity: 0.12;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  background: var(--color-accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: var(--space-2);
+}
+
+.module-title {
+  font-size: clamp(2.25rem, 5.5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  color: var(--color-text);
+}
+
+.module-subtitle {
+  font-size: clamp(1.0625rem, 1.6vw, 1.375rem);
+  color: var(--color-text-secondary);
+  max-width: 64ch;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  margin-top: var(--space-4);
+}
+
+.screen-heading {
+  font-size: clamp(1.625rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: var(--space-8);
+  position: relative;
+  padding-bottom: var(--space-3);
+  line-height: 1.15;
+}
+.screen-heading::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 4px;
+  background: var(--color-accent-gradient);
+  border-radius: var(--radius-full);
+}
+
+/* ── NAV: GLASSMORPHIC ──────────────────────────────────────── */
+.nav {
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid var(--color-border-glass);
+}
+
+.nav-dot {
+  width: 11px;
+  height: 11px;
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+.nav-dot:hover { transform: scale(1.3); }
+.nav-dot.active {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--color-accent) 20%, transparent),
+    0 4px 12px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.progress-bar {
+  background: var(--color-accent-gradient);
+  height: 3px;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+/* ── CARDS: GLASSMORPHIC WITH DEPTH ────────────────────────────
+   Light gradient surfaces + nearly-invisible borders + multi-layer
+   shadow + spring-based hover. The pure 2026 card feel.
+   ──────────────────────────────────────────────────────────── */
+.pattern-card,
+.step-card,
+.icon-row,
+.badge-item,
+.chat-window,
+.quiz-container,
+.callout,
+.translation-block,
+.arch-zone,
+.file-tree {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  box-shadow: var(--shadow-sm), var(--shadow-inner-glow);
+  transition:
+    transform var(--duration-normal) var(--ease-spring),
+    box-shadow var(--duration-normal) var(--ease-out),
+    border-color var(--duration-fast);
+}
+
+.pattern-card:hover,
+.icon-row:hover,
+.arch-component:hover {
+  transform: translateY(-4px) scale(1.005);
+  box-shadow: var(--shadow-lg), var(--shadow-inner-glow);
+  border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+}
+
+.step-card {
+  border-left: 0;
+  position: relative;
+  overflow: hidden;
+}
+.step-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--color-accent-gradient);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.pattern-icon,
+.step-num,
+.icon-circle,
+.flow-actor-icon,
+.callout-icon {
+  background: var(--color-accent-gradient);
+  background-size: 200% 200%;
+  box-shadow:
+    0 6px 16px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-circle {
+  background: linear-gradient(135deg,
+    var(--icon-color, var(--color-accent)) 0%,
+    color-mix(in srgb, var(--icon-color, var(--color-accent)) 75%, #FFFFFF) 100%);
+}
+
+/* ── BUTTONS: 2026 GRADIENT WITH GLOW ──────────────────────── */
+.quiz-check-btn,
+.btn {
+  background: var(--color-accent-gradient);
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  color: white;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  box-shadow:
+    0 6px 16px color-mix(in srgb, var(--color-accent) 35%, transparent),
+    var(--shadow-inner-glow);
+  transition:
+    transform var(--duration-fast) var(--ease-spring),
+    box-shadow var(--duration-normal) var(--ease-out),
+    background-position var(--duration-slow) var(--ease-out);
+}
+.quiz-check-btn:hover,
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  background-position: 100% 50%;
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--color-accent) 45%, transparent),
+    var(--shadow-inner-glow);
+}
+.quiz-check-btn:active,
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.quiz-reset-btn {
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+.quiz-reset-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+}
+
+/* ── QUIZ: ELEVATED + REFINED ──────────────────────────────── */
+.quiz-container {
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+}
+.quiz-question {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+  margin-bottom: var(--space-5);
+}
+.quiz-option {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  font-weight: 500;
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+.quiz-option:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border));
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+.quiz-option.selected {
+  border-color: var(--color-accent);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--color-accent) 8%, var(--color-surface)) 0%,
+    var(--color-surface) 100%);
+  box-shadow: var(--shadow-glow-accent);
+}
+.quiz-option.correct {
+  border-color: var(--color-success);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--color-success) 10%, var(--color-surface)) 0%,
+    var(--color-surface) 100%);
+}
+.quiz-option.incorrect {
+  border-color: var(--color-error);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--color-error) 10%, var(--color-surface)) 0%,
+    var(--color-surface) 100%);
+}
+
+/* ── TRANSLATION BLOCK: NIGHT-MODE CODE PANEL ─────────────── */
+.translation-block {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid color-mix(in srgb, #1E1E2E 20%, transparent);
+}
+.translation-code {
+  background:
+    radial-gradient(ellipse at 0% 0%, #2E2A4A 0%, #1A1825 100%);
+  color: #E2DFFF;
+  position: relative;
+}
+.translation-code::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--color-accent) 8%, transparent) 0%, transparent 50%);
+  pointer-events: none;
+}
+.translation-english {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border-left: none;
+  border-top: 4px solid;
+  border-image: var(--color-accent-gradient) 1;
+}
+@media (min-width: 768px) {
+  .translation-english {
+    border-top: none;
+    border-left: 4px solid;
+    border-image: var(--color-accent-gradient) 1;
+  }
+}
+
+/* ── CHAT WINDOW: iMESSAGE-LEVEL POLISH ───────────────────── */
+.chat-window {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.chat-bubble {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAF7F2 100%);
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 4px;
+  box-shadow: var(--shadow-xs);
+  border: 1px solid var(--color-border-light);
+}
+.chat-avatar {
+  background: var(--color-accent-gradient);
+  background-size: 200% 200%;
+  box-shadow:
+    0 4px 10px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* ── CALLOUT: GLASS + ACCENT BAR ──────────────────────────── */
+.callout {
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+}
+.callout::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+.callout-accent::before  { background: var(--color-accent-gradient); }
+.callout-info::before    { background: linear-gradient(180deg, var(--color-info) 0%, color-mix(in srgb, var(--color-info) 70%, white) 100%); }
+.callout-warning::before { background: linear-gradient(180deg, var(--color-error) 0%, color-mix(in srgb, var(--color-error) 70%, white) 100%); }
+
+.callout-title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--color-text);
+}
+
+/* ── ARCHITECTURE DIAGRAM ─────────────────────────────────── */
+.arch-zone {
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.arch-component {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-xs);
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+.arch-component:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-border));
+}
+.arch-component.active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-accent) 12%, var(--color-surface)) 0%, var(--color-surface) 100%);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-glow-accent);
+}
+
+/* ── NEW: SCHEMA CARD (for ER diagrams via Mermaid) ──────── */
+.schema-card,
+.section-map {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  margin: var(--space-8) 0;
+  position: relative;
+  overflow: hidden;
+}
+.schema-card::before,
+.section-map::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--color-accent-gradient);
+}
+.schema-card-header,
+.section-map-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.schema-card-header .icon-lg,
+.section-map-header .icon-lg {
+  background: var(--color-accent-gradient);
+  color: white;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 4px 10px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  width: 2.5em;
+  height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.schema-card-title,
+.section-map-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-1) 0;
+  color: var(--color-text);
+}
+.schema-card-sub,
+.section-map-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.schema-card-note,
+.section-map-legend p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+  line-height: 1.5;
+}
+
+/* Mermaid diagram styling — centered, breathing room, no harsh background */
+.mermaid {
+  display: flex;
+  justify-content: center;
+  background: transparent;
+  padding: var(--space-4) 0;
+}
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── LUCIDE ICONS (preserved from prior polish) ───────────── */
+.icon, .icon-sm, .icon-lg, .icon-xl {
+  display: inline-block;
+  vertical-align: -0.125em;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+.icon-sm { width: 1em;     height: 1em; }
+.icon    { width: 1.25em;  height: 1.25em; }
+.icon-lg { width: 1.75em;  height: 1.75em; }
+.icon-xl { width: 2.5em;   height: 2.5em; }
+
+.icon-circle .icon,
+.pattern-icon .icon,
+.flow-actor-icon .icon,
+.callout-icon .icon {
+  stroke: white;
+  stroke-width: 2.2;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+}
+
+.icon-accent  { color: var(--color-accent); }
+.icon-success { color: var(--color-success); }
+.icon-error   { color: var(--color-error); }
+.icon-muted   { color: var(--color-text-muted); }
+
+/* ── TERM TOOLTIPS: GLASSY ─────────────────────────────────── */
+.term {
+  border-bottom: 1.5px dashed color-mix(in srgb, var(--color-accent) 55%, transparent);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  padding: 0 1px;
+  border-radius: 2px;
+}
+.term:hover {
+  border-bottom-color: var(--color-accent);
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+.term-tooltip {
+  background:
+    radial-gradient(ellipse at top right, #2E2A4A 0%, #1A1825 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+/* ── FLOW ANIMATION: 2026 REDESIGN ─────────────────────────
+   Label sits AT THE TOP (the "what's happening" announcement).
+   Payload area below shows the actual data being sent as text.
+   All actors visible at all times — no scrolling.
+   ──────────────────────────────────────────────────────────── */
+.flow-animation {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  margin: var(--space-8) 0;
+}
+
+.flow-step-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+  text-align: center;
+  padding: var(--space-3) var(--space-5);
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-accent) 8%, var(--color-surface)) 0%,
+    var(--color-surface) 100%);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-xs);
+  min-height: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.3;
+}
+
+.flow-payload {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: linear-gradient(135deg, #2E2A4A 0%, #1A1825 100%);
+  color: #E2DFFF;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height var(--duration-normal) var(--ease-out),
+              opacity var(--duration-normal) var(--ease-out),
+              padding var(--duration-normal) var(--ease-out);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.5;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.flow-payload.visible {
+  max-height: 180px;
+  opacity: 1;
+  padding: var(--space-3) var(--space-4);
+}
+.flow-payload::before {
+  content: "payload sent ↓";
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #8B82B8;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-mono);
+}
+
+.flow-actors {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-2);
+  flex-wrap: nowrap;
+  position: relative;
+}
+
+.flow-actor-icon {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+.flow-actor.active .flow-actor-icon {
+  background: var(--color-accent-gradient);
+  border-color: transparent;
+  color: white;
+  box-shadow:
+    var(--shadow-glow-accent),
+    0 12px 28px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  transform: scale(1.15);
+}
+.flow-actor.active .flow-actor-icon .icon {
+  stroke: white;
+}
+.flow-actor span {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: center;
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+  transition: color var(--duration-fast);
+}
+.flow-actor.active span {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.flow-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+}
+.flow-prev-btn,
+.flow-reset-btn {
+  background: var(--color-surface) !important;
+  color: var(--color-text-secondary) !important;
+  border: 1.5px solid var(--color-border) !important;
+  box-shadow: var(--shadow-sm) !important;
+  font-weight: 600;
+}
+.flow-prev-btn:hover:not(:disabled),
+.flow-reset-btn:hover:not(:disabled) {
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent) !important;
+  background: var(--color-surface) !important;
+}
+.flow-prev-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.flow-progress {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+/* ── FLOW ANIMATION COMPLETED STATE ─────────────────────────
+   When the learner reaches the last step, the Next button
+   becomes a green "Finished" badge and the whole container
+   gets a celebratory subtle ring.
+   ──────────────────────────────────────────────────────────── */
+.flow-next-btn.flow-done {
+  background: linear-gradient(135deg, var(--color-success) 0%, color-mix(in srgb, var(--color-success) 75%, white) 100%) !important;
+  color: white !important;
+  box-shadow:
+    0 8px 20px color-mix(in srgb, var(--color-success) 35%, transparent) !important,
+    var(--shadow-inner-glow) !important;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  animation: doneSettleIn 0.6s var(--ease-spring) forwards;
+}
+.flow-next-btn.flow-done:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--color-success) 45%, transparent) !important,
+    var(--shadow-inner-glow) !important;
+}
+@keyframes doneSettleIn {
+  0%   { transform: scale(0.92); opacity: 0.6; }
+  60%  { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.flow-animation.flow-completed {
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 3px color-mix(in srgb, var(--color-success) 18%, transparent);
+}
+.flow-animation.flow-completed .flow-step-label {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--color-success) 8%, var(--color-surface)) 0%,
+    var(--color-surface) 100%);
+  border-color: color-mix(in srgb, var(--color-success) 30%, var(--color-border-light));
+}
+
+/* ── CODE-WALK: clean interleaved code+explanation ─────────
+   The PREFERRED pattern for any code snippet >4 lines.
+   Each chunk of code sits DIRECTLY above its explanation —
+   impossible to lose correspondence while scrolling.
+   ──────────────────────────────────────────────────────────── */
+.code-walk {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: var(--space-8) 0;
+  box-shadow: var(--shadow-md);
+}
+.code-walk-header {
+  background: linear-gradient(135deg, #2E2A4A 0%, #1A1825 100%);
+  color: #C4B5FD;
+  padding: var(--space-3) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.code-walk-file {
+  color: #A6E3A1;
+}
+.code-walk-step {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+  align-items: start;
+}
+.code-walk-step:last-child {
+  border-bottom: none;
+}
+.code-walk-step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-gradient);
+  color: white;
+  font-weight: 700;
+  font-family: var(--font-display);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-sm);
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+.code-walk-step > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.code-walk-code {
+  background: linear-gradient(135deg, #2E2A4A 0%, #1A1825 100%);
+  color: #E2DFFF;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.code-walk-code code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.code-walk-explanation {
+  background: var(--color-surface-warm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-accent);
+}
+.code-walk-explanation p {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── BADGE LIST: PILLS ────────────────────────────────────── */
+.badge-code {
+  background: linear-gradient(135deg, #2E2A4A 0%, #1A1825 100%);
+  color: #C4B5FD;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78em;
+  font-weight: 500;
+  letter-spacing: 0;
+  box-shadow: var(--shadow-xs);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── FILE TREE: REFINED ───────────────────────────────────── */
+.file-tree {
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.ft-folder, .ft-file {
+  border-left-color: var(--color-border);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  transition: background var(--duration-fast);
+}
+.ft-folder:hover, .ft-file:hover {
+  background: color-mix(in srgb, var(--color-accent) 5%, transparent);
+}
+
+/* ── CONDITIONAL FLOW / FEATURE FLAG MAP ─────────────────────
+   Toggle-driven element that shows different paths based on
+   the active state (flag ON vs OFF, role X vs Y, etc.).
+   ──────────────────────────────────────────────────────────── */
+.conditional-flow {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  margin: var(--space-8) 0;
+  position: relative;
+  overflow: hidden;
+}
+.conditional-flow::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--color-accent-gradient);
+}
+.conditional-flow-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.conditional-flow-header > i[data-lucide] {
+  background: var(--color-accent-gradient);
+  color: white;
+  stroke: white;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  width: 2.5em;
+  height: 2.5em;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+.conditional-flow-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-1) 0;
+}
+.conditional-flow-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.conditional-flow-toggle {
+  display: inline-flex;
+  background: var(--color-bg-warm);
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  gap: 2px;
+  margin-bottom: var(--space-5);
+  border: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+}
+.state-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+.state-btn:hover {
+  color: var(--color-text);
+}
+.state-btn.active {
+  background: var(--color-accent-gradient);
+  color: white;
+  box-shadow:
+    0 4px 12px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    var(--shadow-inner-glow);
+}
+.state-btn.active > i[data-lucide] { stroke: white; }
+.state-panel {
+  display: none;
+  animation: statePanelFadeIn 0.3s var(--ease-out);
+}
+.state-panel.active {
+  display: block;
+}
+@keyframes statePanelFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.state-panel .mermaid {
+  margin: var(--space-4) 0;
+}
+.state-description {
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-text);
+  background: var(--color-surface-warm);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-accent);
+  margin: var(--space-4) 0 0 0;
+}
+.conditional-flow-meta {
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border-light);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+.conditional-flow-meta strong {
+  color: var(--color-text);
+  display: inline-block;
+  margin-right: 4px;
+}
+.conditional-flow-meta code {
+  background: linear-gradient(135deg, #2E2A4A 0%, #1A1825 100%);
+  color: #C4B5FD;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85em;
+}
+
+/* ── TECH STACK ARCHITECTURE ────────────────────────────────
+   The architect's view: layered stack with technology labels.
+   ──────────────────────────────────────────────────────────── */
+.tech-stack {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  margin: var(--space-8) 0;
+  position: relative;
+  overflow: hidden;
+}
+.tech-stack::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--color-accent-gradient);
+}
+.tech-stack-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.tech-stack-header > i[data-lucide] {
+  background: var(--color-accent-gradient);
+  color: white;
+  stroke: white;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  width: 2.5em;
+  height: 2.5em;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+.tech-stack-title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-1) 0;
+}
+.tech-stack-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.tech-layer {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: var(--space-4);
+  align-items: stretch;
+  margin-bottom: var(--space-3);
+}
+.tech-layer-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  padding: var(--space-4) 0;
+  border-right: 2px solid var(--color-border-light);
+  padding-right: var(--space-3);
+}
+.tech-layer-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.tech-card {
+  flex: 1;
+  min-width: 220px;
+  background: var(--color-surface-warm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: all var(--duration-fast) var(--ease-spring);
+  box-shadow: var(--shadow-xs);
+}
+.tech-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+}
+.tech-card strong {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+}
+.tech-card p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+.tech-tag {
+  display: inline-block;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  margin-right: 4px;
+}
+.tech-stack-rationale {
+  margin-top: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--color-text);
+}
+.tech-stack-rationale strong {
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .tech-layer {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  .tech-layer-label {
+    border-right: none;
+    border-bottom: 2px solid var(--color-border-light);
+    padding: var(--space-2) 0;
+  }
+}
+
+/* ── MODULE COMPLETION INDICATORS (on nav dots) ──────────────
+   When a learner reaches the end of a module (interacts with the quiz),
+   the nav dot gets a green checkmark via the .completed class.
+   The styling is here; the JS hook is in main.js.
+   ──────────────────────────────────────────────────────────── */
+.nav-dot.completed {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-success) 25%, transparent),
+    0 2px 6px color-mix(in srgb, var(--color-success) 30%, transparent);
+}
+.nav-dot.completed::before {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ── SCHEMA / SECTION-MAP ICON SIZING FLEXIBILITY ──────────────
+   The schema-card and section-map headers accept any icon size,
+   not just .icon-lg. The card container handles its own framing.
+   ──────────────────────────────────────────────────────────── */
+.schema-card-header > i[data-lucide],
+.section-map-header > i[data-lucide] {
+  background: var(--color-accent-gradient);
+  color: white;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 4px 10px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  width: 2.5em;
+  height: 2.5em;
+  flex-shrink: 0;
+  stroke: white;
+}
+
+/* ── CALLOUT ICON: prevent double-styling when Lucide is nested ─
+   When <i data-lucide> sits inside .callout-icon, we want ONLY
+   the inner icon to be visible (the container provides framing).
+   This prevents the older single-emoji styling from conflicting.
+   ──────────────────────────────────────────────────────────── */
+.callout-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--color-accent);
+}
+.callout-icon > i[data-lucide] {
+  width: 1.5em;
+  height: 1.5em;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+.callout-info  .callout-icon > i[data-lucide] { stroke: var(--color-info); }
+.callout-warning .callout-icon > i[data-lucide] { stroke: var(--color-error); }
+
+/* ── ACCESSIBILITY: prefers-reduced-motion ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── ACCESSIBILITY: focus rings ──────────────────────────── */
+button:focus-visible,
+.term:focus-visible,
+.nav-dot:focus-visible,
+.quiz-option:focus-visible,
+.arch-component:focus-visible,
+.dnd-chip:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+/* ── SUBTLE ENTRANCE ANIMATION FOR HERO ───────────────────── */
+.module-header {
+  position: relative;
+}
+.module-header::before {
+  content: "";
+  position: absolute;
+  left: -56px;
+  top: 50%;
+  width: 32px;
+  height: 3px;
+  background: var(--color-accent-gradient);
+  border-radius: var(--radius-full);
+  opacity: 0;
+  animation: slideInDot 0.8s var(--ease-spring) 0.4s forwards;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-accent) 50%, transparent);
+}
+@keyframes slideInDot {
+  from { opacity: 0; transform: translateX(-16px) scaleX(0); }
+  to   { opacity: 1; transform: translateX(0) scaleX(1); }
+}
+@media (max-width: 900px) {
+  .module-header::before { display: none; }
+}
+
+/* ── CODE-WALK: INTERLEAVED CODE + EXPLANATION ──────────────────
+   Solves the side-by-side translation block's alignment problem.
+   Instead of code-left / english-right (which mismatch when code is
+   taller), each tiny code chunk gets its explanation IMMEDIATELY
+   below it. Impossible to lose correspondence when scrolling.
+
+   Use this pattern when the code snippet is longer than 6 lines OR
+   when there are 3+ distinct logical "moves" in the snippet.
+   For very short snippets (≤4 lines), the side-by-side translation
+   block is still fine.
+
+   HTML pattern:
+
+   <div class="code-walk animate-in">
+     <div class="code-walk-header">
+       <span class="code-walk-file">services/trace-service.ts (lines 22-32)</span>
+     </div>
+     <div class="code-walk-step">
+       <div class="code-walk-step-num">1</div>
+       <pre class="code-walk-code"><code>... 1-4 lines of code ...</code></pre>
+       <div class="code-walk-explanation">
+         <p>Plain-English explanation of these specific lines.</p>
+       </div>
+     </div>
+     <div class="code-walk-step">
+       <div class="code-walk-step-num">2</div>
+       <pre class="code-walk-code"><code>... next 1-4 lines ...</code></pre>
+       <div class="code-walk-explanation">
+         <p>What these next lines do.</p>
+       </div>
+     </div>
+     ... repeat for each chunk ...
+   </div>
+   ──────────────────────────────────────────────────────────── */
+
+.code-walk {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  margin: var(--space-8) 0;
+}
+
+.code-walk-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-light);
+}
+.code-walk-header::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-gradient);
+  flex-shrink: 0;
+}
+.code-walk-file {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.code-walk-step {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  grid-template-rows: auto auto;
+  gap: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-6);
+  position: relative;
+}
+.code-walk-step:last-child { margin-bottom: 0; }
+
+/* Vertical line connecting the step numbers */
+.code-walk-step:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: calc(-1 * var(--space-6) + var(--space-2));
+  width: 2px;
+  background: linear-gradient(180deg, var(--color-accent) 0%, var(--color-border) 100%);
+  opacity: 0.3;
+}
+
+.code-walk-step-num {
+  grid-row: 1 / 3;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-accent-gradient);
+  color: white;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 4px 10px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.code-walk-code {
+  grid-column: 2;
+  grid-row: 1;
+  background: linear-gradient(135deg, #2E2A4A 0%, #1A1825 100%);
+  color: #E2DFFF;
+  border-radius: var(--radius-md);
+  padding: var(--space-4) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 8px rgba(60, 50, 40, 0.08);
+  margin: 0;
+}
+.code-walk-code code {
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.code-walk-explanation {
+  grid-column: 2;
+  grid-row: 2;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--color-accent) 4%, var(--color-surface)) 0%,
+    var(--color-surface) 100%);
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+.code-walk-explanation p {
+  margin: 0;
+}
+.code-walk-explanation p + p {
+  margin-top: var(--space-2);
+}
+.code-walk-explanation strong {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* Mobile: stack so it still works on small screens */
+@media (max-width: 640px) {
+  .code-walk-step {
+    grid-template-columns: 1fr;
+  }
+  .code-walk-step-num {
+    grid-row: 1;
+    margin-bottom: var(--space-2);
+  }
+  .code-walk-code,
+  .code-walk-explanation {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .code-walk-step::before { display: none; }
+}
+
+/* ── LAYOUT UTILITIES — replace inline style="display:grid..."  */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+.bento-grid > .bento-2 { grid-column: span 2; }
+.bento-grid > .bento-3 { grid-column: span 3; }
+.bento-grid > .bento-4 { grid-column: span 4; }
+.bento-grid > .bento-6 { grid-column: span 6; }
+
+.grid-2-cols,
+.grid-3-cols {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-8) 0;
+}
+.grid-2-cols { grid-template-columns: repeat(2, 1fr); }
+.grid-3-cols { grid-template-columns: repeat(3, 1fr); }
+
+.grid-main-side {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-6);
+  margin: var(--space-8) 0;
+}
+
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.section-spacing { margin: var(--space-8) 0; }
+
+@media (max-width: 768px) {
+  .bento-grid > * { grid-column: span 6; }
+  .grid-2-cols, .grid-3-cols, .grid-main-side {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── BACKDROP-FILTER FALLBACK ──────────────────────────────────
+   Firefox <103 and Safari <17 don't support backdrop-filter.
+   Provide a solid fallback so the nav and tooltips remain readable.
+   ──────────────────────────────────────────────────────────── */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav {
+    background: color-mix(in srgb, var(--color-bg) 98%, transparent);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .term-tooltip {
+    /* tooltip already has solid dark background; no change needed */
+  }
+}
+
+/* ── QUIZ FEEDBACK: auto height (was capped at 200px) ────────── */
+.quiz-feedback.show {
+  max-height: none;
+  height: auto;
+}
+
+/* ── COURSE LANDING / MODULE 0 ──────────────────────────────── */
+.module-landing {
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-warm) 100%) !important;
+}
+.module-eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-accent);
+  margin-bottom: var(--space-3);
+  font-weight: 600;
+}
+.module-title-hero {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+  background: var(--color-accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.module-subtitle-hero {
+  font-size: clamp(1.125rem, 1.8vw, 1.5rem);
+  color: var(--color-text-secondary);
+  max-width: 64ch;
+  line-height: 1.5;
+  margin-bottom: var(--space-12);
+}
+
+/* Table of contents on landing */
+.course-toc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 var(--space-12);
+}
+.toc-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF8 100%);
+  border: 1px solid var(--color-border-glass);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+.toc-item:hover {
+  transform: translateX(6px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-border));
+}
+.toc-num {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  background: var(--color-accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.toc-body strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+.toc-body p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.module-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-lg);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+}
+
+/* ── INTER-MODULE NAVIGATION (Continue CTA) ─────────────────── */
+.module-nav-end {
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.module-continue-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--color-accent-gradient);
+  background-size: 200% 200%;
+  color: white;
+  box-shadow:
+    0 8px 20px color-mix(in srgb, var(--color-accent) 30%, transparent),
+    var(--shadow-inner-glow);
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+.module-continue-btn:hover {
+  transform: translateY(-2px);
+  background-position: 100% 50%;
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--color-accent) 40%, transparent),
+    var(--shadow-inner-glow);
+}
+.module-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast);
+}
+.module-back-link:hover {
+  color: var(--color-accent);
+}

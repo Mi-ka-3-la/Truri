@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avise Monorepo — Patterns & Gaps</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FBF8F3; --surface: #FFFFFF; --border: #E8E0D4;
+      --text: #1F1D1B; --muted: #6B6560; --subtle: #9E9690;
+      --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius: 16px; --radius-sm: 8px;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(251,248,243,0.9); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); height: 56px; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .nav-back { font-size: 0.78rem; font-weight: 600; color: var(--subtle); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: color 0.15s; }
+    .nav-back:hover { color: var(--muted); }
+    .nav-title { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; letter-spacing: -0.02em; }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-tab { font-size: 0.8rem; font-weight: 600; padding: 5px 14px; border-radius: 99px; border: 1.5px solid transparent; cursor: pointer; transition: all 0.15s; background: transparent; color: var(--muted); font-family: var(--font-body); }
+    .nav-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+    .nav-tab:hover:not(.active) { border-color: var(--border); }
+
+    .summary { max-width: 960px; margin: 0 auto; padding: 48px 2rem 32px; }
+    .summary-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--subtle); margin-bottom: 12px; }
+    .summary-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 16px; }
+    .summary-stats { display: flex; gap: 32px; flex-wrap: wrap; margin-top: 20px; }
+    .stat { display: flex; flex-direction: column; gap: 2px; }
+    .stat-num { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; }
+    .stat-label { font-size: 0.75rem; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+
+    .toolbar { max-width: 960px; margin: 0 auto; padding: 0 2rem 24px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .filter-pill { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 99px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; font-family: var(--font-body); }
+    .filter-pill.active, .filter-pill:hover { border-color: var(--text); color: var(--text); }
+    .filter-pill.active { background: var(--text); color: var(--bg); }
+    .search-box { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 6px 12px; min-width: 200px; }
+    .search-box input { border: none; outline: none; font-family: var(--font-body); font-size: 0.85rem; background: transparent; color: var(--text); width: 100%; }
+    .search-box svg { width: 14px; height: 14px; color: var(--subtle); flex-shrink: 0; }
+
+    .section { max-width: 960px; margin: 0 auto; padding: 0 2rem 64px; }
+    .section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .section-header h2 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--muted); }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+    .section-count { font-size: 0.75rem; color: var(--subtle); font-weight: 600; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (max-width: 700px) { .cards-grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; gap: 16px; transition: box-shadow 0.18s, transform 0.18s; }
+    .card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .card[hidden] { display: none !important; }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; border: 1.5px solid transparent; display: inline-flex; align-items: center; gap: 4px; }
+    .badge svg { width: 10px; height: 10px; }
+    .effort { font-size: 0.7rem; font-weight: 600; color: var(--subtle); background: var(--bg); border: 1.5px solid var(--border); padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+    .card-title { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.3; }
+    .card-problem { font-size: 0.85rem; color: var(--muted); line-height: 1.55; font-style: italic; }
+    .card-solution { font-size: 0.88rem; line-height: 1.6; color: var(--text); }
+    .card-code { background: #1E1E2E; border-radius: var(--radius-sm); padding: 16px; overflow-x: auto; }
+    .card-code pre { font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.6; color: #CDD6F4; white-space: pre; }
+    .card-code .file-ref { font-family: var(--font-mono); font-size: 0.7rem; color: #6C7086; margin-bottom: 8px; }
+    .card-where { display: flex; flex-wrap: wrap; gap: 6px; }
+    .where-chip { font-family: var(--font-mono); font-size: 0.7rem; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 2px 8px; color: var(--muted); }
+    .card-rules { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .rule-block { background: var(--bg); border-radius: var(--radius-sm); padding: 12px; }
+    .rule-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--subtle); margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+    .rule-label svg { width: 11px; height: 11px; }
+    .rule-block ul { padding-left: 14px; }
+    .rule-block li { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin-bottom: 2px; }
+    .card-divider { height: 1px; background: var(--border); }
+
+    .gap-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; gap: 14px; transition: box-shadow 0.18s, transform 0.18s; }
+    .gap-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.06); transform: translateY(-2px); }
+    .gap-card[hidden] { display: none !important; }
+    .gap-why { font-size: 0.85rem; color: var(--muted); line-height: 1.55; }
+    .gap-fix { background: var(--bg); border-left: 3px solid var(--border); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 12px 14px; }
+    .gap-fix-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--subtle); margin-bottom: 4px; }
+    .gap-fix p { font-size: 0.83rem; line-height: 1.55; color: var(--text); }
+
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 64px 24px; color: var(--subtle); }
+    .empty-state p { font-size: 0.9rem; }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .card, .gap-card { animation: fadeUp 0.35s ease forwards; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../../index.html" class="nav-back">← All courses</a>
+  <span class="nav-title">Avise Monorepo</span>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchPanel('patterns', this)">Patterns &amp; Innovations</button>
+    <button class="nav-tab" onclick="switchPanel('gaps', this)">Gaps</button>
+  </div>
+</nav>
+
+<div class="summary">
+  <p class="summary-eyebrow">Knowledge catalog · May 2026</p>
+  <h1 class="summary-title">Avise Monorepo<br>Patterns &amp; Gaps</h1>
+  <div class="summary-stats">
+    <div class="stat"><span class="stat-num">8</span><span class="stat-label">Patterns</span></div>
+    <div class="stat"><span class="stat-num">3</span><span class="stat-label">Innovations</span></div>
+    <div class="stat"><span class="stat-num">9</span><span class="stat-label">Gaps</span></div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="filter-pills" id="filter-pills">
+    <button class="filter-pill active" data-filter="all" onclick="filterCards(this)">All</button>
+    <button class="filter-pill" data-filter="architecture" onclick="filterCards(this)">Architecture</button>
+    <button class="filter-pill" data-filter="performance" onclick="filterCards(this)">Performance</button>
+    <button class="filter-pill" data-filter="testing" onclick="filterCards(this)">Testing</button>
+    <button class="filter-pill" data-filter="auth" onclick="filterCards(this)">Auth</button>
+    <button class="filter-pill" data-filter="data" onclick="filterCards(this)">Data</button>
+    <button class="filter-pill" data-filter="api" onclick="filterCards(this)">API</button>
+  </div>
+  <div class="search-box">
+    <i data-lucide="search"></i>
+    <input type="text" placeholder="Search..." oninput="searchCards(this.value)" id="search-input">
+  </div>
+</div>
+
+<!-- PATTERNS PANEL -->
+<div class="panel active" id="panel-patterns">
+  <div class="section">
+    <div class="section-header">
+      <h2>Patterns &amp; Innovations</h2>
+      <div class="section-line"></div>
+      <span class="section-count" id="visible-patterns-count">11 shown</span>
+    </div>
+    <div class="cards-grid" id="patterns-grid">
+
+      <!-- PATTERN 1: asyncMapInChunks -->
+      <div class="card" data-category="performance">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFF3E0;color:#B85C00;border-color:#F5D08A"><i data-lucide="zap"></i>Performance</span>
+          </div>
+          <span class="effort">Effort: S — Copy-paste</span>
+        </div>
+        <h3 class="card-title">Chunked Async Map with Fail-Fast</h3>
+        <p class="card-problem">Problem: Processing large arrays with full parallelism causes DB/API overload; sequential processing is too slow.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">Break the array into chunks of configurable size. Within each chunk, all items run in parallel via <code style="font-family:var(--font-mono);font-size:0.85em">Promise.allSettled</code>. Chunks execute sequentially. An optional <code style="font-family:var(--font-mono);font-size:0.85em">failFaster</code> flag stops processing on the first rejection.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-shared-utils/src/promiseUtil/index.ts</div>
+          <pre>async function asyncMapInChunks&lt;X, Y&gt;(
+  array: X[],
+  callback: (x: X, idx: number, sub: X[]) => Promise&lt;Y&gt;,
+  chunkSize: number = array.length,
+  failFaster: boolean = false,
+): Promise&lt;Array&lt;Y&gt;&gt; {
+  const results = [];
+  for (let start = 0; start &lt; array.length; start += chunkSize) {
+    const subArray = array.slice(start, start + chunkSize);
+    const res = await Promise.allSettled(
+      subArray.map((elem, idx, sub) => callback(elem, start + idx, sub))
+    );
+    for (const settled of res) {
+      if (settled.status === 'rejected' &amp;&amp; failFaster) throw settled.reason;
+      // collect results...
+    }
+  }
+  return results;
+}</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-api/src/ai/index.ts</span>
+            <span class="where-chip">avise-api/src/data/taskAccounts.ts</span>
+            <span class="where-chip">avise-shared-utils/promiseUtil</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Processing files, uploads, or DB writes in batches</li>
+              <li>External API calls with rate limits</li>
+              <li>Parallel work that could overload a connection pool</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>When order of side-effects matters within a chunk — use <code style="font-family:var(--font-mono);font-size:0.85em">asyncMapSequential</code></li>
+              <li>Tiny arrays where overhead isn't worth it</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATTERN 2: Exponential Backoff -->
+      <div class="card" data-category="api">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#E0F7F0;color:#1A7A5E;border-color:#8AD5C0"><i data-lucide="plug"></i>API</span>
+          </div>
+          <span class="effort">Effort: S — Copy-paste</span>
+        </div>
+        <h3 class="card-title">Exponential Backoff with shouldRetry Predicate</h3>
+        <p class="card-problem">Problem: External API calls fail transiently. A generic retry loop doesn't know when to retry vs. bail out immediately.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">A typed backoff utility accepts an optional <code style="font-family:var(--font-mono);font-size:0.85em">shouldRetryFn</code> predicate that receives both <code style="font-family:var(--font-mono);font-size:0.85em">error</code> and <code style="font-family:var(--font-mono);font-size:0.85em">response</code>. This covers both thrown errors AND non-throwing failures (e.g. a 200 with an error payload in the body). Delay doubles on each attempt starting from a configurable <code style="font-family:var(--font-mono);font-size:0.85em">initialDelayMs</code>.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-shared-utils/src/exponentialBackoff/index.ts</div>
+          <pre>await exponentialBackoff({
+  func: () => callExternalApi(payload),
+  shouldRetryFn: ({ error, response }) => {
+    if (error) return isTransientError(error);
+    // Also retry on soft errors in 200 responses
+    return response?.status === 'RETRY';
+  },
+  initialDelayMs: 200,
+  maxAttempts: 4,
+});</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-shared-utils/exponentialBackoff</span>
+            <span class="where-chip">avise-api external integrations</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any external HTTP call (QBO, NS, LLM providers)</li>
+              <li>When the failure mode includes soft errors in 200 responses</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Internal DB calls — use Prisma's built-in retry</li>
+              <li>Idempotency not guaranteed on the target</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATTERN 3: Facet Config -->
+      <div class="card" data-category="architecture">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFF0E6;color:#8B4513;border-color:#F5C899"><i data-lucide="layers"></i>Architecture</span>
+          </div>
+          <span class="effort">Effort: M — Adapt</span>
+        </div>
+        <h3 class="card-title">Facet-Aware Lazy Singleton Config</h3>
+        <p class="card-problem">Problem: One binary runs as multiple roles (REST API, BullMQ worker, Argo Workflow runner). Each role needs different env vars validated — but sharing one giant config makes all roles require all vars.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">A <code style="font-family:var(--font-mono);font-size:0.85em">facet</code> env var identifies the current role at startup. Config is composed from modular <code style="font-family:var(--font-mono);font-size:0.85em">ConfigSpec</code> objects per category (ai, auth, redis, etc). Validation errors are fatal in production for the "main" facet but only warnings locally. The singleton is cached after first call via <code style="font-family:var(--font-mono);font-size:0.85em">createLazyConfig</code>.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-api/src/config/index.ts</div>
+          <pre>const facet = Config.config.facet || 'main';
+
+if (isLocal &amp;&amp; facet === 'main') {
+  logger.warn('[Config] Invalid local config — see issues below.');
+  // Show warnings, don't crash
+  return;
+}
+
+if (facet === 'main') {
+  logger.error('[Config] Failing fast: prod config error for main facet.');
+  process.exit(1);
+}
+// Other facets: log and continue</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-api/src/config/</span>
+            <span class="where-chip">avise-shared-utils/src/config/</span>
+            <span class="where-chip">qbo-sync, ns-sync, operation-tracking</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>One repo, multiple deployment roles</li>
+              <li>Gradual config hardening (warn local, fail prod)</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Simple single-role services</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATTERN 4: makeFake* Test Factory -->
+      <div class="card" data-category="testing">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#E8F5E0;color:#3A7A1A;border-color:#ADE0AD"><i data-lucide="test-tube"></i>Testing</span>
+          </div>
+          <span class="effort">Effort: S — Copy-paste</span>
+        </div>
+        <h3 class="card-title">makeFake* Typed Test Factory</h3>
+        <p class="card-problem">Problem: Creating test objects by hand is verbose, breaks when types change, and produces inconsistent defaults across tests.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">Factory functions named <code style="font-family:var(--font-mono);font-size:0.85em">makeFake{Entity}</code> return a fully-typed object with sensible defaults. Tests pass only the fields they care about via a partial override. Used on both frontend (renderWithProviders, setupMsw) and backend (mockDataUnit) uniformly across the monorepo.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-api/src/mockDataUnit/taskUnitData.ts</div>
+          <pre>function makeFakeTask(overrides: Partial&lt;Task&gt; = {}): Task {
+  return {
+    id: 'task-123',
+    status: 'open',
+    assigneeId: 'user-456',
+    companyId: 'company-789',
+    dueDate: new Date('2026-01-01'),
+    ...overrides,
+  };
+}
+
+// In a test:
+const task = makeFakeTask({ status: 'closed' });</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-api/src/mockDataUnit/</span>
+            <span class="where-chip">avise-web/src/mocks/</span>
+            <span class="where-chip">test-toolkit workspace</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any new entity added to the system</li>
+              <li>Integration tests that need DB-seeded data</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Don't use in production code paths</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATTERN 5: AI Tool Registry -->
+      <div class="card" data-category="architecture">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFF0E6;color:#8B4513;border-color:#F5C899"><i data-lucide="layers"></i>Architecture</span>
+          </div>
+          <span class="effort">Effort: M — Adapt</span>
+        </div>
+        <h3 class="card-title">Pluggable Tool Registry for LLM Agents</h3>
+        <p class="card-problem">Problem: AI tools need to be registered, swapped at runtime (stub → full), and their schemas extracted — without the orchestration loop knowing the details of each tool.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">A <code style="font-family:var(--font-mono);font-size:0.85em">ToolRegistry</code> class wraps a <code style="font-family:var(--font-mono);font-size:0.85em">Map&lt;name, tool&gt;</code>. Tools implement a <code style="font-family:var(--font-mono);font-size:0.85em">GenericTool</code> interface with a <code style="font-family:var(--font-mono);font-size:0.85em">getSchema()</code> method. The registry supports replace-or-skip registration, bulk schema export, and can produce a new registry with stub tools replaced by their full implementations mid-loop.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-api/src/ai/tools/registry.ts</div>
+          <pre>const registry = new ToolRegistry(allTools);
+
+// Mid-loop: swap stubs for full tools
+if (registry.areAnyToolsStub(toolCalls)) {
+  toolRegistry = registry
+    .getNewRegistryWithStubToolsReplaced(toolCalls);
+  continue; // re-enter loop with full tools
+}
+
+// Export all schemas for LLM
+const schemas = registry.getAllSchemas();</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-api/src/ai/index.ts</span>
+            <span class="where-chip">avise-api/src/ai/tools/</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any project with a dynamic set of LLM tools</li>
+              <li>When tools need context-dependent availability</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Static, never-changing tool sets — plain array is simpler</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATTERN 6: useXForm -->
+      <div class="card" data-category="architecture">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFF0E6;color:#8B4513;border-color:#F5C899"><i data-lucide="layers"></i>Architecture</span>
+          </div>
+          <span class="effort">Effort: S — Copy-paste</span>
+        </div>
+        <h3 class="card-title">useXForm — Custom Hook Wrapping react-hook-form</h3>
+        <p class="card-problem">Problem: Complex forms leak validation logic, field defaults, and submit handlers into page components, making them hard to test and reuse.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">Each form gets a <code style="font-family:var(--font-mono);font-size:0.85em">use{PageName}Form</code> hook that wraps <code style="font-family:var(--font-mono);font-size:0.85em">useForm</code>, encapsulates validation rules and defaults, and exposes only what the UI component needs. For forms with nested table fields, the hook is combined with <code style="font-family:var(--font-mono);font-size:0.85em">FormProvider</code> so deeply nested fields can access the form context via <code style="font-family:var(--font-mono);font-size:0.85em">useFormContext</code>.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-web/src/pages/tasks/useTaskForm.ts</div>
+          <pre>function useTaskForm(task?: Task) {
+  const form = useForm&lt;TaskFormValues&gt;({
+    defaultValues: {
+      assigneeId: task?.assigneeId ?? '',
+      dueDate: task?.dueDate ?? null,
+    },
+  });
+
+  const handleSubmit = form.handleSubmit(async (values) => {
+    await createTask(values);
+  });
+
+  return { form, handleSubmit };
+}
+
+// In JSX:
+const { form, handleSubmit } = useTaskForm();
+return &lt;FormProvider {...form}&gt;...&lt;/FormProvider&gt;;</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-web/src/pages/</span>
+            <span class="where-chip">DESIGN-PATTERNS.md</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any form with 3+ fields or complex validation</li>
+              <li>Forms whose fields live inside tables</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Single-field forms — inline <code style="font-family:var(--font-mono);font-size:0.85em">useForm</code> is fine</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATTERN 7: cleanContextForStorage -->
+      <div class="card" data-category="data">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#E6F0FF;color:#2A5B9B;border-color:#B8D0F5"><i data-lucide="database"></i>Data</span>
+          </div>
+          <span class="effort">Effort: S — Copy-paste</span>
+        </div>
+        <h3 class="card-title">Selective State Stripping Before Persistence</h3>
+        <p class="card-problem">Problem: Runtime objects include S3 keys, file buffers, and provider credentials that must never be written to the database.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">A <code style="font-family:var(--font-mono);font-size:0.85em">cleanXForStorage</code> function explicitly lists which fields to keep and drops everything else via object construction (not deletion). This makes what's stored intentional and auditable, not an accident of omission.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-api/src/ai/index.ts</div>
+          <pre>function cleanContextForStorage(
+  context: AI.RequestContext
+): AI.RequestContext {
+  const cleanedFiles = context.attachedFiles?.map((file) => ({
+    fileName: file.fileName,
+    contentType: file.contentType,
+    sizeInBytes: file.sizeInBytes,
+    aviseFileId: file.aviseFileId,
+    // Excluded: buffer, s3Key, s3Location, fileContent
+  }));
+  return { ...context, attachedFiles: cleanedFiles };
+}</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-api/src/ai/index.ts</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any object that mixes runtime data with persistent data</li>
+              <li>Before any DB write of AI/file context</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>When the full object is always safe to persist</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATTERN 8: Operation Tracking -->
+      <div class="card" data-category="architecture">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFF0E6;color:#8B4513;border-color:#F5C899"><i data-lucide="layers"></i>Architecture</span>
+          </div>
+          <span class="effort">Effort: M — Adapt</span>
+        </div>
+        <h3 class="card-title">Lightweight Event Sourcing for Long-Running Operations</h3>
+        <p class="card-problem">Problem: Long-running async jobs (sync, ingest, export) have no observable state — if they fail mid-way, there's no record of how far they got.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">Each operation is a typed entity with a list of <code style="font-family:var(--font-mono);font-size:0.85em">OperationEvent</code>s appended over its lifetime. Events are stored in the DB (or S3 for large payloads). The operation can be queried for its current state by replaying events. Used in Argo Workflow jobs and async AI operations.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-shared-utils/src/operationTracking/index.ts</div>
+          <pre>// Create an operation
+const op = await createOperationAndEvents({
+  operation: { id: uuid(), type: 'ingest', companyId },
+  events: [{ eventType: 'started', createdBy: userId }],
+});
+
+// Append progress events
+await saveEventForOperation(op.id, {
+  eventType: 'file_processed',
+  eventData: { fileId, rowCount },
+});
+
+// Later: resolve
+await updateOperation(op.id, {
+  resolution: 'success',
+  completedAt: new Date(),
+});</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-shared-utils/operationTracking</span>
+            <span class="where-chip">avise-api/src/argoWorkflows/</span>
+            <span class="where-chip">operation-tracking workspace</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any job running longer than a single request</li>
+              <li>When you need an audit trail of what happened</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Short synchronous operations — overhead not worth it</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- INNOVATION 1: Allspice DSL -->
+      <div class="card" data-category="auth">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#F0E6FF;color:#6B3AAD;border-color:#D0B8F5"><i data-lucide="shield"></i>Auth</span>
+            <span class="badge" style="background:#FFFBE6;color:#8B6914;border-color:#F5E0A0"><i data-lucide="zap"></i>Innovation</span>
+          </div>
+          <span class="effort">Effort: L — Significant</span>
+        </div>
+        <h3 class="card-title">Allspice DSL — Type-Safe SpiceDB Bindings</h3>
+        <p class="card-problem">Problem: SpiceDB (Zanzibar-style authorization) has no TypeScript SDK that enforces schema correctness at compile time — permissions can be mis-spelled, resources miswired.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">Avise built a custom DSL compiler (<code style="font-family:var(--font-mono);font-size:0.85em">allspice</code> workspace) that reads the SpiceDB schema and generates fully-typed TypeScript bindings. Callers get compile-time guarantees that resource types, relations, and permissions are valid. The generated types (<code style="font-family:var(--font-mono);font-size:0.85em">ResourceRelations</code>, <code style="font-family:var(--font-mono);font-size:0.85em">ResourcePermissions</code>) are imported by the authorization client. This approach is unique in the ecosystem.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-api/src/authorization/authorizationClient.ts</div>
+          <pre>import {
+  ResourcePermissions,
+  ResourceRelations,
+} from '../generated/allspice/types';
+
+// All calls are type-checked against the schema:
+await authzedClient.writeRelationships&lt;
+  ResourceRelations,
+  ResourcePermissions,
+  'task',        // ← compile error if not a real resource
+  'assignee'     // ← compile error if not a real relation
+&gt;(relationships);</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">allspice/ workspace</span>
+            <span class="where-chip">avise-api/src/authorization/</span>
+            <span class="where-chip">avise-api/src/generated/allspice/</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any new project using SpiceDB for authorization</li>
+              <li>Worth porting to any project where permission bugs are high-risk</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Simple role-based access (RBAC) — overkill</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- INNOVATION 2: Stub Tool Pattern -->
+      <div class="card" data-category="performance">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFF3E0;color:#B85C00;border-color:#F5D08A"><i data-lucide="zap"></i>Performance</span>
+            <span class="badge" style="background:#FFFBE6;color:#8B6914;border-color:#F5E0A0"><i data-lucide="zap"></i>Innovation</span>
+          </div>
+          <span class="effort">Effort: M — Adapt</span>
+        </div>
+        <h3 class="card-title">Stub Tool Pattern for LLM Token Budget Control</h3>
+        <p class="card-problem">Problem: Giving an LLM 20+ full tool schemas in every request wastes tokens and degrades response quality — but the LLM needs to know what tools exist.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">Stub tools have a tiny schema with only a name and minimal description. When the LLM calls a stub, the orchestration loop detects it, upgrades the registry to replace stubs with full implementations, and re-enters the loop with the same messages — the LLM then calls the real tool with full parameter knowledge. Token cost is paid only for tools actually used.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-api/src/ai/index.ts (simplified)</div>
+          <pre>// MAX_ITERATIONS accounts for extra stub-upgrade loops
+const MAX_ITERATIONS = MAX_TOOL_CALLS + stubToolCount + 2;
+
+// In the AI loop:
+if (toolRegistry.areAnyToolsStub(toolCalls)) {
+  toolRegistry =
+    toolRegistry.getNewRegistryWithStubToolsReplaced(toolCalls);
+  // Do NOT save messages — re-enter loop transparently
+  continue;
+}</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-api/src/ai/index.ts</span>
+            <span class="where-chip">avise-api/src/ai/tools/registry.ts</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>10+ tools available to an LLM agent</li>
+              <li>When tool selection is highly context-dependent</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Fewer than 8 tools — full schemas are fine</li>
+              <li>When the LLM needs to see all options simultaneously</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- INNOVATION 3: WebSocket Async AI Chat -->
+      <div class="card" data-category="architecture">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFF0E6;color:#8B4513;border-color:#F5C899"><i data-lucide="layers"></i>Architecture</span>
+            <span class="badge" style="background:#FFFBE6;color:#8B6914;border-color:#F5E0A0"><i data-lucide="zap"></i>Innovation</span>
+          </div>
+          <span class="effort">Effort: L — Significant</span>
+        </div>
+        <h3 class="card-title">WebSocket-Based Async Event-Driven AI Chat</h3>
+        <p class="card-problem">Problem: HTTP request/response for AI chat causes timeouts on long tool chains and gives no feedback to the user while the LLM thinks.</p>
+        <div class="card-divider"></div>
+        <p class="card-solution">AI chat was refactored (SC-8148) from synchronous HTTP to a WebSocket-based event-driven model. The client opens a persistent connection, the server pushes typed events (thinking, tool_call, artifact, done) as they happen. This eliminates timeout issues, enables streaming feedback, and allows the frontend to react to intermediate states without polling.</p>
+        <div class="card-code">
+          <div class="file-ref">// avise-shared-utils/src/websocket/ + avise-api/src/ai/</div>
+          <pre>// Server pushes typed events as they occur:
+ws.send({ type: 'tool_call', toolName: 'findJournalEntries' });
+ws.send({ type: 'artifact', artifact: tableData });
+ws.send({ type: 'message', content: assistantText });
+ws.send({ type: 'done' });
+
+// Client handles each event type independently,
+// updating UI progressively without waiting for completion.</pre>
+        </div>
+        <div>
+          <div class="rule-label" style="margin-bottom:8px"><i data-lucide="map-pin"></i> Used in</div>
+          <div class="card-where">
+            <span class="where-chip">avise-shared-utils/src/websocket/</span>
+            <span class="where-chip">avise-api/src/ai/</span>
+            <span class="where-chip">avise-web AI chat panel</span>
+          </div>
+        </div>
+        <div class="card-rules">
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="check-circle"></i> When to use</div>
+            <ul>
+              <li>Any AI flow with tool calls that take 5+ seconds</li>
+              <li>When progressive feedback matters to the user</li>
+            </ul>
+          </div>
+          <div class="rule-block">
+            <div class="rule-label"><i data-lucide="x-circle"></i> When NOT to use</div>
+            <ul>
+              <li>Simple, fast AI calls — SSE or HTTP streaming is simpler</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" id="patterns-empty" hidden><p>No patterns match this filter.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- GAPS PANEL -->
+<div class="panel" id="panel-gaps">
+  <div class="section">
+    <div class="section-header">
+      <h2>Gaps &amp; Technical Debt</h2>
+      <div class="section-line"></div>
+      <span class="section-count" id="visible-gaps-count">9 shown</span>
+    </div>
+    <div class="cards-grid" id="gaps-grid">
+
+      <!-- GAP 1 -->
+      <div class="gap-card" data-category="tech-debt" data-priority="high">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#F5F0FF;color:#5A3AAD;border-color:#D0B8F5"><i data-lucide="clock"></i>Tech Debt</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#FFE8E8;color:#B83030;border-color:transparent">High</span>
+            <span class="effort">Effort: L</span>
+          </div>
+        </div>
+        <h3 class="card-title">V2 Journal Entry API Has Large Sections Commented Out</h3>
+        <p class="gap-why">The V2 JE endpoints have 8+ blocks of commented-out code in journalEntries.ts marked "Commenting this out until we get to supporting it." This means V1 and V2 coexist with overlapping responsibilities, increasing the risk of behavior divergence and making the codebase harder to reason about.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Audit which commented-out V2 functions are still needed. Implement the missing pieces, then deprecate and remove V1 endpoints. Set a target date to complete V1 deprecation — the longer it runs in parallel, the more bugs will appear only on one version.</p>
+        </div>
+      </div>
+
+      <!-- GAP 2 -->
+      <div class="gap-card" data-category="reliability" data-priority="high">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFE8E8;color:#B83030;border-color:#F5ADAD"><i data-lucide="activity"></i>Reliability</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#FFE8E8;color:#B83030;border-color:transparent">High</span>
+            <span class="effort">Effort: M</span>
+          </div>
+        </div>
+        <h3 class="card-title">BullMQ Sync Jobs Not Yet Migrated to Argo Workflows</h3>
+        <p class="gap-why">Both <code style="font-family:var(--font-mono);font-size:0.85em">nsSyncCompany.ts</code> and <code style="font-family:var(--font-mono);font-size:0.85em">qboSyncCompany.ts</code> have TODOs to migrate to Argo Workflow operations. Until then, sync failures don't benefit from Argo's retry/observability infrastructure. A failed BullMQ job silently stops while Argo would retry with full event tracking.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Create Argo Workflow templates for NS Sync and QBO Sync following the existing <code style="font-family:var(--font-mono);font-size:0.85em">argoWorkflowOperation</code> pattern in avise-shared-utils. Wire up operation tracking events. Remove the BullMQ job implementations once Argo is confirmed stable.</p>
+        </div>
+      </div>
+
+      <!-- GAP 3 -->
+      <div class="gap-card" data-category="reliability" data-priority="medium">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFE8E8;color:#B83030;border-color:#F5ADAD"><i data-lucide="activity"></i>Reliability</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#FFF3E0;color:#B85C00;border-color:transparent">Medium</span>
+            <span class="effort">Effort: S</span>
+          </div>
+        </div>
+        <h3 class="card-title">Missing Unique Constraint on Accrual Period-Number</h3>
+        <p class="gap-why">A TODO in <code style="font-family:var(--font-mono);font-size:0.85em">accrualReconciliationSummary.ts</code> notes that there's no DB constraint enforcing only ONE accrual per period-accrual number. Without it, a race condition or bug can produce duplicate accruals that silently corrupt financial statements.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Add a unique constraint on the <code style="font-family:var(--font-mono);font-size:0.85em">(companyId, periodId, accrualNumber)</code> columns in the accrual table via a Prisma migration. Run a data validation query first to confirm no existing violations before applying.</p>
+        </div>
+      </div>
+
+      <!-- GAP 4 -->
+      <div class="gap-card" data-category="tech-debt" data-priority="medium">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#F5F0FF;color:#5A3AAD;border-color:#D0B8F5"><i data-lucide="clock"></i>Tech Debt</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#FFF3E0;color:#B85C00;border-color:transparent">Medium</span>
+            <span class="effort">Effort: M</span>
+          </div>
+        </div>
+        <h3 class="card-title">Business Logic Leaking Into Controllers</h3>
+        <p class="gap-why">A TODO in <code style="font-family:var(--font-mono);font-size:0.85em">journalEntryController.ts</code> flags business logic (which JE statuses to use) sitting directly in the controller layer. This makes the logic harder to test in isolation and breaks when status semantics change.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Extract the status selection logic into a service function with its own unit test. The controller should call the service and pass the result through — it shouldn't know the business rules for which status applies when.</p>
+        </div>
+      </div>
+
+      <!-- GAP 5 -->
+      <div class="gap-card" data-category="reliability" data-priority="medium">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFE8E8;color:#B83030;border-color:#F5ADAD"><i data-lucide="activity"></i>Reliability</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#FFF3E0;color:#B85C00;border-color:transparent">Medium</span>
+            <span class="effort">Effort: M</span>
+          </div>
+        </div>
+        <h3 class="card-title">Batch Updates Are All-or-Nothing — No Partial Success</h3>
+        <p class="gap-why">The <code style="font-family:var(--font-mono);font-size:0.85em">updateEntries</code> service wraps all updates in a single DB transaction. A TODO notes this means callers can't distinguish "some succeeded" from "none succeeded". For large batches, one bad row rolls back everything.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Decide deliberately: either keep all-or-nothing and document it clearly in the API contract, or split into per-item transactions that return <code style="font-family:var(--font-mono);font-size:0.85em">&#123; succeeded: [], failed: [] &#125;</code>. The current behaviour is a silent surprise — at minimum, document it.</p>
+        </div>
+      </div>
+
+      <!-- GAP 6 -->
+      <div class="gap-card" data-category="reliability" data-priority="medium">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#FFE8E8;color:#B83030;border-color:#F5ADAD"><i data-lucide="activity"></i>Reliability</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#FFF3E0;color:#B85C00;border-color:transparent">Medium</span>
+            <span class="effort">Effort: S</span>
+          </div>
+        </div>
+        <h3 class="card-title">Hardcoded Limit of 1000 Recurring Tasks</h3>
+        <p class="gap-why">A TODO in <code style="font-family:var(--font-mono);font-size:0.85em">recurringTaskController.ts</code> acknowledges a hardcoded max of 1000 recurring tasks per update. As firms grow, hitting this silently truncates updates with no error surfaced to the client.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Replace the hardcoded limit with a config value. Add a response field that indicates when the limit was hit (e.g. <code style="font-family:var(--font-mono);font-size:0.85em">truncated: true, totalMatched: N</code>). Long-term, implement cursor-based pagination for bulk recurring task updates.</p>
+        </div>
+      </div>
+
+      <!-- GAP 7 -->
+      <div class="gap-card" data-category="tech-debt" data-priority="low">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#F5F0FF;color:#5A3AAD;border-color:#D0B8F5"><i data-lucide="clock"></i>Tech Debt</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#E8F5E0;color:#3A7A1A;border-color:transparent">Low</span>
+            <span class="effort">Effort: S</span>
+          </div>
+        </div>
+        <h3 class="card-title">Inconsistent Route Component Naming in avise-web</h3>
+        <p class="gap-why">DESIGN-PATTERNS.md documents that routing components alternate between <code style="font-family:var(--font-mono);font-size:0.85em">SomeAreaApp.tsx</code> and <code style="font-family:var(--font-mono);font-size:0.85em">SomeAreaRoutes.tsx</code>. This makes navigation through the component tree non-obvious and slows onboarding.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Standardize on <code style="font-family:var(--font-mono);font-size:0.85em">SomeAreaRoutes.tsx</code> as documented in DESIGN-PATTERNS.md. Rename the <code style="font-family:var(--font-mono);font-size:0.85em">*App.tsx</code> files in a single PR with no logic changes. Update DESIGN-PATTERNS.md to mark this as resolved.</p>
+        </div>
+      </div>
+
+      <!-- GAP 8 -->
+      <div class="gap-card" data-category="tech-debt" data-priority="low">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#F5F0FF;color:#5A3AAD;border-color:#D0B8F5"><i data-lucide="clock"></i>Tech Debt</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#E8F5E0;color:#3A7A1A;border-color:transparent">Low</span>
+            <span class="effort">Effort: S</span>
+          </div>
+        </div>
+        <h3 class="card-title">Unnecessary Intermediate Types in JE Type System</h3>
+        <p class="gap-why">Multiple TODO comments in <code style="font-family:var(--font-mono);font-size:0.85em">avise-api/src/types/</code> and <code style="font-family:var(--font-mono);font-size:0.85em">avise-api/src/services/types/</code> flag overly complex intermediate types (<code style="font-family:var(--font-mono);font-size:0.85em">ShowableTask</code>, <code style="font-family:var(--font-mono);font-size:0.85em">Postable/Draftable</code> casts) that add cognitive overhead without adding safety.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Review each flagged type and determine if it adds value or is an artifact of past refactors. Consolidate where possible. At minimum, replace the cast patterns with proper type narrowing so the compiler enforces correctness instead of trusting the cast.</p>
+        </div>
+      </div>
+
+      <!-- GAP 9 -->
+      <div class="gap-card" data-category="observability" data-priority="medium">
+        <div class="card-top">
+          <div class="card-badges">
+            <span class="badge" style="background:#F0F0F0;color:#4A4A4A;border-color:#C8C8C8"><i data-lucide="eye"></i>Observability</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="badge" style="background:#FFF3E0;color:#B85C00;border-color:transparent">Medium</span>
+            <span class="effort">Effort: M</span>
+          </div>
+        </div>
+        <h3 class="card-title">No Retry or Dead-Letter Queue for Failed Sync Jobs</h3>
+        <p class="gap-why">Until NS Sync and QBO Sync move to Argo, failed BullMQ jobs have no standardized dead-letter queue or alerting. A sync that fails silently means customer data is stale with no notification to the team.</p>
+        <div class="gap-fix">
+          <div class="gap-fix-label">Suggested fix</div>
+          <p>Configure BullMQ's built-in <code style="font-family:var(--font-mono);font-size:0.85em">removeOnFail: false</code> and set up a dead-letter queue processor that fires a DataDog alert or Knock notification when a job lands there. This is a short-term fix until Argo migration is complete.</p>
+        </div>
+      </div>
+
+      <div class="empty-state" id="gaps-empty" hidden><p>No gaps match this filter.</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchPanel(panel, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + panel).classList.add('active');
+    btn.classList.add('active');
+    document.getElementById('search-input').value = '';
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    document.querySelector('.filter-pill[data-filter="all"]').classList.add('active');
+    applyFilters('all', '');
+  }
+
+  let activeFilter = 'all';
+  let activeSearch = '';
+
+  function filterCards(btn) {
+    activeFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    applyFilters(activeFilter, activeSearch);
+  }
+
+  function searchCards(val) {
+    activeSearch = val.toLowerCase();
+    applyFilters(activeFilter, activeSearch);
+  }
+
+  function applyFilters(filter, search) {
+    const activePanel = document.querySelector('.panel.active');
+    const cards = activePanel.querySelectorAll('.card, .gap-card');
+    let shown = 0;
+    cards.forEach(card => {
+      if (card.id && card.id.endsWith('-empty')) return;
+      const catMatch = filter === 'all' || card.dataset.category === filter;
+      const searchMatch = !search || card.textContent.toLowerCase().includes(search);
+      const visible = catMatch && searchMatch;
+      card.hidden = !visible;
+      if (visible) shown++;
+    });
+    const countEl = activePanel.querySelector('[id^="visible-"]');
+    if (countEl) countEl.textContent = shown + ' shown';
+    const emptyEl = activePanel.querySelector('[id$="-empty"]');
+    if (emptyEl) emptyEl.hidden = shown > 0;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+  window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
+</script>
+
+<!-- ADD TO HUB WIDGET -->
+<div style="position:fixed;bottom:24px;right:24px;z-index:500">
+  <button id="hub-btn" style="display:flex;align-items:center;gap:7px;background:#1F1D1B;color:#FBF8F3;border:none;border-radius:99px;padding:9px 18px;font-family:'DM Sans',system-ui,sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.25)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    Add to Hub
+  </button>
+</div>
+<div id="hub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:20px;padding:32px;max-width:620px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.2)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div>
+        <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#9E9690;margin-bottom:6px">Register this page</div>
+        <h2 style="font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:1.2rem;font-weight:800">Add to Hub</h2>
+      </div>
+      <button id="hub-close" style="background:none;border:none;cursor:pointer;color:#9E9690;font-size:1.3rem;line-height:1;padding:4px">✕</button>
+    </div>
+    <p style="font-size:0.84rem;color:#6B6560;line-height:1.6;margin-bottom:16px">Copy this snippet into <code style="font-family:monospace;font-size:0.85em;background:#F0E6FF;color:#6B3AAD;padding:2px 6px;border-radius:4px">Documentation-/index.html</code> inside the <strong>Patterns &amp; Gaps</strong> section.</p>
+    <div style="background:#1E1E2E;border-radius:10px;padding:16px;margin-bottom:16px;overflow-x:auto">
+      <pre id="hub-snippet" style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#CDD6F4;white-space:pre;line-height:1.65;margin:0"></pre>
+    </div>
+    <button id="hub-copy" style="display:inline-flex;align-items:center;gap:7px;background:#1F1D1B;color:#FBF8F3;border:none;border-radius:8px;padding:10px 20px;font-family:'DM Sans',system-ui,sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copy snippet
+    </button>
+  </div>
+</div>
+<script>
+(function() {
+  var snippet = '<a class="course-card card-patterns animate-in" href="patterns/avise-monorepo/index.html">\n  <div class="card-body">\n    <span class="card-tag tag-patterns">\n      <i data-lucide="puzzle"></i> Patterns Catalog\n    </span>\n    <h2 class="card-title">Avise Monorepo — Patterns &amp; Gaps</h2>\n    <p class="card-desc">8 reusable patterns, 3 innovations, and 9 gaps extracted from the\n    Avise monorepo. Filterable by category with live search.</p>\n    <div class="card-meta">\n      <span class="meta-item"><i data-lucide="puzzle"></i> 8 patterns</span>\n      <span class="meta-item"><i data-lucide="zap"></i> 3 innovations</span>\n      <span class="meta-item"><i data-lucide="alert-triangle"></i> 9 gaps</span>\n    </div>\n  </div>\n  <div class="card-cta">\n    <span class="btn-open btn-patterns">Open catalog <i data-lucide="arrow-right"></i></span>\n  </div>\n</a>';
+  document.getElementById('hub-snippet').textContent = snippet;
+  document.getElementById('hub-btn').addEventListener('click', function() { document.getElementById('hub-overlay').style.display = 'flex'; });
+  document.getElementById('hub-close').addEventListener('click', function() { document.getElementById('hub-overlay').style.display = 'none'; });
+  document.getElementById('hub-overlay').addEventListener('click', function(e) { if (e.target === this) this.style.display = 'none'; });
+  document.getElementById('hub-copy').addEventListener('click', function() {
+    navigator.clipboard.writeText(snippet).then(function() {
+      var btn = document.getElementById('hub-copy');
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy snippet'; }, 2000);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

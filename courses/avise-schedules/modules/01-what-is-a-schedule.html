@@ -1,0 +1,497 @@
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h2 class="module-title">What Is a Prepared Schedule?</h2>
+      <p class="module-subtitle">The accounting concept behind every amortization, recognition, and accrual — and how Avise automates it.</p>
+    </header>
+
+    <!-- ── SCREEN 1: HERO VISUAL — THE WATERFALL ─────────────────── -->
+    <div class="screen animate-in">
+      <p style="font-size: var(--text-lg); color: var(--color-text-secondary); margin-bottom: var(--space-4); line-height: var(--leading-snug);">
+        A schedule is a plan for spreading an amount across time — and tracking exactly how much has been recognized at any point.
+      </p>
+
+      <table style="width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:var(--text-sm); margin: var(--space-6) 0; border-radius: var(--radius-md); overflow:hidden; box-shadow: var(--shadow-md);">
+        <thead>
+          <tr style="background:var(--color-bg-code); color:#CDD6F4;">
+            <th style="padding:var(--space-2) var(--space-3); text-align:left; font-weight:600;">Month</th>
+            <th style="padding:var(--space-2) var(--space-3); text-align:right; font-weight:600;">Entry</th>
+            <th style="padding:var(--space-2) var(--space-3); text-align:left; width:45%; font-weight:600;">Remaining</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: rgba(212,168,67,0.04);">
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Jan</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:92%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$11,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Feb</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:83%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$10,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr style="background: rgba(212,168,67,0.04);">
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Mar</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:75%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$9,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Apr</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:67%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$8,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr style="background: rgba(212,168,67,0.04);">
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">May</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:58%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$7,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Jun</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:50%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$6,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr style="background: rgba(212,168,67,0.04);">
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Jul</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:42%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$5,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Aug</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:33%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$4,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr style="background: rgba(212,168,67,0.04);">
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Sep</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:25%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$3,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Oct</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:17%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$2,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr style="background: rgba(212,168,67,0.04);">
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Nov</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-accent); border-radius:4px; width:8%; opacity:0.75;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-secondary); white-space:nowrap;">$1,000</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:var(--space-2) var(--space-3); color: var(--color-text);">Dec</td>
+            <td style="padding:var(--space-2) var(--space-3); text-align:right; color:#A6E3A1;">$1,000</td>
+            <td style="padding:var(--space-2) var(--space-3);">
+              <div style="display:flex; align-items:center; gap: var(--space-2);">
+                <div style="height:12px; background:var(--color-border); border-radius:4px; width:2%; opacity:0.5;"></div>
+                <span style="font-size:var(--text-xs); color:var(--color-text-muted); white-space:nowrap;">$0 ✓</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-accent animate-in">
+        <span class="callout-icon">💡</span>
+        <div class="callout-content">
+          <span class="callout-title">Many names, one pattern</span>
+          <p>
+            In accounting this pattern has many names:
+            <span class="term" data-definition="Amortization: the process of spreading the cost of an intangible asset (like a software license or insurance policy) over its useful life — reducing a Balance Sheet asset each period.">amortization</span>
+            (assets),
+            <span class="term" data-definition="Revenue recognition: the principle that revenue must be recorded in the period it is earned, not when cash is received. A schedule spreads deferred revenue into income over time.">recognition</span>
+            (revenue),
+            <span class="term" data-definition="Accruals: expenses (or revenues) that have been incurred but not yet paid (or received). A schedule can accrue a liability each period and reverse it when cash moves.">accruals</span>
+            (expenses).
+            The schedule is the tool that does the math and records the entries automatically.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 2: THE TWO ACCOUNT TYPES ───────────────────────── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">The Two Accounts Involved</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        Every schedule entry is a
+        <span class="term" data-definition="Journal entry: a formal record of a financial transaction, always consisting of at least one debit and one credit of equal total amounts. Schedules generate these automatically each period.">journal entry</span>
+        — a
+        <span class="term" data-definition="Debit: an accounting entry that increases asset and expense accounts, and decreases liability, equity, and revenue accounts. In double-entry bookkeeping every transaction has equal debits and credits.">debit</span>
+        and a
+        <span class="term" data-definition="Credit: an accounting entry that increases liability, equity, and revenue accounts, and decreases asset and expense accounts. Every debit must be matched by an equal credit.">credit</span>.
+        At least one of those accounts must be a Balance Sheet account — that is the source being drained.
+      </p>
+
+      <div style="display:grid; grid-template-columns:1fr auto 1fr; gap: var(--space-4); align-items:start; margin: var(--space-8) 0;">
+
+        <!-- Balance Sheet Account -->
+        <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-accent);">
+          <div style="display:flex; align-items:center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <div style="width:40px; height:40px; border-radius: var(--radius-sm); background: var(--color-accent-light); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">🏦</div>
+            <div>
+              <div style="font-family:var(--font-mono); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted);">Balance Sheet</div>
+              <div style="font-family:var(--font-display); font-weight:700; font-size:var(--text-base);">
+                <span class="term" data-definition="Balance Sheet account: an account that appears on the Balance Sheet (Assets, Liabilities, Equity). Its balance persists across periods and must eventually drain to zero — that draining is what the schedule automates.">Prepaid Insurance</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:var(--text-sm); display:flex; flex-direction:column; gap: var(--space-1);">
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; border-bottom:1px solid var(--color-border-light); color: var(--color-text);">
+              <span>Jan 1 (start)</span><span style="color: var(--color-accent); font-weight:600;">$12,000</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; border-bottom:1px solid var(--color-border-light); color: var(--color-text-secondary);">
+              <span>After Jan entry</span><span>$11,000</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; border-bottom:1px solid var(--color-border-light); color: var(--color-text-secondary);">
+              <span>After Feb entry</span><span>$10,000</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; color: var(--color-text-muted); font-style:italic;">
+              <span>… each month …</span><span>↓</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; color: var(--color-success); font-weight:600;">
+              <span>Dec 31 (end)</span><span>$0 ✓</span>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-4); font-size: var(--text-xs); color: var(--color-text-muted); font-style:italic;">Asset account — starts full, drains to zero</div>
+        </div>
+
+        <!-- Arrow -->
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top: var(--space-12); gap: var(--space-2);">
+          <div style="font-size: var(--text-xs); font-family: var(--font-mono); color: var(--color-text-muted); text-align:center;">$1,000<br>per month</div>
+          <div style="font-size: var(--text-2xl); color: var(--color-accent);">→</div>
+        </div>
+
+        <!-- Income Statement Account -->
+        <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-info);">
+          <div style="display:flex; align-items:center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <div style="width:40px; height:40px; border-radius: var(--radius-sm); background: var(--color-info-light); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">📊</div>
+            <div>
+              <div style="font-family:var(--font-mono); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted);">Income Statement</div>
+              <div style="font-family:var(--font-display); font-weight:700; font-size:var(--text-base);">
+                <span class="term" data-definition="Income Statement account: an account that appears on the Profit &amp; Loss statement (Revenue, Expense). Its balance resets to zero each period. In a schedule, this account absorbs the periodic amount released from the Balance Sheet.">Insurance Expense</span>
+              </div>
+            </div>
+          </div>
+          <div style="font-family:var(--font-mono); font-size:var(--text-sm); display:flex; flex-direction:column; gap: var(--space-1);">
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; border-bottom:1px solid var(--color-border-light); color: var(--color-text-muted);">
+              <span>Jan 1 (start)</span><span>$0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; border-bottom:1px solid var(--color-border-light); color: var(--color-text-secondary);">
+              <span>After Jan entry</span><span>$1,000</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; border-bottom:1px solid var(--color-border-light); color: var(--color-text-secondary);">
+              <span>After Feb entry</span><span>$2,000</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; color: var(--color-text-muted); font-style:italic;">
+              <span>… each month …</span><span>↑</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding: var(--space-1) 0; color: var(--color-info); font-weight:600;">
+              <span>Dec 31 (year total)</span><span>$12,000</span>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-4); font-size: var(--text-xs); color: var(--color-text-muted); font-style:italic;">Expense account — absorbs $1,000 per period</div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <span class="callout-icon">📌</span>
+        <div class="callout-content">
+          <span class="callout-title">The rule that makes this accounting</span>
+          <p>
+            At least one account must be a
+            <span class="term" data-definition="Balance Sheet account: an account (Asset, Liability, or Equity) whose balance persists across periods. Schedules exist specifically to drain these balances in a controlled, time-based way.">Balance Sheet account</span>.
+            Without one, there is nothing to drain — the schedule would just move money between two expense buckets with no tracking of what remains.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 3: THREE CALCULATION METHODS ────────────────────── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">Three Ways to Calculate Each Entry</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        The calculation method controls how the total amount is divided into individual period amounts. Choose based on how precise the pro-rating needs to be.
+      </p>
+
+      <div class="pattern-cards stagger-children">
+
+        <div class="pattern-card animate-in" style="border-top-color: var(--color-accent);">
+          <div class="pattern-icon" style="background: var(--color-accent-light);">📅</div>
+          <div class="pattern-title">Day</div>
+          <p class="pattern-desc">
+            Calculates a daily rate, then multiplies by the exact number of days in each period. Partial months are handled precisely — no rounding shortcuts.
+          </p>
+          <div style="margin-top: var(--space-4); padding: var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">
+            <div style="color: var(--color-text-muted); margin-bottom: var(--space-1);">Example</div>
+            $12,000 ÷ 365 = $32.88/day<br>
+            Jan (31 days) → $1,019.18<br>
+            Feb (28 days) → <span style="color: var(--color-accent);">$919.73</span>
+          </div>
+          <div style="margin-top: var(--space-3);">
+            <span style="display:inline-block; font-size:var(--text-xs); font-weight:600; padding: var(--space-1) var(--space-3); background: var(--color-accent-light); color: var(--color-accent); border-radius: var(--radius-full);">Best for partial months</span>
+          </div>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top-color: var(--color-success);">
+          <div class="pattern-icon" style="background: var(--color-success-light);">🗓️</div>
+          <div class="pattern-title">Month</div>
+          <p class="pattern-desc">
+            Divides the total into equal monthly amounts. If the schedule starts or ends mid-month, those boundary periods are pro-rated by day count. The default method.
+          </p>
+          <div style="margin-top: var(--space-4); padding: var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">
+            <div style="color: var(--color-text-muted); margin-bottom: var(--space-1);">Example</div>
+            $12,000 ÷ 12 = $1,000/month<br>
+            Jan (full) → $1,000<br>
+            Feb (full) → <span style="color: var(--color-success);">$1,000</span>
+          </div>
+          <div style="margin-top: var(--space-3);">
+            <span style="display:inline-block; font-size:var(--text-xs); font-weight:600; padding: var(--space-1) var(--space-3); background: var(--color-success-light); color: var(--color-success); border-radius: var(--radius-full);">Default — most common</span>
+          </div>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top-color: var(--color-info);">
+          <div class="pattern-icon" style="background: var(--color-info-light);">⚙️</div>
+          <div class="pattern-title">Custom</div>
+          <p class="pattern-desc">
+            You define the number of entries and their cadence — monthly, quarterly, or annually. Useful when the payment schedule does not follow standard calendar divisions.
+          </p>
+          <div style="margin-top: var(--space-4); padding: var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-secondary);">
+            <div style="color: var(--color-text-muted); margin-bottom: var(--space-1);">Example</div>
+            4 quarterly entries<br>
+            Q1 → $3,000 · Q2 → $3,000<br>
+            Q3 → <span style="color: var(--color-info);">$3,000</span> · Q4 → $3,000
+          </div>
+          <div style="margin-top: var(--space-3);">
+            <span style="display:inline-block; font-size:var(--text-xs); font-weight:600; padding: var(--space-1) var(--space-3); background: var(--color-info-light); color: var(--color-info); border-radius: var(--radius-full);">Non-standard schedules</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SCREEN 4: SIMPLE VS MULTI-LINE ─────────────────────────── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">Simple vs Multi-Line Schedules</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        Not all journal entries are created equal. Sometimes a single debit and credit is enough — other times a payment needs to be split across many accounts simultaneously.
+      </p>
+
+      <div class="pattern-cards stagger-children">
+
+        <div class="pattern-card animate-in" style="border-top-color: var(--color-accent);">
+          <div class="pattern-icon" style="background: var(--color-accent-light);">📄</div>
+          <div class="pattern-title">Simple Schedule</div>
+          <p class="pattern-desc">
+            One debit account and one credit account. Every entry looks identical except for its date and possibly its amount. Perfect for straightforward prepaid expenses and deferred revenues.
+          </p>
+          <div style="margin-top: var(--space-4); display:flex; flex-direction:column; gap: var(--space-2);">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <span style="color:#A6E3A1;">DR Insurance Expense</span>
+              <span style="color: var(--color-accent);">$1,000</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <span style="color:#F9E2AF; padding-left: var(--space-4);">CR Prepaid Insurance</span>
+              <span style="color: var(--color-accent);">$1,000</span>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-4); font-size:var(--text-xs); color:var(--color-text-muted);">
+            Created via <code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">proposeSchedule</code> AI tool
+          </div>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top-color: var(--color-info);">
+          <div class="pattern-icon" style="background: var(--color-info-light);">📋</div>
+          <div class="pattern-title">Multi-Line Schedule</div>
+          <p class="pattern-desc">
+            Each entry can have multiple debits and multiple credits. Needed whenever a single expense must be
+            <span class="term" data-definition="Allocation: the process of distributing a single cost or revenue across multiple accounts, departments, or cost centres. Multi-line schedules automate this split every period.">allocated</span>
+            across departments or when a payment covers several services at once.
+          </p>
+          <div style="margin-top: var(--space-4); display:flex; flex-direction:column; gap: var(--space-2);">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <span style="color:#A6E3A1;">DR Ops Expense</span>
+              <span style="color: var(--color-info);">40%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <span style="color:#A6E3A1;">DR Sales Expense</span>
+              <span style="color: var(--color-info);">35%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <span style="color:#A6E3A1;">DR Marketing Expense</span>
+              <span style="color: var(--color-info);">25%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: var(--space-2) var(--space-3); background: var(--color-bg-warm); border-radius: var(--radius-sm); font-family:var(--font-mono); font-size:var(--text-xs);">
+              <span style="color:#F9E2AF; padding-left: var(--space-4);">CR Prepaid Software</span>
+              <span style="color: var(--color-info);">100%</span>
+            </div>
+          </div>
+          <div style="margin-top: var(--space-4);">
+            <div style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom: var(--space-1);">
+              Each entry is a
+              <span class="term" data-definition="Journal line: a single debit or credit row within a journal entry. A simple entry has two lines; a multi-line entry can have many, as long as total debits equal total credits.">journal line</span>
+              — debits must equal credits.
+            </div>
+            <div style="font-size:var(--text-xs); color:var(--color-text-muted);">
+              Created via <code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">proposeMultiLineSchedule</code> AI tool
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SCREEN 5: QUIZ ──────────────────────────────────────────── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">Check Your Understanding</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        Three scenarios. Apply what you have learned — no memory required, just reasoning.
+      </p>
+
+      <div class="quiz-container" id="quiz-module1">
+
+        <!-- Question 1 -->
+        <div class="quiz-question-block"
+             data-correct="day"
+             data-explanation-right="The Day method calculates a precise daily rate and multiplies by the exact number of days in each period. Since March 15 is a partial first month, only the Day method will correctly count the 16 remaining days in March rather than treating the whole month as equal."
+             data-explanation-wrong="The Month method treats each full month as equal and pro-rates only boundary months. If the start date is March 15, Month would give a partial first entry — but it won't be as precise as counting the exact 16 days. Day is the most accurate choice here.">
+          <div class="scenario-block">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              You have a $36,000 software license paid upfront on March 15, covering the period April 1 – March 31 next year. The finance team needs the most accurate possible first-month entry.
+            </div>
+            <p class="quiz-question">Which calculation method gives the most accurate first-month amount?</p>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="day" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Day — calculates the exact daily rate and counts every day in the period
+            </button>
+            <button class="quiz-option" data-value="month" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Month — divides into equal monthly amounts with pro-rated boundaries
+            </button>
+            <button class="quiz-option" data-value="custom" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Custom — lets the accountant manually define each entry amount
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="quiz-question-block"
+             data-correct="multiline"
+             data-explanation-right="Multi-Line schedules allow each period's entry to contain multiple debit lines — one for each cost centre — and a single credit to the balance sheet account. A Simple schedule only supports one debit and one credit, so it cannot split the expense across three departments simultaneously."
+             data-explanation-wrong="A Simple schedule has exactly one debit account and one credit account per entry. To record a payment split across three cost centres you need a Multi-Line schedule, which allows multiple debit lines (Operations 40%, Sales 35%, Marketing 25%) all crediting the same balance sheet account.">
+          <div class="scenario-block">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              An accountant needs to record a monthly lease payment that is split across three cost centres simultaneously: Operations 40%, Sales 35%, Marketing 25%.
+            </div>
+            <p class="quiz-question">Which schedule type is required?</p>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="simple" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Simple Schedule — one debit, one credit, identical entries each period
+            </button>
+            <button class="quiz-option" data-value="multiline" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Multi-Line Schedule — each entry can have multiple debits and credits
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="quiz-question-block"
+             data-correct="balance-sheet-required"
+             data-explanation-right="Schedules exist to drain a Balance Sheet balance over time. The Balance Sheet account is what starts at the full amount ($12,000) and tracks what remains. Without it, there is nothing to drain and no persistent balance to track — the schedule would lose its purpose."
+             data-explanation-wrong="Two income statement accounts would just move amounts between P&amp;L lines with no tracking of what remains. Schedules are designed specifically to drain Balance Sheet balances over time, so at least one account must be a Balance Sheet account.">
+          <p class="quiz-question">Which statement about account requirements for a prepared schedule is correct?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="both-income" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Both accounts can be Income Statement accounts — schedules just need two accounts to move money between
+            </button>
+            <button class="quiz-option" data-value="balance-sheet-required" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              At least one account must be a Balance Sheet account — it is the source that gets drained each period
+            </button>
+            <button class="quiz-option" data-value="both-balance-sheet" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Both accounts must be Balance Sheet accounts — you cannot use Income Statement accounts in a schedule
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div style="display:flex; gap: var(--space-3); margin-top: var(--space-6);">
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Reset</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,141 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+    <div class="module-number">01</div>
+    <h2 class="module-title">What Avise AI Chat Does</h2>
+    <p class="module-subtitle">Before any code — what the user experiences, and why it is genuinely hard to build correctly.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">An accounting assistant that can read your books</h2>
+      <div class="bento-grid stagger-children">
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="message-circle" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">Ask in plain English</h3>
+          <p class="pattern-desc">Users type questions like &ldquo;What did we spend on software in Q3?&rdquo; and get answers grounded in their actual <span class="term" data-definition="The General Ledger (GL) is the master record of all financial transactions for a company — every journal entry ever posted.">GL data</span>.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="tool" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h3 class="pattern-title">Propose new transactions</h3>
+          <p class="pattern-desc">The AI can draft <span class="term" data-definition="A journal entry is the fundamental accounting record — a balanced set of debit and credit lines that records a financial transaction.">journal entries</span>, prepared schedules, and chart-of-accounts additions — all editable before posting.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="file-text" class="icon-xl" style="color: var(--color-actor-4);"></i>
+          <h3 class="pattern-title">Analyse uploaded files</h3>
+          <p class="pattern-desc">Users can attach Excel, PDF, CSV, or image files. The AI reads the content and incorporates it directly into its analysis.</p>
+        </div>
+      </div>
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="brain" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Think: a junior accountant who has read every journal entry in your database</strong>
+          <p>The AI doesn&rsquo;t guess balances — it calls real API tools that fetch live data, then reasons over the results. If it doesn&rsquo;t know something, it says so.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">From question to answer — step by step</h2>
+      <p>Here is exactly what happens when a user sends &ldquo;What is our cash balance this month?&rdquo;</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"User types the question and hits Send"},
+        {"highlight":"flow-actor-2","label":"Frontend posts the message plus page context to the backend","packet":true,"from":"actor-1","to":"actor-2","payload":"POST /v1/companies/:id/ai/chat  {message, context: {pageUrl, periodId}}"},
+        {"highlight":"flow-actor-3","label":"aiController.ts validates the request and calls createOrContinueConversation()","packet":true,"from":"actor-2","to":"actor-3"},
+        {"highlight":"flow-actor-4","label":"Chat loop builds tool registry, formats system prompt, sends to LLM provider","packet":true,"from":"actor-3","to":"actor-4"},
+        {"highlight":"flow-actor-5","label":"LLM decides to call the generalLedgerReport tool for the Cash account","packet":true,"from":"actor-4","to":"actor-5","payload":"tool: generalLedgerReport  args: {accountId, startDate, endDate}"},
+        {"highlight":"flow-actor-6","label":"Tool queries PostgreSQL and returns the real account balance","packet":true,"from":"actor-5","to":"actor-6","payload":"{ balance: 52340.00, entries: [...] }"},
+        {"highlight":"flow-actor-5","label":"LLM receives tool result and writes a response with a link to the GL report"},
+        {"highlight":"flow-actor-2","label":"Frontend renders the response as a chat bubble with a clickable GL link","packet":true,"from":"actor-5","to":"actor-2"}
+      ]'>
+        <div class="flow-step-label" id="flow-label">Click Next Step to begin</div>
+        <div class="flow-payload" id="flow-payload"></div>
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1"><div class="flow-actor-icon"><i data-lucide="user" class="icon"></i></div><span>User</span></div>
+          <div class="flow-actor" id="flow-actor-2"><div class="flow-actor-icon"><i data-lucide="monitor" class="icon"></i></div><span>Frontend</span></div>
+          <div class="flow-actor" id="flow-actor-3"><div class="flow-actor-icon"><i data-lucide="zap" class="icon"></i></div><span>Controller</span></div>
+          <div class="flow-actor" id="flow-actor-4"><div class="flow-actor-icon"><i data-lucide="refresh-cw" class="icon"></i></div><span>Chat Loop</span></div>
+          <div class="flow-actor" id="flow-actor-5"><div class="flow-actor-icon"><i data-lucide="brain" class="icon"></i></div><span>LLM</span></div>
+          <div class="flow-actor" id="flow-actor-6"><div class="flow-actor-icon"><i data-lucide="database" class="icon"></i></div><span>Database</span></div>
+        </div>
+        <div class="flow-packet"></div>
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">← Previous</button>
+          <button class="btn flow-next-btn">Next Step →</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Artifacts — richer outputs than plain text</h2>
+      <p>Some AI outputs are interactive UI cards called <span class="term" data-definition="Artifacts are structured data objects the AI creates — like a proposed journal entry or a table — that render as interactive cards in the chat, not just text.">Artifacts</span>. The AI cannot output Markdown tables — it must use the displayArtifactTable tool instead.</p>
+
+      <div class="icon-rows stagger-children">
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-2);"><i data-lucide="table-2" class="icon"></i></div>
+          <div><strong>Table Artifact</strong><p>The <code>displayArtifactTable</code> tool creates a formatted, typed table. Columns can be currency, date, number, or markdown. This replaces Markdown tables entirely.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-3);"><i data-lucide="file-plus" class="icon"></i></div>
+          <div><strong>Journal Entry Artifact</strong><p><code>proposeJournalEntry</code> creates a draft JE card with debit/credit lines visible. The user can edit any line and then post directly to the GL.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-4);"><i data-lucide="calendar" class="icon"></i></div>
+          <div><strong>Schedule Artifact</strong><p><code>proposeSchedule</code> and <code>proposeMultiLineSchedule</code> show a full monthly entry preview before the schedule is created.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-5);"><i data-lucide="layout-list" class="icon"></i></div>
+          <div><strong>Accounts Artifact</strong><p><code>suggestAccounts</code> builds an editable table of proposed <span class="term" data-definition="The Chart of Accounts is the master list of all account categories a company uses — Assets, Liabilities, Revenue, Expenses, etc.">chart-of-accounts</span> entries the user can accept or modify before creation.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — the AI calls real tools (like generalLedgerReport or findJournalEntries) that query the live PostgreSQL database. The answer is grounded in actual data, not the LLM training knowledge."
+             data-explanation-wrong="The LLM has no knowledge of this company's finances from training. It calls tools that fetch real data from the database, then reasons over those results.">
+          <h3 class="quiz-question">A user asks &ldquo;What is our software spend in Q3?&rdquo; The AI answers with a specific dollar amount. Where did that number come from?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The LLM&rsquo;s training data contains historical accounting knowledge for this company</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The AI called a tool that queried the live database, then the LLM reasoned over the results</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The AI looked up public company filings and estimated</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="The system prompt explicitly forbids Markdown tables and requires the displayArtifactTable tool. This renders an interactive, properly formatted UI artifact — not raw text."
+             data-explanation-wrong="Markdown tables are forbidden by the system prompt. The AI must call displayArtifactTable, which creates an interactive card.">
+          <h3 class="quiz-question">The AI wants to show 10 journal entries in a structured format. What must it use?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>A numbered list in plain text</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>A Markdown table (| col | col |)</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The displayArtifactTable tool — Markdown tables are forbidden by the system prompt</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Excel files go through the CONTENT path — text is extracted from the bytes and injected into the conversation context directly. Only images and PDFs go through the PROVIDER path (uploaded to the LLM provider)."
+             data-explanation-wrong="Excel files are content-extracted. The backend reads the bytes and converts them to text the LLM can reason over. Images and PDFs are uploaded to the provider as binary files.">
+          <h3 class="quiz-question">A user attaches an Excel file. What does the backend do with it?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Extracts the text content from the file and injects it into the conversation context</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Uploads the file to the LLM provider as a binary attachment</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Stores it in S3 and gives the LLM a URL to access it</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+      <div class="module-nav-end animate-in">
+        <a href="#module-2" class="btn module-continue-btn">Continue to Module 2: The Architecture <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-0" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Overview</a>
+      </div>
+    </section>
+  </div>
+</section>

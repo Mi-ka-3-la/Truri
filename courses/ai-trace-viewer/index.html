@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Trace Viewer: Under the Hood</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Teal accent — analytical, data-forward, matches the investigative nature of the tool -->
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">AI Trace Viewer: Under the Hood</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="What Is This App?" role="tab" aria-label="Module 1: What Is This App?"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Meet the Cast" role="tab" aria-label="Module 2: Meet the Cast"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="From Click to Conversation" role="tab" aria-label="Module 3: From Click to Conversation"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="The Dashboard Engine" role="tab" aria-label="Module 4: The Dashboard Engine"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Notes, Search & Clever Tricks" role="tab" aria-label="Module 5: Notes, Search & Clever Tricks"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module" id="module-1" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">01</span>
+      <h1 class="module-title">Your Window Into AI Conversations</h1>
+      <p class="module-subtitle">What this tool does, who uses it, and what happens the moment you open it.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: HERO VISUAL — three views as dominant grid, minimal text -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Three views. One mission: see inside the AI.</h2>
+
+        <!-- Hero visual: the three views as large visual cards -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-4); margin: var(--space-8) 0;" class="stagger-children">
+
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-2); text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">📊</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--space-2);">Dashboard</h3>
+            <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0;">"How is the AI performing overall?"</p>
+            <div style="margin-top: var(--space-4); padding: var(--space-2) var(--space-3); background: var(--color-accent-light); border-radius: var(--radius-sm); font-size: var(--text-xs); font-family: var(--font-mono); color: var(--color-accent);">KPIs · Charts · Token usage</div>
+          </div>
+
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-3); text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">📋</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--space-2);">Trace List</h3>
+            <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0;">"Show me specific conversations."</p>
+            <div style="margin-top: var(--space-4); padding: var(--space-2) var(--space-3); background: var(--color-accent-light); border-radius: var(--radius-sm); font-size: var(--text-xs); font-family: var(--font-mono); color: var(--color-accent);">Filter · Search · Paginate</div>
+          </div>
+
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-4); text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">💬</div>
+            <h3 style="font-family: var(--font-display); font-size: var(--text-xl); font-weight: 700; margin-bottom: var(--space-2);">Trace Detail</h3>
+            <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin: 0;">"Let me read this conversation."</p>
+            <div style="margin-top: var(--space-4); padding: var(--space-2) var(--space-3); background: var(--color-accent-light); border-radius: var(--radius-sm); font-size: var(--text-xs); font-family: var(--font-mono); color: var(--color-accent);">Replay · Annotate · Debug</div>
+          </div>
+        </div>
+
+        <p>Avise is an AI assistant for accountants — it helps them reconcile accounts, generate journal entries, and run reports. Every conversation a real user has with it gets recorded. The AI Trace Viewer lets the team <em>look inside</em> those recordings: find errors, spot patterns, and leave notes for each other.</p>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">✈️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Think: airplane black box</strong>
+            <p>After every flight, investigators can replay every instrument reading and every system event. The Trace Viewer does the same for AI conversations — full replay, message by message, with every <span class="term" data-definition="A tool call is when an AI assistant invokes a specific function — like 'look up this account' or 'generate a journal entry.' The AI decides which tool to call and with what inputs; the result comes back as a tool message.">tool call</span> and every error recorded.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Follow a real action -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Follow a real action: spotting a broken conversation</h2>
+
+        <p>You open the Trace List. A row has a red dot — that means at least one AI tool call failed. You click it. Here is what happens:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Your click changes the URL</strong>
+              <p>The browser navigates to <code>/trace/abc-123</code> — the conversation <span class="term" data-definition="An ID (identifier) is a unique label assigned to each record in the database — like a social security number for a data record. No two conversations share the same ID.">ID</span> becomes part of the address.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>The server fetches the full conversation</strong>
+              <p>A <span class="term" data-definition="A server function is code that runs on the server computer, not in your browser. It can talk directly to databases and services that are hidden from users — a critical security boundary.">server function</span> reads every message, every tool call, and every AI response from the <span class="term" data-definition="A database is a structured store of information — like a filing cabinet with a very fast search system. This app uses two: PostgreSQL for conversations, SQLite for reviewer notes.">database</span>.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Messages appear on screen</strong>
+              <p>User messages, AI responses, and tool calls — rendered in order, colour-coded by <span class="term" data-definition="Role describes who sent a message: 'user' means the accountant typed it, 'assistant' means the AI generated it, 'tool' means a function was called and returned a result. The same conversation has all three interleaved.">role</span> (user / assistant / tool).</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Reviewer notes load alongside</strong>
+              <p>A Notes panel on the right shows comments left by your team — stored in a separate local database so they never touch the original conversation records.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <strong>You add a note and move on</strong>
+              <p>Your comment is saved instantly and is visible to the whole team — searchable by keyword across all conversations.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: The Errors tab — hero use case -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Errors &amp; Reliability tab: where bugs surface</h2>
+
+        <p>Beyond the main three views, there is a dedicated <strong>Errors &amp; Reliability</strong> tab. It is the fastest path to understanding what is breaking and why.</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">❌</div>
+            <h4 class="pattern-title">Failed Tool Calls</h4>
+            <p class="pattern-desc">Every tool invocation that returned an error — the tool name, the parameters it was called with, and the error message.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">🔁</div>
+            <h4 class="pattern-title">Loop Detection</h4>
+            <p class="pattern-desc">A <span class="term" data-definition="A closure signal indicates how a conversation ended around an error. 'loop' means the same tool failed 2+ times in a row — the AI got stuck. 'abandoned' means the user gave up and left after the error.">closure signal</span> flags conversations where the AI called the same failing tool twice — a classic stuck-in-a-loop pattern.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3)">
+            <div class="pattern-icon" style="background: var(--color-actor-3)">📈</div>
+            <h4 class="pattern-title">Error Trends</h4>
+            <p class="pattern-desc">Which tools break most often, and is the rate going up or down over time? The answer shapes what the engineering team fixes next.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module1">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right — the Errors tab flags loop patterns and failed tool calls specifically. That is where you go first when a user reports the AI kept repeating itself, before diving into individual conversations."
+               data-explanation-wrong="The Dashboard shows overall trends and the Trace List lets you browse — but neither surfaces the loop-detection signal the way the Errors tab does. That tab was built exactly for this scenario.">
+            <h3 class="quiz-question">A user reports the AI kept repeating the same action and never finished. Where do you look first?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Dashboard — it shows overall AI performance</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Errors &amp; Reliability tab — it flags loop patterns and failed tool calls</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Trace List — search by the user name and open each conversation manually</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — reviewer notes live in a separate SQLite database. The team can annotate any conversation without touching the original records. The notes are visible to everyone and searchable by keyword."
+               data-explanation-wrong="The main PostgreSQL database holds the AI conversations that came from the production system. Reviewer notes are stored separately in SQLite — so the team can write their own observations without modifying the source data.">
+            <h3 class="quiz-question">You add a note to a conversation. Where does that note get saved?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Inside the conversation record in the main database, alongside the messages</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In your browser only — it disappears when you close the tab</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In a separate local SQLite database — visible to the team, searchable by keyword</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — the role field on each message tells you who sent it: user (the accountant), assistant (the AI), or tool (a function result). A conversation weaves all three together in chronological order. Knowing this helps you describe the message structure precisely when asking an AI to change how messages are displayed."
+               data-explanation-wrong="Role is not about the user account or the reviewer — it describes the type of each message in the conversation thread. A single conversation has user messages, assistant messages, and tool messages all mixed together. This is fundamental to how AI chat APIs work.">
+            <h3 class="quiz-question">In the Trace Detail view, messages are colour-coded by "role." What does role mean here?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Who sent the message: "user" (accountant), "assistant" (AI), or "tool" (a function result)</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reviewer's job title — manager, analyst, or support agent</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Whether the message contains an error, a warning, or normal output</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Meet the Cast of Characters</h1>
+      <p class="module-subtitle">Five distinct players cooperate every time you open this app. Know them, and you can steer any change.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: HERO — interactive architecture diagram as the dominant visual -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The full system — click any component to learn what it does</h2>
+
+        <div class="arch-diagram animate-in">
+
+          <div class="arch-zone" style="border-color: var(--color-actor-1); margin-bottom: var(--space-4);">
+            <h4 class="arch-zone-label" style="color: var(--color-actor-1);">🖥️ Your Browser</h4>
+            <div class="arch-component"
+                 data-desc="React components — the visual layer you interact with. Renders the Trace List, Trace Detail, Dashboard, and Notes panel. Runs entirely in your browser. It never touches the database directly — it asks the server for everything.">
+              <div class="arch-icon">⚛️</div>
+              <span>React UI</span>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-2); margin-bottom: var(--space-4);">
+            <h4 class="arch-zone-label" style="color: var(--color-actor-2);">⚡ Next.js Server</h4>
+            <div class="arch-component"
+                 data-desc="Server Components — pages that are assembled on the server before being sent to your browser. They can query the database directly and pass data down to client components.">
+              <div class="arch-icon">📄</div>
+              <span>Server Components</span>
+            </div>
+            <div class="arch-component"
+                 data-desc="Server Actions — functions that run on the server in response to browser events (like posting a comment). The browser calls them like regular functions, but the code executes on the server. This is how notes get saved to SQLite.">
+              <div class="arch-icon">⚡</div>
+              <span>Server Actions</span>
+            </div>
+            <div class="arch-component"
+                 data-desc="Next.js Cache — stores results of expensive database queries for a configurable time period (2 minutes for traces and the dashboard). Subsequent requests within that window get the stored result instantly, with no database round-trip.">
+              <div class="arch-icon">💾</div>
+              <span>Cache Layer</span>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="border-color: var(--color-actor-3); margin-bottom: var(--space-4);">
+            <h4 class="arch-zone-label" style="color: var(--color-actor-3);">🔄 ORM Layer</h4>
+            <div class="arch-component"
+                 data-desc="Prisma ORM — the translator between TypeScript and PostgreSQL. You write code like prisma.aiConversation.findMany({where:{...}}), and Prisma converts that into the right SQL query and converts the rows back into TypeScript objects.">
+              <div class="arch-icon">🔄</div>
+              <span>Prisma ORM</span>
+            </div>
+          </div>
+
+          <div class="arch-zone" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); border-color: var(--color-actor-4);">
+            <div>
+              <h4 class="arch-zone-label" style="color: var(--color-actor-4);">🗄️ PostgreSQL</h4>
+              <div class="arch-component"
+                   data-desc="PostgreSQL — the main data warehouse. Holds every AI conversation, every message, every tool call result, and every artifact the AI produced. Read-only from the Trace Viewer — all this data was written by the production Avise platform.">
+                <div class="arch-icon">🐘</div>
+                <span>AI Conversations</span>
+              </div>
+            </div>
+            <div>
+              <h4 class="arch-zone-label" style="color: var(--color-actor-5);">📝 SQLite</h4>
+              <div class="arch-component"
+                   data-desc="SQLite — a tiny single-file database that lives on the server. Stores only reviewer comments. Unlike PostgreSQL, this is writable — the Trace Viewer team creates all the data here. It also maintains a full-text search index for fast keyword search across all notes.">
+                <div class="arch-icon">📁</div>
+                <span>Reviewer Notes</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-description" id="arch-desc">Click any component above to learn what it does</div>
+        </div>
+
+        <p style="font-size: var(--text-sm); color: var(--color-text-secondary); text-align: center; margin-top: var(--space-2);">The <span class="term" data-definition="An ORM (Object-Relational Mapper) is a library that translates between object-oriented code and relational databases. Instead of writing raw SQL, you write TypeScript — and the ORM handles the translation both ways.">ORM</span> and cache sit between the server and the databases. The browser never talks to the databases directly — everything is mediated through the server layer.</p>
+      </section>
+
+      <!-- Screen 2: Meet each actor with icon rows and aggressive tooltips -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Five characters, their personalities</h2>
+
+        <div class="icon-rows stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1)">🖥️</div>
+            <div>
+              <strong>Your Browser (React)</strong>
+              <p>Renders what you see. Built with <span class="term" data-definition="React is a JavaScript library for building interfaces out of reusable pieces called components — like Lego bricks for web pages. When data changes, React updates only the parts of the screen that need to change, without reloading the whole page.">React</span> — a library that breaks the UI into reusable pieces called <span class="term" data-definition="A component is a self-contained building block of a UI — it has its own logic, its own appearance, and accepts inputs called 'props'. Examples: TraceTable, NotesPanel, FilterBar. You can think of each component as a custom HTML tag.">components</span>.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">⚡</div>
+            <div>
+              <strong>Next.js Server</strong>
+              <p>The invisible middleman. <span class="term" data-definition="Next.js is a framework built on React that adds a server layer. It renders pages on the server (faster first load), runs backend logic that talks to databases, and handles routing — all in one tool.">Next.js</span> runs on the server, fetches data, applies logic, and builds pages before your browser ever sees them. It also holds the <span class="term" data-definition="A cache is a temporary store of results. Instead of re-running an expensive operation every time, you save the result and reuse it for a set time. Like keeping leftovers in the fridge instead of cooking from scratch every time.">cache</span>.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-3)">🔄</div>
+            <div>
+              <strong>Prisma (ORM)</strong>
+              <p>The translator. Prisma converts TypeScript <span class="term" data-definition="A query is a question you ask a database — like 'give me all conversations from this company, sorted by date.' Databases have their own language (SQL) for expressing these questions. Prisma lets you write them in TypeScript instead.">queries</span> into <span class="term" data-definition="SQL (Structured Query Language) is the language databases understand. You write commands like SELECT, WHERE, JOIN, GROUP BY to retrieve or manipulate data. It looks nothing like TypeScript — that is why an ORM like Prisma is so valuable.">SQL</span> and converts <span class="term" data-definition="A row is one record in a database table — like one line in a spreadsheet. A query might return hundreds of rows, one per conversation or one per message.">rows</span> back into TypeScript objects.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">🗄️</div>
+            <div>
+              <strong>PostgreSQL (Main Database)</strong>
+              <p>The warehouse. <span class="term" data-definition="PostgreSQL is a powerful open-source relational database — data is organised into tables with rows and columns, and you can run complex queries across them. It is production-grade: used by companies processing millions of records.">PostgreSQL</span> stores every AI conversation ever recorded. The Trace Viewer only reads from it — nothing it does changes this data.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">📝</div>
+            <div>
+              <strong>SQLite (Notes Database)</strong>
+              <p>The sticky-note wall. <span class="term" data-definition="SQLite is a database stored in a single file on disk. Unlike PostgreSQL, it requires no separate server process — it is just a file. Perfect for small, local, writeable data like reviewer notes.">SQLite</span> stores reviewer comments and maintains a <span class="term" data-definition="A full-text search index is like the index at the back of a book — a pre-built lookup of every word in every document. Instead of scanning every comment, the database finds matches in milliseconds by looking up words in this index.">full-text search index</span> so keyword searches across all notes are instant.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: The FullTrace type — code translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">What a "trace" actually looks like in code</h2>
+
+        <p>The server assembles all the data for one conversation into a <code>FullTrace</code> object before sending it to the browser. Here is its shape, directly from <code>types/index.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">interface</span> <span class="code-function">FullTrace</span> {</span>
+<span class="code-line">  <span class="code-property">conversationId</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  <span class="code-property">title</span>: <span class="code-keyword">string</span> | <span class="code-keyword">null</span>;</span>
+<span class="code-line">  <span class="code-property">user</span>: {</span>
+<span class="code-line">    <span class="code-property">id</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">    <span class="code-property">fullName</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">    <span class="code-property">email</span>: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  };</span>
+<span class="code-line">  <span class="code-property">messages</span>: <span class="code-function">TraceMessage</span>[];</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">An interface is a contract — it defines exactly what fields a FullTrace must contain.</p>
+              <p class="tl">Every conversation has a unique ID — like a receipt number.</p>
+              <p class="tl">The title is optional — conversations might never get named (hence "or null").</p>
+              <p class="tl">A nested object holding everything about the person who had this conversation...</p>
+              <p class="tl">...their internal user ID,</p>
+              <p class="tl">...their display name,</p>
+              <p class="tl">...and their email address.</p>
+              <p class="tl">A list (array) of every message in the conversation, in order — user, assistant, and tool messages all mixed together.</p>
+              <p class="tl">End of the contract.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Interfaces are checkable promises</strong>
+            <p>A <span class="term" data-definition="A TypeScript interface defines the shape that an object must have — which fields exist and what type each one is. TypeScript checks this automatically at build time. If a function promises to return a FullTrace but forgets the user field, TypeScript reports the error before the code ever runs.">TypeScript interface</span> is a promise the compiler enforces. Any function that says it returns a <code>FullTrace</code> will fail to build if it omits any of these fields. This catches bugs before they ever reach the browser.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Group chat animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The cast in action: opening a trace</h2>
+
+        <p>What the five characters say to each other when you click a conversation row:</p>
+
+        <div class="chat-window" id="chat-module2">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="browser" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Browser</span>
+                <p>User clicked row abc-123. Navigating to /trace/abc-123 now.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="nextjs" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">N</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Next.js Server</span>
+                <p>Received request. Checking my cache before touching the database...</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="nextjs" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">N</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Next.js Server</span>
+                <p>Cache miss. Prisma, I need conversation abc-123 with all messages, user info, and artifacts.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="prisma" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Prisma</span>
+                <p>Translating that into SQL now... PostgreSQL, give me conversation abc-123 with JOINs on users and messages.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="postgres" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">D</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">PostgreSQL</span>
+                <p>Found it. 47 messages, 12 tool calls, user is Sarah from Acme Corp. Returning all rows.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="prisma" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Prisma</span>
+                <p>Converted raw rows into a FullTrace TypeScript object. Handing it to Next.js.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="6" data-sender="nextjs" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">N</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Next.js Server</span>
+                <p>Got the FullTrace. Storing in cache for 2 minutes with tag "trace". Sending the page to the browser.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="7" data-sender="sqlite" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">SQLite</span>
+                <p>Browser asked for notes on abc-123. Found 3 comments. Sending them to the Notes panel.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="8" data-sender="browser" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">B</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Browser</span>
+                <p>Page rendered, notes loaded. Everything visible. The whole trip took about 180ms.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" id="chat-module2-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — Prisma is the translator. It converts TypeScript code into SQL and converts the database rows back into TypeScript objects. You never write raw SQL when using Prisma."
+               data-explanation-wrong="Next.js orchestrates the request but delegates all database communication to Prisma, which does the translation in both directions.">
+            <h3 class="quiz-question">You want to add a new field to the data fetched from PostgreSQL. Which character translates your TypeScript code into a database query?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Next.js — it handles all server-side operations</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Prisma — it translates TypeScript into SQL and converts rows back into objects</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>React — it controls what data gets fetched for each component</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right — SQLite is the dedicated writable store for reviewer annotations. PostgreSQL holds the AI conversations from the production system, which the Trace Viewer never writes to."
+               data-explanation-wrong="PostgreSQL holds the AI conversation data from production. The team does not write notes into those records. Notes live in SQLite — a separate, lightweight, writable database the app controls entirely.">
+            <h3 class="quiz-question">You are building a feature to flag conversations as needing follow-up. Where should that flag be stored?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>SQLite — the writable local store for reviewer annotations</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>PostgreSQL — all app data should live in one central database</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The browser — localStorage so each reviewer sees their own flags</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly — the cache layer sits inside Next.js on the server. The browser is unaware of it. When the browser makes a request, Next.js intercepts it and either returns a cached result or goes to the database. This is why repeat views of the same trace are much faster."
+               data-explanation-wrong="The cache described here is server-side — managed by Next.js, invisible to the browser. The browser does have its own caching mechanisms (HTTP cache, service workers), but that is a separate system. The cache in this app is a server-side result store keyed on function arguments.">
+            <h3 class="quiz-question">The system has a 2-minute cache. Two users open the same conversation 30 seconds apart. What happens at the cache layer?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The browser cache stores the page — the second user loads it from their own browser history</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Both users trigger their own database queries — the cache only applies to API responses</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The first user fills the server-side cache; the second user gets the stored result with no database query</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">From Click to Conversation</h1>
+      <p class="module-subtitle">Trace the exact journey your data takes — from mouse click to fully rendered conversation on screen.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The animated flow — hero visual -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Every click triggers a pipeline — step through it</h2>
+
+        <div class="flow-animation" data-steps="[
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;You click a conversation row in the Trace List&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;Next.js receives the request — checks cache first&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-1&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;Cache miss — calls the trace service function&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Prisma translates TypeScript into a SQL JOIN query&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-3&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-4&quot;, &quot;label&quot;: &quot;PostgreSQL runs the query — returns conversation rows&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-3&quot;, &quot;to&quot;: &quot;actor-4&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Prisma converts rows into a FullTrace TypeScript object&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-4&quot;, &quot;to&quot;: &quot;actor-3&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;Next.js stores the result in cache (tagged so it can be cleared later)&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-3&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;Browser renders the conversation — you see the messages!&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-1&quot;}
+        ]">
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">🖥️</div>
+              <span>Browser</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">⚡</div>
+              <span>Next.js</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">🔄</div>
+              <span>Prisma</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">🗄️</div>
+              <span>PostgreSQL</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Notice step 7 — the result is stored in cache <em>with a tag</em>. That tag is what makes the clever trick in Module 5 possible: when you post a note, the app uses that tag to tell Next.js "throw away this cached result so the next viewer gets fresh data."</p>
+      </section>
+
+      <!-- Screen 2: The cache code — with the full revalidateTag explanation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The cache: how it stores and how it forgets</h2>
+
+        <p>Here is the actual code that sets up caching — from <code>services/trace-service.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-function">getTrace</span> = <span class="code-function">unstable_cache</span>(</span>
+<span class="code-line">  getTraceUncached,</span>
+<span class="code-line">  [<span class="code-string">"trace-detail"</span>],</span>
+<span class="code-line">  {</span>
+<span class="code-line">    <span class="code-property">revalidate</span>: <span class="code-property">CACHE_SECONDS</span>.<span class="code-property">traces</span>,</span>
+<span class="code-line">    <span class="code-property">tags</span>: [<span class="code-string">"trace"</span>],</span>
+<span class="code-line">  }</span>
+<span class="code-line">);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a cached version of the function that fetches a conversation.</p>
+              <p class="tl">Wrap the real function that does the database work.</p>
+              <p class="tl">Give this cache a name so Next.js can identify it.</p>
+              <p class="tl">Settings:</p>
+              <p class="tl">Automatically expire the cached result after 120 seconds — then fetch fresh data.</p>
+              <p class="tl">Tag this cache entry "trace" — this is how we can clear it on demand (see below).</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That <code>tags: ["trace"]</code> is not just a label — it is a handle. When a reviewer posts a new comment, the notes feature calls <span class="term" data-definition="revalidateTag is a Next.js function that immediately removes all cached results with a given tag. Any future request will re-run the real function against the database instead of returning the stale cached value. It is the manual override for the automatic cache expiry.">revalidateTag("trace")</span> — which tells Next.js: <em>delete every cached result tagged "trace" right now</em>. The next person to open that conversation gets fresh data from the database, including the new comment in the note count.</p>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🏷️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Cache tags: the on/off switch</strong>
+            <p>Automatic expiry (120 seconds) covers the normal case — data gradually goes stale. Tags cover the exceptional case — you know right now that specific data has changed. Together they give you both passive freshness and active invalidation. This two-pronged approach is used in production apps everywhere.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: What the server fetches — the flatMap / artifact lookup -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two queries in one: messages and their artifacts</h2>
+
+        <p>The function that does the real work is <code>getTraceUncached</code>. After fetching the conversation and messages, it does a second pass to collect any AI-produced <span class="term" data-definition="An artifact is a document or output the AI produced during the conversation — like a proposed journal entry, a schedule, or a balance sheet report. They are stored separately in an 'operations' table and linked to messages via metadata.">artifacts</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-property">artifactIds</span> = conversation.<span class="code-property">messages</span>.<span class="code-function">flatMap</span>(<span class="code-property">message</span> <span class="code-operator">=></span></span>
+<span class="code-line">  <span class="code-function">extractArtifactIds</span>(message.<span class="code-property">metadata</span> <span class="code-keyword">as</span> ...),</span>
+<span class="code-line">);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">if</span> (artifactIds.<span class="code-property">length</span> <span class="code-operator">&gt;</span> <span class="code-number">0</span>) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> <span class="code-property">rows</span> = <span class="code-keyword">await</span> prisma.<span class="code-function">$queryRaw</span><span class="code-operator">&lt;</span>...<span class="code-operator">&gt;</span><span class="code-string">`</span></span>
+<span class="code-line">    <span class="code-keyword">SELECT</span> id, status, started_at, stopped_at, operation_data</span>
+<span class="code-line">    <span class="code-keyword">FROM</span>   operations</span>
+<span class="code-line">    <span class="code-keyword">WHERE</span>  id = <span class="code-function">ANY</span>(${artifactIds}) <span class="code-keyword">AND</span></span>
+<span class="code-line">           operation_type = <span class="code-string">'AIArtifact'</span></span>
+<span class="code-line">  <span class="code-string">`</span>;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><span class="term" data-definition="flatMap is a JavaScript method that maps over each item in an array and then flattens the result into a single flat array. Like collecting all the items from many bags into one big pile.">flatMap</span> goes through every message and extracts the artifact IDs mentioned in its metadata — then merges all those ID lists into a single flat list.</p>
+              <p class="tl">Each message stores artifact references in its metadata field — a JSON blob that contains extra context about what the AI was doing.</p>
+              <p class="tl">Only run the next query if there are actually artifact IDs to look up — no point hitting the database with an empty list.</p>
+              <p class="tl">Ask Prisma to run raw SQL — useful when Prisma's standard API is not expressive enough for a specific query.</p>
+              <p class="tl">Fetch only the columns needed (status, timing, data).</p>
+              <p class="tl">From the operations table — a shared table that stores all kinds of operations, not just AI artifacts.</p>
+              <p class="tl">ANY(artifactIds) is a PostgreSQL shorthand: it matches any row whose ID appears in the list. More efficient than a long OR chain.</p>
+              <p class="tl">Filter to only AIArtifact rows — ignoring unrelated operation types in the same table.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: The file tree -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Where all this code lives</h2>
+
+        <p>The data-flow code is split across a logical <span class="term" data-definition="Feature-based architecture organises code by what it does for the user (traces, dashboard, notes) rather than by what type of code it is (all services together, all components together). This means everything related to a feature is co-located and easy to find.">feature-based architecture</span>:</p>
+
+        <div class="file-tree animate-in">
+          <div class="ft-folder open">
+            <span class="ft-name">src/</span>
+            <span class="ft-desc">All application source code</span>
+            <div class="ft-children">
+              <div class="ft-folder">
+                <span class="ft-name">services/</span>
+                <span class="ft-desc">Data fetching with caching — trace-service.ts, dashboard-service.ts, notes-service.ts</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">infrastructure/</span>
+                <span class="ft-desc">Database connections — prisma.ts (PostgreSQL), sqlite.ts (notes + FTS5 index)</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">domain/</span>
+                <span class="ft-desc">Pure business logic — filters.ts, traces.ts (artifact extraction), topics.ts</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">features/</span>
+                <span class="ft-desc">One folder per feature: traces/ dashboard/ notes/ trace-detail/ reliability/</span>
+              </div>
+              <div class="ft-file">
+                <span class="ft-name">types/index.ts</span>
+                <span class="ft-desc">All shared TypeScript interfaces — FullTrace, TraceSummary, TraceFilters, etc.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🗺️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why this matters when talking to AI coding agents</strong>
+            <p>Knowing this structure means you can be precise: "Update the date filter logic in <code>domain/filters.ts</code>, add the date parameter to the Prisma query in <code>features/traces/loaders.ts</code>, and update the UI in <code>features/filters/components/FilterBar.tsx</code>." That specificity produces far better results than "add a date filter."</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — the first person triggers the database query and fills the cache. The second person, 30 seconds later, is within the 2-minute window and gets the stored result instantly. The database is only queried once."
+               data-explanation-wrong="Each user does not get their own database query — the cache is shared on the server. The first request fills it, subsequent requests within the 120-second window get the cached result with no database round-trip.">
+            <h3 class="quiz-question">Two reviewers open the same conversation 30 seconds apart. How many times does PostgreSQL get queried?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Twice — each person gets their own database query</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Once — the first person fills the cache, the second gets the stored result</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Zero — the browser caches the page after the first load</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — revalidateTag clears all cache entries with the given tag on demand. Adding a note calls revalidateTag so the next person to open that conversation gets fresh data, even if the 2-minute window has not expired yet."
+               data-explanation-wrong="The cache expires automatically after 2 minutes — but that passive expiry alone is not enough when you know right now that something has changed. revalidateTag provides the active invalidation: you explicitly tell Next.js to clear entries with a given tag immediately.">
+            <h3 class="quiz-question">A reviewer adds a note. For other team members to see it when they next open the conversation — before the 2-minute cache expiry — what must happen?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The notes feature calls revalidateTag("trace") to immediately clear the cached conversation data</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The other reviewers must manually refresh their browsers to bypass the cache</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — notes are stored in SQLite, which the cache does not cover</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right — adding a new displayed field means updating three layers: the Prisma query (ask for the field), the TypeScript interface (describe its shape), and the React component (render it). The database schema is unchanged because the field already exists there."
+               data-explanation-wrong="React renders what the server sends — but it has no say in what fields get fetched. The database schema is also not changed — the field already exists in the database. The gap is in the middle: the Prisma query needs to include the field, and the TypeScript types need to describe it.">
+            <h3 class="quiz-question">The conversation topic is in the database but not shown in Trace Detail. To display it, you would need to change...</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only the React component — add a field to the UI template</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only the database schema — add a topic column to the conversations table</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Prisma query (include topic in the fetch), the TypeScript type (add topic to FullTrace), and the React component (render it)</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-4" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">The Dashboard Engine</h1>
+      <p class="module-subtitle">How the app answers 13 different questions simultaneously — and why that matters for every data-heavy app you build.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: Hero — the KPI cards visual + parallel concept -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The dashboard loads everything in one shot</h2>
+
+        <p>When the Dashboard opens, it shows four <span class="term" data-definition="KPI stands for Key Performance Indicator — a single important number that summarises performance. On this dashboard: total conversations, active users, artifact production rate, and average message count. KPIs are the headline numbers at the top of a dashboard.">KPIs</span> and nine charts simultaneously. All of it comes from a single function call that fires 13 <span class="term" data-definition="A database query is a request for specific data — like 'count all conversations from this week' or 'find the top 8 most-used tools.' Each query is a separate question to the database.">database queries</span> in <span class="term" data-definition="Parallel execution means running multiple operations at the same time instead of one after another. Like having 13 chefs each making a different dish simultaneously — the meal is ready when the slowest chef finishes, not after all 13 finish in sequence.">parallel</span>.</p>
+
+        <!-- Hero: the KPI cards as visual grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin: var(--space-8) 0;" class="stagger-children">
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-2);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Total Conversations</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">2,847</div>
+            <div style="font-size: var(--text-xs); color: var(--color-success); margin-top: var(--space-1);">↑ 12% this week</div>
+          </div>
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-3);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Active Users</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">341</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1);">Distinct users with sessions</div>
+          </div>
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-4);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Artifact Production Rate</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">68%</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1);">Conversations that produced an output</div>
+          </div>
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-5);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Avg Message Count</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">8.4</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1);">Messages per conversation on average</div>
+          </div>
+        </div>
+
+        <p>Each of these four numbers comes from a separate <span class="term" data-definition="An aggregate query is a database question that summarises many rows into one number — like COUNT (how many rows?), AVG (what is the average?), or MAX (what is the highest?). The dashboard is almost entirely built from aggregate queries.">aggregate query</span>. All four run at the same time — alongside nine chart queries.</p>
+      </section>
+
+      <!-- Screen 2: The 13 queries badge list -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">13 questions, answered simultaneously</h2>
+
+        <div class="badge-list animate-in stagger-children">
+          <div class="badge-item animate-in">
+            <code class="badge-code">totalRow</code>
+            <span class="badge-desc">COUNT of all conversations in the date range</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">activeUsersRow</code>
+            <span class="badge-desc">COUNT DISTINCT of user IDs — no duplicates</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">avgRow</code>
+            <span class="badge-desc">AVG of message counts per conversation</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">artifactRateRow</code>
+            <span class="badge-desc">Ratio of conversations that produced at least one artifact</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">byDayRows</code>
+            <span class="badge-desc">Conversation count per day for 60 days — the trend line chart</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">toolCallRows</code>
+            <span class="badge-desc">Top 8 most-called AI tools, by frequency</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">artifactTypeRows</code>
+            <span class="badge-desc">Distribution of artifact types (journal entry, schedule, report...)</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">topCompanyRows</code>
+            <span class="badge-desc">Top 8 companies by conversation volume</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">lengthRows</code>
+            <span class="badge-desc">Conversation length buckets: 1–5 msgs, 6–10 msgs, 11–20 msgs, 20+</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">contextZoneRows</code>
+            <span class="badge-desc">Context health distribution: Healthy / Watch / At Risk</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">avgPeakTokenRow</code>
+            <span class="badge-desc">Average peak input token count across all conversations</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">tokensByDayRows</code>
+            <span class="badge-desc">Daily input and output token totals — the cost signal</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">topicRows</code>
+            <span class="badge-desc">Conversation count per business topic (Account Management, Journal Entries, etc.)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Promise.all code translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The code that fires all 13 at once</h2>
+
+        <p>The mechanism is a single JavaScript construct: <code>Promise.all</code>. From <code>services/dashboard-service.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> [</span>
+<span class="code-line">  totalRow,</span>
+<span class="code-line">  activeUsersRow,</span>
+<span class="code-line">  avgRow,</span>
+<span class="code-line">  <span class="code-comment">// ... 10 more ...</span></span>
+<span class="code-line">] = <span class="code-keyword">await</span> <span class="code-function">Promise.all</span>([</span>
+<span class="code-line">  prisma.<span class="code-function">$queryRaw</span><span class="code-string">`SELECT COUNT(ac.id)...`</span>,</span>
+<span class="code-line">  prisma.<span class="code-function">$queryRaw</span><span class="code-string">`SELECT COUNT(DISTINCT ac.user_id)...`</span>,</span>
+<span class="code-line">  prisma.<span class="code-function">$queryRaw</span><span class="code-string">`SELECT AVG(sub.cnt)...`</span>,</span>
+<span class="code-line">  <span class="code-comment">// ... 10 more queries ...</span></span>
+<span class="code-line">]);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Declare 13 named variables to hold the results — one per query.</p>
+              <p class="tl">Result 1 will hold the total conversation count.</p>
+              <p class="tl">Result 2 will hold the active user count.</p>
+              <p class="tl">Result 3 will hold the average message count. And so on.</p>
+              <p class="tl"><span class="term" data-definition="Promise.all takes an array of promises (pending operations) and waits for ALL of them to complete. Crucially, it starts all of them simultaneously rather than waiting for each one before starting the next.">Promise.all</span> starts ALL 13 queries at the same time. We wait (await) until every single one has returned.</p>
+              <p class="tl">First query: COUNT all rows in ai_conversations.</p>
+              <p class="tl">Second query runs simultaneously: COUNT DISTINCT user_ids (no double-counting users).</p>
+              <p class="tl">Third query runs simultaneously: AVG of a sub-query that counts messages per conversation.</p>
+              <p class="tl">All 13 run in parallel. Total wait = the slowest single query, not the sum of all 13.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">⚡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Serial vs. parallel: the numbers</strong>
+            <p>If each query takes ~60ms and you run them in sequence: 13 × 60ms = 780ms. Run them in parallel with Promise.all: ~60ms total (the time of the single slowest query). This is the single highest-impact optimisation in data-heavy apps. When you notice a page loading slowly, "are these fetches running in parallel?" is always one of the first questions to ask.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Context health — CTE pattern -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The context health query: a two-stage SQL detective story</h2>
+
+        <p>One of the most sophisticated queries is <strong>Context Health</strong> — it classifies each conversation by how close it came to hitting the AI <span class="term" data-definition="Every AI model has a context window — the maximum amount of text it can hold in memory at once. Think of a whiteboard: the bigger the conversation, the more whiteboard space it uses. At 100k tokens the AI is near its limit and may start forgetting the beginning of the conversation.">context window</span> limit. It uses a SQL pattern called a <span class="term" data-definition="A CTE (Common Table Expression) is defined with the WITH keyword. It creates a named temporary result set you can query in the next step — like assigning an intermediate calculation to a variable before using it. CTEs make complex SQL readable by breaking it into named stages.">CTE (WITH clause)</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">WITH</span> peak <span class="code-keyword">AS</span> (</span>
+<span class="code-line">  <span class="code-keyword">SELECT</span> ac.id,</span>
+<span class="code-line">    <span class="code-function">MAX</span>(...<span class="code-string">'inputTokens'</span>...) <span class="code-keyword">AS</span> peak_tokens</span>
+<span class="code-line">  <span class="code-keyword">FROM</span> ai_conversations ac ...</span>
+<span class="code-line">  <span class="code-keyword">GROUP BY</span> ac.id</span>
+<span class="code-line">)</span>
+<span class="code-line"><span class="code-keyword">SELECT</span></span>
+<span class="code-line">  <span class="code-keyword">CASE</span></span>
+<span class="code-line">    <span class="code-keyword">WHEN</span> peak_tokens <span class="code-operator">&lt;</span>  <span class="code-number">50000</span>  <span class="code-keyword">THEN</span> <span class="code-string">'Healthy'</span></span>
+<span class="code-line">    <span class="code-keyword">WHEN</span> peak_tokens <span class="code-operator">&lt;</span> <span class="code-number">100000</span>  <span class="code-keyword">THEN</span> <span class="code-string">'Watch'</span></span>
+<span class="code-line">    <span class="code-keyword">ELSE</span>                            <span class="code-string">'At Risk'</span></span>
+<span class="code-line">  <span class="code-keyword">END</span> <span class="code-keyword">AS</span> zone,</span>
+<span class="code-line">  <span class="code-function">COUNT</span>(*)::int <span class="code-keyword">AS</span> count</span>
+<span class="code-line"><span class="code-keyword">FROM</span> peak <span class="code-keyword">GROUP BY</span> zone</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Step 1 — define a named intermediate result called "peak"...</p>
+              <p class="tl">For each conversation,</p>
+              <p class="tl">...find the single highest token count across all its messages (MAX = the biggest number in the group).</p>
+              <p class="tl">Join the conversations and messages tables to get token data.</p>
+              <p class="tl">One result row per conversation.</p>
+              <p class="tl">End of Step 1. "peak" now behaves like a temporary table.</p>
+              <p class="tl">Step 2 — classify each row in "peak" with a label...</p>
+              <p class="tl">CASE is SQL for if/else.</p>
+              <p class="tl">Under 50k tokens: the conversation used less than half the typical AI limit — safe.</p>
+              <p class="tl">50k–100k: getting close — worth watching.</p>
+              <p class="tl">Over 100k: at the limit — the AI may already be losing context.</p>
+              <p class="tl">Assign each conversation to its zone.</p>
+              <p class="tl">Count how many conversations fall into each zone. GROUP BY zone gives one result row per zone.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Cache config -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The performance tuning knob — one file controls everything</h2>
+
+        <p>All cache durations live in a single config file, <code>services/cache-config.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-function">CACHE_SECONDS</span> = {</span>
+<span class="code-line">  <span class="code-property">dashboard</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">  <span class="code-property">errors</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">  <span class="code-property">notes</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">  <span class="code-property">referenceData</span>: <span class="code-number">900</span>,</span>
+<span class="code-line">  <span class="code-property">traces</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">} <span class="code-keyword">as const</span>;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A lookup object — think of it as a settings panel for how long each type of data stays cached.</p>
+              <p class="tl">Dashboard charts expire after 2 minutes (120 seconds).</p>
+              <p class="tl">Error data also refreshes every 2 minutes.</p>
+              <p class="tl">Notes counters refresh every 2 minutes so new comments appear quickly.</p>
+              <p class="tl">Reference data (org/company dropdowns) is cached for 15 minutes — it almost never changes.</p>
+              <p class="tl">Individual conversation traces also expire after 2 minutes.</p>
+              <p class="tl">"as const" tells TypeScript these numbers are compile-time constants — they cannot be reassigned accidentally at runtime.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🎚️</div>
+          <div class="callout-content">
+            <strong class="callout-title">One file, one dial</strong>
+            <p>If the dashboard feels stale, you lower <code>dashboard: 120</code> to <code>30</code>. If reference data is expensive to rebuild, you raise it to <code>3600</code>. Centralising this config is a deliberate design choice — it makes performance tuning a one-line change instead of a codebase search. When you build similar apps, consider having a single cache config file from the start.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right — Promise.all fires all queries simultaneously. You wait for the slowest one, not the sum of all of them. This is why parallelising data fetches is one of the most impactful performance wins in web development."
+               data-explanation-wrong="If queries ran in series (one after another), you would add the times together. Promise.all runs them in parallel, so the total wait time equals the slowest single query — not the sum. 13 × 60ms sequentially would be 780ms. In parallel it is just 60ms.">
+            <h3 class="quiz-question">The dashboard has 13 queries. The slowest takes 200ms, the others average 50ms. How long does it take to load?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>About 200ms — parallel execution means you wait for the slowest one</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>About 800ms — 13 queries at an average of ~62ms each</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>About 2,600ms — the server waits for each query before starting the next</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — lowering the cache duration in CACHE_SECONDS is the precise, centralised fix. The dashboard queries themselves do not control how long their results are stored — that is the cache layer's job. Changing 120 to 30 makes the cache expire 4x faster."
+               data-explanation-wrong="The SQL queries themselves determine what data is fetched — not how long results are kept. Cache duration is configured separately in CACHE_SECONDS, wrapped by unstable_cache. That is the right place to make this change.">
+            <h3 class="quiz-question">Users complain the dashboard shows numbers from 5 minutes ago. What is the most targeted fix?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add a TIMESTAMP WHERE clause to each of the 13 SQL queries</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add a manual "refresh" button that reloads the page</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Lower the dashboard value in CACHE_SECONDS — from 120 to 30</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — a CTE (WITH clause) defines a named intermediate result. Step 1 computes the peak token count per conversation. Step 2 classifies each conversation into Healthy/Watch/At Risk using that intermediate result. Breaking it into two named stages makes it readable."
+               data-explanation-wrong="A CTE is not about running queries in parallel — that is Promise.all. A CTE is about breaking a complex single query into readable stages by giving intermediate results a name, like assigning a variable before using it.">
+            <h3 class="quiz-question">The context health query uses a "WITH peak AS (...)" clause. What is the purpose of this pattern?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It runs the peak-token calculation in parallel with the zone classification</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It computes the peak tokens per conversation first (named "peak"), then the second query classifies those results — breaking a complex query into two readable stages</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It caches the intermediate result in memory so the second query runs faster</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+<section class="module" id="module-5" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">Notes, Search & Clever Tricks</h1>
+      <p class="module-subtitle">Two databases, instant feedback, cache invalidation on demand, and a search engine built into the filing cabinet.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: Two databases, two jobs — hero visual -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Why two databases? Because they solve different problems.</h2>
+
+        <!-- Hero visual: side-by-side database comparison -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6); margin: var(--space-8) 0;" class="animate-in">
+          <div style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-4);">
+            <div style="font-size: 2rem; margin-bottom: var(--space-3);">🏛️</div>
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">PostgreSQL</h3>
+            <div class="badge-list" style="margin: 0;">
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">READ ONLY</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Trace Viewer never writes here</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">PRODUCTION DATA</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Came from the live Avise platform</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">MILLIONS OF ROWS</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Needs a full server, indexes, complex queries</span>
+              </div>
+            </div>
+          </div>
+          <div style="background: var(--color-surface); border-radius: var(--radius-lg); padding: var(--space-6); box-shadow: var(--shadow-md); border-top: 4px solid var(--color-actor-5);">
+            <div style="font-size: 2rem; margin-bottom: var(--space-3);">🗂️</div>
+            <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">SQLite</h3>
+            <div class="badge-list" style="margin: 0;">
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">WRITABLE</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Only data the Trace Viewer creates</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">SINGLE FILE</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Lives on disk, needs no server process</span>
+              </div>
+              <div class="badge-item" style="padding: var(--space-2) var(--space-3);">
+                <code class="badge-code" style="font-size: 11px;">FTS5 INDEX</code>
+                <span class="badge-desc" style="font-size: var(--text-xs);">Built-in full-text search across all comments</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p>Here is the SQLite <span class="term" data-definition="A schema is the blueprint of a database — it defines what tables exist, what columns each table has, and what type of data each column holds. Like the column headers of a spreadsheet, defined before you fill in any rows.">schema</span> for reviewer comments — from <code>infrastructure/sqlite.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">CREATE TABLE IF NOT EXISTS</span> comments (</span>
+<span class="code-line">  id              TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  conversation_id TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  user_email      TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  user_name       TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  content         TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  created_at      TEXT    <span class="code-keyword">NOT NULL</span>,</span>
+<span class="code-line">  <span class="code-keyword">PRIMARY KEY</span> (id)</span>
+<span class="code-line">);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create this table if it does not already exist — safe to run on every server startup.</p>
+              <p class="tl">id: a unique identifier for this comment (like a serial number on a receipt).</p>
+              <p class="tl">conversation_id: which conversation this comment belongs to — a link back to PostgreSQL.</p>
+              <p class="tl">user_email: who wrote the comment — the identity key for the commenter.</p>
+              <p class="tl">user_name: their display name for the UI.</p>
+              <p class="tl">content: the actual comment text — what gets searched by the FTS index.</p>
+              <p class="tl">created_at: timestamp stored as text in ISO 8601 format (e.g. "2025-05-13T14:30:00Z").</p>
+              <p class="tl">PRIMARY KEY means id must be unique — the database refuses duplicate comment IDs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: FTS5 — the search engine inside SQLite -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The search engine built inside the filing cabinet</h2>
+
+        <p>The Trace List keyword search finds conversations whose reviewer notes contain the search term — instantly, across thousands of comments. The mechanism is <span class="term" data-definition="FTS5 (Full-Text Search 5) is a search extension built into SQLite. It maintains an inverted index — a pre-built map from every word to every document containing that word. Searching is a dictionary lookup, not a scan of every document.">FTS5</span>: a full-text search engine built into SQLite itself.</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">CREATE VIRTUAL TABLE IF NOT EXISTS</span></span>
+<span class="code-line">  comments_fts <span class="code-keyword">USING</span> fts5(</span>
+<span class="code-line">    content,</span>
+<span class="code-line">    tokenize = <span class="code-string">'unicode61 remove_diacritics 1'</span></span>
+<span class="code-line">  )</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a special virtual table (only if it does not already exist).</p>
+              <p class="tl">Name it "comments_fts" — it mirrors the content of the comments table as a search index.</p>
+              <p class="tl">We want to search the "content" field — the comment text.</p>
+              <p class="tl">"unicode61" handles international characters correctly. "remove_diacritics 1" means "cafe" and "café" match — the accent mark is ignored. This makes the search feel forgiving and natural.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">📖</div>
+          <div class="callout-content">
+            <strong class="callout-title">The book-index metaphor</strong>
+            <p>Without an index, finding "reconciliation" in 100,000 comments means reading all 100,000. With FTS5, the database pre-builds a word list — like the index at the back of a textbook. You look up "reconciliation," it tells you exactly which comments contain it, done. This is why keyword search feels instant even on large datasets.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: The cross-database keyword search -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The keyword search that crosses two databases</h2>
+
+        <p>The most architecturally interesting feature: when you type a keyword in the Trace List, the app searches <em>two completely separate databases</em> and merges the results. From <code>services/trace-service.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> titleRows = <span class="code-keyword">await</span> prisma.<span class="code-property">aiConversation</span>.<span class="code-function">findMany</span>({</span>
+<span class="code-line">  <span class="code-property">where</span>: { <span class="code-property">title</span>: { <span class="code-property">contains</span>: kw, <span class="code-property">mode</span>: <span class="code-string">"insensitive"</span> } },</span>
+<span class="code-line">  <span class="code-property">select</span>: { <span class="code-property">id</span>: <span class="code-keyword">true</span> },</span>
+<span class="code-line">});</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> noteIds = commentsService.<span class="code-function">searchConversationIds</span>(kw);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> keywordIds = [</span>
+<span class="code-line">  ...<span class="code-keyword">new</span> <span class="code-function">Set</span>([...titleRows.<span class="code-function">map</span>(r <span class="code-operator">=></span> r.id), ...noteIds]),</span>
+<span class="code-line">];</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Search PostgreSQL: ask Prisma to find conversations whose title contains the keyword.</p>
+              <p class="tl">"contains" = anywhere in the string. "insensitive" = upper/lowercase does not matter.</p>
+              <p class="tl">Only return the conversation IDs — we just need the list, not the full records.</p>
+              <p class="tl">End of the PostgreSQL search.</p>
+              <p class="tl">Search SQLite separately: use the FTS5 index to find conversation IDs whose comments contain the keyword. This is the cross-database join that the application code handles manually.</p>
+              <p class="tl">Now merge both result lists into one.</p>
+              <p class="tl"><span class="term" data-definition="Set is a JavaScript data structure that only holds unique values — duplicates are automatically removed. new Set([1,1,2,3]) gives {1,2,3}. Spreading it back into an array with [...new Set(...)] is the standard pattern for deduplication.">new Set()</span> removes duplicates — a conversation that matched both a title search AND a notes search would otherwise appear twice. This is a <span class="term" data-definition="A union in set theory (and SQL) is the combination of two sets, keeping all unique items from both. If PostgreSQL returns [A, B, C] and SQLite returns [B, C, D], the union is [A, B, C, D] — no duplicates.">union</span> of the two result sets.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Optimistic updates -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Why your comment appears instantly — optimistic updates</h2>
+
+        <p>When you post a comment, it appears in the Notes panel <em>before</em> the server has confirmed it was saved. This is an <span class="term" data-definition="An optimistic update is when the UI immediately shows the result of an action as if it succeeded, before waiting for the server to confirm. If the server later reports failure, the UI rolls back. The name comes from being optimistic that the action will succeed — which it almost always does.">optimistic update</span>. From <code>features/notes/components/NotesPanel.tsx</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> optimistic: Comment = {</span>
+<span class="code-line">  <span class="code-property">id</span>: <span class="code-string">`temp-${</span><span class="code-function">Date</span>.<span class="code-function">now</span>()<span class="code-string">}`</span>,</span>
+<span class="code-line">  <span class="code-property">content</span>: draft.<span class="code-function">trim</span>(),</span>
+<span class="code-line">  <span class="code-comment">// ...other fields</span></span>
+<span class="code-line">};</span>
+<span class="code-line"><span class="code-function">setComments</span>(prev <span class="code-operator">=></span> [...prev, optimistic]);</span>
+<span class="code-line"><span class="code-function">setDraft</span>(<span class="code-string">""</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> saved = <span class="code-keyword">await</span> <span class="code-function">postComment</span>(...);</span>
+<span class="code-line"><span class="code-function">setComments</span>(prev <span class="code-operator">=></span></span>
+<span class="code-line">  prev.<span class="code-function">map</span>(c <span class="code-operator">=></span> c.id <span class="code-operator">===</span> optimistic.id ? saved : c)</span>
+<span class="code-line">);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a fake "optimistic" comment object right now, before saving to the server.</p>
+              <p class="tl">Give it a temporary ID using the current timestamp — just needs to be unique for now.</p>
+              <p class="tl">Use the text the reviewer typed as the content.</p>
+              <p class="tl">End of the fake comment.</p>
+              <p class="tl">Add the fake comment to the displayed list immediately — the reviewer sees it appear right now.</p>
+              <p class="tl">Clear the input field — the reviewer knows their message was captured.</p>
+              <p class="tl">Now actually send the comment to the server (this takes ~100ms over the network).</p>
+              <p class="tl">When the server confirms success, swap the temporary fake comment for the real one (with a permanent database ID). Visually, nothing changes — it just becomes permanent. On failure, the rollback code removes the optimistic entry.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: NEW — revalidateTag: the cache invalidation on demand -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The closing loop: how a new note clears the cache</h2>
+
+        <p>After a comment is saved, something important happens that was easy to miss. The server-side action that saves the comment also calls <code>revalidateTag</code> — the on-demand cache-clearing mechanism first mentioned in Module 3.</p>
+
+        <p>Here is why this matters:</p>
+
+        <div class="step-cards stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Reviewer Alice posts a note on conversation #abc</strong>
+              <p>The <span class="term" data-definition="A Server Action is a Next.js function that runs on the server but can be called directly from browser code — like a function call that secretly travels over the network. No API endpoint needed. The browser calls postComment(), the server runs it.">Server Action</span> <code>postComment</code> writes the comment to SQLite.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>The Server Action calls revalidateTag("trace")</strong>
+              <p>This tells Next.js: <em>"Throw away every cached trace result right now."</em> The in-memory store for all conversation traces is wiped.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Reviewer Bob opens conversation #abc 10 seconds later</strong>
+              <p>The cache is empty — no stored result. Next.js re-fetches from PostgreSQL and SQLite. The fresh data includes the note count Alice just added.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>The fresh result is cached again</strong>
+              <p>And the 2-minute clock resets. The two mechanisms work together: tags for instant invalidation, time-based expiry for normal freshness.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🔄</div>
+          <div class="callout-content">
+            <strong class="callout-title">Tags + time = a complete cache strategy</strong>
+            <p>Without tags, you would wait up to 2 minutes for a new note to appear. Without time-based expiry, you would need a revalidateTag call after every conceivable data change. Together they cover both cases: <em>known changes</em> (tags for immediate clearing) and <em>unknown drift</em> (automatic expiry for everything else). This two-pronged pattern scales to any size of app.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Identity — localStorage -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">How the app remembers who you are — without a login</h2>
+
+        <p>The Notes panel asks for your name and email the first time — and never asks again. There is no login system. Instead, a custom React <span class="term" data-definition="A hook is a special React function that starts with 'use' — like useIdentity, useState, useEffect. Hooks let components tap into React features (state, side effects, context) without writing class-based code. They are the building blocks of React component logic.">hook</span> called <code>useIdentity</code> stores your details in <span class="term" data-definition="localStorage is a small storage area inside every browser — like a sticky note attached to a specific website. Data saved there persists even after you close the tab or browser. Each browser on each device has its own separate localStorage.">localStorage</span>:</p>
+
+        <div class="pattern-cards stagger-children">
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔍</div>
+            <h4 class="pattern-title">On startup</h4>
+            <p class="pattern-desc">useIdentity reads name + email from localStorage. If found, the comment input shows immediately — no prompt.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">💾</div>
+            <h4 class="pattern-title">On save()</h4>
+            <p class="pattern-desc">Writes name + email to localStorage. Future sessions on this browser remember you automatically.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-error)">
+            <div class="pattern-icon" style="background: var(--color-error)">🗑️</div>
+            <h4 class="pattern-title">On clear()</h4>
+            <p class="pattern-desc">Removes identity from localStorage. Useful if someone else uses your machine or you need to switch accounts.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">⚖️</div>
+          <div class="callout-content">
+            <strong class="callout-title">The tradeoff: simplicity vs. security</strong>
+            <p>localStorage is fast to build and fine for an internal team tool. But anyone who sits at your computer can post as you. For a public-facing tool, replace this with a proper <span class="term" data-definition="Authentication (auth) is the process of verifying who you are — typically via login credentials, tokens, or OAuth (sign in with Google). It is different from authorisation, which is about what you are allowed to do once identified.">authentication</span> system. Knowing this tradeoff lets you make the right call consciously when building similar features.">
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 7: Final quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — the FTS5 virtual table maintains an inverted index of every word in every comment. Searching it is a dictionary lookup, not a scan — it is nearly instant regardless of the number of comments."
+               data-explanation-wrong="Scanning every comment in JavaScript would get very slow at scale — O(n) time, meaning it takes twice as long for twice as many comments. The FTS5 index gives O(log n) search — effectively constant time regardless of dataset size.">
+            <h3 class="quiz-question">There are 500,000 reviewer comments. A user types a keyword and expects results in under a second. How does the app achieve this?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It filters all 500,000 comments in JavaScript after fetching them from the database</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It queries the FTS5 index in SQLite — a pre-built word lookup table that finds matches instantly</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It caches all comments in server memory on startup and searches that in-memory copy</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — an optimistic update displays the result immediately while the server works in the background. If the server fails, the UI rolls back by removing the temporary entry. This is how the comment system already works, and it is the right pattern for the like button too."
+               data-explanation-wrong="Waiting for the server before showing anything makes the UI feel slow and unresponsive. Optimistic updates solve this by trusting that the action will succeed (which it almost always does) and only rolling back on failure. This app already implements this pattern for comments.">
+            <h3 class="quiz-question">You are building a "like" button on comments. Likes should appear instantly on click. Which pattern does this app already use for exactly this scenario?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Optimistic update — show the result immediately, confirm with the server in the background, roll back on failure</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Server-side rendering — pre-render the updated count on the server before sending to the browser</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Polling — ask the server for the current like count every second</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right — posting a comment triggers revalidateTag, which immediately clears all cached trace results. The next request re-fetches from the database, picks up the updated note count, and re-caches the fresh result. The automatic 2-minute expiry handles cases where you do not know data has changed."
+               data-explanation-wrong="Automatic expiry alone would make other reviewers wait up to 2 minutes. revalidateTag handles the known-change case — you just wrote a comment, so you know the cached data is now stale. The two mechanisms complement each other: tags for immediate known-invalidation, time-based expiry as a catch-all safety net.">
+            <h3 class="quiz-question">Alice posts a comment on a conversation. Bob opens the same conversation 30 seconds later — within the 2-minute cache window. How does Bob see Alice's comment without waiting for the cache to expire?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>SQLite is not cached — comments always come fresh from the database regardless of the cache</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The 2-minute cache is per-user — Bob gets his own fresh fetch anyway</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Posting Alice's comment calls revalidateTag("trace"), which clears the shared cache immediately — Bob's request finds no cached result and re-fetches fresh data</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+
+        <div class="callout callout-info animate-in" style="margin-top: var(--space-12)">
+          <div class="callout-icon">🎓</div>
+          <div class="callout-content">
+            <strong class="callout-title">You finished the course</strong>
+            <p>You now understand the full system: the five actors, the data flow on every click, cache tags and invalidation, parallel queries, dual databases with FTS5, optimistic updates, and cross-database search. That is real architectural knowledge — use it to give AI coding agents precise instructions and to debug problems by tracing exactly which layer broke.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

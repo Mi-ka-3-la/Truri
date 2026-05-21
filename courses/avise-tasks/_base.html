@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avise Tasks: How the Close Process Works</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-polish.css">
+
+  <!-- Lucide icons (SVG icon library — replaces emoji throughout the course).
+       Usage in module HTML:  <i data-lucide="database" class="icon"></i>
+       Browse icons:          https://lucide.dev/icons/  -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <style>
+    /* ── ACCENT ─────────────────────────────────────────────── */
+    :root {
+      --color-accent:       #D4A843;
+      --color-accent-hover: #BF9530;
+      --color-accent-light: #FDF5E0;
+      --color-accent-muted: #E0C070;
+    }
+
+    /* ── 2026 PALETTE — replaces the aged-paper warm tones ──── */
+    :root {
+      --color-bg:             #F4F6FB;  /* crisp cool-white, not yellowy */
+      --color-bg-warm:        #EBEDF8;  /* light blue-gray for alternating modules */
+      --color-bg-deep:        #E1E4F2;
+      --color-text:           #1A1C38;  /* deep navy-black — richer than charcoal */
+      --color-text-secondary: #4A5080;  /* cool blue-gray */
+      --color-text-muted:     #8890B8;
+      --color-border:         #D4D8EE;
+      --color-border-light:   #E2E5F4;
+      --color-surface:        #FFFFFF;
+      --color-surface-warm:   #F7F9FF;  /* barely-blue white for cards */
+    }
+
+    /* ── CODE↔ENGLISH: matched line numbers ─────────────────── */
+    .translation-code { counter-reset: code-ln; }
+
+    .code-line {
+      counter-increment: code-ln;
+      border-radius: 3px;
+      transition: background 120ms;
+      padding-right: 4px;
+    }
+    .code-line::before {
+      content: counter(code-ln);
+      display: inline-block;
+      min-width: 1.6em;
+      margin-right: 0.7em;
+      text-align: right;
+      color: #6C7086;
+      font-size: 0.76em;
+      opacity: 0.45;
+      user-select: none;
+    }
+
+    .translation-english .translation-lines { counter-reset: eng-ln; }
+
+    .tl {
+      counter-increment: eng-ln;
+      border-radius: 3px;
+      transition: background 120ms;
+      cursor: default;
+    }
+    .tl::before {
+      content: counter(eng-ln);
+      display: inline-block;
+      min-width: 1.4em;
+      margin-right: 0.45em;
+      font-family: var(--font-mono);
+      font-size: 0.73em;
+      font-weight: 700;
+      color: var(--color-accent-muted);
+      opacity: 0.8;
+      user-select: none;
+    }
+
+    /* ── hover highlight: both sides light up together ───────── */
+    .code-line.ln-active  { background: rgba(212,168,67,0.18); }
+    .tl.ln-active         { background: rgba(212,168,67,0.13); }
+  </style>
+
+  <script src="main.js" defer></script>
+
+  <!-- Line-sync hover: hovering a code line or its English pair highlights both -->
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.translation-block').forEach(function (block) {
+        var codeLines = Array.from(block.querySelectorAll('.code-line'));
+        var engLines  = Array.from(block.querySelectorAll('.tl'));
+        var n = Math.min(codeLines.length, engLines.length);
+        for (var i = 0; i < n; i++) {
+          (function (cl, el) {
+            function on()  { cl.classList.add('ln-active');    el.classList.add('ln-active');    }
+            function off() { cl.classList.remove('ln-active'); el.classList.remove('ln-active'); }
+            cl.addEventListener('mouseenter', on);  cl.addEventListener('mouseleave', off);
+            el.addEventListener('mouseenter', on);  el.addEventListener('mouseleave', off);
+          })(codeLines[i], engLines[i]);
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">Avise Tasks</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-1" data-tooltip="The Close Process" role="tab" aria-label="Module 1: The Close Process"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Data Model" role="tab" aria-label="Module 2: The Data Model"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="The Lifecycle" role="tab" aria-label="Module 3: The Lifecycle"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Recurring Tasks" role="tab" aria-label="Module 4: Recurring Tasks"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Auto-Review" role="tab" aria-label="Module 5: Auto-Review"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Full Stack" role="tab" aria-label="Module 6: Full Stack"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->

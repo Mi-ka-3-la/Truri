@@ -1,0 +1,293 @@
+<section class="module" id="module-2" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">Setting the Stage</h1>
+      <p class="module-subtitle">Before you can grade the AI, you need real test data. Here is how the eval context sets the scene.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The problem with fake test data -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Why Use Real Data?</h2>
+        <p>
+          Most software tests use fake, hand-crafted data: "pretend the account name is 'Cash', the amount is $1,000." That works for regular code. But AI is different — the agent's job is to look up <em>real records</em> in a real database and talk about them. If you use fake data, you are testing a scenario that never exists in production.
+        </p>
+        <p>
+          Instead, the evals system does something clever: it connects to the <em>actual database</em> and picks random real journal entries to use in each test. The AI then has to find and describe those real entries. This makes the tests much more meaningful.
+        </p>
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Testing with Production-Like Data</strong>
+            <p>Using real data from the database means the evals catch real problems — accounts with unusual names, entries with missing fields, edge cases that hand-crafted test data would never include.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: EvalsContext intro -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Stage Manager: <code>EvalsContext</code></h2>
+        <p>
+          Think of <code>EvalsContext</code> like a stage manager in a theater — it sets everything up before the performance. It connects to the database, holds the <code>companyId</code> and <code>userId</code> that the AI will run as, and provides methods for loading test data.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">class</span> <span class="code-function">EvalsContext</span> {
+  <span class="code-keyword">public</span> companyId!: <span class="code-keyword">string</span>;
+  <span class="code-keyword">public</span> userId!: <span class="code-keyword">string</span>;
+  <span class="code-keyword">public</span> evalEntries: <span class="code-function">Map</span>&lt;<span class="code-keyword">string</span>, EvalJournalEntry[]&gt;
+    = <span class="code-keyword">new</span> <span class="code-function">Map</span>();
+
+  <span class="code-keyword">public constructor</span>() {
+    <span class="code-keyword">const</span> { companyId, userId }
+      = <span class="code-function">getEvalsEnvironment</span>();
+    <span class="code-keyword">this</span>.companyId = companyId;
+    <span class="code-keyword">this</span>.userId = userId;
+  }
+}</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Define a class (a reusable blueprint) called EvalsContext.</p>
+              <p class="tl">It will store a companyId — which company the eval runs for.</p>
+              <p class="tl">It will store a userId — which user the AI acts as.</p>
+              <p class="tl">It also holds a Map (like a dictionary) to remember journal entries it has already loaded.</p>
+              <p class="tl">When created, it reads the companyId and userId from environment variables.</p>
+              <p class="tl">This is the same companyId/userId the AI agent uses in production — so the eval environment mirrors real usage exactly.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Loading random journal entries -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Picking a Random Real Journal Entry</h2>
+        <p>
+          Instead of hard-coding a specific journal entry, <code>EvalsContext</code> can randomly select one from the database — filtered by type, date range, status, or other criteria. This means every eval run tests a <em>different</em> real entry, increasing coverage over time.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">const</span> context = <span class="code-keyword">new</span> <span class="code-function">EvalsContext</span>();
+
+<span class="code-keyword">const</span> billEntry =
+  <span class="code-keyword">await</span> context.<span class="code-function">addRandomEvalEntry</span>({
+    entryType: [
+      JournalEntry.Data.KnownEntryType.<span class="code-property">Bill</span>
+    ],
+  });</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a new EvalsContext — our stage manager is now active.</p>
+              <p class="tl">Ask the context to pick a random journal entry from the database...</p>
+              <p class="tl">...but only entries of type "Bill" (as opposed to invoices, expenses, etc.).</p>
+              <p class="tl">The result is an EvalJournalEntry object that wraps the real data and adds helpful methods.</p>
+              <p class="tl">Every time this eval runs, it picks a different bill — so the test suite covers many different real scenarios over time.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: EvalJournalEntry and lazy loading -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Test Fixture: <code>EvalJournalEntry</code></h2>
+        <p>
+          Once a journal entry is loaded, it is wrapped in an <code>EvalJournalEntry</code> object. This is a
+          <span class="term" data-definition="A wrapper is a class or function that takes something and adds extra behavior around it — like putting a gift in a box. The box holds the same gift but makes it easier to carry and gives it a neat interface.">wrapper</span>
+          that adds one key feature: lazy loading of account data.
+        </p>
+        <p>
+          Journal lines store an <code>accountId</code> (a database ID), not the actual account name. To show the account name in a test, you need to look it up. <code>EvalJournalEntry</code> does this automatically, but only when you actually ask for it — saving time when the data is not needed.
+        </p>
+
+        <div class="icon-rows animate-in stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">🏦</div>
+            <div>
+              <strong>journalEntry</strong>
+              <p>The raw journal entry from the database — date, amounts, status, type, linked bills</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">📒</div>
+            <div>
+              <strong>lineData</strong>
+              <p>Each journal line with its accountId — the account object itself is loaded only when needed (lazy)</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">⚡</div>
+            <div>
+              <strong>getLineDataWithAccount()</strong>
+              <p>Call this to get all lines with their full Account objects — triggers a database lookup on first call, then caches</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: AccountCache - the memory trick -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Memory Trick: <code>AccountCache</code></h2>
+        <p>
+          Evals often test many journal entries in one run. Each entry might share the same accounts (e.g., "Cash" appears in dozens of entries). Without
+          <span class="term" data-definition="Caching is storing the result of an expensive operation so you can reuse it next time instead of re-doing the work. Like writing down a phone number after looking it up the first time.">caching</span>,
+          the system would hit the database for the same account hundreds of times.
+        </p>
+        <p>
+          <code>AccountCache</code> is a simple
+          <span class="term" data-definition="A static class is one where the data and methods belong to the class itself, not to any individual instance. Think of it as a shared whiteboard that everyone in the room can read and write to.">static class</span>
+          that acts as a shared memory: the first time an account is needed, it is fetched and stored. Every subsequent request for the same account ID returns the stored version instantly.
+        </p>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why Static?</strong>
+            <p>The cache is static (shared across all instances) because account data does not change between evals. All journal entries for the same company use the same account definitions — so one cache serves all eval tests in a run.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Group chat animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">How an Eval Loads Its Data</h2>
+        <p>Watch the conversation between the eval setup code and the database as it prepares the stage.</p>
+
+        <div class="chat-window" id="chat-module2">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="context" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">C</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">EvalsContext</span>
+                <p>Hey Database, I need a random Bill journal entry for company abc-123. Pick one for me.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="1" data-sender="db" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">D</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Got it. Random Bill entry found: JE #1847, transaction date 2025-03-15, status APPROVED.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="2" data-sender="context" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">C</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">EvalsContext</span>
+                <p>Thanks. I will wrap that in an EvalJournalEntry and hand it to the eval. Lines have account IDs — I will load those later if needed.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="3" data-sender="eval" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">E</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Eval Scorer</span>
+                <p>I need to check if the AI mentioned the vendor name. EvalJournalEntry, what vendor is on this bill?</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="4" data-sender="context" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">C</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">EvalJournalEntry</span>
+                <p>The bill has vendorId "v-999". Let me look that up... AccountCache, do you have v-999?</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="5" data-sender="cache" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">K</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">AccountCache</span>
+                <p>Not in cache yet. Fetching from DB... Got it: "Acme Corp". Storing for next time. Display name is "Acme Corp".</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="6" data-sender="eval" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">E</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Eval Scorer</span>
+                <p>Perfect. Now I will check if the AI response contains "Acme Corp". Score: 1 if yes, 0 if no.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 7: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Quick Check</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. Real data from the database means the eval encounters the same variety, edge cases, and surprises that exist in production — something hand-crafted fake data can never fully replicate."
+               data-explanation-wrong="Not quite. The goal is not speed but coverage — using real randomized data catches edge cases that fake data would miss. The database hit is an acceptable trade-off.">
+            <h3 class="quiz-question">Why does the evals system pick random journal entries from the real database instead of using hand-crafted fake data?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It is faster to query the database than to write fake data by hand</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Real data covers the same edge cases the AI will face in production — fake data cannot replicate that variety</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The eval framework only supports live database connections, not in-memory data</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right. Lazy loading means AccountCache only fetches from the database when a scorer actually needs the account name. If the scorer never asks, no extra DB call is made — saving time across hundreds of evals."
+               data-explanation-wrong="Not quite. Lazy loading is about deferring work until it is actually needed. AccountCache fetches an account the first time it is requested and caches it — so the second request for the same account is instant.">
+            <h3 class="quiz-question">An eval has 50 journal entries, all sharing the same "Cash" account. How does AccountCache help performance?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It fetches all accounts upfront at startup so no DB calls are needed during scoring</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It stores account data in a file on disk between runs</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It fetches "Cash" from the DB exactly once, then returns the cached result for all 49 subsequent requests</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,2980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avise — Architecture Deep Dive</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-polish.css">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#FBF8F3',
+        primaryTextColor: '#1F1D1B',
+        primaryBorderColor: '#2D8B55',
+        lineColor: '#5C5751',
+        secondaryColor: '#F4EFE6',
+        tertiaryColor: '#FFFFFF',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        fontSize: '15px'
+      },
+      flowchart: { curve: 'basis', padding: 20 },
+      er: { layoutDirection: 'LR', minEntityWidth: 120, entityPadding: 16 }
+    });
+  </script>
+
+  <!-- Forest green — architect's map, systems thinking -->
+  <style>
+    :root {
+      --color-accent:       #2D8B55;
+      --color-accent-hover: #226B41;
+      --color-accent-light: #E8F5EE;
+      --color-accent-muted: #5AAD7A;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">Avise — Architecture</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-0" data-tooltip="Overview" role="tab" aria-label="Overview"></button>
+        <button class="nav-dot" data-target="module-1" data-tooltip="One Click, Seven Layers" role="tab" aria-label="Module 1: One Click, Seven Layers"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="The Cast of Characters" role="tab" aria-label="Module 2: The Cast of Characters"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="How They Talk" role="tab" aria-label="Module 3: How They Talk"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Where Things Live" role="tab" aria-label="Module 4: Where Things Live"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="The Outside World" role="tab" aria-label="Module 5: The Outside World"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Reading the System" role="tab" aria-label="Module 6: Reading the System"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+<section class="module module-landing" id="module-0" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">A deep dive into&hellip;</span>
+      <h1 class="module-title-hero">Avise &mdash; System Architecture</h1>
+      <p class="module-subtitle-hero">Every developer joining Avise hits the same wall on day one: 24+ workspaces, three databases, five ways things communicate, a dozen external services. This course is the map.</p>
+    </header>
+
+    <div class="bento-grid stagger-children">
+      <div class="bento-3 pattern-card animate-in">
+        <i data-lucide="clock" class="icon-lg icon-accent"></i>
+        <h3 class="pattern-title">~70 min &middot; 6 modules</h3>
+        <p class="pattern-desc">Stop after any module and come back — the course is designed to be read in order, but each module stands on its own.</p>
+      </div>
+      <div class="bento-3 pattern-card animate-in">
+        <i data-lucide="user-check" class="icon-lg icon-accent"></i>
+        <h3 class="pattern-title">For engineers new to Avise</h3>
+        <p class="pattern-desc">No prior knowledge of the codebase required. If you know what a browser is and have heard the word &ldquo;database,&rdquo; you have enough.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading">The 6 modules ahead</h2>
+
+    <div class="course-toc stagger-children">
+
+      <a href="#module-1" class="toc-item animate-in">
+        <span class="toc-num">01</span>
+        <div class="toc-body">
+          <strong>One Click, Seven Layers</strong>
+          <p>Trace a single save from browser to database and back.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a href="#module-2" class="toc-item animate-in">
+        <span class="toc-num">02</span>
+        <div class="toc-body">
+          <strong>The Cast of Characters</strong>
+          <p>Meet every service and the technology stack.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a href="#module-3" class="toc-item animate-in">
+        <span class="toc-num">03</span>
+        <div class="toc-body">
+          <strong>How They Talk</strong>
+          <p>The 5 communication patterns and when to use each.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a href="#module-4" class="toc-item animate-in">
+        <span class="toc-num">04</span>
+        <div class="toc-body">
+          <strong>Where Things Live</strong>
+          <p>PostgreSQL, SpiceDB, Redis, S3, TurboPuffer &mdash; why 5 databases?</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a href="#module-5" class="toc-item animate-in">
+        <span class="toc-num">05</span>
+        <div class="toc-body">
+          <strong>The Outside World</strong>
+          <p>Auth0, DataDog, Split.io, QBO, and what breaks without them.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a href="#module-6" class="toc-item animate-in">
+        <span class="toc-num">06</span>
+        <div class="toc-body">
+          <strong>Reading the System</strong>
+          <p>How to trace any bug through the full stack.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+    </div>
+
+    <a href="#module-1" class="btn module-start-btn">
+      Start Module 1 <i data-lucide="arrow-right" class="icon"></i>
+    </a>
+
+  </div>
+</section>
+<section class="module" id="module-1" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 1 — ANCHOR: Hero flow animation
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">One click. Seven layers. One round trip.</h2>
+
+      <p>Imagine you fill in a journal entry in Avise and click Save. That single click travels through 7 distinct layers before anything is written to the database &mdash; and the response has to travel all 7 layers back. Think of it like a letter passing through a postal sorting system: every station has a job, and every station has to hand it off correctly for it to arrive.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-2","label":"User clicks Save &mdash; React captures the form data","payload":"{ companyId: &quot;abc&quot;, date: &quot;2024-01-15&quot;, lines: [...] }"},
+        {"highlight":"flow-actor-3","label":"Axios wraps it in an HTTP POST to /v1/companies/:id/journal-entries","packet":true,"from":"actor-2","to":"actor-3","payload":"POST /v1/companies/abc/journal-entries"},
+        {"highlight":"flow-actor-4","label":"Express Router receives the request, validates JWT token","packet":true,"from":"actor-3","to":"actor-4","payload":"Authorization: Bearer eyJ..."},
+        {"highlight":"flow-actor-4","label":"Middleware stack runs: authenticate &rarr; identify user &rarr; set company context","payload":"jwtAuthentication() &rarr; userIdentityMiddleware() &rarr; companyContextMiddleware()"},
+        {"highlight":"flow-actor-5","label":"Controller delegates to Service &mdash; business rules execute","packet":true,"from":"actor-4","to":"actor-5","payload":"journalEntryService.create({ companyId, lines, ... })"},
+        {"highlight":"flow-actor-6","label":"Prisma translates to SQL: INSERT INTO journal_entries...","packet":true,"from":"actor-5","to":"actor-6","payload":"prisma.journalEntry.create({ data: { ... } })"},
+        {"highlight":"flow-actor-7","label":"PostgreSQL writes the row, returns the new record ID","packet":true,"from":"actor-6","to":"actor-7","payload":"INSERT INTO journal_entries ... RETURNING id"},
+        {"highlight":"flow-actor-2","label":"Response travels back: 201 Created &mdash; UI updates with the new entry","packet":true,"from":"actor-4","to":"actor-2","payload":"201 Created { id: &quot;je-xyz-789&quot;, status: &quot;draft&quot; }"}
+      ]'>
+
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin the journey</div>
+        <div class="flow-payload" id="flow-payload"></div>
+
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon"><i data-lucide="mouse-pointer-click" class="icon"></i></div>
+            <span>Browser</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon"><i data-lucide="layout-dashboard" class="icon"></i></div>
+            <span>avise-web</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon"><i data-lucide="send" class="icon"></i></div>
+            <span>Axios</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-4">
+            <div class="flow-actor-icon"><i data-lucide="git-branch" class="icon"></i></div>
+            <span>Express Router</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-5">
+            <div class="flow-actor-icon"><i data-lucide="cpu" class="icon"></i></div>
+            <span>Service</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-6">
+            <div class="flow-actor-icon"><i data-lucide="refresh-cw" class="icon"></i></div>
+            <span>Prisma</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-7">
+            <div class="flow-actor-icon"><i data-lucide="database" class="icon"></i></div>
+            <span>PostgreSQL</span>
+          </div>
+        </div>
+
+        <div class="flow-packet"></div>
+
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">&larr; Previous</button>
+          <button class="btn flow-next-btn">Next Step &rarr;</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 2 — MECHANISM: Axios Code-Walk
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Layer 2: Axios wraps every request in a typed envelope</h2>
+
+      <p>Before any data leaves the browser, it passes through a thin wrapper called <span class="term" data-definition="Axios is a JavaScript library that makes HTTP requests (the &quot;language&quot; browsers and servers use to talk) much easier to write. It handles the low-level details of sending and receiving data over the network.">Axios</span>. Here is the actual wrapper from <code>avise-web/src/api/apiClient.ts</code>:</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-web/src/api/apiClient.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> aviseApiConfig: <span class="code-function">AxiosRequestConfig</span> = {
+  <span class="code-property">baseURL</span>: <span class="code-function">import.meta.env</span>.<span class="code-property">REACT_APP_API_URL</span> || <span class="code-string">""</span>,
+};</code></pre>
+          <div class="code-walk-explanation">
+            <p>Create a config object with one setting: <strong>baseURL</strong>. This is the root address every request will be sent to. <span class="term" data-definition="import.meta.env gives your code access to environment variables &mdash; settings that can be different on each machine or deployment, like &quot;use localhost in dev, use api.avise.com in production&quot; &mdash; without hardcoding those values into the code itself."><code>import.meta.env</code></span> reads from an environment variable so the same code works in dev (<code>localhost:3001</code>) and in production (<code>api.avise.com</code>) without any changes.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> axiosInstance = axios.<span class="code-function">create</span>(aviseApiConfig);</code></pre>
+          <div class="code-walk-explanation">
+            <p>Create a single, pre-configured Axios instance. Think of this as a stamped envelope: every request that goes through <code>axiosInstance</code> already knows where it is going. You never have to repeat the base URL.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">export const</span> api = {
+  post: &lt;T&gt;(url: <span class="code-keyword">string</span>, data?: <span class="code-keyword">any</span>, config?: <span class="code-function">AxiosRequestConfig</span>&lt;T&gt;) =&gt; {
+    <span class="code-keyword">return</span> axiosInstance.<span class="code-function">post</span>&lt;T&gt;(url, data, config);
+  },
+  get: &lt;T&gt;(url: <span class="code-keyword">string</span>, config?: <span class="code-function">AxiosRequestConfig</span>&lt;T&gt;) =&gt; {
+    <span class="code-keyword">return</span> axiosInstance.<span class="code-function">get</span>&lt;T&gt;(url, config);
+  },
+};</code></pre>
+          <div class="code-walk-explanation">
+            <p>Export an <code>api</code> object with typed <code>post</code> and <code>get</code> methods. The <code>&lt;T&gt;</code> is <span class="term" data-definition="TypeScript generics let you write code that works with any type while still being type-safe. The &lt;T&gt; is a placeholder: when you call api.get&lt;User&gt;(...), TypeScript knows the result will be a User object, not just &quot;some data.&quot;">TypeScript generics</span> &mdash; it lets the rest of avise-web call <code>api.post&lt;JournalEntry&gt;(...)</code> and get back a properly typed response. The whole codebase calls <code>api.post</code> instead of Axios directly, so if the underlying HTTP library ever changes, there is only ONE place to update it.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Wrapping a dependency is the single best architectural habit.</strong>
+          <p>By never calling Axios directly &mdash; always via <code>api.post</code> &mdash; the codebase stays decoupled from any one library. This is called the <em>Adapter pattern</em>. You will see it in every mature codebase you encounter, under many different names.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 3 — MECHANISM: Express Router Code-Walk
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Layers 3 &amp; 4: The Express Router &mdash; every request passes through security first</h2>
+
+      <p>When an HTTP request arrives at <span class="term" data-definition="avise-api is the backend Node.js application in the Avise monorepo. It is a REST API built with Express that the frontend calls whenever it needs to read or write data.">avise-api</span>, it is routed through a chain of <span class="term" data-definition="Middleware is code that runs between a request arriving and the final handler responding. Think of it as a conveyor belt with inspection stations: each station can check, modify, or reject the request before passing it to the next.">middleware</span> functions before any business logic runs. Here is the router that defines that chain:</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/apiRouter.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">function</span> <span class="code-function">apiRouter</span>(): <span class="code-function">Router</span> {
+  <span class="code-keyword">const</span> r = <span class="code-function">Router</span>();</code></pre>
+          <div class="code-walk-explanation">
+            <p>Create a new <span class="term" data-definition="An Express Router is a mini-application that can have its own routes and middleware. Think of it as a department inside a building: the building (Express app) handles getting people in the door; the Router handles directing them once they are inside.">Express Router</span>. This object will collect all the routing rules and middleware we attach to it.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>  r.<span class="code-function">use</span>(<span class="code-function">jwtAuthentication</span>());
+  r.<span class="code-function">use</span>(<span class="code-function">userIdentityMiddleware</span>());</code></pre>
+          <div class="code-walk-explanation">
+            <p>Every single request that reaches this router hits these two layers first &mdash; no exceptions. <code>jwtAuthentication()</code> validates the <span class="term" data-definition="A JWT (JSON Web Token) is a digitally signed string the browser sends with every request to prove who the user is. It is like a signed ticket: anyone can read the contents, but only the issuer can create a valid signature.">JWT</span> token attached to the request &mdash; is the caller who they say they are? <code>userIdentityMiddleware()</code> then looks up the actual user record in the database, so the rest of the code knows the full user object, not just their ID from the token.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>  r.<span class="code-function">use</span>(<span class="code-string">"/organizations/:organizationId"</span>, <span class="code-function">organizationRouter</span>());
+  r.<span class="code-function">use</span>(<span class="code-string">"/companies/:companyId"</span>, <span class="code-function">companyContextMiddleware</span>(), <span class="code-function">companyRouter</span>());
+  r.<span class="code-function">use</span>(<span class="code-string">"/notifications"</span>, notificationsRouter);</code></pre>
+          <div class="code-walk-explanation">
+            <p>Once identity is established, requests are routed by URL path. Company-specific routes get one more middleware layer: <code>companyContextMiddleware()</code> verifies the user actually has access to the specific company in the URL before the request goes any further. Only then does <code>companyRouter()</code> handle it.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">4</div>
+          <pre class="code-walk-code"><code>  <span class="code-keyword">return</span> r;
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>Return the configured router so the main Express app can mount it. Every rule registered here applies to any request that hits this router.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="shield-check" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Middleware is airport security &mdash; everyone passes through, and the order is law.</strong>
+          <p>You prove who you are (JWT check), then the system looks you up in its records (userIdentity), then you proceed to your destination (your route). No gate-jumping. If <code>jwtAuthentication</code> rejects a request, it never reaches <code>companyContextMiddleware</code> or the actual handler. Order is architecture.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 4 — MECHANISM: Group Chat
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Watch the save request travel &mdash; every handoff, in real time</h2>
+
+      <p>See each layer in the chain pass the request forward. The layers talk to each other so the database only ever sees a clean, validated, authorized instruction.</p>
+
+      <div class="chat-window" id="chat-save-journey">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-msg="0" data-sender="browser" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Browser</span>
+              <p>User filled in the form and clicked Save</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="1" data-sender="avise-web" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">W</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">avise-web</span>
+              <p><code>POST /v1/companies/abc/journal-entries</code><br>(JWT: eyJ...)</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="2" data-sender="avise-api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api</span>
+              <p>JWT valid &nbsp;&middot;&nbsp; User found &nbsp;&middot;&nbsp; Company context set.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="3" data-sender="avise-api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api</span>
+              <p>Running business rules: entry is valid, status = draft</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="4" data-sender="avise-api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api &rarr; PostgreSQL</span>
+              <p><code>INSERT INTO journal_entries (company_id, status, ...) VALUES (...)</code></p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="5" data-sender="postgresql" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4)">P</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4)">PostgreSQL</span>
+              <p>Row created: <code>id = je-xyz-789</code></p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="6" data-sender="avise-api-reply" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api &rarr; avise-web</span>
+              <p><code>201 Created { id: &quot;je-xyz-789&quot;, status: &quot;draft&quot; }</code></p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="7" data-sender="avise-web-reply" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">W</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">avise-web &rarr; Browser</span>
+              <p>Updating UI: new entry appears in the list</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-save-journey-typing" style="display:none">
+          <div class="chat-avatar" id="chat-save-journey-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 5 — APPLICATION: Quiz
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Three scenarios. Each one tests whether you can apply what you just traced &mdash; not recall a definition.</p>
+
+      <div class="quiz-container" id="quiz-m1">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-d"
+             data-explanation-right="Exactly. No network error means the request IS leaving the browser and reaching the server. The problem is somewhere in the API or database layer &mdash; probably the Express router, service logic, or Prisma query."
+             data-explanation-wrong="If there were a network problem, the browser would show a connection error before the request reached the server. Since the spinner keeps going with no network error, the request arrived &mdash; the problem is server-side. Look at the API or database layer.">
+          <h3 class="quiz-question">A user reports the Save button spins forever and nothing saves. You check the browser &mdash; no network errors visible. Where is the problem most likely <em>not</em> located?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web frontend code</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api Express router</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL database</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The user&rsquo;s internet connection</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct. A 403 Forbidden is thrown during the auth and permission check phase &mdash; before the database is ever touched. That phase lives entirely in the middleware stack: jwtAuthentication and companyContextMiddleware."
+             data-explanation-wrong="A 403 comes before the database is ever reached &mdash; it is thrown during the auth and permission check phase, which is in the middleware stack. Prisma and PostgreSQL only run after a request has already been authorized.">
+          <h3 class="quiz-question">The API returns 403 Forbidden when a user tries to create a journal entry. Which part of the Express router is most likely responsible?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) &mdash; a tool that translates TypeScript function calls like prisma.user.findMany() into SQL queries that the database understands. You write TypeScript; Prisma writes SQL.">Prisma</span> ORM query</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The JWT authentication middleware</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The PostgreSQL database</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The Axios configuration in avise-web</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right. The Express Router is where new API endpoints are registered first. Once the route exists and the controller logic is built, you wire up the frontend to call it. The database might need a new query, but the entry point is always the router."
+             data-explanation-wrong="The Express Router is where new API endpoints live. You define the route (avise-api), then build the controller and service logic, then update the frontend to call the new endpoint. Adding a button in avise-web with no corresponding route will fail with a 404.">
+          <h3 class="quiz-question">You need to add a new API endpoint that lets users export entries as CSV. Which layer do you add it to first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web &mdash; add a button</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api Express Router &mdash; add the route</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL &mdash; add a table</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Axios apiClient &mdash; add a method</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m1')">Try Again</button>
+
+      </div>
+
+      <!-- Inter-module navigation -->
+      <div class="module-nav-end animate-in">
+        <a href="#module-2" class="btn module-continue-btn">
+          Continue to Module 2: The Cast of Characters
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-0" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Overview
+        </a>
+      </div>
+
+    </section>
+
+  </div>
+</section>
+<section class="module" id="module-2" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — ANCHOR: The 4 core services + specialist row
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 2</span>
+        <h1 class="module-title">Meet the Cast</h1>
+        <p class="module-subtitle">The avise monorepo has 24+ workspaces. That sounds overwhelming — until you realize only 4 do the heavy lifting. The rest are specialists called in for specific scenes.</p>
+      </header>
+
+      <!-- Hero: 4 core service cards -->
+      <h2 class="screen-heading">The four leads — every feature touches at least one of these</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-1);">
+          <div class="pattern-icon" style="background: var(--color-actor-1);">
+            <i data-lucide="monitor" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-web</h4>
+          <p class="pattern-desc">The screen. Everything the user sees and touches lives here. Built with <span class="term" data-definition="React is a JavaScript library for building user interfaces. It lets you build complex UIs by composing small, reusable pieces called components.">React</span>.</p>
+          <span class="tech-tag">React 18</span>
+          <span class="tech-tag">TypeScript</span>
+          <span class="tech-tag">Vite</span>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div class="pattern-icon" style="background: var(--color-actor-2);">
+            <i data-lucide="server" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-api</h4>
+          <p class="pattern-desc">The brain. Business rules, <span class="term" data-definition="API routes are the specific URLs your server listens on. Think of them like the different counters at a post office — each URL handles a specific type of request.">API routes</span>, auth, background jobs. Built with <span class="term" data-definition="Node.js is a runtime that lets JavaScript run on a server (outside the browser). Express is a lightweight framework on top of Node.js for handling HTTP requests.">Node.js + Express</span>.</p>
+          <span class="tech-tag">Node.js</span>
+          <span class="tech-tag">Express 5</span>
+          <span class="tech-tag">TypeScript</span>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="layers" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-domains</h4>
+          <p class="pattern-desc">The rulebook. Pure <span class="term" data-definition="Domain logic describes the rules of the business — like &quot;a journal entry must balance debits and credits.&quot; It has no knowledge of HTTP requests or databases; it is purely about business concepts.">domain logic</span> with no knowledge of <span class="term" data-definition="HTTP (HyperText Transfer Protocol) is how browsers and servers communicate. A &quot;domain&quot; that knows nothing about HTTP means it does not care how data arrived — it only cares what the data means.">HTTP</span> or databases — just business rules.</p>
+          <span class="tech-tag">TypeScript</span>
+          <span class="tech-tag">Pure logic</span>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <div class="pattern-icon" style="background: var(--color-actor-4);">
+            <i data-lucide="wrench" class="icon"></i>
+          </div>
+          <h4 class="pattern-title">avise-shared-utils</h4>
+          <p class="pattern-desc">The toolbox. Config, logging, retry utilities, <span class="term" data-definition="WebSocket helpers are utility functions that make it easier to set up and use the WebSocket protocol — a way for the server and browser to talk to each other in real time without needing to send a new request each time.">WebSocket helpers</span> — everything both avise-api and qbo-sync need.</p>
+          <span class="tech-tag">Cross-cutting</span>
+          <span class="tech-tag">Shared</span>
+        </div>
+      </div>
+
+      <!-- Specialist services row -->
+      <h2 class="screen-heading" style="margin-top: var(--space-10);">The specialist crew — called in for specific scenes</h2>
+      <div class="bento-grid stagger-children">
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="activity" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">operation-tracking</h4>
+          <p class="pattern-desc">Flight recorder for long-running jobs</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="refresh-cw" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">qbo-sync</h4>
+          <p class="pattern-desc"><span class="term" data-definition="QuickBooks Online (QBO) is accounting software used by small and medium businesses. The qbo-sync workspace syncs data between Avise and QuickBooks.">QuickBooks Online</span> sync worker</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="shield" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">allspice</h4>
+          <p class="pattern-desc">Type-safe <span class="term" data-definition="SpiceDB is a database specifically for permissions — it answers questions like &quot;is this user allowed to view this document?&quot; Allspice generates TypeScript bindings so the team can use SpiceDB without hand-writing raw permission queries.">SpiceDB</span> permission bindings generator</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="bell" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">knock</h4>
+          <p class="pattern-desc">Notification workflow templates</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="book-open" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">mcp-avise-docs</h4>
+          <p class="pattern-desc"><span class="term" data-definition="MCP (Model Context Protocol) is a standard for giving AI coding assistants access to project-specific knowledge. This workspace acts as a docs server that AI tools can query.">MCP</span> server for AI coding assistants</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — MECHANISM: Tech Stack Architecture
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The full technology stack — top to bottom</h2>
+      <p>Like a building, the system has distinct floors. Here is what technology runs at each level and why it was chosen.</p>
+
+      <div class="tech-stack animate-in">
+        <div class="tech-stack-header">
+          <i data-lucide="layers" class="icon-lg"></i>
+          <div>
+            <h3 class="tech-stack-title">The technologies, floor by floor</h3>
+            <p class="tech-stack-sub">Closest to the user at the top; raw data storage at the bottom.</p>
+          </div>
+        </div>
+
+        <!-- Browser -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Browser</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="monitor" class="icon-lg icon-accent"></i>
+              <strong>React 18</strong>
+              <p>UI components composed into screens. Re-renders only what changed.</p>
+              <span class="tech-tag">React</span>
+              <span class="tech-tag">Vite</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="route" class="icon-lg icon-accent"></i>
+              <strong>React Router v6</strong>
+              <p>Maps URLs to pages without a full page reload.</p>
+              <span class="tech-tag">Client-side routing</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="database" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="TanStack Query (also called React Query) is a library that manages server data in the browser — fetching it, caching it, refreshing it, and tracking whether a request is loading or has failed.">TanStack Query</span></strong>
+              <p>Fetches API data, caches it, and keeps the UI in sync automatically.</p>
+              <span class="tech-tag">React Query</span>
+              <span class="tech-tag">Axios</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- API Layer -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">API Layer</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="server" class="icon-lg icon-accent"></i>
+              <strong>Node.js + Express 5</strong>
+              <p>Handles incoming HTTP requests, applies business rules, and sends back responses.</p>
+              <span class="tech-tag">Node.js</span>
+              <span class="tech-tag">Express 5</span>
+              <span class="tech-tag">TypeScript</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="key-round" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="JWT (JSON Web Token) is a compact, digitally-signed credential that proves who you are. Auth0 is a service that handles user login and issues these tokens so the app does not have to manage passwords itself.">JWT via Auth0</span></strong>
+              <p>Every request carries a signed token. The server validates it before doing any work.</p>
+              <span class="tech-tag">Auth</span>
+              <span class="tech-tag">JWT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Domain Layer -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Domain Layer</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="layers" class="icon-lg icon-accent"></i>
+              <strong>avise-domains</strong>
+              <p>Pure business types — JournalEntry, Schedule, PreparedSchedule. No HTTP, no SQL.</p>
+              <span class="tech-tag">TypeScript</span>
+              <span class="tech-tag">Domain types</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="refresh-cw" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a tool that lets you query a database using TypeScript instead of writing raw SQL. It also auto-generates TypeScript types that match your database schema.">Prisma ORM</span> + Drizzle</strong>
+              <p>Prisma for most queries; Drizzle adopted for newer, performance-sensitive queries.</p>
+              <span class="tech-tag">ORM</span>
+              <span class="tech-tag">Type-safe queries</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Layer -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Data Layer</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="database" class="icon-lg icon-accent"></i>
+              <strong>PostgreSQL</strong>
+              <p>Primary store — all business data: companies, journal entries, schedules, users.</p>
+              <span class="tech-tag">Business data</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="shield" class="icon-lg icon-accent"></i>
+              <strong>SpiceDB</strong>
+              <p>Permission database — fast answers to "can this user do this action?"</p>
+              <span class="tech-tag">Permissions</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="zap" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="Redis is an ultra-fast in-memory data store often used as a cache or a job queue. BullMQ uses Redis to store queued jobs so they survive server restarts.">Redis</span></strong>
+              <p>Job queues (BullMQ) and fast ephemeral data.</p>
+              <span class="tech-tag">Job queues</span>
+              <span class="tech-tag">Cache</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="cloud" class="icon-lg icon-accent"></i>
+              <strong>AWS S3 + TurboPuffer</strong>
+              <p>S3 for files; TurboPuffer for AI vector embeddings used in semantic search.</p>
+              <span class="tech-tag">Files</span>
+              <span class="tech-tag">AI vectors</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Infrastructure -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Infrastructure</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="package" class="icon-lg icon-accent"></i>
+              <strong><span class="term" data-definition="Turborepo is a build system for monorepos. It caches build results so unchanged workspaces are never rebuilt. pnpm workspaces is a package manager that lets multiple packages share dependencies efficiently.">Turborepo + pnpm</span></strong>
+              <p>Builds only what changed. Shared dependencies deduplicated across all workspaces.</p>
+              <span class="tech-tag">Monorepo build</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="rocket" class="icon-lg icon-accent"></i>
+              <strong>Kubernetes + Argo CD</strong>
+              <p>Containers deployed to Kubernetes; Argo CD keeps the cluster in sync with Git.</p>
+              <span class="tech-tag">Deploy</span>
+              <span class="tech-tag">AWS ECR</span>
+              <span class="tech-tag">GitHub Actions</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Observability -->
+        <div class="tech-layer">
+          <div class="tech-layer-label">Observability</div>
+          <div class="tech-layer-stack">
+            <div class="tech-card">
+              <i data-lucide="bar-chart-3" class="icon-lg icon-accent"></i>
+              <strong>DataDog</strong>
+              <p>Traces every request end-to-end, collects logs, and monitors real-user performance.</p>
+              <span class="tech-tag">Traces</span>
+              <span class="tech-tag">Logs</span>
+              <span class="tech-tag">RUM</span>
+            </div>
+            <div class="tech-card">
+              <i data-lucide="toggle-right" class="icon-lg icon-accent"></i>
+              <strong>Split.io + Knock</strong>
+              <p><span class="term" data-definition="Feature flags are on/off switches in the code. They let you enable a new feature for 10% of users before rolling it out to everyone — safe, reversible, no deployment needed.">Feature flags</span> via Split.io; notification delivery via Knock.</p>
+              <span class="tech-tag">Feature flags</span>
+              <span class="tech-tag">Notifications</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tech-stack-rationale">
+          <strong>Why TypeScript everywhere?</strong> One type error caught at compile time saves hours of runtime debugging. avise-shared-utils guarantees that a utility used in both avise-api and qbo-sync has the exact same behavior — because they share the same TypeScript types. Inconsistency becomes impossible to hide.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — MECHANISM: Startup sequence Code-Walk
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The startup order IS the dependency graph</h2>
+      <p>Open <code>avise-api/src/app.ts</code> and the first thing you see is a sequence of imports. That sequence is not arbitrary — it is an architectural decision encoded directly in code.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/app.ts — startup order</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> <span class="code-string">"avise-shared-utils/datadog"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Observability FIRST.</strong> <span class="term" data-definition="DataDog is a monitoring service that collects logs, traces, and performance metrics from your application. If it is not running before everything else, errors that happen during startup are invisible.">DataDog</span> must be initialized before any other service. If Prisma fails to connect but DataDog is not yet running, that connection error goes completely untracked — like a black box recorder that powers on after the crash.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { FeatureFlagsClient } <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/featureFlags"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Feature flags second.</strong> The <span class="term" data-definition="A feature flags client connects to a service like Split.io that stores which features are on or off. It must be initialized early so any subsequent code can check flags safely.">FeatureFlagsClient</span> connects to Split.io. Subsequent startup steps may check whether a new feature is enabled — if flags are not ready, those checks silently default to the wrong state.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> prisma <span class="code-keyword">from</span> <span class="code-string">"./prisma"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Database connection third.</strong> <span class="term" data-definition="Prisma is the ORM (Object-Relational Mapper) that translates TypeScript code into SQL queries. Importing it here establishes the connection pool to PostgreSQL that all future database operations will use.">Prisma</span> connects to PostgreSQL. Now that DataDog is running, any connection error here will be captured and visible in the monitoring dashboard.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">4</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { buildApp } <span class="code-keyword">from</span> <span class="code-string">"./buildApp"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Express app constructed fourth.</strong> Only once the database is ready does the HTTP server get built. This prevents requests from arriving before the app can handle them correctly.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">5</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> bullmq <span class="code-keyword">from</span> <span class="code-string">"./libraries/bullmq"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Job queue fifth.</strong> <span class="term" data-definition="BullMQ is a job queue library that uses Redis to store and coordinate background tasks. A &quot;job&quot; is a unit of work — like generating a report or sending an email — that runs separately from the main request/response cycle.">BullMQ</span> workers start picking up queued background tasks. Jobs submitted before this point will wait in Redis until the worker is ready.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">6</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { initializeAuthClient } <span class="code-keyword">from</span> <span class="code-string">"./authorization/authorizationClient"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Permission system sixth.</strong> The <span class="term" data-definition="SpiceDB is a dedicated permissions database. The authorization client is the connection to SpiceDB — without it, the API cannot check whether a user is allowed to take an action.">SpiceDB</span> authorization client opens. No incoming request can bypass permission checks because the client is established before the server begins accepting traffic.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">7</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { WebSocketServer } <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/websocket/server"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Real-time channel seventh.</strong> The <span class="term" data-definition="WebSocket is a protocol that keeps a persistent, two-way channel open between the server and browser. Unlike HTTP, the server can push data to the client at any time — essential for the AI chat feature.">WebSocketServer</span> opens the persistent connections used by the AI chat. This requires the auth client (step 6) to already be running so incoming WebSocket connections can be authenticated immediately.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">8</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { initializePublisher } <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/rabbitmq"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Message bus last.</strong> <span class="term" data-definition="RabbitMQ is a message broker — a post office for services. One service publishes a message; other services subscribe and receive it. This decouples the sender from the receiver.">RabbitMQ</span> is the broadcast channel between services. It comes last because all the services it connects to must be ready to receive messages before publishing begins.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="git-commit-vertical" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The startup order IS the dependency graph</strong>
+          <p>If Prisma connects before DataDog is running, connection errors go untracked. If the WebSocketServer starts before the auth client is ready, connections arrive unauthenticated. The import order in app.ts is not a style choice — it is an architectural constraint written as code. In any codebase, the startup sequence is one of the best places to quickly understand what depends on what.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — MECHANISM: avise-domains — domain-centric design
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">avise-domains: the same types, used everywhere</h2>
+      <p>Most codebases tie business logic to its delivery mechanism. avise-domains breaks that pattern — and the payoff is enormous.</p>
+
+      <!-- Contrast: old way vs. new way -->
+      <div class="grid-2-cols stagger-children" style="margin: var(--space-8) 0;">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error);">
+          <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);">
+            <i data-lucide="x-circle" class="icon icon-error"></i>
+            <strong>The layered approach</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num" style="background: var(--color-error);">1</div>
+              <div class="step-body">
+                <strong>HTTP Controller</strong>
+                <p>Parses the incoming request — tied to Express.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num" style="background: var(--color-error);">2</div>
+              <div class="step-body">
+                <strong>Service layer</strong>
+                <p>Business logic — knows about controllers above it.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num" style="background: var(--color-error);">3</div>
+              <div class="step-body">
+                <strong>Data layer</strong>
+                <p>SQL — tied to PostgreSQL below it.</p>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-secondary);">Each layer is tied to its neighbors. Reuse a type in a CLI script? Impossible without dragging in HTTP dependencies.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3);">
+            <i data-lucide="check-circle-2" class="icon icon-success"></i>
+            <strong>The domain-centric approach</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <strong>Domain type: JournalEntry</strong>
+                <p>Knows nothing about HTTP or SQL. Just business meaning.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>REST controller uses it</strong>
+                <p>Converts HTTP request INTO a JournalEntry domain type.</p>
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <strong>Background job uses it too</strong>
+                <p>Same type — no modification needed.</p>
+              </div>
+            </div>
+          </div>
+          <p style="margin-top: var(--space-4); font-size: var(--text-sm); color: var(--color-text-secondary);">The domain type is stable. Any consumer — REST, CLI, job — can use it without knowing about the others.</p>
+        </div>
+      </div>
+
+      <!-- Code-walk: avise-domains philosophy -->
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-domains — domain types in plain language</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// avise-domains — domain types don't know about HTTP or databases</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The types in this workspace describe the business — not the delivery. They do not import from Express, from Prisma, or from any database library.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// They describe business concepts in the language of accounting:</span>
+<span class="code-comment">// A Schedule. A JournalEntry. A PreparedSchedule.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The vocabulary comes from the problem domain — accounting — not from the technology. A <code>JournalEntry</code> type describes what an accountant means by "journal entry," independent of how it is stored in PostgreSQL or sent over HTTP.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// The REST API, the CLI, and the background job all use the same types.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>Three completely different execution contexts — an HTTP handler, a command-line script, a background worker — all import from avise-domains. They all speak the same language, which means any validation rule written once applies everywhere.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">4</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Conversion to/from HTTP request/SQL row is handled OUTSIDE the domain.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>Parsing an HTTP request body into a <code>JournalEntry</code> happens in the controller. Converting a Prisma database row into a <code>JournalEntry</code> happens in a mapper function. The domain type itself stays pure.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="book-open" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">A domain type is like a word in a dictionary</strong>
+          <p>It has a precise meaning that does not change depending on who is reading it. The REST API and the background job speak the same language because they share the same domain types. Wherever you see this pattern in any codebase, it signals a deliberate choice to make business rules portable — the team can change the delivery mechanism (swap Express for another framework) without rewriting the business logic.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 5 — APPLICATION: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <p>Three scenarios. Apply what you learned about which workspace owns which responsibility.</p>
+
+      <div class="quiz-container" id="quiz-m2">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. Business rules that describe how the accounting domain works — like the debit/credit balance rule — belong in avise-domains. Any consumer (REST controller, CLI script, background job) can then apply the same rule without duplication."
+             data-explanation-wrong="Business rules that describe how the domain works — like accounting balance rules — belong in avise-domains, not in HTTP controllers or UI code. The controller&apos;s job is to parse requests and call domain logic, not to define it.">
+          <h3 class="quiz-question">You need to add logic that validates whether a journal entry&apos;s debits equal its credits — a core accounting rule. Which workspace does this business logic belong in?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web — so the user sees a validation error immediately</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api controllers — it is called when the request arrives</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-domains — it is a pure accounting rule, independent of delivery</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-shared-utils — it should be available to everyone</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. avise-shared-utils is the toolbox for cross-cutting utilities that multiple workspaces need. Putting a retry helper in avise-api would force qbo-sync to duplicate it — and two copies of the same utility will inevitably diverge."
+             data-explanation-wrong="avise-shared-utils is the toolbox for cross-cutting utilities that multiple workspaces need. Putting it in avise-api would mean qbo-sync has to duplicate it — and duplicated utilities always diverge over time, leading to subtle bugs.">
+          <h3 class="quiz-question">A retry utility for external HTTP calls needs to work in both avise-api and qbo-sync. Where does it go?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web — front-end requests also need retries</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api/src/utils — that is where utilities live in the API</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-shared-utils — it is cross-cutting and needed by multiple workspaces</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-domains — retries are domain logic</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right. The WebSocketServer initialization in app.ts sets up the persistent connection infrastructure that the AI chat and future real-time features use. Startup order is the dependency graph — reading app.ts top to bottom tells you how the system assembles itself."
+             data-explanation-wrong="WebSocket is the real-time communication layer. The WebSocketServer initialization in app.ts sets up the persistent connection infrastructure that the AI chat uses. The startup order in app.ts is an architectural document — each import tells you what the system needs and when.">
+          <h3 class="quiz-question">The Avise team wants to add a new real-time dashboard feature. Which line in app.ts startup would you look at to understand how real-time communication is initialized?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The Prisma import — it controls what data the dashboard can access</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The BullMQ import — background jobs power the dashboard refresh</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The WebSocketServer import — that is the real-time channel initialization</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The DataDog import — observability tracks real-time activity</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m2')">Try Again</button>
+      </div>
+
+      <!-- Module navigation -->
+      <div class="module-nav-end animate-in">
+        <a href="#module-3" class="btn module-continue-btn">
+          Continue to Module 3: How They Talk
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-1" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 1
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>
+<section class="module" id="module-3" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — ANCHOR: Section Preview Map (Mermaid)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 3</span>
+        <h1 class="module-title">How They Talk</h1>
+        <p class="module-subtitle">Services in Avise do not all talk the same way. The communication method tells you how urgent, how long-running, and how reliable the interaction needs to be.</p>
+      </header>
+
+      <h2 class="screen-heading">Five patterns — one for each situation</h2>
+      <p>Think of an office building. You have five ways to communicate: phone calls, walkie-talkies, physical inboxes, project boards, and the loudspeaker. Each one exists because the others are wrong for some situations.</p>
+
+      <div class="section-map animate-in">
+        <div class="section-map-header">
+          <i data-lucide="map" class="icon-lg"></i>
+          <div>
+            <h3 class="section-map-title">Five communication patterns in this module</h3>
+            <p class="section-map-sub">By the end you will know exactly which to reach for when building a new feature.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+graph LR
+  S["Services need\nto communicate"] --> R["REST\nQuick Q&amp;A\nUser waits"]
+  S --> W["WebSocket\nReal-time\nChannel stays open"]
+  S --> B["BullMQ Queue\nBackground work\nMinutes long"]
+  S --> A["Argo Workflows\nDistributed ops\nHours long"]
+  S --> K["Knock\nNotifications\nFire and forget"]
+  classDef center fill:#1A3D2B,stroke:#2D8B55,stroke-width:2px,color:#fff;
+  classDef pattern fill:#F0FAF4,stroke:#2D8B55,stroke-width:1.5px,color:#1F1D1B;
+  class S center;
+  class R,W,B,A,K pattern;
+        </pre>
+        <div class="section-map-legend">
+          <p>Each pattern gets its own screen. Read them in order or jump to the one you need — each stands alone.</p>
+        </div>
+      </div>
+
+      <!-- Quick-reference cards -->
+      <div class="bento-grid stagger-children" style="margin-top: var(--space-8);">
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="phone" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">REST</h4>
+          <p class="pattern-desc">Synchronous. User waits. Under 5 seconds. The default choice.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="radio" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">WebSocket</h4>
+          <p class="pattern-desc">Persistent channel. Server pushes anytime. AI chat, cursors, live feeds.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="inbox" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">BullMQ</h4>
+          <p class="pattern-desc">Async queue. Minutes long. Survives restarts. Reports, email.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="git-branch" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">Argo Workflows</h4>
+          <p class="pattern-desc">Hours long. Kubernetes-distributed. Accounting syncs.</p>
+        </div>
+        <div class="bento-2 pattern-card animate-in">
+          <i data-lucide="bell" class="icon-lg icon-accent"></i>
+          <h4 class="pattern-title">Knock</h4>
+          <p class="pattern-desc">Fire and forget. Notifications. Email, Slack, in-app.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — MECHANISM: REST (phone call)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">REST: the phone call — you dial, you wait, you get your answer</h2>
+      <p>Most interactions in Avise use <span class="term" data-definition="REST (Representational State Transfer) is the most common style of API communication. The browser sends an HTTP request to the server, waits for a response, then updates the UI. One request, one response, done.">REST</span>. The browser makes a request, the server processes it, and the browser waits for the response before updating the screen.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-web/src/api/apiClient.ts — the HTTP wrapper</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">export const</span> api = {
+  post: &lt;T&gt;(url: <span class="code-keyword">string</span>, data?: <span class="code-keyword">any</span>) =&gt; axiosInstance.post&lt;T&gt;(url, data),
+  get: &lt;T&gt;(url: <span class="code-keyword">string</span>) =&gt; axiosInstance.get&lt;T&gt;(url),
+};</code></pre>
+          <div class="code-walk-explanation">
+            <p>A thin wrapper around <span class="term" data-definition="Axios is a JavaScript library for making HTTP requests. It handles things like automatically parsing JSON responses and attaching authentication headers to every request.">Axios</span>. Every API call in avise-web goes through this object — meaning things like authentication headers and base URL configuration are applied once and inherited everywhere. The TypeScript generic <code>&lt;T&gt;</code> ensures the response is typed, not just a raw object.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Usage with React Query (useMutation):</span>
+<span class="code-keyword">const</span> { mutate, isPending } = useMutation({
+  mutationFn: () =&gt; api.post(<span class="code-string">'/v1/companies/:id/journal-entries'</span>, payload)
+});</code></pre>
+          <div class="code-walk-explanation">
+            <p><span class="term" data-definition="React Query (TanStack Query) is a library that wraps API calls and manages their state automatically. It tracks whether a request is loading, succeeded, or failed — and re-fetches data when it goes stale.">React Query</span> wraps the Axios call. <code>useMutation</code> is the hook used for operations that change data — creating, updating, or deleting. While <code>isPending</code> is true, the component can show a spinner. When the <span class="term" data-definition="A mutation in React Query is any operation that writes data to the server — a POST, PUT, PATCH, or DELETE. It is called a &quot;mutation&quot; because it mutates (changes) the server state.">mutation</span> resolves, React Query automatically updates any cached data that is now stale.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// While isPending is true, show a spinner.</span>
+<span class="code-comment">// When it resolves, update the UI.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The caller is blocked until the response arrives — that is a feature, not a bug. The UI needs to know whether the save succeeded before it can confirm anything to the user. REST is correct here because the operation finishes in well under 5 seconds and the result matters immediately.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="phone" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">REST is a phone call — blocking is the point</strong>
+          <p>You dial, you wait for the person to pick up, you get your answer, you hang up. The caller is blocked until the response arrives. For anything that finishes in under 5 seconds and where the UI must know the result before continuing, REST is exactly right. Choose a different pattern only when REST&apos;s blocking nature becomes a problem — like when the work takes 40 seconds or the server needs to push updates the client did not ask for.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — MECHANISM: WebSocket (walkie-talkie for AI chat)
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">WebSocket: the walkie-talkie — the channel stays open</h2>
+      <p>The AI chat cannot use REST. The model sometimes thinks for 90 seconds and sends a dozen intermediate updates along the way. A <span class="term" data-definition="WebSocket is a protocol that opens a persistent, two-way connection between a browser and server. Unlike HTTP, both sides can send messages at any time without the other side asking first.">WebSocket</span> channel stays open for the entire conversation — the server can push events the moment they happen.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/app.ts + avise-api/src/ai/index.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">import</span> { WebSocketServer, AuthenticatedWebSocket }
+  <span class="code-keyword">from</span> <span class="code-string">"avise-shared-utils/websocket/server"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p>The <code>WebSocketServer</code> comes from avise-shared-utils — both avise-api and any future service that needs real-time communication import the same implementation. <code>AuthenticatedWebSocket</code> is a type that extends the standard WebSocket with a <span class="term" data-definition="A JWT payload is the decoded contents of a JSON Web Token — it contains claims like the user's ID, email, and permissions. Attaching it to the WebSocket connection means every message from that connection is already identified.">jwtPayload</span> field, so every message received on the socket already carries the user&apos;s identity.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">async function</span> handleNewWebSocketConnection(ws: AuthenticatedWebSocket) {
+  <span class="code-keyword">const</span> idpId = ws.jwtPayload.sub;
+  <span class="code-keyword">const</span> identity = <span class="code-keyword">await</span> identityService.getUserIdentityByIdpId(idpId);
+  <span class="code-keyword">if</span> (identity) ws.userId = identity.id;
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>When a new WebSocket connection arrives, the server immediately resolves the user identity from the <span class="term" data-definition="IDP (Identity Provider) is the service that handled the user's login — in this case, Auth0. The &quot;sub&quot; field in the JWT is the user's unique ID issued by Auth0.">IDP</span> ID inside the token. This lookup happens once per connection — all subsequent messages on this channel are already attributed to the right user without re-checking auth.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// avise-api/src/ai/index.ts — server pushes typed events as the AI thinks:</span>
+ws.send({ type: <span class="code-string">'tool_call'</span>, toolName: <span class="code-string">'findJournalEntries'</span> });
+ws.send({ type: <span class="code-string">'artifact'</span>, artifact: tableData });
+ws.send({ type: <span class="code-string">'message'</span>, content: assistantText });
+ws.send({ type: <span class="code-string">'done'</span> });</code></pre>
+          <div class="code-walk-explanation">
+            <p>Four <span class="term" data-definition="An event in this context is a typed message sent over the WebSocket. Each event has a 'type' field so the browser knows what kind of update it received and how to render it.">event</span> types flow down the channel. <code>tool_call</code> appears when the AI decides to search for data — the browser can show "Searching journal entries..." while the AI is still thinking. <code>artifact</code> carries structured data (a table, a chart). <code>message</code> carries the assistant&apos;s text. <code>done</code> signals the browser to stop the loading state.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="radio" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">WebSocket eliminated the AI timeout problem entirely</strong>
+          <p>Before WebSocket, AI chat used HTTP requests — and HTTP requests time out after roughly 30 seconds. The <span class="term" data-definition="An LLM (Large Language Model) is the AI model that generates responses. Complex accounting questions sometimes require multiple tool calls and extended reasoning, which can take longer than standard HTTP timeout limits.">LLM</span> sometimes takes longer. WebSocket eliminates this entirely. The channel lives until either side closes it — meaning the AI can take 90 seconds, send ten intermediate events, and the browser receives every one of them without any timeout. This is the kind of architectural constraint that turns an impossible feature into a working product.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — MECHANISM: BullMQ + Argo Workflows
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">BullMQ and Argo: the inbox and the project board</h2>
+      <p>When work takes minutes — or hours — you do not make the user wait. You drop it in a queue, continue the response immediately, and let a worker pick it up.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">BullMQ — producer and worker pattern</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Producer (avise-api): add a job to the queue</span>
+<span class="code-keyword">await</span> queue.add(<span class="code-string">'processRecurringTask'</span>, { taskId, companyId });</code></pre>
+          <div class="code-walk-explanation">
+            <p>The API immediately adds a <span class="term" data-definition="A job in BullMQ is a unit of work stored in Redis. It has a name (what to do) and a payload (the data to do it with). Adding a job takes milliseconds — the actual work happens later, in a separate process.">job</span> to the queue and returns a response to the user. The user does not wait for the work to finish — just for the job to be accepted. This takes milliseconds.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Worker (separate process): pick up and process jobs</span>
+worker.on(<span class="code-string">'completed'</span>, job =&gt; logger.info(<span class="code-string">`Job ${job.id} completed`</span>));
+worker.on(<span class="code-string">'failed'</span>, (job, err) =&gt; logger.error(<span class="code-string">`Job ${job.id} failed`</span>, err));</code></pre>
+          <div class="code-walk-explanation">
+            <p>A separate <span class="term" data-definition="A worker process is a program that runs independently of the main API server. It continuously polls the BullMQ queue for new jobs and executes them. If the server restarts, Redis still holds the job — the worker picks it up when it comes back online.">worker process</span> polls Redis for new jobs. <code>completed</code> and <code>failed</code> events fire once the work is done — both are logged so the team can track what happened to every job. If the server crashes mid-job, BullMQ marks it as failed and can retry automatically.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- BullMQ vs Argo comparison -->
+      <h3 class="screen-heading" style="margin-top: var(--space-10);">Choosing between BullMQ and Argo Workflows</h3>
+      <div class="grid-2-cols stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <i data-lucide="inbox" class="icon-lg" style="color: var(--color-actor-2);"></i>
+            <strong>BullMQ</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body"><p>Minutes-long jobs on a single server</p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body"><p>Backed by <span class="term" data-definition="Redis is an in-memory data store used here as a job queue. Jobs survive server restarts because Redis persists them to disk.">Redis</span> — jobs survive restarts</p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body"><p>Recurring tasks, email sending, report generation</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div style="display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4);">
+            <i data-lucide="git-branch" class="icon-lg" style="color: var(--color-actor-3);"></i>
+            <strong>Argo Workflows</strong>
+          </div>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <div class="step-body"><p>Hours-long jobs distributed across <span class="term" data-definition="Kubernetes is an orchestration system that runs containers (packaged applications) across multiple machines. Argo Workflows runs on top of Kubernetes so long jobs can span many machines and resume after failures.">Kubernetes</span></p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <div class="step-body"><p>Full event tracking via operation-tracking workspace</p></div>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <div class="step-body"><p>Accounting syncs, large file processing — NS sync and QBO sync are actively migrating to Argo</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="arrow-up-right" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The codebase has TODOs marking this in-progress migration</strong>
+          <p>NS sync and QBO sync currently run as BullMQ jobs. There are explicit migration TODOs in the codebase moving them to Argo Workflows. The reason: these jobs sometimes run for 45+ minutes, need <span class="term" data-definition="Observability means being able to see what is happening inside a system. Operation-tracking records every step of a long-running job so the team can see exactly where it stopped if it fails.">full observability</span>, and must survive server restarts without losing state. BullMQ can handle them, but Argo was built for exactly this scale.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 5 — MECHANISM: Group Chat — "Which channel do I use?"
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Which channel do I use? — An architecture conversation</h2>
+      <p>Four common scenarios. Watch how the choice of communication pattern maps to the constraints of the situation.</p>
+
+      <div class="chat-window" id="chat-which-channel">
+        <div class="chat-messages">
+
+          <!-- Message 1: E asks about notifications -->
+          <div class="chat-message" data-msg="0" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>I need to notify a user when their task gets approved. Which pattern?</p>
+            </div>
+          </div>
+
+          <!-- Message 2: A answers about Knock -->
+          <div class="chat-message" data-msg="1" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p>Use <strong>Knock</strong> — it is the notification delivery system. Not REST (the user might be offline when the approval happens), not WebSocket (you do not need a response back). Knock handles the routing: in-app, email, or Slack depending on the user&apos;s preferences.</p>
+            </div>
+          </div>
+
+          <!-- Message 3: E asks about QBO sync -->
+          <div class="chat-message" data-msg="2" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>What about syncing 50,000 QuickBooks transactions? Should happen overnight.</p>
+            </div>
+          </div>
+
+          <!-- Message 4: A answers Argo -->
+          <div class="chat-message" data-msg="3" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p><strong>Argo Workflow</strong> — runs for 45 minutes, needs retry on failure, and must survive a server restart. BullMQ could do it, but Argo gives you full step-by-step observability via the operation-tracking workspace. For a sync this large, you need to know exactly which step failed if something goes wrong at 3am.</p>
+            </div>
+          </div>
+
+          <!-- Message 5: E asks about CSV export -->
+          <div class="chat-message" data-msg="4" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>User clicks &apos;Export to CSV&apos;. Takes about 20 seconds to generate. What do I do?</p>
+            </div>
+          </div>
+
+          <!-- Message 6: A answers BullMQ -->
+          <div class="chat-message" data-msg="5" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p><strong>BullMQ queue</strong> — offload the generation work immediately, return a job ID to the browser, and notify the user when the file is ready. Do not make them stare at a spinner for 20 seconds. A REST call that takes 20 seconds will time out on some networks and will block a server thread the whole time.</p>
+            </div>
+          </div>
+
+          <!-- Message 7: E asks about AI chat -->
+          <div class="chat-message" data-msg="6" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1);">Engineer</span>
+              <p>User types a message in the AI chat. How does the response come back?</p>
+            </div>
+          </div>
+
+          <!-- Message 8: A explains WebSocket -->
+          <div class="chat-message" data-msg="7" data-sender="architecture" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">Architecture</span>
+              <p><strong>WebSocket</strong> — the AI might think for 90 seconds and push 10 intermediate events (tool calls, artifacts, partial messages) along the way. REST would time out. WebSocket keeps the channel open as long as needed, and the server can push each event the instant it is ready — giving the user live feedback instead of a frozen screen.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="chat-which-channel-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 6 — APPLICATION: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <p>Four scenarios. Pick the communication pattern that fits the constraints.</p>
+
+      <div class="quiz-container" id="quiz-m3">
+
+        <!-- Q1: Excel export -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. REST blocks the user for 40 seconds and risks a timeout. BullMQ queues the work immediately, returns a success response, and notifies the user when the file is ready. The user does not wait — and the work is not lost if the server restarts."
+             data-explanation-wrong="REST blocks the user for 40 seconds and risks a timeout on many networks. BullMQ queues the work, returns a response immediately, and notifies when done. Always offload slow work to a queue rather than holding an HTTP connection open.">
+          <h3 class="quiz-question">A user wants to download all their journal entries as a large Excel file. Generation takes 40 seconds. Which pattern?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>REST — it is a simple request, just wait for the file</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>WebSocket — stream the file as it is generated</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>BullMQ queue — offload the work, notify when ready</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Knock — send a notification when the file is done</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2: Real-time co-editing -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Real-time bidirectional communication — where the server pushes updates the client did not ask for — is what WebSocket was built for. Polling every second would work but wastes resources and introduces up to 1-second lag on every update."
+             data-explanation-wrong="Real-time bidirectional communication where the server pushes cursor positions without being asked = WebSocket. REST polling every second technically works but introduces lag and wastes resources. WebSocket pushes the moment something changes.">
+          <h3 class="quiz-question">You are building a real-time co-editing feature where two users edit a budget simultaneously and see each other&apos;s cursors. Which pattern?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>REST polling every second</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>WebSocket — the server pushes cursor updates in real time</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>BullMQ — background processing for edits</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Argo Workflow — it is complex distributed work</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3: Debugging a sync -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right. Operation tracking appends events throughout a long-running job. The last event tells you exactly where the sync stopped — whether it was during authentication, data fetching, or writing records. This is why the Argo migration is worth doing: full step-by-step observability."
+             data-explanation-wrong="Operation tracking appends events throughout a long-running job. The last recorded event tells you exactly where the sync stopped — far more useful than checking logs or the database after the fact. This is the primary advantage of the operation-tracking workspace over raw BullMQ logs.">
+          <h3 class="quiz-question">A company&apos;s QuickBooks sync has not run in 3 hours. You check BullMQ — the job was picked up. What is the most likely next place to look for what happened?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The avise-web browser console — front-end errors</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Operation tracking events for the sync operation</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The Auth0 dashboard — authentication might have expired</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The PostgreSQL database — look for missing rows</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q4: Who triggers Knock -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Server-side events — task assignments, approvals, deadline triggers — are always initiated from avise-api after the business logic completes. The browser never triggers notifications directly; it only displays them. The server is the authoritative source of truth about what happened."
+             data-explanation-wrong="Server-side business events are triggered from avise-api, not from the browser. The browser only displays the result — it never initiates notifications directly. If the browser triggered Knock, a malicious user could send notifications to anyone just by opening the browser console.">
+          <h3 class="quiz-question">Knock sends a notification to a user when they are assigned a task. Which service triggers the Knock event?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The user&apos;s browser (avise-web) — it knows the assignment happened</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api — after saving the task assignment in the database</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL directly — via a database trigger</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The user who made the assignment — from their session</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m3')">Try Again</button>
+      </div>
+
+      <!-- Module navigation -->
+      <div class="module-nav-end animate-in">
+        <a href="#module-4" class="btn module-continue-btn">
+          Continue to Module 4: Where Things Live
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-2" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 2
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>
+<section class="module" id="module-4" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ============================================================
+         SCREEN 1 — ANCHOR: 5-system bento grid
+         ============================================================ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 4</span>
+        <h1 class="module-title">Where Things Live</h1>
+        <p class="module-subtitle">Avise stores data in 5 different places. That&apos;s not laziness — each storage system exists because it&apos;s the right tool for a specific job.</p>
+      </header>
+
+      <p>Think of a law firm&apos;s filing system: permanent case files go in locked cabinets, access badges live with security, faxes go in a shredder when done, and archived documents go in off-site storage. Everything has a place — because <em>mixing them would be chaos</em>.</p>
+
+      <div class="bento-grid stagger-children">
+
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-1);">
+          <div class="pattern-icon" style="background: var(--color-actor-1);">
+            <i data-lucide="database" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">PostgreSQL</h3>
+          <span class="tech-tag">Permanent records</span>
+          <p class="pattern-desc">Journal entries, tasks, companies, users — the source of truth for all business data. Medium speed, highly reliable.</p>
+        </div>
+
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div class="pattern-icon" style="background: var(--color-actor-2);">
+            <i data-lucide="shield" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">SpiceDB</h3>
+          <span class="tech-tag">Permission graph</span>
+          <p class="pattern-desc">Who can access what resource — and nothing else. Very fast, completely separate from business data.</p>
+        </div>
+
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="zap" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Redis</h3>
+          <span class="tech-tag">Fast temporary store</span>
+          <p class="pattern-desc">
+            <span class="term" data-definition="BullMQ is a queue library that stores job definitions in Redis. When avise-api restarts mid-job, Redis still holds the job — the next worker picks it up.">BullMQ</span>
+            job definitions, session cache. Extremely fast, not permanent.
+          </p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <div class="pattern-icon" style="background: var(--color-actor-4);">
+            <i data-lucide="cloud" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">AWS S3</h3>
+          <span class="tech-tag">File warehouse</span>
+          <p class="pattern-desc">Uploaded PDFs, Excel files, generated exports. Slow to retrieve, but very cheap at scale — exactly the right tradeoff for large files.</p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid #7C3AED;">
+          <div class="pattern-icon" style="background: #7C3AED;">
+            <i data-lucide="search" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">TurboPuffer</h3>
+          <span class="tech-tag">AI vector index</span>
+          <p class="pattern-desc">
+            Semantic
+            <span class="term" data-definition="An embedding is a mathematical representation of text as a list of numbers. Similar meanings produce numbers that are close together — so 'rent' and 'lease payments' cluster near each other.">embeddings</span>
+            of documents for AI-powered search. Fast for &quot;find similar meaning&quot; queries that PostgreSQL cannot do.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2 — MECHANISM: ER diagram
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Everything traces back to a Company</h2>
+
+      <p>
+        PostgreSQL is Avise&apos;s permanent record keeper. Its tables are organized in a tree:
+        <span class="term" data-definition="An Organization is the top-level account in Avise — like a firm or enterprise. Organizations contain Companies, which contain all the financial data.">Organizations</span>
+        contain Companies, and Companies hold everything else. Here is the actual shape of the data:
+      </p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="database" class="icon-lg" aria-hidden="true"></i>
+          <div>
+            <h3 class="schema-card-title">The PostgreSQL schema, at a glance</h3>
+            <p class="schema-card-sub">Arrows show &quot;one to many&quot; — one Company has many JournalEntries.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+erDiagram
+  Organization ||--o{ Company : "has many"
+  Company ||--o{ JournalEntry : "has many"
+  Company ||--o{ Task : "has many"
+  Company ||--o{ User : "belongs to many"
+  JournalEntry ||--o{ JournalLine : "has many"
+  JournalEntry {
+    string id PK
+    string companyId FK
+    string status
+    datetime createdAt
+  }
+  Task {
+    string id PK
+    string companyId FK
+    string assigneeId FK
+    string status
+    datetime dueDate
+  }
+  Company {
+    string id PK
+    string organizationId FK
+    string name
+  }
+        </pre>
+        <p class="schema-card-note">Read the arrows as &quot;one to many.&quot; One Organization has many Companies; each Company has many JournalEntries and Tasks. Users belong to Companies.</p>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Start from Company, walk down.</strong>
+          <p>Everything in Avise traces back to a Company. Companies belong to Organizations. Journal entries, tasks, and users all hang off companies — this tree organizes all permanent data. If you&apos;re ever confused about where data lives in PostgreSQL, start from Company and walk down.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3 — MECHANISM: SpiceDB
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">SpiceDB: permissions live in a completely separate database</h2>
+
+      <p>
+        When you ask &quot;Can this user edit this task?&quot; — Avise queries
+        <span class="term" data-definition="SpiceDB is a dedicated permissions database. It stores only relationships: 'User A is an admin of Company B.' It never stores journal entries, tasks, or any business data.">SpiceDB</span>,
+        not PostgreSQL. Business data and permission data grow at different rates and must stay separate.
+      </p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/authorization/authorizationClient.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// SpiceDB is NOT PostgreSQL. It&apos;s a completely separate database.</span>
+<span class="code-comment">// It stores ONLY relationships: "User A is an admin of Company B"</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>SpiceDB never holds a journal entry, a task, or a company name. Its entire job is to answer one question: &quot;does this relationship exist?&quot; — fast.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// When you ask "Can this user edit this task?" — the app queries SpiceDB.</span>
+<span class="code-comment">// PostgreSQL never gets asked about permissions.</span>
+<span class="code-keyword">import</span> { ResourcePermissions, ResourceRelations } <span class="code-keyword">from</span> <span class="code-string">"../generated/allspice/types"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              The types come from
+              <span class="term" data-definition="Allspice is an internal Avise tool that reads the SpiceDB schema and generates TypeScript types. Every permission check is type-safe — if you reference a resource that doesn&apos;t exist in SpiceDB, TypeScript catches it at compile time.">Allspice</span>
+              — Avise&apos;s own code-generation tool. It reads the SpiceDB schema and produces TypeScript types automatically.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// The Allspice DSL generates these types from the SpiceDB schema.</span>
+<span class="code-comment">// Every permission check is type-safe at compile time:</span>
+<span class="code-comment">// "task" and "assignee" are checked against the real schema.</span>
+<span class="code-keyword">export type</span> <span class="code-function">WriteRelationshipsInput</span>&lt;
+  Resource <span class="code-keyword">extends</span> <span class="code-keyword">keyof</span> ResourceRelations &amp; <span class="code-keyword">string</span>,
+  Subject <span class="code-keyword">extends</span> <span class="code-keyword">keyof</span> ResourceRelations[Resource] &amp; <span class="code-keyword">string</span>,
+&gt; = WriteRelationshipsParams&lt;ResourceRelations, ResourcePermissions, Resource, Subject&gt;[];</code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              The
+              <span class="term" data-definition="A generic type is a TypeScript feature that lets you write code that works with different types while still being type-safe. The angle brackets &lt;Resource, Subject&gt; are placeholders filled in when the type is used.">generic type</span>
+              ensures that &quot;task&quot; and &quot;assignee&quot; are real names from the SpiceDB schema — not strings you typed by hand. A typo becomes a compile error, not a runtime bug.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="shield" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Avise invented Allspice to make permissions type-safe.</strong>
+          <p>If you write a permission check for a resource that doesn&apos;t exist in SpiceDB, TypeScript catches it at compile time — before it ever hits production. Business data grows constantly. Permission data changes rarely. Mixing them in one database would cause either slow permission checks or slow business queries — so they live apart by design.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 4 — MECHANISM: Redis + S3 + TurboPuffer
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Three more storage systems — each solving a different problem</h2>
+
+      <p>PostgreSQL handles permanent records. SpiceDB handles permissions. These three handle everything else — and each exists because the alternatives would be catastrophically wrong.</p>
+
+      <div class="grid-3-cols stagger-children">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="zap" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Redis — BullMQ backend</h3>
+          <p class="pattern-desc">
+            <span class="term" data-definition="BullMQ is a job queue system that uses Redis as its storage engine. Jobs are added to a queue in Redis, and worker processes pick them up and run them — even if the server that added the job has since restarted.">BullMQ</span>
+            stores job definitions in Redis. If avise-api restarts mid-job, Redis still holds the job. The next worker picks it up. Data survives server restarts without needing a full database.
+          </p>
+          <p style="margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary);">
+            <strong>When to use:</strong> any async work that must survive server failures.
+          </p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <div class="pattern-icon" style="background: var(--color-actor-4);">
+            <i data-lucide="cloud" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">AWS S3 — file warehouse</h3>
+          <p class="pattern-desc">
+            When a user uploads a PDF, the file goes directly to
+            <span class="term" data-definition="AWS S3 (Simple Storage Service) is Amazon&apos;s file storage system. It can hold files of any size cheaply. Avise stores only the S3 key (a reference like a library card number) in PostgreSQL — not the file itself.">S3</span>.
+            Avise stores only the S3 key (like a library card number) in PostgreSQL — not the file itself. Storing a 50MB file in a relational database would be catastrophically slow.
+          </p>
+          <p style="margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary);">
+            <strong>When to use:</strong> any user-uploaded file, any generated export.
+          </p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #7C3AED;">
+          <div class="pattern-icon" style="background: #7C3AED;">
+            <i data-lucide="search" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">TurboPuffer — vector search</h3>
+          <p class="pattern-desc">
+            When the AI searches for &quot;journal entries about rent expense,&quot; a
+            <span class="term" data-definition="A SQL LIKE query finds rows where text contains an exact substring. It cannot find that 'lease payments' and 'rent expense' are the same concept — it only matches the exact letters you typed.">SQL LIKE query</span>
+            won&apos;t work. TurboPuffer stores
+            <span class="term" data-definition="Vector embeddings are lists of numbers that represent the meaning of text. Similar meanings produce numbers that are mathematically close — so &apos;rent&apos; and &apos;lease payments&apos; cluster together in the vector space.">vector embeddings</span>:
+            mathematical representations of meaning. Similar meanings cluster together, so &quot;rent&quot; and &quot;lease payments&quot; match.
+          </p>
+          <p style="margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary);">
+            <strong>When to use:</strong> semantic or AI-powered search.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 5 — APPLICATION: Quiz
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Three scenarios. Each one tests whether you know which storage system owns that type of data.</p>
+
+      <div class="quiz-container" id="quiz-m4">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Permissions are SpiceDB&apos;s entire purpose. They never go in PostgreSQL — that would mean querying business data tables every time you need to check a permission, which would be both slow and a design violation."
+             data-explanation-wrong="Permissions are SpiceDB&apos;s entire purpose. They never go in PostgreSQL — that would mean querying business data tables every time you need to check a permission. SpiceDB exists to keep permission checks fast and separate.">
+          <h3 class="quiz-question">A user is added as an admin of Company X. Where is this permission relationship stored?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL — in the users table</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>SpiceDB — as a permission relationship</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Redis — as a cached permission</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>AWS S3 — in a permissions file</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. PostgreSQL stores the reference — the S3 key. The actual file lives in S3. This keeps the database fast and the storage cheap."
+             data-explanation-wrong="PostgreSQL stores the reference — the S3 key. The actual file lives in S3. This keeps the database fast and the storage cheap. Storing the file itself in PostgreSQL would make every query that touches that row extremely slow.">
+          <h3 class="quiz-question">A user uploads a 100MB financial report. After it&apos;s uploaded, what does PostgreSQL store?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The full file content</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — it all goes to S3</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The S3 key (a reference to where the file lives)</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A compressed version of the file</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Semantic search — finding content by meaning, not exact words — requires vector embeddings. That&apos;s TurboPuffer&apos;s job. PostgreSQL would only find exact text matches."
+             data-explanation-wrong="Semantic search — finding content by meaning, not exact words — requires vector embeddings. That&apos;s TurboPuffer&apos;s job. PostgreSQL full-text search still requires the words to appear in the document. TurboPuffer understands that &apos;capital expenditures&apos; and &apos;capex&apos; and &apos;equipment purchases&apos; mean the same thing.">
+          <h3 class="quiz-question">The AI assistant needs to find journal entries that &quot;discuss capital expenditures&quot; even if the user didn&apos;t use those exact words. Which storage system handles this?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL full-text search</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>TurboPuffer vector index</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Redis cache</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>SpiceDB</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m4')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m4')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-5" class="btn module-continue-btn">
+          Continue to Module 5: The Outside World
+          <i data-lucide="arrow-right" class="icon" aria-hidden="true"></i>
+        </a>
+        <a href="#module-3" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm" aria-hidden="true"></i> Back to Module 3
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>
+<section class="module" id="module-5" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ============================================================
+         SCREEN 1 — ANCHOR: 8-service dependency grid
+         ============================================================ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 5</span>
+        <h1 class="module-title">The Outside World</h1>
+        <p class="module-subtitle">Avise doesn&apos;t do everything itself. Authentication is Auth0. Notifications are Knock. Errors are caught by DataDog. Feature rollouts are controlled by Split.io. Remove any one — a part of Avise stops working.</p>
+      </header>
+
+      <p>Like a supplier chain in any business: every external service falls into one of three failure categories. Know the category, know how to respond.</p>
+
+      <h3 style="margin: var(--space-6) 0 var(--space-3);">HARD — app breaks immediately</h3>
+      <div class="grid-2-cols stagger-children" style="margin-bottom: var(--space-6);">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error); border-left: 3px solid var(--color-error);">
+          <div class="pattern-icon" style="background: var(--color-error);">
+            <i data-lucide="key-round" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Auth0</h3>
+          <p class="pattern-desc">Authenticates every user login via
+            <span class="term" data-definition="JWT (JSON Web Token) is a small signed package of data proving who you are. After Auth0 validates your credentials, it issues a JWT that avise-api checks on every request.">JWT</span>.
+          </p>
+          <span class="tech-tag" style="background: var(--color-error-light); color: var(--color-error);">Failure: nobody can log in</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error); border-left: 3px solid var(--color-error);">
+          <div class="pattern-icon" style="background: var(--color-error);">
+            <i data-lucide="cloud" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">AWS S3</h3>
+          <p class="pattern-desc">Stores all user-uploaded files. Every PDF, Excel file, and generated export lives here.</p>
+          <span class="tech-tag" style="background: var(--color-error-light); color: var(--color-error);">Failure: file uploads and downloads fail</span>
+        </div>
+
+      </div>
+
+      <h3 style="margin: var(--space-4) 0 var(--space-3);">SOFT — feature degrades gracefully</h3>
+      <div class="grid-3-cols stagger-children" style="margin-bottom: var(--space-6);">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #D97706;">
+          <div class="pattern-icon" style="background: #D97706;">
+            <i data-lucide="sliders-horizontal" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Split.io</h3>
+          <p class="pattern-desc">Controls
+            <span class="term" data-definition="A feature flag is a switch in code that turns a feature on or off without redeploying. Split.io manages these flags remotely — you can toggle them instantly from a dashboard.">feature flags</span>
+            and rollouts.
+          </p>
+          <span class="tech-tag" style="background: #FEF3C7; color: #92400E;">Failure: reverts to safe defaults</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #D97706;">
+          <div class="pattern-icon" style="background: #D97706;">
+            <i data-lucide="bell" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Knock</h3>
+          <p class="pattern-desc">Sends notifications — email and in-app alerts when tasks are assigned or completed.</p>
+          <span class="tech-tag" style="background: #FEF3C7; color: #92400E;">Failure: notifications stop, app works</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #D97706;">
+          <div class="pattern-icon" style="background: #D97706;">
+            <i data-lucide="bar-chart-3" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">DataDog</h3>
+          <p class="pattern-desc">Collects logs, traces, and metrics from every service. The engineering team&apos;s window into the system.</p>
+          <span class="tech-tag" style="background: #FEF3C7; color: #92400E;">Failure: blind to errors, app works</span>
+        </div>
+
+      </div>
+
+      <h3 style="margin: var(--space-4) 0 var(--space-3);">ASYNC — catches up when restored</h3>
+      <div class="grid-3-cols stagger-children">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div class="pattern-icon" style="background: var(--color-success);">
+            <i data-lucide="refresh-cw" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">QuickBooks Online</h3>
+          <p class="pattern-desc">Source of accounting data for QBO customers. Syncs journal entries and transactions.</p>
+          <span class="tech-tag" style="background: var(--color-success-light); color: var(--color-success);">Failure: sync pauses, catches up</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div class="pattern-icon" style="background: var(--color-success);">
+            <i data-lucide="refresh-cw" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">NetSuite</h3>
+          <p class="pattern-desc">Source of ERP data for NetSuite customers. Syncs the same types of accounting data.</p>
+          <span class="tech-tag" style="background: var(--color-success-light); color: var(--color-success);">Failure: sync pauses, catches up</span>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-success);">
+          <div class="pattern-icon" style="background: var(--color-success);">
+            <i data-lucide="search" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">TurboPuffer</h3>
+          <p class="pattern-desc">AI vector search index. Powers semantic search in the AI assistant.</p>
+          <span class="tech-tag" style="background: var(--color-success-light); color: var(--color-success);">Failure: falls back to keyword search</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2 — MECHANISM: Auth0 vs SpiceDB
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Auth0 asks &quot;Who are you?&quot; — SpiceDB asks &quot;What can you do?&quot;</h2>
+
+      <p>These are two completely different questions answered by two completely different systems. Confusing them is the most common architecture mistake in systems with user accounts.</p>
+
+      <div class="grid-2-cols stagger-children" style="margin: var(--space-6) 0;">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div class="pattern-icon" style="background: var(--color-actor-2);">
+            <i data-lucide="key-round" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Auth0 — Authentication</h3>
+          <p class="pattern-desc">
+            <span class="term" data-definition="Authentication is proving your identity — like showing a passport. It answers: are you who you claim to be? Auth0 validates your credentials (email + password, Google login, etc.) and issues a JWT token.">Authentication</span>:
+            &quot;Who are you?&quot; Validates credentials, issues a signed
+            <span class="term" data-definition="A JWT (JSON Web Token) is a small, signed packet of data that proves your identity. It contains your user ID and an expiry time, and is cryptographically signed so it cannot be faked.">JWT token</span>.
+            Auth0 knows nothing about tasks or journal entries.
+          </p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="shield" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">SpiceDB — Authorization</h3>
+          <p class="pattern-desc">
+            <span class="term" data-definition="Authorization is deciding what you&apos;re allowed to do — like a bouncer checking your name against a VIP list. SpiceDB stores permission relationships and answers: does this user have the approve permission for this resource?">Authorization</span>:
+            &quot;What can you do?&quot; Checks your permissions for each specific resource. SpiceDB knows nothing about passwords.
+          </p>
+        </div>
+      </div>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>User logs in</strong>
+            <p>Auth0 validates email + password (or Google SSO). Issues a signed JWT.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>User makes an API request</strong>
+            <p>avise-api receives the request with the JWT in the header.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong><code>jwtAuthentication()</code> — who is this?</strong>
+            <p>Auth0 validates the token. If it&apos;s valid, we know the user&apos;s identity.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>SpiceDB check — what can they do?</strong>
+            <p>Inside the route handler, SpiceDB answers whether this specific user has permission for this specific resource.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in" style="margin-top: var(--space-6);">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/apiRouter.ts</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>r.<span class="code-function">use</span>(<span class="code-function">jwtAuthentication</span>());      <span class="code-comment">// Step 1: Auth0 — who is this person?</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>Every request passes through this
+              <span class="term" data-definition="Middleware is a function that runs between receiving a request and sending a response. It can inspect, modify, or reject requests — like a security checkpoint on a highway.">middleware</span>
+              first. Auth0 validates the JWT. If the token is missing or expired, the request is rejected here — before it reaches any route.
+            </p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>r.<span class="code-function">use</span>(<span class="code-function">userIdentityMiddleware</span>()); <span class="code-comment">// Step 2: Look them up in our DB</span>
+<span class="code-comment">// Then SpiceDB permission check happens inside the route handler</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>After Auth0 confirms identity, Avise looks up the user&apos;s full record in PostgreSQL. Then, inside each route handler, SpiceDB is called to check the specific permission needed for that action.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lock" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Separation is a security feature, not just a design choice.</strong>
+          <p>If SpiceDB is compromised, passwords are still safe in Auth0. If Auth0 is compromised, permission rules are still safe in SpiceDB. Two separate attack surfaces are harder to break simultaneously than one combined system.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3 — MECHANISM: Feature Flags — Conditional Flow Map
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Split.io: the traffic controller for new features</h2>
+
+      <p>
+        Every significant new feature in Avise is gated behind a
+        <span class="term" data-definition="A feature flag is a named boolean switch managed by Split.io. The app checks the flag&apos;s value at runtime — ON means use the new code path, OFF means use the old one. Flags can be toggled instantly without redeploying.">feature flag</span>.
+        This lets engineering roll out changes to 5% of companies first, then 50%, then everyone — and kill a feature instantly if something goes wrong.
+      </p>
+
+      <div class="conditional-flow animate-in" data-default-state="on">
+        <div class="conditional-flow-header">
+          <i data-lucide="git-branch" class="icon-lg" aria-hidden="true"></i>
+          <div>
+            <h3 class="conditional-flow-title">When the flag toggles, the search path changes</h3>
+            <p class="conditional-flow-sub">Same user request — two completely different routes through the system.</p>
+          </div>
+        </div>
+
+        <div class="conditional-flow-toggle" role="tablist">
+          <button class="state-btn active" data-state="on" role="tab" aria-selected="true">
+            <i data-lucide="toggle-right" class="icon-sm" aria-hidden="true"></i> Flag ON (new AI search)
+          </button>
+          <button class="state-btn" data-state="off" role="tab" aria-selected="false">
+            <i data-lucide="toggle-left" class="icon-sm" aria-hidden="true"></i> Flag OFF (legacy keyword search)
+          </button>
+        </div>
+
+        <div class="state-panel active" data-state="on">
+          <pre class="mermaid">
+graph LR
+  A["User searches for concept"]:::active --> B["enableNewSearch = true"]:::active
+  B --> C["AI search pipeline"]:::active
+  C --> D["TurboPuffer vector query"]:::active
+  D --> E["Semantic results returned"]:::active
+  classDef active fill:#E8F5EE,stroke:#2D8B55,stroke-width:2.5px,color:#1F1D1B;
+          </pre>
+          <p class="state-description">
+            <strong>When ON:</strong> the request routes through the new AI-powered search pipeline. TurboPuffer finds journal entries by meaning — not just matching words. A search for &quot;capital expenses&quot; finds entries about &quot;equipment purchases&quot; and &quot;capex.&quot;
+          </p>
+        </div>
+
+        <div class="state-panel" data-state="off">
+          <pre class="mermaid">
+graph LR
+  A["User searches for concept"]:::active --> B["enableNewSearch = false"]:::active
+  B --> C["Legacy keyword search"]:::active
+  C --> D["PostgreSQL LIKE query"]:::active
+  D --> E["Exact-match results returned"]:::active
+  classDef active fill:#FEF3C7,stroke:#D97706,stroke-width:2.5px,color:#1F1D1B;
+          </pre>
+          <p class="state-description">
+            <strong>When OFF:</strong> the request uses the legacy keyword search. PostgreSQL runs a LIKE query — it only finds entries that contain the exact words typed. Simpler, faster, but misses synonyms and related concepts.
+          </p>
+        </div>
+
+        <div class="conditional-flow-meta">
+          <strong>Flag:</strong> <code>enableNewSearch</code>.
+          <strong>Default:</strong> <code>false</code> in production during rollout, <code>true</code> in staging.
+          <strong>Safety net:</strong> <code>FALLBACK_FEATURE_FLAGS</code> activates when Split.io is unreachable — all flags revert to safe conservative defaults. The app never crashes because Split.io is down.
+          <strong>Why it exists:</strong> gradual rollout (10% of companies first), instant kill switch if bugs appear, and A/B testing search quality.
+        </div>
+      </div>
+
+      <div class="code-walk animate-in" style="margin-top: var(--space-6);">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/app.ts</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">await</span> FeatureFlagsClient.<span class="code-function">waitUntilReady</span>();
+<span class="code-comment">// App doesn&apos;t start until Split.io is ready</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>The server waits for Split.io to load all flag values before accepting any requests. This ensures that the very first request gets the correct flag state, not a stale default.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// avise-shared-utils/src/featureFlags/config.ts (conceptual)</span>
+<span class="code-comment">// FALLBACK_FEATURE_FLAGS activates when Split.io is unreachable:</span>
+<span class="code-comment">// All flags revert to their safe default values.</span>
+<span class="code-comment">// The app never crashes because Split.io is down.</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              The
+              <span class="term" data-definition="A fallback is a backup behavior that activates when the primary system is unavailable. FALLBACK_FEATURE_FLAGS is a constant object of safe default values that Avise uses when Split.io cannot be reached.">fallback</span>
+              constant is the safety net. If Split.io is down, features revert to conservative defaults — usually &quot;flag OFF&quot; to keep the stable legacy path running. The app continues working; it just doesn&apos;t roll out new features during the outage.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 4 — MECHANISM: Group chat — real incident response
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">A real incident: how DataDog turns 2 hours into 8 minutes</h2>
+
+      <p>
+        A QBO sync has been silent for 4 hours. Without
+        <span class="term" data-definition="DataDog is an observability platform — it collects logs (text records of what happened), metrics (numbers like request count and latency), and traces (the path a single request took through the system). Engineers use it to diagnose problems.">DataDog</span>
+        and
+        <span class="term" data-definition="Operation tracking is Avise&apos;s system for recording every step a long-running job takes. Each event is appended to an operation record — so you can replay exactly what the job did, and find where it stopped.">operation tracking</span>,
+        diagnosing this would take hours of guessing. Watch how it actually unfolds:
+      </p>
+
+      <div class="chat-window" id="chat-incident-response">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-msg="0" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Company ABC&apos;s QBO sync hasn&apos;t run in 4 hours. Show me errors.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="1" data-sender="datadog" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">DataDog</span>
+              <p>[ERROR] avise-api: QBO sync job failed — &apos;ETIMEDOUT: connection refused&apos; at 14:23</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="2" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Check operation events for sync job xyz</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4);">avise-api</span>
+              <p>Last event: &apos;file_fetch_started&apos; at 14:22. Then silence.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="4" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Timeout during file fetch from QBO. Not an Avise bug — QBO API was down.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="5" data-sender="engineer" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">E</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">On-call Engineer</span>
+              <p>Create alert: &quot;if QBO API latency &gt; 5s, page on-call&quot;</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="6" data-sender="datadog" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">DataDog</span>
+              <p>Alert created. You&apos;ll be paged within 60 seconds of QBO latency spiking.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="7" data-sender="narrator" style="display:none">
+            <div class="chat-bubble" style="background: var(--color-accent-light); border-left: 3px solid var(--color-accent); max-width: 100%;">
+              <span class="chat-sender" style="color: var(--color-accent);">Result</span>
+              <p>Total diagnosis time: 8 minutes. Without DataDog and operation tracking: 2+ hours of log-grepping and guesswork.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-typing" style="display:none">
+          <div class="chat-avatar" id="typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 5 — APPLICATION: Quiz
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Four scenarios about external services. Pick the right diagnosis.</p>
+
+      <div class="quiz-container" id="quiz-m5">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct. Login is Authentication — that&apos;s Auth0&apos;s responsibility. If Auth0 is down or has an incident, nobody can log in regardless of API health."
+             data-explanation-wrong="Login is Authentication — that&apos;s Auth0&apos;s responsibility. The API server being healthy doesn&apos;t matter if Auth0 cannot issue or validate the JWT tokens needed to log in. Check Auth0 first.">
+          <h3 class="quiz-question">Users report they can&apos;t log in to Avise. The API server is healthy. Which external service do you check first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>DataDog</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split.io</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Knock</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Gradual rollout plus instant kill switch equals feature flags. Split.io manages this with percentage-based rollout and immediate flag toggling."
+             data-explanation-wrong="Gradual rollout (5% of companies first) plus an instant kill switch (disable if bugs appear) — that&apos;s the definition of a feature flag system. Split.io manages this. Auth0 scopes, Knock, and a database table can&apos;t toggle instantly for a percentage of users.">
+          <h3 class="quiz-question">A new feature is being rolled out to 5% of companies first. The feature can be disabled instantly if bugs are found. Which system enables both of these?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0 scopes</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split.io feature flags</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Knock workflows</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL feature table</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. DataDog is observability — a SOFT dependency. The app continues working. You just can&apos;t see what happened during that window. This is why DataDog is in the &apos;soft&apos; category: its failure is invisible to users but painful for engineers."
+             data-explanation-wrong="DataDog is observability — a SOFT dependency. The app itself keeps working fine. You just lose visibility into what happened during that 30-minute window. Journal entries save normally; DataDog just didn&apos;t capture any telemetry. This is why it&apos;s &apos;soft&apos; — its failure hurts engineers, not users.">
+          <h3 class="quiz-question">DataDog goes down for 30 minutes during a weekend. A user submits a journal entry successfully. What happened during those 30 minutes?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Journal entries failed to save</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The app crashed</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Everything worked, but errors weren&apos;t captured</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Users couldn&apos;t log in</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly. Operation tracking appends events at each step of a long-running job. The last event tells you exactly where it stopped — even if no error was thrown."
+             data-explanation-wrong="Operation tracking appends events at each step of a long-running job. The last event tells you exactly where it stopped — even if no error was thrown. The Auth0 audit log shows login events, not sync steps. PostgreSQL tables show final data, not the process that created it. Split.io shows flag changes, not job execution.">
+          <h3 class="quiz-question">The QBO sync for a company ran for 3 hours and then stopped with no error in DataDog. Where would you look to find what the last successful step was?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0 audit log</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL journal_entries table</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Operation tracking events for that sync job</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Split.io flag history</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m5')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m5')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-6" class="btn module-continue-btn">
+          Continue to Module 6: Reading the System
+          <i data-lucide="arrow-right" class="icon" aria-hidden="true"></i>
+        </a>
+        <a href="#module-4" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm" aria-hidden="true"></i> Back to Module 4
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>
+<section class="module" id="module-6" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ============================================================
+         SCREEN 1 — ANCHOR: Debugging Decision Tree
+         ============================================================ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 6 — Final</span>
+        <h1 class="module-title">Reading the System</h1>
+        <p class="module-subtitle">This final module is about the one skill that separates developers who panic at production incidents from developers who stay calm: knowing exactly where to look.</p>
+      </header>
+
+      <p>
+        A ship&apos;s navigator uses charts, sonar, and radio together — no single instrument gives the full picture. Every bug has a layer. Start from the symptom, reach for the right instrument. This decision tree is your first mental reflex.
+      </p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="git-branch" class="icon-lg" aria-hidden="true"></i>
+          <div>
+            <h3 class="schema-card-title">The Debugging Decision Tree</h3>
+            <p class="schema-card-sub">Start from &quot;Something is broken.&quot; Follow the questions to the right instrument.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+graph TD
+  A["Something is broken"] --> B{"Visible in UI?"}
+  B -->|Yes| C["avise-web\nBrowser console\nReact DevTools"]
+  B -->|No| D{"API returning error?"}
+  D -->|Yes| E["avise-api\nDataDog logs\nfilter by companyId + status:error"]
+  D -->|No| F{"Data wrong in DB?"}
+  F -->|Yes| G["PostgreSQL\nCheck migrations\nPrisma schema"]
+  F -->|No| H{"Permission denied?"}
+  H -->|Yes| I["SpiceDB\nauthorizationClient\nAllspice types"]
+  H -->|No| J{"Background job failed?"}
+  J -->|Yes| K["Operation tracking events\nBullMQ or Argo job status"]
+  J -->|No| L["External service?\nDataDog + vendor status page"]
+  classDef decision fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#1F1D1B;
+  classDef action fill:#E8F5EE,stroke:#2D8B55,stroke-width:2px,color:#1F1D1B;
+  classDef start fill:#E8F0FF,stroke:#4F46E5,stroke-width:2px,color:#1F1D1B;
+  class A start;
+  class B,D,F,H,J decision;
+  class C,E,G,I,K,L action;
+        </pre>
+        <p class="schema-card-note">Each green box is a specific tool — open it with a targeted query, not a broad search. The yellow diamonds are questions you answer before picking up any tool.</p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2 — MECHANISM: DataDog structured logging
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Structured logging: the difference between a filing cabinet and a pile of paper</h2>
+
+      <p>
+        Every
+        <span class="term" data-definition="A log line is a message the application writes to record something that happened — like a receipt. Structured logging means adding searchable key-value pairs alongside the message, so tools like DataDog can filter by any field.">log line</span>
+        in avise-api carries a structured object alongside the message. Here is a real example from the AI file upload flow:
+      </p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/ai/index.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>logger.<span class="code-function">info</span>(`[ai:fileUpload] File saved to library [${<span class="code-property">companyId</span>}:${<span class="code-property">libraryFile.id</span>}]`, {</code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              The message string is for humans reading a log stream. The bracketed prefix
+              <code>[ai:fileUpload]</code>
+              acts as a namespace — you can search for it in
+              <span class="term" data-definition="DataDog is an observability platform. Its log search lets you filter by any structured field — type @companyId:abc-123 to see every log line related to that company, from every service.">DataDog</span>
+              to see all file upload events at once.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>  <span class="code-property">fileName</span>: file.fileName,
+  <span class="code-property">fileId</span>: libraryFile.id,
+  <span class="code-property">contentType</span>: file.contentType,
+  <span class="code-property">size</span>: file.sizeInBytes,
+});</code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              This
+              <span class="term" data-definition="A structured object in a log is a set of named fields attached to the log message. DataDog indexes every field — so @fileId:abc-123 is a precise filter, not a text search through thousands of lines.">structured object</span>
+              becomes searchable in DataDog. Query
+              <code>service:avise-api @fileId:abc-123</code>
+              finds every log line related to that file across the entire application — even across service restarts.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2-cols stagger-children" style="margin: var(--space-6) 0;">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-accent);">
+          <div class="pattern-icon" style="background: var(--color-accent);">
+            <i data-lucide="search" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Query by company</h3>
+          <p class="pattern-desc">
+            <code>service:avise-api @companyId:xyz status:error</code>
+            — find all errors for Company XYZ in the last hour.
+          </p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-accent);">
+          <div class="pattern-icon" style="background: var(--color-accent);">
+            <i data-lucide="file-text" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Query by file</h3>
+          <p class="pattern-desc">
+            <code>service:avise-api @fileId:abc-123</code>
+            — trace the full lifecycle of a specific uploaded file.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="folder-open" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Structured logging is a gift to your future self.</strong>
+          <p>Every <code>logger.info(message, &#123; key: value &#125;)</code> call adds a searchable, filterable dimension to the log. An engineer who writes good structured logs today saves the on-call engineer three hours of grep work at 2am. The fields are the filing labels; the message is the note on the folder.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3 — MECHANISM: Operation tracking
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Operation tracking: the flight recorder for background jobs</h2>
+
+      <p>
+        Long-running jobs — QBO syncs, Argo workflows, bulk imports — can run for minutes or hours. If one stops unexpectedly,
+        <span class="term" data-definition="Operation tracking is Avise&apos;s system for recording every step a long-running job takes. Each step appends an event to an operation record. If the job stops, the last event tells you exactly where.">operation tracking</span>
+        tells you exactly which step was last completed.
+      </p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-shared-utils/src/operationTracking/index.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Every long-running job creates an Operation.</span>
+<span class="code-comment">// Events are appended over its lifetime.</span>
+<span class="code-keyword">async function</span> <span class="code-function">createEventForOperationId</span>(
+  operationId: <span class="code-keyword">string</span>,
+  event: IncompleteOperationEvent,
+): <span class="code-keyword">Promise</span>&lt;OperationEvent&gt; {</code></pre>
+          <div class="code-walk-explanation">
+            <p>Every long-running job first creates an Operation record. Then, as the job progresses, it calls this function to append events — one per meaningful step. The operation record is the thread; the events are the beads.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>  <span class="code-keyword">const</span> operation = <span class="code-keyword">await</span> <span class="code-function">getOperation</span>(operationId);
+  <span class="code-comment">// Each event: what happened, when, by whom, any data payload</span>
+  <span class="code-keyword">return</span> <span class="code-function">createEventForOperation</span>(operation, event);
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>Each event records what happened, when it happened, and any relevant payload. When a job stops unexpectedly, you query events ordered by <code>created_at</code> — the last event is the last step the job completed before going silent.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// To understand what a stuck job did:</span>
+<span class="code-comment">// 1. Get the operation ID (from logs or DataDog)</span>
+<span class="code-comment">// 2. Query operation events ordered by created_at</span>
+<span class="code-comment">// 3. The last event tells you exactly where it stopped</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>This is the three-step playbook for any stuck job. You don&apos;t need to reproduce the failure — the events already recorded everything. A job that ran 3 hours and then stopped is no longer a mystery; it&apos;s a solved case waiting for you to query it.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="plane" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Operation tracking is a flight recorder for background jobs.</strong>
+          <p>
+            The plane (job) already landed or crashed — but the recorder tells you everything that happened during the flight, second by second. Without it, a stuck job is a mystery. With it, it&apos;s a solved case. This pattern —
+            <span class="term" data-definition="Event sourcing is the practice of storing state as a sequence of events rather than as a single current value. To find the current state, you replay the events in order. Operation tracking in Avise uses this pattern for job history.">event sourcing</span>
+            applied to background jobs — is one of the most powerful debugging patterns in distributed systems.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 4 — MECHANISM: Group chat — live incident debugging
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Live incident: tracing a &quot;journal entry not saving&quot; bug in 8 steps</h2>
+
+      <p>
+        A user reports journal entries aren&apos;t saving. No alarm fired. No obvious error. Here&apos;s how the debugging decision tree plays out in real time — using
+        <span class="term" data-definition="DataDog is the observability layer. When something breaks silently, DataDog&apos;s log search is usually the first place engineers look — it surfaces errors, warnings, and structured log fields from every service.">DataDog</span>,
+        <span class="term" data-definition="Middleware is a function that runs on every request before the route handler. companyContextMiddleware reads the :companyId URL parameter and attaches it to the request — every downstream handler relies on this being set correctly.">middleware</span>
+        inspection, and reading actual request URLs.
+      </p>
+
+      <div class="chat-window" id="chat-debugging-live">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-msg="0" data-sender="dev" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Developer</span>
+              <p>Company XYZ says their journal entries aren&apos;t saving. Show me errors in the last hour.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="1" data-sender="datadog" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">DD</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">DataDog</span>
+              <p>[ERROR] avise-api: &apos;Cannot insert journal entry — company context missing&apos;</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="2" data-sender="dev" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Developer</span>
+              <p>Which middleware sets company context? (checks companyContextMiddleware)</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4);">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4);">avise-api</span>
+              <p>companyContextMiddleware runs before companyRouter — it reads :companyId from the URL</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="4" data-sender="dev" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Developer</span>
+              <p>The error says &apos;context missing&apos; — the companyId route param must be wrong in the request</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="5" data-sender="dev" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Developer</span>
+              <p>Show me the actual request URL that failed</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="6" data-sender="datadog" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3);">DD</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3);">DataDog</span>
+              <p>POST /v1/companies/undefined/journal-entries — companyId is &apos;undefined&apos;</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="7" data-sender="dev" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2);">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2);">Developer</span>
+              <p>Bug in avise-web: companyId was not yet loaded when the mutation fired. Frontend bug, not backend. Fix goes in the React component, not the API.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-typing-2" style="display:none">
+          <div class="chat-avatar" id="typing-avatar-2">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 5 — APPLICATION: Quiz (Final Module)
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Final check: apply the full architecture map</h2>
+
+      <p>Four production scenarios. Use everything you&apos;ve learned in the course to pick the right diagnosis.</p>
+
+      <div class="quiz-container" id="quiz-m6">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct. The error explicitly says &apos;permission denied&apos; — that&apos;s SpiceDB&apos;s territory. The user is authenticated (Auth0 worked) but doesn&apos;t have the SpiceDB relationship that grants them the approve permission."
+             data-explanation-wrong="The error explicitly says &apos;permission denied&apos; — that&apos;s SpiceDB territory. Auth0 worked (the user reached the endpoint at all), and PostgreSQL isn&apos;t involved in permission checks. The missing SpiceDB relationship is the bug.">
+          <h3 class="quiz-question">A user reports &quot;I tried to approve a journal entry and got a red error message.&quot; DataDog shows: &quot;[ERROR] 403 Forbidden: permission denied for task:approve on company:abc&quot;. Where is the bug?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web React component</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>SpiceDB — the user doesn&apos;t have the approve permission</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL — the journal entry doesn&apos;t exist</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0 — the user isn&apos;t authenticated</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. No error means the job completed — but it stopped short. Operation tracking events show each processing step. The last event before silence tells you which transaction the job processed before ending unexpectedly."
+             data-explanation-wrong="No error means the job ran to completion without crashing — but something made it stop early. Operation tracking events record every step. The last event before silence tells you which transaction number it was processing when it stopped. Redis shows queue status, not job execution history. SpiceDB is for permissions, not sync jobs.">
+          <h3 class="quiz-question">A QBO sync completed successfully (no errors) but 200 transactions are missing from Avise. DataDog shows the job ran for 12 minutes. Where do you look next?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0 — maybe the QBO token expired</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Operation tracking events — to see which step processed the last transaction</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Redis — to check if the job is still queued</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>SpiceDB — to check if the service has permission</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct. When a feature works in one environment but not another with no errors, feature flags are the first suspect. Split.io flags can be toggled per environment — staging could have it ON while production still has it OFF during a gradual rollout."
+             data-explanation-wrong="When a feature works in staging but not production with no errors anywhere, feature flags are the first suspect. A database migration not applied would cause errors. Different Auth0 roles would likely cause permission errors. Split.io flags can simply be ON in staging and OFF in production — no error, no log, just different behavior.">
+          <h3 class="quiz-question">Feature Y works in the staging environment but not in production. No errors anywhere. What&apos;s the most likely cause?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A database migration not applied in production</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A Split.io feature flag that&apos;s ON in staging but OFF in production</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth0 has different user roles in prod</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL has different data</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Structured logging with a short message and a searchable data object is the pattern. @companyId:abc and @userId:xyz become DataDog search filters. Long strings in the message are hard to search; structured fields are exact-match searchable."
+             data-explanation-wrong="Structured logging — a short message plus a searchable data object — is the Avise pattern. Long descriptive strings are hard to query. Logging only errors misses the breadcrumb trail that reveals what happened before the error. Separate log files per endpoint make cross-service correlation impossible.">
+          <h3 class="quiz-question">You need to add logging to a new API endpoint so that future incidents can be debugged quickly. Following Avise&apos;s patterns, what makes a log line maximally useful?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A long descriptive string: &quot;User tried to save journal entry but failed because...&quot;</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A short message + structured object: logger.info(&apos;[endpoint] Save failed&apos;, &#123; companyId, userId, journalEntryId &#125;)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Logging only errors, not successes</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Writing to a separate log file for each endpoint</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m6')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m6')">Try Again</button>
+      </div>
+
+      <div class="callout callout-accent animate-in" style="margin-top: var(--space-8);">
+        <div class="callout-icon"><i data-lucide="map" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">What&apos;s next: from map to patterns</strong>
+          <p>
+            You now have the full architecture map. You know where data lives, which external services own which responsibilities, and how to read the system when something breaks. The next step: run the
+            <span class="term" data-definition="The codebase-to-patterns skill analyzes a monorepo and extracts reusable architectural patterns, innovative solutions, and gaps into a reference catalog — useful for building a tech radar or onboarding documentation.">codebase-to-patterns</span>
+            skill on the monorepo to extract reusable patterns from each service — and start your
+            <span class="term" data-definition="A tech radar is a visual tool (made famous by Thoughtworks) that classifies technologies into four rings: Adopt, Trial, Assess, and Hold. It helps teams make consistent decisions about which tools to use and which to avoid.">tech radar</span>.
+          </p>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-0" class="btn module-continue-btn" style="background: linear-gradient(135deg, var(--color-accent) 0%, #1a6b3f 100%);">
+          Finish Course
+          <i data-lucide="check-circle-2" class="icon" aria-hidden="true"></i>
+        </a>
+        <a href="#module-5" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm" aria-hidden="true"></i> Back to Module 5
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>
+  </main>
+
+  <!-- Activate Lucide icons after the page is built -->
+  <script>
+    window.addEventListener('load', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flux Analysis — How Avise Compares Financial Periods</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-polish.css">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#FBF8F3',
+        primaryTextColor: '#1F1D1B',
+        primaryBorderColor: 'var(--color-accent, #2A7B9B)',
+        lineColor: '#5C5751',
+        secondaryColor: '#F4EFE6',
+        tertiaryColor: '#FFFFFF',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        fontSize: '15px'
+      },
+      flowchart: { curve: 'basis', padding: 20 },
+      er: { layoutDirection: 'LR', minEntityWidth: 120, entityPadding: 16 }
+    });
+  </script>
+
+  <!-- Teal accent — calm, financial, trustworthy -->
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">Flux Analysis</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-0" data-tooltip="Overview" role="tab" aria-label="Overview"></button>
+        <button class="nav-dot" data-target="module-1" data-tooltip="What is Flux Analysis?" role="tab" aria-label="Module 1: What is Flux Analysis?"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Comparison Modes" role="tab" aria-label="Module 2: Comparison Modes"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="The % Change Column" role="tab" aria-label="Module 3: The % Change Column"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Threshold Settings" role="tab" aria-label="Module 4: Threshold Settings"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Exporting Your Report" role="tab" aria-label="Module 5: Exporting Your Report"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+<section class="module module-landing" id="module-0">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">A course on…</span>
+      <h1 class="module-title-hero">Flux Analysis</h1>
+      <p class="module-subtitle-hero">Everything that happens when Avise shows you how your numbers changed — from the column values to the yellow alert icons to the export button.</p>
+    </header>
+
+    <div class="bento-grid stagger-children">
+      <div class="bento-3 pattern-card animate-in">
+        <i data-lucide="clock" class="icon-lg icon-accent"></i>
+        <h3 class="pattern-title">~30 minutes</h3>
+        <p class="pattern-desc">Five focused modules. Stop and come back anytime — scroll position stays while the tab is open.</p>
+      </div>
+      <div class="bento-3 pattern-card animate-in">
+        <i data-lucide="users" class="icon-lg icon-accent"></i>
+        <h3 class="pattern-title">For PMs, designers & accountants</h3>
+        <p class="pattern-desc">No coding background needed. Explains every technical term the moment it appears.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading">Five modules ahead</h2>
+    <div class="course-toc stagger-children">
+      <a href="#module-1" class="toc-item animate-in">
+        <span class="toc-num">01</span>
+        <div class="toc-body">
+          <strong>What is Flux Analysis?</strong>
+          <p>The core idea: comparing two financial periods side by side to spot what changed and by how much.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-2" class="toc-item animate-in">
+        <span class="toc-num">02</span>
+        <div class="toc-body">
+          <strong>Picking Your Comparison Mode</strong>
+          <p>Month over Month, Quarter over Quarter, Year over Year — what each one measures and how data flows from your selection to the screen.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-3" class="toc-item animate-in">
+        <span class="toc-num">03</span>
+        <div class="toc-body">
+          <strong>The % Change Column — How the Math Works</strong>
+          <p>The exact formula, what happens with zero balances, and why the column value is never affected by your settings.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-4" class="toc-item animate-in">
+        <span class="toc-num">04</span>
+        <div class="toc-body">
+          <strong>Threshold Settings — Three Decoupled Behaviors</strong>
+          <p>Why the yellow alert icon, auto-review, and task creation are three separate systems — and what the settings actually control.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-5" class="toc-item animate-in">
+        <span class="toc-num">05</span>
+        <div class="toc-body">
+          <strong>Exporting Your Flux Report</strong>
+          <p>XLSX vs CSV, company vs consolidation — what exists today and what each format includes.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+    </div>
+
+    <a href="#module-1" class="btn module-start-btn">
+      Start Module 1 <i data-lucide="arrow-right" class="icon"></i>
+    </a>
+  </div>
+</section>
+<section class="module" id="module-1">
+  <div class="module-content">
+    <div class="module-number">01</div>
+    <h2 class="module-title">What is Flux Analysis?</h2>
+    <p class="module-subtitle">The financial X-ray that shows you not just where your numbers landed, but how far they moved — and why that matters.</p>
+
+    <!-- SCREEN 1: Anchor — the experience anchor -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">You already know what this is — you just didn't have a name for it</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="bar-chart-3" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">The question everyone asks</h3>
+          <p class="pattern-desc">"Revenue went up $40k this month — but is that normal? Was it higher or lower than last month?"</p>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="git-compare-arrows" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h3 class="pattern-title">Flux Analysis is the answer</h3>
+          <p class="pattern-desc">It places two periods side by side — current vs. prior — and calculates exactly how much each account moved, in dollars and in percentage.</p>
+        </div>
+      </div>
+
+      <p>Every accountant does this comparison mentally. Avise just automates it for every single account simultaneously and surfaces the ones that deserve attention.</p>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="thermometer" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Think: weather forecast vs. historical average</strong>
+          <p>Today's temperature (current period) only means something when you compare it to last week or last year. Flux Analysis gives financial statements the same context — without it, a number is just a number.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — what the table actually shows -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Four columns. One complete picture.</h2>
+
+      <p>Every row in the Flux Analysis table represents one account (like "Cash", "Revenue", or "Accounts Receivable"). The four dynamic columns always show the same structure:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Current period balance</strong>
+            <p>What the account balance is for the period you selected — e.g., October 2024.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Prior period balance</strong>
+            <p>What the same account showed in the comparison period — e.g., September 2024 (for Month over Month).</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Amount Change ($ Change)</strong>
+            <p>Current minus prior, in dollars. Positive = grew, negative = shrank. Simple arithmetic, no settings needed.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>% Change</strong>
+            <p>How big was the movement relative to where it started? $10k change is huge for a $20k account, trivial for a $10M account. The percentage puts it in context.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Two more columns that only appear if configured</strong>
+          <p>A <strong>Status</strong> column (the task workflow badge) and an <strong>Explanation</strong> column appear only when a flux task has been created for that account. They're layered on top of the financial data — not part of the core report.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — Balance Sheet vs Income Statement vs Single-Account -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Three views, one concept</h2>
+
+      <p>Flux Analysis comes in three flavours. Same core idea, different scope:</p>
+
+      <div class="icon-rows stagger-children">
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-2);">
+            <i data-lucide="layout-dashboard" class="icon"></i>
+          </div>
+          <div>
+            <strong>Balance Sheet Flux</strong>
+            <p>Compares Assets, Liabilities &amp; Equity between periods. Good for spotting large movements in cash, receivables, or debt.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-3);">
+            <i data-lucide="trending-up" class="icon"></i>
+          </div>
+          <div>
+            <strong>Income Statement Flux</strong>
+            <p>Compares Income, Expenses, and Net Income. Good for understanding revenue swings and cost changes month to month.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-4);">
+            <i data-lucide="search" class="icon"></i>
+          </div>
+          <div>
+            <strong>Single-Account Flux</strong>
+            <p>Opens when you click into a specific account row. Shows a detailed breakdown — and uniquely, can <span class="term" data-definition="Pivoting by dimension means splitting one account's total into sub-totals per dimension value — e.g., showing Revenue broken out by Department: Marketing, Sales, Engineering.">pivot by dimension</span> (e.g., break revenue down by Department).</p>
+          </div>
+        </div>
+      </div>
+
+      <p style="margin-top: var(--space-6);">Balance Sheet and Income Statement views are accessed via the sub-navigation at the top of the Flux Analysis page. Single-Account opens as a <span class="term" data-definition="A slide-over is a panel that slides in from the right side of the screen without navigating to a new page — like a drawer.">slide-over panel</span> when you click any individual account row.</p>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Three scenarios. Apply what you just learned.</p>
+
+      <div class="quiz-container" id="quiz-module1">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly — Flux Analysis exists to put a number in context by comparing it to a prior period. A balance alone tells you nothing about whether it moved a lot or a little."
+             data-explanation-wrong="Flux Analysis does not create journal entries or categorize accounts — it compares period balances. The core purpose is the comparison, not the absolute number.">
+          <h3 class="quiz-question">A colleague says &ldquo;Cash is $200k this month.&rdquo; Why is that statement incomplete without Flux Analysis?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Because $200k needs to be categorized into subcategories first</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Because without a prior period to compare it to, you cannot tell if $200k is better, worse, or the same as before</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Because $200k is too small to be meaningful in any context</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the single-account view is the only one that supports dimension pivoting, like breaking down a revenue account by Department or Location."
+             data-explanation-wrong="Balance Sheet and Income Statement views show totals per account but don&apos;t support dimension breakdowns. The dimension pivot is exclusive to the single-account drilldown.">
+          <h3 class="quiz-question">You want to see how the &ldquo;Software Subscriptions&rdquo; expense account breaks down by Department this month vs last month. Which Flux view do you use?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Balance Sheet Flux</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Income Statement Flux</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Single-Account Flux (click into the account row, then pick a dimension)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — Status and Explanation columns only appear for accounts that have a flux task created for them. The four core financial columns (current, prior, $ change, % change) always show regardless."
+             data-explanation-wrong="The four financial columns (current, prior, $ change, % change) always appear — they are calculated from account balances, not from task settings. Status and Explanation are the optional additions.">
+          <h3 class="quiz-question">Which columns in the Flux Analysis table are ALWAYS visible, regardless of any settings or tasks?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Current period, prior period, $ change, and % change</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Status and Explanation</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>All six columns appear always</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-2" class="btn module-continue-btn">
+          Continue to Module 2: Comparison Modes
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-0" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Overview
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+    <div class="module-number">02</div>
+    <h2 class="module-title">Picking Your Comparison Mode</h2>
+    <p class="module-subtitle">Month over Month, Quarter over Quarter, Year over Year — not just cosmetic labels. Each one pulls different date ranges from the database.</p>
+
+    <!-- SCREEN 1: Anchor — the three modes -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Three lenses on the same data</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="calendar-days" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">Month over Month</h3>
+          <p class="pattern-desc">Current month vs. the immediately prior month. Best for operational close reviews — "what changed this month?"</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">monthOverMonth</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="calendar-range" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h3 class="pattern-title">Quarter over Quarter</h3>
+          <p class="pattern-desc">Current fiscal quarter vs. the prior fiscal quarter. Smooths out month-to-month noise for trends.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">quarterOverQuarter</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="calendar" class="icon-xl" style="color: var(--color-actor-4);"></i>
+          <h3 class="pattern-title">Year over Year</h3>
+          <p class="pattern-desc">Current fiscal year-to-date vs. the same period last year. Best for seasonality-adjusted analysis.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">yearOverYear</code>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The comparison dropdown is feature-flagged</strong>
+          <p>The <span class="term" data-definition="A feature flag is an on/off switch controlled by engineers that enables or disables a feature for specific users or organizations — without a code deployment.">feature flag</span> <code>additional-flux-report-types</code> controls whether QoQ and YoY appear in the dropdown. When it is off, only Month over Month is available. Today this flag defaults to off, so most users only see the MoM option.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — how the selection flows to the screen (Group Chat) -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">What actually happens when you pick a comparison</h2>
+
+      <p>Your dropdown selection travels from the UI through the <span class="term" data-definition="An API (Application Programming Interface) is a defined channel through which one piece of software sends a request to another and receives a response. Here, the frontend (what you see) sends a request to the backend (the server) with your chosen comparison.">API</span> to the backend, which uses it to decide which two date ranges to load from the database. Here&apos;s the conversation:</p>
+
+      <div class="chat-window" id="chat-module2">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-msg="0" data-sender="ui" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Your Browser (UI)</span>
+              <p>User selected &ldquo;Current Month vs Prior Month.&rdquo; Sending request to backend with <code>comparison=monthOverMonth</code>, <code>periodId=oct-2024</code>.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="1" data-sender="api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Backend API</span>
+              <p>Got it. <code>monthOverMonth</code> means: current range = Oct 1–31, comparison range = Sep 1–30. Fetching balances for both date ranges now.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="2" data-sender="db" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4)">Database</span>
+              <p>Here are the journal line balances for Oct and Sep for all accounts. October: $1.2M total activity. September: $980k total activity.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Backend API</span>
+              <p>Calculating deltas per account: $ change = Oct balance − Sep balance. % change = (delta / |Sep balance|) × 100. Building the report structure.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="4" data-sender="ui" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Your Browser (UI)</span>
+              <p>Report received. Rendering the table with column headers &ldquo;October 2024&rdquo;, &ldquo;September 2024&rdquo;, &ldquo;Amount Change&rdquo;, &ldquo;% Change&rdquo;. Done!</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-module2-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — date ranges per comparison type -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Quarter and Year comparisons use fiscal calendar, not calendar year</h2>
+
+      <p>For QoQ and YoY, the backend doesn&apos;t use January 1 as the year start — it uses your company&apos;s configured <span class="term" data-definition="The fiscal year start is the date a company considers the beginning of its financial year. Many companies use January 1, but others (retail, government, etc.) use different dates like April 1 or October 1.">fiscal year start</span>. This ensures the quarters line up correctly for your business.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/services/reports/flux/fluxUtils.ts — getReportParamsFromFluxReportType()</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">case</span> <span class="code-string">FluxComparison.monthOverMonth</span>:
+  <span class="code-keyword">return</span> {
+    <span class="code-property">compareTo</span>: <span class="code-string">CompareToOptions.PreviousMonth</span>,
+    <span class="code-property">startDate</span>: formatDate(period.startsOn),
+    <span class="code-property">endDate</span>: formatDate(period.endsOn),
+  };</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Month over Month:</strong> simplest case — compare to the immediately prior calendar month. Start and end dates come directly from the selected period&apos;s boundaries.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">case</span> <span class="code-string">FluxComparison.quarterOverQuarter</span>:
+  <span class="code-keyword">return</span> {
+    <span class="code-property">compareTo</span>: <span class="code-string">CompareToOptions.PreviousQuarter</span>,
+    <span class="code-property">startDate</span>: formatDate(fiscalQuarterStartDate),
+    <span class="code-property">endDate</span>: formatDate(fiscalQuarterEndDate),
+  };</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Quarter over Quarter:</strong> the date range expands to cover the entire fiscal quarter. <code>fiscalQuarterStartDate</code> is computed using the company&apos;s <code>fiscalYearStartMonth</code> and <code>fiscalYearStartDay</code> settings. If your FY starts April 1, Q1 is April–June, not January–March.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">case</span> <span class="code-string">FluxComparison.yearOverYear</span>:
+  <span class="code-keyword">return</span> {
+    <span class="code-property">compareTo</span>: <span class="code-string">CompareToOptions.PreviousYear</span>,
+    <span class="code-property">startDate</span>: formatDate(fiscalYearStartDate),
+    <span class="code-property">endDate</span>: formatDate(fiscalYearEndDate),
+  };</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Year over Year:</strong> date range expands to the full fiscal year. The backend computes this YTD (year-to-date) range and compares it to the same YTD span in the prior fiscal year. So if you select October 2024, you get FY24 YTD (April–October) vs FY23 YTD (April–October).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Threshold alerts only work for Month over Month</strong>
+          <p>The yellow alert icon (and the <code>create-mom-flux-task</code> feature) only fires when comparison is <code>monthOverMonth</code>. QoQ and YoY will never show threshold alerts, even if thresholds are configured in Settings. This is a hardcoded rule in the UI cell renderer.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Apply what you know about comparison modes.</p>
+
+      <div class="quiz-container" id="quiz-module2">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — QoQ uses the company&apos;s fiscal year start to determine quarter boundaries, not January 1. A company with an April 1 fiscal year has Q1 = April–June, not January–March."
+             data-explanation-wrong="Quarter over Quarter does NOT assume January as the year start. It uses the company&apos;s configured fiscal year start date, so the quarter boundaries vary per company.">
+          <h3 class="quiz-question">Your company&apos;s fiscal year starts April 1. You select &ldquo;Quarter over Quarter&rdquo; in October. Which quarter does the CURRENT period cover?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>July–September (Q3 of the calendar year)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>July–September (Q2 of the fiscal year, since FY starts April 1)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>October alone (the month you selected)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the yellow threshold alert icon only triggers for Month over Month comparisons. It is hardcoded to only appear when comparison = monthOverMonth, regardless of how thresholds are set."
+             data-explanation-wrong="The yellow alert icon is tied specifically to Month over Month comparison mode. Even with thresholds configured, the icon will not appear when you switch to Year over Year.">
+          <h3 class="quiz-question">You have both % Change Threshold and $ Change Threshold configured in Settings. You switch the comparison to &ldquo;Year over Year.&rdquo; What happens to the yellow alert icons?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons still appear for accounts over threshold</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons appear only for the % Change column, not $ Change</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons disappear completely — they only work for Month over Month</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — the column headers dynamically reflect the actual period names from the date ranges, so the user always sees &lsquo;October 2024&rsquo; and &lsquo;September 2024&rsquo; rather than generic labels."
+             data-explanation-wrong="The backend sends the actual period display names (e.g., &lsquo;October 2024&rsquo;) as part of the report, and the frontend uses those as column headers. They are never hardcoded as &lsquo;Current&rsquo; and &lsquo;Prior&rsquo;.">
+          <h3 class="quiz-question">What text appears as column headers for the two balance columns when comparing October to September Month over Month?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>&ldquo;October 2024&rdquo; and &ldquo;September 2024&rdquo; — actual period display names</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>&ldquo;Current Period&rdquo; and &ldquo;Prior Period&rdquo; — generic labels</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>&ldquo;This Month&rdquo; and &ldquo;Last Month&rdquo;</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-3" class="btn module-continue-btn">
+          Continue to Module 3: The % Change Column
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-1" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 1
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+    <div class="module-number">03</div>
+    <h2 class="module-title">The % Change Column</h2>
+    <p class="module-subtitle">The formula is pure mathematics. It never looks at your settings. Here&apos;s exactly how it works — including the edge cases that surprise people.</p>
+
+    <!-- SCREEN 1: Anchor — the formula -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">One formula. Always the same.</h2>
+
+      <p>The % Change column is computed by the backend for every account, every time. It uses one formula from <code>avise-api/src/services/reports/financialStatements/shared/utils.ts</code>:</p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code><span class="code-keyword">function</span> <span class="code-function">percentChangeComparison</span>(
+  previousValue: <span class="code-keyword">number</span>,
+  currentValue: <span class="code-keyword">number</span>
+): <span class="code-keyword">number</span> {
+  <span class="code-keyword">if</span> (previousValue === currentValue) <span class="code-keyword">return</span> <span class="code-number">0</span>;
+  <span class="code-keyword">if</span> (previousValue === <span class="code-number">0</span>) {
+    <span class="code-keyword">return</span> currentValue &gt; <span class="code-number">0</span> ? <span class="code-number">-100</span> : <span class="code-number">100</span>;
+  }
+  <span class="code-keyword">return</span> ((currentValue - previousValue) / previousValue) * <span class="code-number">100</span>;
+}</code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">Define a function that takes the prior period balance and the current period balance.</p>
+            <p class="tl">If nothing changed (both values identical), return 0%.</p>
+            <p class="tl">If the prior period was zero — we can&apos;t divide by zero — so return a fixed value of -100 or +100 instead.</p>
+            <p class="tl">Otherwise, standard formula: how much did it change, relative to where it started?</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="divide" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Division by zero is handled — not left as an error</strong>
+          <p>When an account had no balance last period but has one now (a brand-new account, or seasonal activity), dividing by zero would produce infinity. The code caps this at -100 or +100 instead of crashing. You may notice &ldquo;-100%&rdquo; on newly active accounts — that&apos;s why.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — the data flow animation -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">From database balances to the column you see</h2>
+
+      <p>Click through each step to see exactly how a balance becomes a % change in the table:</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-1","label":"Step 1: Backend fetches October balances from the database","payload":"Cash account: $220,000 (October)"},
+        {"highlight":"flow-actor-1","label":"Step 2: Backend fetches September balances from the database","payload":"Cash account: $180,000 (September)"},
+        {"highlight":"flow-actor-2","label":"Step 3: percentChangeComparison() runs the formula","payload":"previous=180000, current=220000 → ((220000-180000)/180000)*100 = +22.2%"},
+        {"highlight":"flow-actor-2","label":"Step 4: Backend attaches the result to the report item alongside fluxMeta","payload":"{ label: \"Cash\", totals: [220000, 180000, 40000, 22.22], fluxMeta: {...} }"},
+        {"highlight":"flow-actor-3","label":"Step 5: UI reads columnGroupLabels to know which column index is the % Change","payload":"columnGroupLabels = [\"October 2024\", \"September 2024\", \"Amount Change\", \"% Change\"]"},
+        {"highlight":"flow-actor-3","label":"Step 6: UI renders totals[3] as a percentage — 22.2% appears in the column","payload":"<Percent value={22.22 / 100} maximumFractionDigits={1} /> → shows \"22.2%\""}
+      ]'>
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin</div>
+        <div class="flow-payload" id="flow-payload"></div>
+
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon"><i data-lucide="database" class="icon"></i></div>
+            <span>Database + Backend</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon"><i data-lucide="calculator" class="icon"></i></div>
+            <span>Formula Engine</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon"><i data-lucide="monitor" class="icon"></i></div>
+            <span>Your Browser</span>
+          </div>
+        </div>
+
+        <div class="flow-packet"></div>
+
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">← Previous</button>
+          <button class="btn flow-next-btn">Next Step →</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — edge cases table -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Every edge case, explained</h2>
+
+      <p>Here is what the formula produces for every scenario you might encounter:</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $100, Current $150</code>
+          <span class="badge-desc"><strong>+50%</strong> — standard case. ((150-100)/100)×100 = 50.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $100, Current $0</code>
+          <span class="badge-desc"><strong>-100%</strong> — account went to zero. Fully decreased.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $0, Current $50</code>
+          <span class="badge-desc"><strong>-100%</strong> — no prior balance, can&apos;t compute real %. Shows -100 by convention (new activity).</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $0, Current $0</code>
+          <span class="badge-desc"><strong>null</strong> — displayed as blank. The <span class="term" data-definition="null means 'no value' — not zero, not undefined, but explicitly absent. The UI renders null as empty rather than showing 0%.">null</span> result is filtered by Number.isFinite() in the legacy flux path and shows as an empty cell.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior $0, Current -$30</code>
+          <span class="badge-desc"><strong>+100%</strong> — negative current, zero prior. Returns 100 (by convention).</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Same values both periods</code>
+          <span class="badge-desc"><strong>0%</strong> — equal values. Returns 0 before the division step runs.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Sign convention for credit-nature accounts</strong>
+          <p>Accounts like Revenue, Liabilities, and Equity are <span class="term" data-definition="Credit-nature accounts naturally carry a credit balance in accounting — their balances are positive when credit-side activity exceeds debit-side activity. In Avise these are &apos;flipped&apos; (negated) for display so they show as positive numbers.">credit-nature</span> and are flipped (negated) for display. The % change itself is computed on the raw <span class="term" data-definition="Integers in this context means the balance stored as cents/pence rather than dollars. $1,234.56 is stored as 123456 to avoid floating-point rounding errors.">integer</span> balances before any sign flip, so the percentage you see always reflects the true directional movement.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Apply the formula and edge cases.</p>
+
+      <div class="quiz-container" id="quiz-module3">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — the formula is ((current - prior) / prior) × 100 = ((130 - 100) / 100) × 100 = +30%. Positive because the account grew."
+             data-explanation-wrong="The formula is ((current - prior) / prior) × 100. With prior=$100 and current=$130, that&apos;s ((130-100)/100)×100 = 30%. The sign is positive because the value increased.">
+          <h3 class="quiz-question">An account had $100k in September and $130k in October. What does the % Change column show?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>-30% (it went up by 30k, so the gap is negative)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>+30% (((130-100)/100)×100 = 30)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>+130% (current ÷ prior)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exactly — when the prior period balance is zero, the formula cannot divide by zero. The code returns -100 or +100 as a convention. It does NOT crash or show an error."
+             data-explanation-wrong="Dividing by zero is handled in the code by returning -100 or +100 as a fallback, depending on the sign of the current balance. The column will never be blank due to a zero prior balance.">
+          <h3 class="quiz-question">A new account was created in October with a $5k balance. September balance was $0. What does % Change show?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The column is blank because division by zero is not possible</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>+500% (the code approximates)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>-100% (the code returns -100 as a convention when prior = 0 and current &gt; 0)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — the % Change value is pure math computed at the backend. It does not read your Settings at any point. Settings only affect the yellow alert icon and auto-review logic, not the number itself."
+             data-explanation-wrong="The % Change value is independent of Settings. The formula runs on raw account balances regardless of what you configured in Settings → Task Accruals. Settings affect the alert icon and task automation, not the column value.">
+          <h3 class="quiz-question">You have NOT configured any flux thresholds in Settings. What does the % Change column show?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The correct percentage for every account — thresholds don&apos;t affect the column value</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Blank — percentages require threshold settings to be enabled</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Only shows for accounts with more than 10% change (the system default)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-4" class="btn module-continue-btn">
+          Continue to Module 4: Threshold Settings
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-2" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 2
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
+<section class="module" id="module-4">
+  <div class="module-content">
+    <div class="module-number">04</div>
+    <h2 class="module-title">Threshold Settings</h2>
+    <p class="module-subtitle">Settings → Task Accruals → Flux Threshold controls three completely separate things. Understanding which is which avoids a lot of confusion.</p>
+
+    <!-- SCREEN 1: Anchor — the three-way decoupling -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">One settings panel. Three independent systems.</h2>
+
+      <p>When you open <strong>Settings → Task Accruals → Flux Threshold for Auto-Review</strong>, you see three fields. People assume they all work together. They don&apos;t — each one controls a completely different part of the system:</p>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="percent" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">% Change Threshold</h3>
+          <p class="pattern-desc">Controls whether the <strong>yellow alert icon</strong> appears on the % Change column AND whether auto-review checks the percentage.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">fluxPercentChangeThreshold — nullable, no default</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="dollar-sign" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h3 class="pattern-title">$ Change Threshold</h3>
+          <p class="pattern-desc">Controls whether the <strong>yellow alert icon</strong> appears on the $ Change column AND whether auto-review checks the dollar amount.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">fluxBalanceChangeThreshold — nullable, no default</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="clock" class="icon-xl" style="color: var(--color-actor-4);"></i>
+          <h3 class="pattern-title">Days Before End of Period</h3>
+          <p class="pattern-desc">Controls <strong>when flux tasks are created</strong> — how many days before the period ends do recurring flux tasks get auto-generated.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">fluxDaysBeforePeriodEnd — default: 10</code>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="split" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">% column value, alert icon, and task creation are three independent systems</strong>
+          <p>The % Change column always shows the calculated number — no setting affects it. The alert icon only appears if a threshold is set AND the <code>create-mom-flux-task</code> feature flag is on AND the comparison is Month over Month. Auto-review runs on its own schedule, separate from display. These three systems share the same settings input but execute independently.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — what each setting actually does -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The exact rules for the yellow alert icon</h2>
+
+      <p>The alert icon (a yellow warning triangle) is the most visible consequence of threshold settings. Here is the complete list of conditions that must ALL be true for it to appear:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>The <code>create-mom-flux-task</code> <span class="term" data-definition="A feature flag is a switch engineers control server-side. When off, the code that shows the icon is never reached, even if everything else is configured.">feature flag</span> must be ON</strong>
+            <p>If this flag is off (the current default), no alert icon ever appears — regardless of any settings.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Comparison must be Month over Month</strong>
+            <p>Alert icons are hardcoded to only appear for the <code>monthOverMonth</code> comparison. QoQ and YoY never show alerts.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>The relevant threshold must be set (non-null) in Settings</strong>
+            <p>If % Change Threshold is null, the <code>accountPercentChangeOverThreshold</code> flag is never set by the backend. Same for $ Change Threshold.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>The account&apos;s value must exceed the threshold (strictly &gt;, not ≥)</strong>
+            <p>The comparison is <code>Math.abs(value) &gt; threshold</code>. An account exactly at the threshold does NOT trigger the alert.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>&ldquo;Hide Threshold Alerts&rdquo; filter must be OFF</strong>
+            <p>The filter bar has an option to hide alerts. If enabled, icons are suppressed in the UI even if all other conditions are met.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — null thresholds and the one hidden default -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Empty Settings: what still happens vs what goes silent</h2>
+
+      <p>Both <code>fluxPercentChangeThreshold</code> and <code>fluxBalanceChangeThreshold</code> have <strong>no database default</strong> — new companies get <code>null</code>. Here&apos;s the full impact:</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">% Change column value</code>
+          <span class="badge-desc"><i data-lucide="check-circle-2" class="icon-sm icon-success"></i> <strong>Always works.</strong> The formula runs on raw balances. Settings do not affect the number displayed.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Yellow alert icon</code>
+          <span class="badge-desc"><i data-lucide="x-circle" class="icon-sm icon-error"></i> <strong>Never appears.</strong> With null thresholds, the backend never sets the flag, so the icon has nothing to read.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Auto-review</code>
+          <span class="badge-desc"><i data-lucide="x-circle" class="icon-sm icon-error"></i> <strong>Off completely.</strong> If both thresholds are null, <code>isAutoReviewFluxEnabled()</code> returns false and the checker exits immediately.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Task creation timing</code>
+          <span class="badge-desc"><i data-lucide="alert-triangle" class="icon-sm" style="color: var(--color-actor-4);"></i> <strong>Uses default: 10 days.</strong> <code>fluxDaysBeforePeriodEnd</code> has <code>@default(10)</code> in the database schema. Every new company gets 10 days silently.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="package" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The one hidden default: 10 days before period end</strong>
+          <p>This is the only predefined rule that runs even when Settings is completely empty. The <code>fluxDaysBeforePeriodEnd</code> field in the database has <code>@default(10)</code>, so flux recurring tasks are created 10 days before the period ends from day one — without the admin configuring anything. It lives in <code>avise-domains/prisma/schema.prisma</code>, line 242.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Scenario-based questions about how the three systems interact.</p>
+
+      <div class="quiz-container" id="quiz-module4">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — the yellow icon requires the feature flag create-mom-flux-task to be ON. If it&apos;s off, no alert appears regardless of threshold configuration. The % Change value itself is always shown."
+             data-explanation-wrong="The yellow alert icon requires both a configured threshold AND the create-mom-flux-task feature flag to be on. The flag is off by default — so even with thresholds set, icons won&apos;t appear unless the flag is enabled for your organization.">
+          <h3 class="quiz-question">You configure a 15% Change Threshold in Settings. Users report they never see the yellow alert icon. What is the most likely reason?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>No accounts have changes exceeding 15%</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The <code>create-mom-flux-task</code> feature flag is off for this organization</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The threshold must be configured in both % and $ fields simultaneously</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — if only ONE threshold is set, auto-review uses that one threshold alone. Both thresholds being set enables the &apos;both must be exceeded&apos; (AND) logic. Either threshold being non-null is enough to enable auto-review at all."
+             data-explanation-wrong="Auto-review is enabled when EITHER threshold is non-null. If only the % threshold is set, auto-review checks % only. If both are set, both must be exceeded. The &apos;both required&apos; logic only kicks in when both thresholds exist.">
+          <h3 class="quiz-question">You configure ONLY the % Change Threshold (set to 20%). The $ Change Threshold remains empty. What happens with auto-review?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auto-review is disabled — both thresholds must be set for it to work</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auto-review runs but checks BOTH conditions anyway</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auto-review runs and checks ONLY the % condition (since $ is null)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — fluxDaysBeforePeriodEnd defaults to 10 in the database schema. This is the only flux-related field with a built-in default. The two threshold fields default to null (no behavior).">
+          <h3 class="quiz-question">A new company is created in Avise. No one has touched Settings → Task Accruals yet. What flux behavior is already active?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Flux tasks will be created 10 days before period end (the <code>fluxDaysBeforePeriodEnd</code> default)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons show for changes over 10% (system default)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — all flux features require explicit configuration to activate</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-5" class="btn module-continue-btn">
+          Continue to Module 5: Exporting
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-3" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 3
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
+<section class="module" id="module-5">
+  <div class="module-content">
+    <div class="module-number">05</div>
+    <h2 class="module-title">Exporting Your Flux Report</h2>
+    <p class="module-subtitle">An Export button already exists — but it only produces XLSX for company flux. Here&apos;s the full picture of what&apos;s available today and where the gaps are.</p>
+
+    <!-- SCREEN 1: Anchor — what exists today -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The export map — who gets what today</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-5);">
+          <i data-lucide="file-spreadsheet" class="icon-xl" style="color: var(--color-actor-5);"></i>
+          <h3 class="pattern-title">Company Flux → XLSX</h3>
+          <p class="pattern-desc">An &ldquo;Export&rdquo; button is already in the top-right corner of the Flux Analysis page. Clicking it downloads an Excel file with all visible accounts, balances, and changes.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-success); font-weight: 600;">EXISTS TODAY</span>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="file-text" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">Consolidation Flux → CSV</h3>
+          <p class="pattern-desc">The Consolidation Flux Analysis page already has a CSV export. It downloads a comma-separated file with classification, account name, balances, % change, and $ change columns.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-success); font-weight: 600;">EXISTS TODAY</span>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-text-muted); opacity: 0.7;">
+          <i data-lucide="file-x" class="icon-xl icon-muted"></i>
+          <h3 class="pattern-title">Company Flux → CSV</h3>
+          <p class="pattern-desc">There is no CSV export for the main company-level Flux Analysis page (Balance Sheet or Income Statement). Only XLSX is available today.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-error); font-weight: 600;">NOT YET BUILT</span>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-text-muted); opacity: 0.7;">
+          <i data-lucide="file-x" class="icon-xl icon-muted"></i>
+          <h3 class="pattern-title">Single-Account Flux → Any format</h3>
+          <p class="pattern-desc">The drilldown panel for individual accounts (with the dimension pivot) has no export button. There is no export at all for single-account flux.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-error); font-weight: 600;">NOT YET BUILT</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — how the export works -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">How the existing XLSX export works</h2>
+
+      <p>The same endpoint that serves the JSON report also serves the <span class="term" data-definition="XLSX is the file format for Microsoft Excel spreadsheets. It's a ZIP archive containing XML files that define the spreadsheet structure, styling, and data.">XLSX</span> file — the format is decided by an HTTP header called <code>Accept</code>.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/controllers/financialStatements/fluxController.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>async function fluxBalanceSheetReport(req, res) {
+  const report = await fluxBalanceSheet
+    .constructFluxBalanceSheet(company, validQuery);</code></pre>
+          <div class="code-walk-explanation">
+            <p>The backend always builds the full report first — same data regardless of whether you want JSON or XLSX.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>  <span class="code-keyword">if</span> (req.headers.accept === <span class="code-string">XLSX_MIME_TYPE</span>) {
+    <span class="code-keyword">const</span> xlsxFormattedReport = formatFluxBSReportAsXLSX(
+      report, company, endsOn
+    );
+    res.contentType(XLSX_MIME_TYPE);
+    <span class="code-keyword">const</span> buffer = <span class="code-keyword">await</span> xlsxFormattedReport.writeBuffer();
+    <span class="code-keyword">return</span> res.send(buffer);</code></pre>
+          <div class="code-walk-explanation">
+            <p>If the browser sent <code>Accept: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</code> (the XLSX <span class="term" data-definition="A MIME type is a standardized string that tells a browser or server what kind of content is being sent — like a label on a package. The browser sends it in the Accept header to say &apos;please give me this format.&apos;">MIME type</span>), the report is formatted as an Excel file using the <code>ExcelJS</code> library and sent back as a binary download.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>  }
+  <span class="code-keyword">return</span> res.json(report);
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>Otherwise (default), the same report is sent as <span class="term" data-definition="JSON (JavaScript Object Notation) is a text format for structured data — like a nested list with labels. It&apos;s what the browser receives and turns into the table you see on screen.">JSON</span> — which the browser then uses to render the table. Same data, two formats, one endpoint.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The same endpoint serves both the table and the download</strong>
+          <p>There is no separate &ldquo;export endpoint&rdquo;. The <code>GET /companies/:id/reports/flux/balance-sheet</code> endpoint checks the <code>Accept</code> header and decides: if the browser wants Excel, it sends XLSX; otherwise it sends JSON for the table. This is the standard content negotiation pattern used across all reports in Avise.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — what the XLSX includes -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">What&apos;s in the XLSX file</h2>
+
+      <p>The XLSX export from company flux includes more than the on-screen table. It includes task information too — because it uses a slightly older formatter that fetches tasks separately:</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">Current period balance</code>
+          <span class="badge-desc">Formatted as currency with the company&apos;s home currency symbol.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior period balance</code>
+          <span class="badge-desc">Same formatting. Column header uses the actual period display name (e.g., &ldquo;September 2024&rdquo;).</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">% Change</code>
+          <span class="badge-desc">Formatted as a percentage column, not a currency column. The XLSX cell is actually typed as percentage.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Amount Change ($ Change)</code>
+          <span class="badge-desc">Dollar delta between the two periods.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Status</code>
+          <span class="badge-desc">The task status (Prepared, Reviewed, etc.) for accounts that have a flux task. Blank for accounts without tasks.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Resolution Comment</code>
+          <span class="badge-desc">The explanation text entered when a flux task was prepared. Also blank if no task exists.</span>
+        </div>
+      </div>
+
+      <p style="margin-top: var(--space-6);">The CSV export for consolidation flux has slightly different columns: <strong>Classification, Sub-Classification, Account Type, Fully Qualified Account Name, Account Name, [Prior Period], [Current Period], % Change, Amount Change</strong>. No task columns — it&apos;s a pure financial export.</p>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Apply what you know about the export capabilities.</p>
+
+      <div class="quiz-container" id="quiz-module5">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — company-level Flux Analysis only supports XLSX export today. CSV export does not exist for company flux (only for consolidation flux). The Export button in the top-right downloads an Excel file."
+             data-explanation-wrong="The company-level Flux Analysis page exports to XLSX only. CSV export exists for the Consolidation Flux page but not for the standard Balance Sheet or Income Statement flux for a regular company.">
+          <h3 class="quiz-question">An accountant opens the Income Statement Flux page for their company and clicks the Export button. What file do they receive?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A CSV file with all accounts and balances</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>An XLSX (Excel) file with balances, changes, and any task status/explanation columns</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A PDF formatted financial statement</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct — the same endpoint serves both the table (JSON) and the download (XLSX). The format is determined by the Accept header the browser sends with the request. No separate export endpoint exists."
+             data-explanation-wrong="There is no separate export endpoint. The same GET endpoint that returns JSON for the table also returns XLSX when the browser&apos;s request has Accept: application/vnd.openxmlformats... This is standard content negotiation.">
+          <h3 class="quiz-question">How does the backend decide whether to return the flux data as JSON (for the table) or as XLSX (for the download)?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>There are two separate endpoints — one for the table, one for download</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A <code>?format=xlsx</code> query parameter on the URL</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The <code>Accept</code> HTTP header sent by the browser — same endpoint, different format</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — the XLSX export includes Status and Resolution Comment columns that are not part of the core financial data. These come from the flux tasks that exist for accounts in that period."
+             data-explanation-wrong="The XLSX file does include task information. In addition to the four financial columns, it has Status (the task workflow state) and Resolution Comment (the explanation text) for any account that has a flux task created.">
+          <h3 class="quiz-question">Which extra columns appear in the XLSX export that are NOT visible in the on-screen flux table by default?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Status and Resolution Comment (from flux tasks)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Dimension breakdown columns</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>None — the XLSX contains exactly the same columns as the table</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-0" class="btn module-continue-btn">
+          <i data-lucide="check-circle-2" class="icon"></i>
+          Finish Course — Back to Overview
+        </a>
+        <a href="#module-4" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 4
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
+  </main>
+
+  <!-- Activate Lucide icons after the page is built -->
+  <script>
+    window.addEventListener('load', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+
+</body>
+</html>

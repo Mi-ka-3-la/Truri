@@ -1,0 +1,170 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+    <div class="module-number">01</div>
+    <h2 class="module-title">The Monorepo</h2>
+    <p class="module-subtitle">One repository. 24+ workspaces. A build system that knows exactly which packages to rebuild when you change one file.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">What a monorepo actually is</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="folder-tree" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">One repo, many packages</h3>
+          <p class="pattern-desc">Instead of separate Git repositories for the API, frontend, shared utilities, and sync service, everything lives in one repo. Each sub-folder is a <span class="term" data-definition="A workspace is a self-contained package inside a monorepo — it has its own package.json, its own dependencies, and its own build scripts. You can run commands on one workspace without affecting others.">workspace</span> with its own build and test commands.</p>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="link" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h3 class="pattern-title">Shared code without publishing</h3>
+          <p class="pattern-desc">Packages like <code>avise-shared-utils</code> and <code>avise-domains</code> can be imported directly by <code>avise-api</code> without publishing them to npm. Changes propagate instantly across the repo.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="train-track" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Think: a train yard, not individual trains</strong>
+          <p>Each carriage (workspace) is self-contained and can be swapped independently. But they all run on the same track system (pnpm + Turborepo) and share the same maintenance depot (node_modules at the root).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The 12 key workspaces you need to know</h2>
+
+      <div class="icon-rows stagger-children">
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-2);"><i data-lucide="zap" class="icon"></i></div>
+          <div><strong>avise-api</strong><p>The main Express backend. Has its own Dockerfile, integration tests, and release pipeline. The biggest and most complex workspace.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-3);"><i data-lucide="monitor" class="icon"></i></div>
+          <div><strong>avise-web</strong><p>The React frontend. Deployed via AWS Amplify (not Kubernetes). Gets its own PR checks and prod deployment workflow.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-4);"><i data-lucide="database" class="icon"></i></div>
+          <div><strong>avise-domains</strong><p>The Prisma schema, migrations, and shared domain types. Every workspace that touches the database depends on this. Schema changes start here.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-5);"><i data-lucide="package" class="icon"></i></div>
+          <div><strong>avise-shared-utils</strong><p>Logger, config system, DataDog, feature flags, auth utilities — shared by avise-api, qbo-sync, and every other service that needs them.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-accent);"><i data-lucide="refresh-cw" class="icon"></i></div>
+          <div><strong>qbo-sync</strong><p>QuickBooks Online sync service. Its own Dockerfile, its own release pipeline, completely separate from avise-api.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-text-muted);"><i data-lucide="file-search" class="icon"></i></div>
+          <div><strong>avise-file-indexing</strong><p>Indexes uploaded files for semantic search. Has its own Dockerfile and release pipeline.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-2);"><i data-lucide="activity" class="icon"></i></div>
+          <div><strong>operation-tracking</strong><p>Tracks async operations (like Argo workflows) in a shared Drizzle+PostgreSQL layer. Used by avise-api for job tracking.</p></div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-3);"><i data-lucide="bell" class="icon"></i></div>
+          <div><strong>knock</strong><p>Knock notification workflow definitions (email templates, in-app feeds). Deployed to Knock's platform, not Kubernetes.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Turborepo: the build system that prevents wasted work</h2>
+
+      <p>Without Turborepo, running <code>pnpm build</code> would rebuild every workspace every time — even if only one file changed. Turborepo adds two things:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Dependency graph awareness</strong>
+            <p>Turborepo knows that <code>avise-api</code> depends on <code>avise-shared-utils</code>, which depends on <code>avise-domains</code>. When you run <code>pnpm turbo --filter avise-api build</code>, it builds dependencies first, in the right order.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Remote caching</strong>
+            <p>Build outputs are fingerprinted and cached. If the same inputs (source files + env vars) produce the same build, the cache is used instead of rebuilding. In CI, the remote cache runs at <code>turbocache.avise-turbocache.svc.cluster.local</code> — inside the Kubernetes cluster.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header"><span class="code-walk-file">turbo.json — the task dependency graph</span></div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-string">"remoteCache"</span>: {
+  <span class="code-property">"apiUrl"</span>: <span class="code-string">"http://turbocache.avise-turbocache
+            .svc.cluster.local"</span>
+},</code></pre>
+          <div class="code-walk-explanation"><p>The remote cache URL — an internal Kubernetes service. CI runners write and read from this cache. Local dev doesn&rsquo;t connect here (different network), which is one of the architectural gaps.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-string">"tasks"</span>: {
+  <span class="code-string">"build"</span>: {
+    <span class="code-string">"dependsOn"</span>: [<span class="code-string">"^build"</span>]
+  },</code></pre>
+          <div class="code-walk-explanation"><p>The <code>^build</code> means &ldquo;run build in all dependencies first.&rdquo; When you build avise-api, Turborepo walks the dependency graph and builds avise-domains → avise-shared-utils → avise-api in that order.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>  <span class="code-string">"check:format"</span>: {
+    <span class="code-comment">// No dependsOn: [] entry</span>
+    <span class="code-string">"env"</span>: []
+  }</code></pre>
+          <div class="code-walk-explanation"><p>Tasks without <code>dependsOn: [&quot;^build&quot;]</code> don&rsquo;t wait for dependencies. Format checking only looks at the workspace&rsquo;s own files, so it can run immediately without waiting for upstream builds.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module1">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — avise-domains is the Prisma schema and shared domain types. Every workspace that interacts with the database depends on it. Changes to the schema start there."
+             data-explanation-wrong="avise-domains holds the Prisma schema and migrations — it is the foundational data layer. avise-api and qbo-sync both depend on it, which is why changing a schema requires rebuilding downstream workspaces.">
+          <h3 class="quiz-question">You need to add a new column to the database. Which workspace do you start in?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>avise-api — that&rsquo;s where the database queries live</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>avise-domains — it holds the Prisma schema and migrations that all workspaces depend on</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>avise-shared-utils — it contains the shared database connection logic</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the <code>^build</code> syntax in dependsOn tells Turborepo to build all upstream dependencies first. So building avise-api will first build avise-domains, then avise-shared-utils, then avise-api itself."
+             data-explanation-wrong="The <code>^build</code> in turbo.json means 'build all workspace dependencies first.' When you run turbo build for avise-api, it follows the dependency tree and builds upstream packages before the target workspace.">
+          <h3 class="quiz-question">What does <code>dependsOn: ["^build"]</code> mean in turbo.json?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Run this task in parallel with all other workspaces</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Skip this task if no files changed</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Build all upstream dependency workspaces first, in the correct order</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct — avise-web is deployed via AWS Amplify (amplify.yml), which is a separate deployment pipeline from Kubernetes. All other backend services (avise-api, qbo-sync, avise-file-indexing) are containerized and run in K8s."
+             data-explanation-wrong="avise-web is deployed via AWS Amplify — it builds with pnpm turbo and deploys the static build output. It does NOT run in Kubernetes. Backend services like avise-api and qbo-sync are containerized and deployed to K8s.">
+          <h3 class="quiz-question">Which workspace is NOT deployed to Kubernetes?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>avise-web — it deploys via AWS Amplify as a static build</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>avise-api — it runs as a serverless function</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>qbo-sync — it uses an external QuickBooks hosting service</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Try Again</button>
+      </div>
+      <div class="module-nav-end animate-in">
+        <a href="#module-2" class="btn module-continue-btn">Continue to Module 2: CI/CD Pipeline <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-0" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Overview</a>
+      </div>
+    </section>
+  </div>
+</section>

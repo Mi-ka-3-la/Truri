@@ -1,0 +1,274 @@
+<section class="module" id="module-4" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">Combining the Grades</h1>
+      <p class="module-subtitle">Individual criteria are powerful, but combining them is what makes an eval really useful.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The mixing board analogy -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Mixing Criteria: The Composer Pattern</h2>
+        <p>
+          Think of criteria like individual instrument tracks on a recording studio mixing board. Each track captures one thing (bass, drums, vocals). But the song is the <em>mix</em> — how all the tracks combine into a final result.
+        </p>
+        <p>
+          In the evals system, <strong>metric composers</strong> are what mix individual criteria together into a final score. There are four of them, each with a different mixing strategy.
+        </p>
+
+        <div class="pattern-cards stagger-children animate-in">
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-actor-1)">🔗</div>
+            <h4 class="pattern-title">And</h4>
+            <p class="pattern-desc">ALL criteria must pass. If any one fails, the whole score is 0. No partial credit — like a lock that needs every key.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-actor-2)">🔀</div>
+            <h4 class="pattern-title">Or</h4>
+            <p class="pattern-desc">At least ONE criterion must pass. Returns the maximum score across all criteria. Like a backup plan — any one success is enough.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-actor-4)">📊</div>
+            <h4 class="pattern-title">AverageScores</h4>
+            <p class="pattern-desc">Returns the average across all criteria. Allows partial credit — if 3 of 4 account names are mentioned, the score is 0.75, not 0.</p>
+          </div>
+          <div class="pattern-card animate-in" style="border-top-color: var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-actor-5)">🔀</div>
+            <h4 class="pattern-title">Predicate</h4>
+            <p class="pattern-desc">Only evaluate Metric B IF Metric A passes. Like a conditional: "check whether the AI called the right tool first, THEN check whether the response was good."</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: And in detail -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">And: All or Nothing</h2>
+        <p>
+          <code>And</code> is the strictest composer. It takes a list of criteria and requires every single one to pass. If any criterion returns 0, the entire <code>And</code> block scores 0. Use it when the criteria are all non-negotiable.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">new</span> <span class="code-function">And</span>&lt;<span class="code-keyword">string</span>&gt;([
+  <span class="code-keyword">new</span> <span class="code-function">ToolCallsExist</span>([
+    <span class="code-string">"findAccounts"</span>,
+    <span class="code-string">"proposeSchedule"</span>,
+  ]),
+  <span class="code-keyword">new</span> <span class="code-function">ArtifactsExist</span>([
+    <span class="code-string">"propose_schedule"</span>
+  ]),
+])</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create an And check that requires ALL of the following to be true:</p>
+              <p class="tl">1) The AI must have called both findAccounts AND proposeSchedule tools.</p>
+              <p class="tl">2) The AI must have created a propose_schedule artifact.</p>
+              <p class="tl">If the AI skipped findAccounts (looking up account IDs by name), the whole thing fails — even if it created a perfect schedule artifact with wrong account IDs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Predicate - the conditional check -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Predicate: "First Check This, Then That"</h2>
+        <p>
+          <code>Predicate</code> is the most sophisticated composer. It says: "I only want to evaluate the quality of the response IF a prerequisite check passes first."
+        </p>
+        <p>
+          Why? Because if the AI did not even call the right tool, then the response cannot be correct — and checking its details would just produce misleading noise.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">new</span> <span class="code-function">Predicate</span>(
+  <span class="code-comment">// Gate: only proceed if this passes</span>
+  mustCallFindJeAndNotHaveIds,
+  <span class="code-comment">// Metric: evaluate THIS if gate passed</span>
+  <span class="code-keyword">new</span> <span class="code-function">AverageScores</span>([
+    <span class="code-function">shouldHaveDisplayId</span>(evalEntry),
+    <span class="code-function">shouldHaveStatus</span>(evalEntry),
+    <span class="code-function">shouldHaveTransactionDate</span>(evalEntry),
+  ]),
+)</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a conditional check with a gate and a payload.</p>
+              <p class="tl">Gate: first verify the AI called findJournalEntries with the right ID, AND that it has no raw database IDs in the response.</p>
+              <p class="tl">If the gate fails: skip evaluating the response details entirely. Score 0.</p>
+              <p class="tl">If the gate passes: now evaluate the response quality in depth.</p>
+              <p class="tl">Check whether the response mentions the display ID, the status, and the transaction date.</p>
+              <p class="tl">Average those three scores to get a final 0-1 quality score for the response details.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Real eval walk-through -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A Real Eval Walk-Through</h2>
+        <p>
+          Let us trace through a real eval from <code>proposeScheduleScenarios/proposeSchedule.eval.ts</code>. The goal: verify the AI can propose a 12-month amortization schedule with the correct accounts, dates, and total.
+        </p>
+
+        <div class="step-cards animate-in stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Load real accounts from DB</strong>
+              <p><code>context.addRandomAssetAccount()</code> picks a real asset account. <code>context.addRandomExpenseAccount()</code> picks a real expense account. The names are used in the prompt.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Build the natural-language prompt</strong>
+              <p>"Create a monthly schedule crediting ${assetAccount.name} and debiting ${expenseAccount.name} for $12,000 from January to December 2025"</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Run the AI and apply the And composer</strong>
+              <p>All four must pass: ToolCallsExist (found accounts), ArtifactsExist (created schedule), ArtifactPropertyMatch (dates + total + correct account IDs).</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>Score: 1 or 0</strong>
+              <p>Because this is an <code>And</code>, any failure anywhere returns 0. The AI must nail all four checks to get credit.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Group chat - composers talking -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">When Composers Disagree</h2>
+        <p>Watch how the different composers handle the same situation — the AI got the accounts right but missed one of the tool calls.</p>
+
+        <div class="chat-window" id="chat-module4">
+          <div class="chat-messages">
+            <div class="chat-message" data-msg="0" data-sender="and" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">And Composer</span>
+                <p>I require all checks to pass. The AI found the right accounts and created the schedule artifact. But it did NOT call findAccounts first. My score: 0. Full stop.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="1" data-sender="avg" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">AV</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">AverageScores</span>
+                <p>I give partial credit. 3 of my 4 criteria passed: account IDs are right, dates are right, amounts are right. Only the tool call is missing. My score: 0.75.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="2" data-sender="pred" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-5)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-5)">Predicate</span>
+                <p>My gate criterion failed (wrong tool call). So I will not even evaluate the response quality. Evaluating the schedule content would be misleading — maybe it hardcoded the account IDs instead of looking them up. Score: 0, gate blocked.</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="3" data-sender="or" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">O</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">Or Composer</span>
+                <p>I only need ONE criterion to pass. The schedule artifact check passed. My score: 1. (I am best for lenient checks where any acceptable approach is fine.)</p>
+              </div>
+            </div>
+            <div class="chat-message" data-msg="4" data-sender="and" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">And Composer</span>
+                <p>For a schedule eval, I am the right choice. The tool call matters because without findAccounts, the AI might have guessed the account IDs. We need to be strict here.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module4-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Quick Check</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right. AverageScores is designed for partial credit. When you want to measure how thoroughly the AI covered a list of items (not whether it covered them all or none), AverageScores is the best composer."
+               data-explanation-wrong="Not quite. And would give 0 if any account name is missing — too strict when you want partial credit. Or would give 1 even if only one account was mentioned — too lenient. AverageScores proportionally rewards partial coverage.">
+            <h3 class="quiz-question">An eval checks whether the AI response mentions all 5 account names from a journal entry. You want partial credit if 3 of 5 names appear. Which composer should you use?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>And — wrap all 5 StringMatch criteria in an And block</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Or — wrap all 5 StringMatch criteria in an Or block</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>AverageScores — average the 5 StringMatch scores (3/5 → 0.60)</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. Predicate is designed for this: first verify the AI took the right approach (called the correct tool), and only if that gate passes, evaluate whether the response details are good. Without the gate, a perfect-looking response from wrong tool calls would receive full credit."
+               data-explanation-wrong="Not quite. An And would evaluate all criteria simultaneously — it would not skip the quality checks when the tool call fails. Predicate is specifically designed to short-circuit: only score the quality of a response if the prerequisite check passed.">
+            <h3 class="quiz-question">You want to verify: (a) the AI called findJournalEntries with the right ID, AND (b) the response mentions the correct account names. But you only care about (b) if (a) already passed. Which composer?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>And — put both checks in an And block so both must pass</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Predicate — use the tool call check as the gate, and the account name check as the payload</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>AverageScores — average the scores of both checks together</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,325 @@
+<section class="module" id="module-2" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The Task Data Model</h1>
+      <p class="module-subtitle">Every task is a structured database record — here is what each field is for</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Key fields as icon-label rows -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task record is a library checkout card: it names the borrower, the approver, the due date, and the book</h2>
+        <p>
+          When a task appears on screen it is a structured
+          <span class="term" data-definition="A database record is a single row in a database table — a collection of named fields (columns) with their values, stored persistently so the application can read and update them across sessions.">database record</span>
+          with fields for the owner, reviewer, the account it covers, the deadline, and a snapshot of the balance
+          when work was last submitted.
+          Every field exists to answer one question the close process cannot skip.
+        </p>
+
+        <div class="icon-rows animate-in stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">
+              <i data-lucide="user" class="icon"></i>
+            </div>
+            <div>
+              <strong>assignedTo</strong>
+              <p>The preparer — the person responsible for completing this task. They are the writer of this chapter.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">
+              <i data-lucide="user-check" class="icon"></i>
+            </div>
+            <div>
+              <strong>reviewerId</strong>
+              <p>The approver — the person who inspects the work and either signs off or sends it back. Must be a different person from the preparer.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">
+              <i data-lucide="calendar" class="icon"></i>
+            </div>
+            <div>
+              <strong>dueDate</strong>
+              <p>The deadline for this task. Stored as a calendar date (no time component), so the same due date applies regardless of time zone.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-3)">
+              <i data-lucide="circle-dot" class="icon"></i>
+            </div>
+            <div>
+              <strong>status</strong>
+              <p>The current state of the task — one of the seven values in the
+                <span class="term" data-definition="An enum (enumeration) constrains a field to a fixed set of named values. The database enforces this — it will reject any value not on the list, making impossible states unrepresentable.">TaskStatus enum</span>.
+                Every screen and every business rule reads this field.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1)">
+              <i data-lucide="landmark" class="icon"></i>
+            </div>
+            <div>
+              <strong>accountId</strong>
+              <p>The general ledger account this task covers. Links the task to a specific account in the chart of accounts so reports can aggregate by account.</p>
+            </div>
+          </div>
+
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-accent)">
+              <i data-lucide="activity" class="icon"></i>
+            </div>
+            <div>
+              <strong>balanceWhenLastPrepared</strong>
+              <p>
+                A <span class="term" data-definition="A snapshot is a point-in-time copy of a value stored alongside the record. If the live value changes later, the snapshot remains as evidence of what was true at the moment work was submitted.">snapshot</span>
+                of the account balance at the moment the preparer submitted. If the live balance changes afterward, the system compares it to this snapshot and knows the task needs attention again.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="database" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">balanceWhenLastPrepared is the system's memory — it makes stale approvals detectable</strong>
+            <p>
+              Without this field, the system would have no way to know whether the account changed after
+              the preparer submitted. With it, a nightly job can compare live balances to the snapshots
+              and automatically reopen any task whose account moved.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation of Task model -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Prisma Task model groups fields into four logical roles: identity, people, work, and smart controls</h2>
+        <p>
+          The
+          <span class="term" data-definition="A Prisma model is a block in schema.prisma that maps to a database table. Prisma reads this file and generates both the database schema and the TypeScript types the application uses — one source of truth for both.">Prisma model</span>
+          below is the single source of truth. Every
+          <span class="term" data-definition="A TypeScript type is a compile-time description of the shape of a value — what fields it has and what types those fields hold. Prisma generates these automatically from schema.prisma so the code and the database are always in sync.">TypeScript type</span>,
+          every API response, and every UI component derives from it.
+          Changes to one field here ripple automatically to every layer of the stack.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-comment">// IDENTITY — what period and company does this belong to?</span></span>
+<span class="code-line"><span class="code-keyword">model</span> <span class="code-function">Task</span> {</span>
+<span class="code-line">  id        String  @id @default(cuid())</span>
+<span class="code-line">  companyId String</span>
+<span class="code-line">  periodId  String</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// PEOPLE — who does the work, who approves it?</span></span>
+<span class="code-line">  assignedTo  String?</span>
+<span class="code-line">  reviewerId  String?</span>
+<span class="code-line">  createdBy   String?</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// WORK — what is the task and where does it stand?</span></span>
+<span class="code-line">  title      String</span>
+<span class="code-line">  dueDate    DateTime @db.Date</span>
+<span class="code-line">  taskType   TaskType</span>
+<span class="code-line">  status     TaskStatus</span>
+<span class="code-line">  resolution String?</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-comment">// SMART — system intelligence fields</span></span>
+<span class="code-line">  balanceWhenLastPrepared  Int?</span>
+<span class="code-line">  autoReviewEnabled        Boolean?</span>
+<span class="code-line">  recurringTaskId          String?</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><strong>Identity:</strong> <code>id</code> is a
+                <span class="term" data-definition="A CUID (Collision-resistant Unique ID) is a randomly generated string ID designed to be unique across distributed systems without needing a central counter. It looks like clfxyz123... and is used instead of auto-incrementing integers.">CUID</span>
+                — a random collision-proof identifier. <code>companyId</code> and <code>periodId</code> are
+                <span class="term" data-definition="A foreign key is a field whose value must match the primary key of a row in another table. It creates a link between two tables — in this case, Task.periodId must reference a real Period record.">foreign keys</span>
+                that anchor this task to a specific company and a specific accounting month.</p>
+              <p class="tl"><strong>People:</strong> Three
+                <span class="term" data-definition="A nullable field (marked with ? in Prisma) can hold a value OR be null — meaning no value is stored. In TypeScript this is represented as string | null, so the code must handle the null case explicitly.">nullable</span>
+                user references. <code>assignedTo</code> is the preparer; <code>reviewerId</code> is the approver; <code>createdBy</code> logs who originally created it (often a system process, not a human).</p>
+              <p class="tl"><strong>Work:</strong> <code>taskType</code> and <code>status</code> are both enums — constrained to known values. <code>resolution</code> is nullable text: a free-form note the preparer or reviewer can add, especially when marking a task as wont_do.</p>
+              <p class="tl"><strong>Smart:</strong> <code>balanceWhenLastPrepared</code> is the snapshot integer. <code>autoReviewEnabled</code> lets the system approve low-risk tasks without human intervention. <code>recurringTaskId</code> links back to the template that generated this task.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="shield" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Two separate user fields encode a legal requirement, not a design preference</strong>
+            <p>
+              Accounting standards (SOX, GAAP) require
+              <span class="term" data-definition="Separation of duties is a control principle that prevents one person from both performing work and approving it. It is a core requirement of financial audits — if the preparer could also be the reviewer, fraud and errors are much harder to catch.">separation of duties</span>:
+              the person who does the work must not be the same person who approves it. Two distinct
+              fields make that constraint enforceable in code, not just in policy.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Flow animation: task creation from multiple sources -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task record is assembled from three sources simultaneously when a period opens</h2>
+        <p>
+          No single actor creates a task alone. The
+          <span class="term" data-definition="A RecurringTask is a template record that stores the default settings for a task — title, assignee, reviewer, task type — that should repeat every period. The system copies these settings into a new Task record each time a period opens.">RecurringTask</span>
+          template provides the who and what; the Period provides the when; the Account provides the subject.
+          The database assembles all three into one new Task row.
+        </p>
+
+        <div class="flow-animation animate-in" data-steps='[
+          {"highlight":"flow-actor-recurring","label":"The RecurringTask template holds the title, assignee, reviewer, and task type — the settings that repeat every period."},
+          {"highlight":"flow-actor-period","label":"The Period record opens for the month and triggers task generation. It supplies the periodId and the due date.","packet":true,"from":"actor-recurring","to":"actor-period"},
+          {"highlight":"flow-actor-account","label":"The Account record is linked in — its ID becomes the accountId on the new task, connecting the task to a specific GL account.","packet":true,"from":"actor-period","to":"actor-account"},
+          {"highlight":"flow-actor-task","label":"The system writes a new Task row. status is set to unprepared, balanceWhenLastPrepared is set to 0, autoReviewEnabled inherits from the template.","packet":true,"from":"actor-account","to":"actor-task"},
+          {"highlight":"flow-actor-task","label":"The Task record now exists in the database, fully populated. The assignee will see it on their checklist at next page load."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-recurring">
+              <div class="flow-actor-icon"><i data-lucide="repeat" class="icon-lg"></i></div>
+              <span>RecurringTask</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-period">
+              <div class="flow-actor-icon"><i data-lucide="calendar" class="icon-lg"></i></div>
+              <span>Period</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-account">
+              <div class="flow-actor-icon"><i data-lucide="landmark" class="icon-lg"></i></div>
+              <span>Account</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-task">
+              <div class="flow-actor-icon"><i data-lucide="database" class="icon-lg"></i></div>
+              <span>Task Record</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply what you know — three scenarios from the real system</h2>
+        <p>
+          Each question presents a real engineering or business decision. Use your understanding of the data
+          model to reason through each one.
+        </p>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="When the preparer submits, the system records the current account balance in balanceWhenLastPrepared. A background job later compares this snapshot to the live balance. If they differ, the system knows the account moved after submission and reopens the task automatically."
+               data-explanation-wrong="The status field alone cannot detect post-submission balance changes — it only records the outcome of human actions. Think about which field was specifically designed to hold a point-in-time balance snapshot so the system can compare it to the current live value.">
+            <h3 class="quiz-question">
+              Scenario: A preparer submits a reconciliation task on Monday. On Wednesday, a colleague posts
+              three new journal entries to the same account. On Thursday, how does the system know to reopen
+              the task without anyone manually intervening?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The status field is checked against the account and changes automatically</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>balanceWhenLastPrepared stores the balance at submission time; a job compares it to the current live balance and reopens the task if they differ</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The reviewer is notified by email and must manually reopen the task</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The recurringTaskId links back to the template and triggers a refresh</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Separation of duties is a core accounting control: the person who prepares work must not also be the person who approves it. One user field would make it possible to assign the same person to both roles, which violates financial audit requirements — not just a design preference."
+               data-explanation-wrong="This is not about code simplicity — it is about a business rule embedded in the data model. Ask yourself what would happen if one person could fill both fields. That is what the two-field design prevents.">
+            <h3 class="quiz-question">
+              Scenario: A junior engineer suggests merging <code>assignedTo</code> and <code>reviewerId</code>
+              into a single <code>responsibleUserId</code> field to simplify the model. What is the strongest
+              argument against this change?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It would break the Prisma relations and require a database migration</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The UI was built assuming two separate fields and would need to be rewritten</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Separation of duties — a preparer must not also be their own reviewer; collapsing the fields makes that control unenforceable</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The field names are used throughout the codebase and renaming would be too expensive</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Prisma schema.prisma in avise-domains is the single source of truth for the data model. Adding the field there causes Prisma to generate the database migration AND update the TypeScript types simultaneously — every other layer of the stack derives from it automatically."
+               data-explanation-wrong="Think about where the source of truth for the Task model lives. The TypeScript types, the API, and the UI all derive from one place — and that place is not the API or the UI themselves.">
+            <h3 class="quiz-question">
+              Scenario: You need to add an <code>urgency</code> field to tasks so preparers can flag
+              high-priority items. Where in the codebase is the single correct first place to add this field?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Prisma schema in avise-domains — the TypeScript types and database structure both derive from it</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The TypeScript types in avise-api — start where the field will be used first</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The UI form in avise-web — design the user experience before defining the data</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The database directly via a SQL ALTER TABLE statement, then update the Prisma schema to match</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

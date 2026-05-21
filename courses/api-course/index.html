@@ -1,0 +1,2604 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API pentru BA — Curs interactiv</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-polish.css">
+  <link rel="stylesheet" href="styles-cert.css">
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#FBF8F3',
+        primaryTextColor: '#1F1D1B',
+        primaryBorderColor: 'var(--color-accent, #2A7B9B)',
+        lineColor: '#5C5751',
+        secondaryColor: '#F4EFE6',
+        tertiaryColor: '#FFFFFF',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        fontSize: '15px'
+      },
+      flowchart: { curve: 'basis', padding: 20 },
+      er: { layoutDirection: 'LR', minEntityWidth: 120, entityPadding: 16 }
+    });
+  </script>
+
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+  <script src="main-cert.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <span class="nav-title">API pentru BA</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-0" data-tooltip="Harta cursului" role="tab" aria-label="Modul 0: Harta cursului"></button>
+        <button class="nav-dot" data-target="module-1" data-tooltip="Pamantul" role="tab" aria-label="Modul 1: Pamantul"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Caramizile" role="tab" aria-label="Modul 2: Caramizile"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="Mortarul" role="tab" aria-label="Modul 3: Mortarul"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Citirea zidurilor altora" role="tab" aria-label="Modul 4: Citirea zidurilor altora"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Constructia propriului zid" role="tab" aria-label="Modul 5: Constructia propriului zid"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Tehnici de memorare" role="tab" aria-label="Modul 6: Tehnici de memorare"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->
+<section class="module module-landing" id="module-0">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Un curs interactiv pentru</span>
+      <h1 class="module-title-hero">API pentru Business Analysts</h1>
+      <p class="module-subtitle-hero">De la "vad cuvinte in documentatie si nu am imagine in cap" pana la "pot citi orice doc API si pot scrie eu documentatie pentru un endpoint nou". Fara cod. Mecanismul este obiectivul.</p>
+    </header>
+
+    <div class="bento-grid stagger-children">
+      <div class="bento-3 pattern-card animate-in">
+        <i data-lucide="clock" class="icon-lg icon-accent"></i>
+        <h3 class="pattern-title">Timp estimat</h3>
+        <p class="pattern-desc">90-120 minute parcurs complet. Te poti opri dupa orice modul si reveni; progresul ramane in URL.</p>
+      </div>
+      <div class="bento-3 pattern-card animate-in">
+        <i data-lucide="target" class="icon-lg icon-accent"></i>
+        <h3 class="pattern-title">Pentru tine daca...</h3>
+        <p class="pattern-desc">Esti BA/PM, citesti documentatii API in munca de zi cu zi (ThinkOut, Stripe, SnelStart, NetSuite), si simti ca termenii sunt cuvinte fara imagine.</p>
+      </div>
+      <div class="bento-3 pattern-card animate-in">
+        <i data-lucide="layers" class="icon-lg icon-accent"></i>
+        <h3 class="pattern-title">Cum e structurat</h3>
+        <p class="pattern-desc">Ca un zid din caramizi. 5 faze, fiecare se sprijina pe cea de dinainte. Cand ajungi la finalul fazei 5, ai construit zidul intreg.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading">Harta zidului</h2>
+    <p class="lead-paragraph">Cele cinci faze. Nu poti sari peste o caramida — daca o pui mai sus inainte sa pui temelia, zidul se inclina. Asta e motivul pentru care esti frustrata de tutoriale: ele incep cu caramida 7 si presupun ca ai si pe primele sase.</p>
+
+    <div class="course-toc stagger-children">
+      <a href="#module-1" class="toc-item animate-in">
+        <span class="toc-num">01</span>
+        <div class="toc-body">
+          <strong>Pamantul — Ce e si de ce</strong>
+          <p>Ce e un API ca mecanism (nu definitie). Doua programe care vor sa vorbeasca dar nu se cunosc — cum se rezolva problema asta. Si de ce alternativele (oameni intermediari, copy-paste manual) nu functioneaza.</p>
+          <span class="toc-domain-badge">Faza 1 · Fundatia mentala</span>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-2" class="toc-item animate-in">
+        <span class="toc-num">02</span>
+        <div class="toc-body">
+          <strong>Caramizile — Anatomia unei conversatii API</strong>
+          <p>Cererea (4 piese), raspunsul (3 piese), metodele HTTP (GET/POST/PUT/PATCH/DELETE), si status codes (verdictul instant). Dupa modulul asta, poti citi orice exemplu din documentatie.</p>
+          <span class="toc-domain-badge">Faza 2 · Modulele cu cele mai multe piese</span>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-3" class="toc-item animate-in">
+        <span class="toc-num">03</span>
+        <div class="toc-body">
+          <strong>Mortarul — Ce tine caramizile impreuna</strong>
+          <p>Autentificare (cine cu ce cheie — API key, Bearer token, OAuth, JWT) si erori (cum citesti raspunsul cand merge prost si stii ce sa corectezi).</p>
+          <span class="toc-domain-badge">Faza 3 · Functionalitati cross-cutting</span>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-4" class="toc-item animate-in">
+        <span class="toc-num">04</span>
+        <div class="toc-body">
+          <strong>Citirea zidurilor altora — Cum citesti orice documentatie API</strong>
+          <p>Anatomia unei documentatii standard. Cinci exercitii practice pe Stripe — daca poti citi Stripe, poti citi orice. Reflexele de cautare.</p>
+          <span class="toc-domain-badge">Faza 4 · Aplicatie cititorul</span>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-5" class="toc-item animate-in">
+        <span class="toc-num">05</span>
+        <div class="toc-body">
+          <strong>Constructia propriului zid — Cum scrii documentatie</strong>
+          <p>Ce contine o documentatie API standard. Exercitiu integrat: scriem impreuna doc pentru "List invoices" la IMK Portal, pas cu pas.</p>
+          <span class="toc-domain-badge">Faza 5 · Aplicatie scriitorul</span>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+      <a href="#module-6" class="toc-item animate-in">
+        <span class="toc-num">06</span>
+        <div class="toc-body">
+          <strong>Bonus: Memorarea — cum sa nu uiti ce ai invatat</strong>
+          <p>Memory palace pentru status codes (10 numere, 10 imagini in 10 locuri). Mnemonics pentru methodele HTTP. Plan de spaced repetition pentru 30 zile. Tehnici de la memory athletes.</p>
+          <span class="toc-domain-badge">Bonus · Long-term retention</span>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+    </div>
+
+    <div class="callout callout-info animate-in">
+      <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+      <div class="callout-content">
+        <strong class="callout-title">Anchor central pentru tot cursul: GHISEUL DE LA BIROUL DE PASAPOARTE</strong>
+        <p>Vii cu un formular completat. Ghiseul il duce inauntru, iti aduce inapoi raspunsul tot pe un formular. Nu vezi calculatoarele, baza de date, parolele. Vezi doar: formular de intrare, formular de iesire. Asta e un API. Tine imaginea asta in minte — o sa o folosim ca punct de referinta in toate modulele.</p>
+      </div>
+    </div>
+
+    <a href="#module-1" class="btn module-start-btn">
+      Incepe Modulul 1 — Pamantul <i data-lucide="arrow-right" class="icon"></i>
+    </a>
+  </div>
+</section>
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Modulul 1 · Faza 1: Pamantul</span>
+      <h2 class="module-title">Ce e un API si de ce avem nevoie</h2>
+      <p class="module-subtitle">Temelia mentala a zidului. Fara ea, restul caramizilor nu au unde sa se aseze.</p>
+    </header>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Lumea fara API — patru solutii absurde la o problema simpla</h2>
+      <p>Lucrezi la IMK Portal. Userul are cont la <span class="term" data-definition="SnelStart este software-ul de contabilitate olandez unde firmele isi tin facturile si datele financiare.">SnelStart</span>. Vrei ca atunci cand userul se logheaza in IMK, datele lui financiare sa apara automat. Fara API, ai patru optiuni — toate absurde.</p>
+
+      <div class="grid-3-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="user-2" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Om la mijloc</h3>
+          <p class="concept-card-desc">Angajezi pe cineva la SnelStart care primeste cereri pe email, intra in cont, copiaza datele. Dureaza zile, costa enorm, colapseaza la 1000 useri.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="file-spreadsheet" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Export CSV manual</h3>
+          <p class="concept-card-desc">User-ul exporta CSV din SnelStart si il incarca in IMK la fiecare update. Functioneaza, dar fluxul e oribil si datele sunt invechite in 24h.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="mail-warning" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Parsezi email-uri</h3>
+          <p class="concept-card-desc">SnelStart iti trimite email-uri cu date, tu le parsezi. Fragile la orice schimbare de format. Neserios.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="zap" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Ce lipseste: o gura electronica intre cele doua programe</strong>
+          <p>O cale prin care SnelStart si IMK sa-si vorbeasca direct, fara om la mijloc, in milisecunde, dupa reguli clare. Asta e un API.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Mecanismul: un contract intre doua programe</h2>
+      <p>Un <strong>API</strong> (Application Programming Interface) este un <em>contract</em> intre doua programe. Programul A si Programul B se inteleg dinainte: daca A trimite o cerere care arata in formatul X, B raspunde cu un raspuns care arata in formatul Y. Contractul e scris in <span class="term" data-definition="Documentatia API este pagina web sau fisierul care descrie ce poate face API-ul: ce cereri accepta, in ce format, ce raspunsuri intoarce.">documentatie</span>.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Programul A se uita la documentatia API-ului lui B</strong>
+            <p>Vede ce cereri sunt acceptate, ce format trebuie sa aiba, ce raspunsuri va primi. Doc-ul e contractul scris.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>A formuleaza cererea conform regulilor si o trimite</strong>
+            <p>O cerere = un mesaj electronic structurat, peste internet (HTTPS). Cateva milisecunde.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>B primeste, recunoaste forma, raspunde conform regulilor lui</strong>
+            <p>B nu stie cine e A. Daca cererea respecta contractul, B raspunde. Asta e tot ce conteaza pentru B.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>A primeste raspunsul si il foloseste</strong>
+            <p>A nu stie nimic despre cum lucreaza B inauntru — nici baza de date, nici limbajul, nici serverul. Doar contractul conteaza.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="key-round" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">De ce e geniala constructia asta: decuplare</strong>
+          <p>SnelStart isi poate schimba complet sistemul intern saptamana viitoare, pe alta baza de date, in alt limbaj. Daca pastreaza contractul API, IMK Portal nu observa nimic. Cele doua companii pot evolua independent, fara sedinte de sincronizare.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Trei termeni care suna la fel — si NU sunt</h2>
+      <p>Cele mai frecvente trei confuzii care opresc BA-ul incepator. Daca le tii diferentiate de la inceput, restul cursului curge usor.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th></th>
+            <th><i data-lucide="building-2" class="icon"></i> API</th>
+            <th><i data-lucide="message-square" class="icon"></i> API call</th>
+            <th><i data-lucide="door-open" class="icon"></i> Endpoint</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ce e?</strong></td>
+            <td>Contractul intreg — toate regulile, toate operatiile disponibile</td>
+            <td>O cerere efectiva facuta conform contractului</td>
+            <td>O operatie specifica din contract</td>
+          </tr>
+          <tr>
+            <td><strong>Cati ai?</strong></td>
+            <td>Unu pe sistem (API-ul SnelStart, API-ul Stripe)</td>
+            <td>Milioane pe zi (cate cereri faci)</td>
+            <td>Intre 10 si cateva sute pe API</td>
+          </tr>
+          <tr>
+            <td><strong>Analogie ANAF</strong></td>
+            <td>Codul Fiscal — legea, toate regulile</td>
+            <td>Depunerea unei declaratii — un act conform legii</td>
+            <td>Tipul de declaratie (101, 200, 230)</td>
+          </tr>
+          <tr>
+            <td><strong>Analogie ghiseu</strong></td>
+            <td>Ghiseul intreg cu toate butoanele</td>
+            <td>O apasare de buton + raspunsul primit</td>
+            <td>Un buton specific ("vreau pasaport")</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Capcana cea mai frecventa: "API-ul nu functioneaza"</strong>
+          <p>Cand colegii zic asta, intreaba intotdeauna: API-ul intreg e jos (toate operatiile esueaza)? Un endpoint specific da eroare (doar o operatie)? Un singur API call a esuat (o cerere izolata, dar restul merg)? Cele trei au trei investigatii complet diferite.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Primul API call — 51 de caractere</h2>
+      <p>Iata o cerere reala la <span class="term" data-definition="JSONPlaceholder este un API public gratuit pentru teste si invatare. Returneaza date fake (useri, postari, comentarii) intr-un format JSON standard.">JSONPlaceholder</span> (un API public de test). Atat e o cerere intreaga:</p>
+
+      <pre class="translation-code"><code>GET https://jsonplaceholder.typicode.com/users/1</code></pre>
+
+      <p>Trimit aceste 51 de caractere catre un server. Primesc inapoi:</p>
+
+      <pre class="translation-code"><code>{
+  "id": 1,
+  "name": "Leanne Graham",
+  "username": "Bret",
+  "email": "Sincere@april.biz",
+  "address": { ... }
+}</code></pre>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Asta e tot. Un API call.</strong>
+          <p>In urmatoarele 4 module vom invata piesa cu piesa ce s-a intamplat aici, cum sa formulezi cereri mai complicate, si cum sa citesti raspunsuri mai bogate. Dar mecanismul de baza e exact asta — trimiti un mesaj, primesti un raspuns.</p>
+        </div>
+      </div>
+
+      <h2 class="screen-heading" style="margin-top: var(--space-12);">Verificare rapida</h2>
+
+      <div class="quiz-container" id="quiz-module-1">
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Corect. URL-ul specifica path-ul /users/1 — adica resource-ul 'utilizator cu id 1'. E un endpoint specific din API-ul JSONPlaceholder."
+             data-explanation-wrong="Aproape. URL-ul tinteste un singur user specific, identificat prin id-ul 1.">
+          <h3 class="quiz-question">In cererea <code>GET https://jsonplaceholder.typicode.com/users/1</code>, ce reprezinta <code>/users/1</code>?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Numele API-ului</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Lista tuturor userilor</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Endpoint-ul care identifica userul cu id-ul 1</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Parola pentru autentificare</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Da. Programul A nu trebuie sa stie nimic despre cum functioneaza B inauntru — nici baza de date, nici limbajul, nici serverul. Doar contractul conteaza."
+             data-explanation-wrong="Recheck: in scenariul SnelStart-IMK, ce a fost cheia pentru ca cele doua pot evolua independent?">
+          <h3 class="quiz-question">SnelStart isi schimba complet baza de date interna. IMK Portal mai functioneaza?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Nu, IMK trebuie reprogramat sa stie noua baza de date</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Da, atata timp cat contractul API ramane neschimbat</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Doar daca companiile au sedinta de sincronizare</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Nu, pentru ca baza de date face parte din API</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Exact. 'API-ul intreg nu functioneaza' vs 'un endpoint specific da eroare' vs 'un singur call a esuat' sunt trei investigatii diferite. Distinctia e prima abilitate BA pe API-uri."
+             data-explanation-wrong="Recheck capcana 'API-ul nu functioneaza' — care e prima intrebare?">
+          <h3 class="quiz-question">Un coleg zice: "API-ul nu functioneaza". Care e prima intrebare pe care i-o pui?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>"Cand l-ai folosit ultima oara?"</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>"Ai dat refresh la pagina?"</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>"Tot API-ul e jos, un endpoint specific da eroare, sau un singur call a esuat?"</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>"E vina developerilor?"</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-1')">Verifica raspunsurile</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-1')">Incearca din nou</button>
+      </div>
+    </section>
+
+    <div class="module-nav-end animate-in">
+      <a href="#module-2" class="module-continue-btn">Continua la Modulul 2 — Caramizile <i data-lucide="arrow-right" class="icon"></i></a>
+      <a href="#module-0" class="module-back-link"><i data-lucide="arrow-left" class="icon"></i> Inapoi la harta cursului</a>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Modulul 2 · Faza 2: Caramizile</span>
+      <h2 class="module-title">Anatomia unei conversatii API</h2>
+      <p class="module-subtitle">Patru caramizi puse una peste alta: cererea, raspunsul, metodele HTTP, status codes. La final, poti citi orice exemplu din documentatie.</p>
+    </header>
+
+    <!-- Caramida 1: CEREREA -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Caramida 1 — Cererea are exact 4 piese</h2>
+
+      <p>Orice <span class="term" data-definition="HTTP (Hypertext Transfer Protocol) este protocolul standard prin care browserele si serverele isi vorbesc. Toate API-urile moderne folosesc HTTP. HTTPS este varianta criptata, obligatorie in productie.">HTTP request</span> are aceleasi patru piese, in aceeasi ordine. Daca lipseste o piesa sau e in pozitia gresita, serverul raspunde cu eroare.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="zap" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">1. Method</h3>
+          <p class="concept-card-desc">Ce vreau sa fac. Un verb scurt: GET, POST, PUT, PATCH, DELETE. Caramida 3 intra in detaliu.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="map-pin" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">2. URL (endpoint)</h3>
+          <p class="concept-card-desc">Unde trimit cererea. <code>https://api.snelstart.nl/companies/12345</code>. Path-ul identifica resource-ul.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="tag" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">3. Headers</h3>
+          <p class="concept-card-desc">Context despre cerere. Cine sunt (Authorization), ce format trimit (Content-Type), ce vreau inapoi (Accept). Meta-info, nu continut.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="package" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">4. Body</h3>
+          <p class="concept-card-desc">Ce informatie aduc cu mine. Payload-ul efectiv, de obicei <span class="term" data-definition="JSON (JavaScript Object Notation) este formatul standard pentru schimbul de date pe internet. Arata ca un dictionar cu chei si valori in acolade. Citibil de oameni si de programe.">JSON</span>. Exista doar la POST/PUT/PATCH.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">O cerere reala pentru creare factura</h2>
+
+      <p>Vrei sa creezi o factura noua in IMK Portal. Cererea completa arata asa — citeste-o linie cu linie:</p>
+
+      <pre class="translation-code"><code>POST https://api.imk-portal.nl/invoices
+Authorization: Bearer eyJhbGc...
+Content-Type: application/json
+
+{
+  "company_id": "550e8400-e29b-41d4-a716-446655440000",
+  "amount": 1250.00,
+  "currency": "EUR",
+  "due_date": "2026-06-15",
+  "items": [
+    { "description": "Consulting service", "quantity": 10, "unit_price": 125.00 }
+  ]
+}</code></pre>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Linia 1: methodul POST + URL-ul</strong>
+            <p>POST = creez ceva nou. URL-ul nu are id de factura, pentru ca id-ul il primesc dupa, in raspuns. Path-ul e doar <code>/invoices</code>.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Liniile 2-3: headerele</strong>
+            <p>Authorization spune cine sunt (token de auth). Content-Type spune ca trimit JSON. Niciuna nu e continutul cererii — sunt despre cerere.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Linia goala</strong>
+            <p>Separator obligatoriu intre headere si body. Fara aceasta linie, parsarea esueaza.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Body-ul: datele in JSON</strong>
+            <p>Aici sunt informatiile facturii. Doar cererile care creeaza sau modifica au body (POST/PUT/PATCH). GET nu are body niciodata.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="package-2" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Anchor: PACHETUL POSTAL</strong>
+          <p>Method = tipul de serviciu (Standard, Express). URL = adresa destinatarului. Headers = stampila si fluturasul cu informatii (Fragil! Tine la rece!). Body = ce e in cutie. Posta nu deschide cutia — foloseste doar adresa, stampila si serviciul ales sa decida cum sa livreze.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Caramida 2: RASPUNSUL -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Caramida 2 — Raspunsul are 3 piese</h2>
+
+      <p>Cererea pleaca, raspunsul vine inapoi. Acelasi tipar, dar cu o piesa mai putin:</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th></th>
+            <th><i data-lucide="hash" class="icon"></i> Status code</th>
+            <th><i data-lucide="tag" class="icon"></i> Headers</th>
+            <th><i data-lucide="package" class="icon"></i> Body</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ce e?</strong></td>
+            <td>Verdictul instant — 3 cifre care iti spun in 50ms daca a mers</td>
+            <td>Context despre raspuns (rate limit, request-id, format)</td>
+            <td>Datele propriu-zise sau detaliile erorii</td>
+          </tr>
+          <tr>
+            <td><strong>Exemple</strong></td>
+            <td>200 OK · 404 Not Found · 401 Unauthorized · 500 Error</td>
+            <td>X-RateLimit-Remaining: 487 · X-Request-ID: abc123</td>
+            <td>JSON cu datele cerute sau cu eroarea structurata</td>
+          </tr>
+          <tr>
+            <td><strong>Ordinea de citire</strong></td>
+            <td>Primul — clasa raspunsului in &lt;1ms</td>
+            <td>Al doilea — daca ai nevoie de context</td>
+            <td>Al treilea — in functie de ce te-a anuntat status code-ul</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>Exemplu raspuns de succes la <code>GET /companies/12345</code>:</p>
+
+      <pre class="translation-code"><code>Status: 200 OK
+Content-Type: application/json
+X-Request-ID: abc-123-def
+
+{
+  "id": "12345",
+  "name": "PwC Belgium",
+  "vat_number": "BE0123456789"
+}</code></pre>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Capcana: HTTP status vs application status</strong>
+          <p>Un API prost facut poate returna 200 OK la nivel HTTP, dar in body sa contina <code>{"success": false, "error": "..."}</code>. Tehnic functioneaza, dar e anti-pattern. API-urile bune folosesc status codes corect — 200 doar pentru succes real, 4xx pentru erori. Cand documentezi, atrage atentia daca un API rupe regula asta.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Caramida 3: HTTP METHODS -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Caramida 3 — Cele cinci metode HTTP (CRUD)</h2>
+
+      <p>Cele cinci verbe care acopera 99% din cazuri corespund acronimului <strong>CRUD</strong>: Create, Read, Update, Delete.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Ce face</th>
+            <th>Are body?</th>
+            <th>Idempotent?</th>
+            <th>Exemplu</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>GET</strong></td>
+            <td>Read — citeste un resource</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Nu</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Da (+ safe)</td>
+            <td><code>GET /invoices/789</code></td>
+          </tr>
+          <tr>
+            <td><strong>POST</strong></td>
+            <td>Create — creeaza ceva nou</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Da</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Nu</td>
+            <td><code>POST /invoices</code></td>
+          </tr>
+          <tr>
+            <td><strong>PUT</strong></td>
+            <td>Update (replace) — inlocuieste tot</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Da</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Da</td>
+            <td><code>PUT /invoices/789</code></td>
+          </tr>
+          <tr>
+            <td><strong>PATCH</strong></td>
+            <td>Update (partial) — doar campurile trimise</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Da</td>
+            <td>Depinde</td>
+            <td><code>PATCH /invoices/789</code></td>
+          </tr>
+          <tr>
+            <td><strong>DELETE</strong></td>
+            <td>Delete — sterge resource-ul</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Nu</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Da</td>
+            <td><code>DELETE /invoices/789</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="repeat" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Idempotenta — de ce conteaza pentru retry</strong>
+          <p>O operatie idempotenta de N ori = aceeasi ca o data. GET, PUT, DELETE sunt idempotente, deci retry e safe cand reteaua a esuat. POST nu este — retry orb poate crea duplicate. De aceea API-urile serioase ofera "idempotency keys" pentru POST.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Capcana: PUT vs PATCH</strong>
+          <p>PUT inlocuieste obiectul intreg. PATCH modifica doar campurile trimise. Daca trimiti PUT cu doar <code>{"name": "PwC NL"}</code>, restul campurilor pot disparea. Cand documentezi, intreaba developerul: "endpoint-ul asta e PUT (replace complet) sau PATCH (modificare partiala)?"</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Caramida 4: STATUS CODES -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Caramida 4 — Status codes, cele 10 din 95% din cazuri</h2>
+
+      <p>Prima cifra te orienteaza in clasa: 1xx (info, rar), 2xx (succes), 3xx (redirect), 4xx (tu ai gresit), 5xx (ei au o problema).</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="check-circle-2" class="icon-xl icon-success"></i>
+          <h3 class="concept-card-title">200 OK</h3>
+          <p class="concept-card-desc">Succesul generic. Cererea a mers, body-ul contine raspunsul. Standard pentru GET reusit.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="plus-circle" class="icon-xl icon-success"></i>
+          <h3 class="concept-card-title">201 Created</h3>
+          <p class="concept-card-desc">Succes la creare. Tipic dupa POST. Body-ul contine obiectul nou-creat cu id-ul atribuit.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="trash-2" class="icon-xl icon-success"></i>
+          <h3 class="concept-card-title">204 No Content</h3>
+          <p class="concept-card-desc">Succes fara body. Tipic dupa DELETE — "am sters, nu am ce sa-ti returnez".</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="x-circle" class="icon-xl icon-error"></i>
+          <h3 class="concept-card-title">400 Bad Request</h3>
+          <p class="concept-card-desc">Cererea ta e malformata. Lipsesc campuri, format gresit. Tu corectezi si retrimiti.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="lock" class="icon-xl icon-error"></i>
+          <h3 class="concept-card-title">401 Unauthorized</h3>
+          <p class="concept-card-desc">Nu te-ai autentificat sau token expirat. "N-am stiut cine esti" — refresh token sau re-login.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="shield-x" class="icon-xl icon-error"></i>
+          <h3 class="concept-card-title">403 Forbidden</h3>
+          <p class="concept-card-desc">Esti autentificat dar n-ai voie pe acest resource. Diferit de 401 — te stiu, dar te refuz.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="search-x" class="icon-xl icon-error"></i>
+          <h3 class="concept-card-title">404 Not Found</h3>
+          <p class="concept-card-desc">Resource-ul nu exista. Compania 12345 nu e in baza de date, sau path-ul URL e gresit.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="timer" class="icon-xl icon-error"></i>
+          <h3 class="concept-card-title">429 Too Many Requests</h3>
+          <p class="concept-card-desc">Rate limit depasit. Astepti cat zice header-ul Retry-After si retrimiti.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="server-crash" class="icon-xl icon-error"></i>
+          <h3 class="concept-card-title">500 Internal Error</h3>
+          <p class="concept-card-desc">Bug pe server. Nu e vina ta. Retry cu backoff sau alarma daca persista.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="server-off" class="icon-xl icon-error"></i>
+          <h3 class="concept-card-title">503 Service Unavailable</h3>
+          <p class="concept-card-desc">Serverul e jos (mentenanta, supraincarcare). Retry cu backoff mai mare.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="traffic-cone" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Anchor: SEMAFOARELE DIN ORAS</strong>
+          <p>Verde (2xx) = treci. Galben (3xx) = atentie, alta ruta. Rosu cu "E" (4xx) = problema ta de soferie. Rosu cu "S" (5xx) = semaforul e stricat. Daca primesti 4xx, intreaba-te ce ai gresit. Daca primesti 5xx, intreaba-te daca infrastructura lor functioneaza.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN NOU: Structura standard a unui endpoint (REST best practices) -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Bonus: cum se scrie un endpoint — conventii REST</h2>
+
+      <p>Endpoint-urile bine facute respecta cateva reguli scrise (REST conventions). Daca le inveti, vei recunoaste instant cand un API e bine facut sau prost facut. Cele 5 reguli care apar peste tot:</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Regula</th>
+            <th><i data-lucide="check-circle-2" class="icon icon-success"></i> Bine facut</th>
+            <th><i data-lucide="x-circle" class="icon icon-error"></i> Prost facut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Substantive, NU verbe</strong></td>
+            <td><code>GET /companies</code></td>
+            <td><code>GET /getCompanies</code> (verbul e in method, nu in URL)</td>
+          </tr>
+          <tr>
+            <td><strong>Plural pentru colectii</strong></td>
+            <td><code>GET /companies</code> (lista) si <code>GET /companies/12345</code> (una specifica)</td>
+            <td><code>GET /company</code> sau mixat haotic</td>
+          </tr>
+          <tr>
+            <td><strong>Nesting pentru relatii</strong></td>
+            <td><code>GET /companies/123/invoices</code> (facturile companiei 123)</td>
+            <td><code>GET /invoices?company=123</code> (ok dar mai putin clar) sau <code>/getInvoicesForCompany?id=123</code></td>
+          </tr>
+          <tr>
+            <td><strong>Versionare in URL</strong></td>
+            <td><code>/v1/companies</code> sau header dedicat <code>API-Version: 2</code></td>
+            <td>Fara versionare (cand schimbi schema, sparge tot)</td>
+          </tr>
+          <tr>
+            <td><strong>Lowercase si snake_case sau kebab-case</strong></td>
+            <td><code>/credit-scores</code> sau <code>/credit_scores</code> (consistent)</td>
+            <td><code>/CreditScores</code>, <code>/creditScores</code>, mixat haotic</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Cand recunosti un API prost facut: verbe in URL si inconsistenta</strong>
+          <p>Daca vezi <code>/getCompany</code>, <code>/createInvoice</code>, <code>/deleteUser</code>, e RPC-style sau REST prost facut. URL-ul trebuie sa identifice <em>resource-ul</em>, methodul HTTP zice <em>ce faci cu el</em>. Daca un coleg iti propune un endpoint <code>POST /createInvoice</code>, sugereaza-i <code>POST /invoices</code> — methodul POST deja inseamna "creeaza", nu trebuie repetat in URL.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN NOU: Header-ele in detaliu -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Header-ele in detaliu — ce poti avea acolo</h2>
+
+      <p>Pana acum stii ca header-ul contine Authorization si Content-Type. Dar pot fi multe alte lucruri. Important: <strong>endpoint-ul NU e in header</strong> — e in linia de start a cererii, separat. Header-ele incep dupa prima linie.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Header</th>
+            <th>Ce inseamna</th>
+            <th>Cine il pune (cerere / raspuns)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>Authorization</code></td>
+            <td>Cine sunt — token-ul de autentificare</td>
+            <td>Cerere (tu il pui)</td>
+          </tr>
+          <tr>
+            <td><code>Content-Type</code></td>
+            <td>Formatul body-ului meu (<code>application/json</code>, <code>text/xml</code>, etc.)</td>
+            <td>Cerere si raspuns</td>
+          </tr>
+          <tr>
+            <td><code>Accept</code></td>
+            <td>Formatul in care VREAU raspunsul</td>
+            <td>Cerere (tu il ceri)</td>
+          </tr>
+          <tr>
+            <td><code>User-Agent</code></td>
+            <td>Cine e clientul (ex: IMK-Portal/1.0)</td>
+            <td>Cerere</td>
+          </tr>
+          <tr>
+            <td><code>X-Request-ID</code></td>
+            <td>ID unic pentru aceasta cerere — util cand contactezi support</td>
+            <td>Raspuns (server-ul il pune)</td>
+          </tr>
+          <tr>
+            <td><code>X-RateLimit-Remaining</code></td>
+            <td>Cate cereri iti mai pot face inainte sa atingi limita</td>
+            <td>Raspuns</td>
+          </tr>
+          <tr>
+            <td><code>Retry-After</code></td>
+            <td>Cate secunde sa astept inainte de retry (la 429 sau 503)</td>
+            <td>Raspuns</td>
+          </tr>
+          <tr>
+            <td><code>Cache-Control</code></td>
+            <td>Cum sa cache-uiesc raspunsul (sau sa nu)</td>
+            <td>Raspuns</td>
+          </tr>
+          <tr>
+            <td><code>Idempotency-Key</code></td>
+            <td>ID pentru a permite retry sigur la POST</td>
+            <td>Cerere</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Content-Type vs Accept — confuzia clasica</strong>
+          <p><strong>Content-Type</strong> = "formatul a CE TRIMIT eu" (body-ul cererii). <strong>Accept</strong> = "formatul a CE VREAU sa primesc inapoi" (raspunsul). Cele doua sunt headere diferite. Daca trimit JSON dar vreau raspunsul tot in JSON: <code>Content-Type: application/json</code> + <code>Accept: application/json</code>. Unele API-uri returneaza si XML si JSON — Accept e cum alegi.</p>
+        </div>
+      </div>
+
+      <h2 class="screen-heading" style="margin-top: var(--space-12);">Cand sa verifici header-ul cand investighezi o problema</h2>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Cand primesti 401 — verifici Authorization</strong>
+            <p>Token-ul a fost trimis? E formatul corect (<code>Bearer xxx</code>)? A expirat?</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Cand primesti 429 — verifici X-RateLimit-* si Retry-After</strong>
+            <p>Cate cereri ai mai facut recent? Cat trebuie sa astepti? Inainte sa retry, citesti Retry-After.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Cand body-ul vine in format ciudat — verifici Content-Type</strong>
+            <p>Astepti JSON dar primesti HTML? Probabil ai nimerit pagina de eroare a serverului, nu API-ul. Content-Type iti spune.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Cand suni la support — folosesti X-Request-ID</strong>
+            <p>Echipa de support cere mereu X-Request-ID din raspuns. Cu el isi gasesc cererea in log-urile lor in 30 secunde. Fara, dureaza ore.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN NOU: PUT vs PATCH cu exemplu concret -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">PUT vs PATCH — exact ce se intampla pe acelasi obiect</h2>
+
+      <p>Ai o factura existenta in IMK Portal. Vrei sa modifici doar status-ul din "draft" in "sent". Sa vedem ce iese cu PUT vs PATCH, pe aceeasi factura.</p>
+
+      <h2 class="screen-heading" style="font-size: 1.4rem; margin-top: var(--space-8);">Starea initiala a facturii in baza de date:</h2>
+
+      <pre class="translation-code"><code>{
+  "id": "880e8400-...",
+  "company_id": "550e8400-...",
+  "amount": 1250.00,
+  "currency": "EUR",
+  "status": "draft",
+  "due_date": "2026-06-15",
+  "notes": "Consulting Q1 2026"
+}</code></pre>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <h3 class="concept-card-title" style="color: #C44545;">CU PUT (body partial) — RISC</h3>
+          <p>Trimit:</p>
+          <pre class="translation-code"><code>PUT /invoices/880e8400-...
+{
+  "status": "sent"
+}</code></pre>
+          <p>Ce iese in baza de date depinde de implementare. Stric "by the book" REST, PUT inlocuieste obiectul intreg. Asta inseamna:</p>
+          <pre class="translation-code"><code>{
+  "id": "880e8400-...",
+  "status": "sent"
+  // celelalte campuri: NULL sau sterse!
+}</code></pre>
+          <p><strong>amount, currency, due_date, notes au disparut.</strong> Catastrofa.</p>
+        </div>
+
+        <div class="concept-card animate-in">
+          <h3 class="concept-card-title icon-success">CU PATCH (body partial) — SIGUR</h3>
+          <p>Trimit:</p>
+          <pre class="translation-code"><code>PATCH /invoices/880e8400-...
+{
+  "status": "sent"
+}</code></pre>
+          <p>Ce iese in baza de date — PATCH modifica DOAR campurile trimise:</p>
+          <pre class="translation-code"><code>{
+  "id": "880e8400-...",
+  "company_id": "550e8400-...",
+  "amount": 1250.00,
+  "currency": "EUR",
+  "status": "sent",       // ← schimbat
+  "due_date": "2026-06-15",
+  "notes": "Consulting Q1 2026"
+}</code></pre>
+          <p><strong>Restul campurilor au ramas neatinse.</strong> Doar status-ul s-a schimbat.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Regula: PUT ai grija sa trimiti obiectul INTREG. PATCH poti trimite doar diferentele</strong>
+          <p>In practica, multe API-uri sunt "indulgente" cu PUT si nu sterg campurile lipsa — dar te bazezi pe noroc. Standardul REST zice ca PUT inlocuieste tot. Cand specifici cerinte pentru un endpoint nou: <strong>PATCH pentru modificari partiale, PUT cand chiar inlocuiesti obiectul intreg</strong>. Asta evita confuzia.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN NOU: POST cu body partial -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">POST cu body partial — ce se intampla</h2>
+
+      <p>POST creeaza un resource nou. Daca trimiti body incomplet (lipsesc campuri obligatorii), serverul te respinge cu <strong>400 Bad Request</strong>. NU creeaza nimic.</p>
+
+      <pre class="translation-code"><code>POST /invoices
+Content-Type: application/json
+
+{
+  "company_id": "550e8400-...",
+  "amount": 1250.00
+  // lipseste currency, due_date, items
+}</code></pre>
+
+      <p>Server-ul raspunde:</p>
+
+      <pre class="translation-code"><code>Status: 400 Bad Request
+Content-Type: application/json
+
+{
+  "error": {
+    "code": "missing_field",
+    "message": "Required field 'currency' is missing",
+    "fields_missing": ["currency", "due_date", "items"]
+  }
+}</code></pre>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Recapitulare: ce face fiecare method cu body partial</strong>
+          <p><strong>POST partial →</strong> 400 (lipsesc campuri obligatorii, n-a creat nimic). <strong>PUT partial →</strong> RISC: depinde de implementare, posibil sterge campurile lipsa. <strong>PATCH partial →</strong> 200 OK, modifica doar campurile trimise (asta e POANTA lui PATCH).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN NOU: Retry - safe vs sens -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Retry — doua intrebari diferite: are SENS vs e SAFE</h2>
+
+      <p>Cand o cerere esueaza, decizia "retry sau nu" are doua dimensiuni distincte. Multi le confunda. Sa le separam clar.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th></th>
+            <th>"Are SENS sa retry?"</th>
+            <th>"E SAFE sa retry?"</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ce intreaba</strong></td>
+            <td>Ar putea ajuta retry? Sau primesc acelasi raspuns la nesfarsit?</td>
+            <td>Daca retry, creez duplicate sau nu?</td>
+          </tr>
+          <tr>
+            <td><strong>De ce depinde</strong></td>
+            <td>De tipul erorii (4xx vs 5xx)</td>
+            <td>De methodul HTTP (idempotent sau nu)</td>
+          </tr>
+          <tr>
+            <td><strong>Are sens DA cand</strong></td>
+            <td>5xx (problema lor temporara) sau 429 (rate limit)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>Are sens NU cand</strong></td>
+            <td>4xx (cererea ta e gresita, primesc acelasi 400/401/403/404 la nesfarsit)</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><strong>E safe cand</strong></td>
+            <td>—</td>
+            <td>GET / PUT / DELETE (idempotente) — retry nu creeaza duplicate</td>
+          </tr>
+          <tr>
+            <td><strong>NU e safe cand</strong></td>
+            <td>—</td>
+            <td>POST (creeaza duplicate la fiecare retry) — folosesti Idempotency-Key</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Cele 4 combinatii — exemple concrete</strong>
+          <p>
+          <strong>GET → 500.</strong> Are sens (5xx). E safe (idempotent). → <em>Retry cu backoff.</em><br>
+          <strong>POST → 500.</strong> Are sens (5xx). Nu e safe (POST creeaza duplicate). → <em>Retry CU Idempotency-Key.</em><br>
+          <strong>GET → 404.</strong> Nu are sens (4xx, resource-ul nu exista). E safe. → <em>NU retry. Investighezi de ce 404.</em><br>
+          <strong>POST → 400.</strong> Nu are sens (4xx, cererea ta e gresita). Nu e safe. → <em>NU retry. Corectezi body-ul.</em>
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Raspuns la intrebarea ta originala: "daca trimit gresit primesc acelasi raspuns la nesfarsit"</strong>
+          <p>Exact. Asta e cazul 4xx — n-are sens sa retry pentru ca server-ul iti raspunde acelasi lucru pana il corectezi. Retry-ul automat este pentru 5xx (temporar la ei) si 429 (rate limit) — situatii unde a doua cerere ar putea reusi <em>fara sa schimbi nimic</em> in cererea ta. La 4xx schimbi cererea, apoi trimiti din nou (asta nu se cheama "retry", e o cerere noua corectata).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz final modul 2 -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Verificare — caramizile 1-4</h2>
+
+      <div class="quiz-container" id="quiz-module-2">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Corect. Authorization e header — context despre cerere, nu continut. Body e doar pentru datele efective (un user nou, o factura noua)."
+             data-explanation-wrong="Recheck: header vs body. Auth-ul e meta-informatie despre cerere sau e payload-ul efectiv?">
+          <h3 class="quiz-question">In ce piesa a cererii pun token-ul de autentificare?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>In URL, ca query parameter</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>In header-ul Authorization</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>In body, ca un camp suplimentar</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>In method, dupa GET sau POST</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-d"
+             data-explanation-right="Exact. PATCH modifica doar campurile trimise. PUT ar inlocui obiectul intreg, deci restul campurilor pot disparea. POST creeaza ceva nou — gresit aici."
+             data-explanation-wrong="Recheck: ai o factura existenta si vrei sa modifici doar status-ul. Care e metoda potrivita?">
+          <h3 class="quiz-question">Ai o factura existenta cu mai multe campuri. Vrei sa schimbi DOAR status-ul ei. Care metoda HTTP folosesti?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>POST — pentru ca modific ceva</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PUT — pentru ca actualizez factura</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>GET — pentru ca verific factura</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PATCH — pentru ca modific partial</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exact. 401 = nu te-am recunoscut (auth lipsa sau expirat). 403 = te recunosc, dar n-ai voie. Distinctia e cruciala: 401 → refresh token / re-login. 403 → ridica problema de permisiuni."
+             data-explanation-wrong="Recheck distinctia: 401 e despre identitate, 403 e despre permisiuni.">
+          <h3 class="quiz-question">Esti logat ca user X. Faci o cerere si primesti 403 Forbidden. Ce inseamna?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Te-au recunoscut, dar n-ai voie pe acest resource</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Token-ul tau a expirat, trebuie refresh</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Serverul e jos, retry mai tarziu</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Resource-ul nu exista</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Corect. 5xx = problema la server, retry cu backoff e standard. 4xx (mai putin 429) = retry orb va da aceeasi eroare, trebuie sa corectezi cererea."
+             data-explanation-wrong="Recheck regula: 4xx = tu corectezi, 5xx = retry cu backoff.">
+          <h3 class="quiz-question">Cand e safe sa faci retry automat la o cerere care a esuat?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>La 400 si 401 — sunt problema mea, deci retry</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>La orice eroare, oricand</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>La 5xx si 429 cu backoff exponential</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Niciodata — esecul inseamna ca trebuie sa abandonezi</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-2')">Verifica raspunsurile</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-2')">Incearca din nou</button>
+      </div>
+    </section>
+
+    <div class="module-nav-end animate-in">
+      <a href="#module-3" class="module-continue-btn">
+        Continua la Modulul 3 — Mortarul <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-1" class="module-back-link">
+        <i data-lucide="arrow-left" class="icon"></i> Inapoi la Modulul 1
+      </a>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Modulul 3 · Faza 3: Mortarul</span>
+      <h2 class="module-title">Ce tine caramizile impreuna</h2>
+      <p class="module-subtitle">Autentificarea (cine cu ce cheie) si erorile (cum citesti cand merge prost) — mecanismele care apar in fiecare cerere, indiferent ce face.</p>
+    </header>
+
+    <!-- AUTENTIFICARE - INTRODUCERE -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Autentificare vs autorizare — doua intrebari diferite</h2>
+
+      <p>Cea mai frecventa confuzie. Cele doua suna la fel dar fac lucruri complet diferite. Scenariu concret:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Ajungi la sediul PwC luni dimineata</strong>
+            <p>La intrare e un paznic. Paznicul te intreaba: "cine esti?"</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Scoti legitimatia PwC si i-o arati. Asta e AUTENTIFICARE</strong>
+            <p>Paznicul verifica fata ta cu poza, citeste numele "Mihaela", confirma ca esti angajata. Acum stie CINE esti. Nu te-a lasat inca inauntru — doar stie cine esti.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Vrei sa intri la etajul 12 unde e biroul de directori. Paznicul verifica nivelul tau de acces. Asta e AUTORIZARE</strong>
+            <p>Vede ca legitimatia ta zice "Senior Associate, GHAS team". E autorizata pentru etaj 12? Nu. Te opreste — chiar daca te cunoaste. "Stiu cine esti, dar nu ai voie aici."</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Reformulezi cererea — vrei sa intri la etaj 8 unde e biroul tau. Te lasa</strong>
+            <p>Aceeasi legitimatie (autentificare), permisiune diferita (autorizare). Esti aceeasi persoana, dar acum cererea ta se incadreaza in ce ai voie.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="key-round" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Memo: cele doua intrebari au DOUA status codes diferite</strong>
+          <p><strong>Autentificarea esueaza →</strong> 401 Unauthorized ("nu te cunosc"). <strong>Autorizarea esueaza →</strong> 403 Forbidden ("te cunosc, dar nu ai voie aici"). Daca tii distinctia in scenariul cu paznicul, status code-ul iese natural. 401 = legitimatia ta nu e valida. 403 = legitimatia e valida dar nivelul e gresit.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUTENTIFICARE - CELE 4 TIPURI -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Patru tipuri de autentificare — patru tipuri de legitimatii</h2>
+
+      <p>Acum ca avem distinctia, ne uitam la <strong>cum</strong> demonstreaza programele cine sunt. Patru tipuri principale, fiecare cu cazul lui de utilizare.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Tip</th>
+            <th>Cand se foloseste</th>
+            <th>Cum arata in cerere</th>
+            <th>Exemple din munca ta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>API Key</strong></td>
+            <td>Client = aplicatie (server-to-server)</td>
+            <td><code>Authorization: ApiKey sk_live_abc123</code></td>
+            <td>IMK ↔ Stripe pentru abonamente</td>
+          </tr>
+          <tr>
+            <td><strong>Bearer Token (OAuth 2.0)</strong></td>
+            <td>Client = aplicatie in numele user-ului uman</td>
+            <td><code>Authorization: Bearer eyJhbGc...</code></td>
+            <td>IMK ↔ ThinkOut, Avise ↔ QuickBooks</td>
+          </tr>
+          <tr>
+            <td><strong>Basic Auth</strong></td>
+            <td>Sisteme legacy, admin tools interne</td>
+            <td><code>Authorization: Basic dXNlcjpwYXNz</code></td>
+            <td>Rar in API-uri moderne</td>
+          </tr>
+          <tr>
+            <td><strong>JWT</strong></td>
+            <td>Microservicii care vorbesc intre ele</td>
+            <td><code>Authorization: Bearer eyJh.eyJz.SflK</code></td>
+            <td>Componentele Avise intre ele</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="badge" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Cele 4 tipuri ca legitimatii fizice</strong>
+          <p><strong>API key</strong> = card-cheie permanent al firmei (cat il ai, intri). <strong>Bearer token</strong> = ecuson temporar de vizitator (expira la final de zi, ceri unul nou). <strong>Basic auth</strong> = sa-i spui paznicului numele si parola de fiecare data (plictisitor si nesigur peste HTTP). <strong>JWT</strong> = card cu cip care contine in el cine esti si nivelul tau — paznicul citeste chip-ul si stie totul.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">OAuth 2.0 — flow-ul cand userul autorizeaza aplicatia ta</h2>
+
+      <p>Cel mai comun pattern cand userul din IMK Portal vrea sa-si conecteze contul ThinkOut. Noua pasi care merg sa fie intelesi inainte sa scrii cerinte de integrare:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>User in IMK Portal: click "Connect ThinkOut account"</strong>
+            <p>Vrea sa autorizeze IMK sa-i acceseze datele din ThinkOut.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>IMK il redirectioneaza la ThinkOut</strong>
+            <p>Cu un parametru "redirect_uri" — unde sa-l aduca inapoi dupa autorizare.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>User pe ThinkOut: se logheaza, vede ecranul de autorizare</strong>
+            <p>"IMK Portal vrea acces la datele tale" — cu lista exacta de permisiuni cerute.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>User: click "Authorize"</strong>
+            <p>Confirma consimtamantul. Aici se incheie partea cu interactiunea umana.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>ThinkOut il redirectioneaza inapoi la IMK cu un "authorization code"</strong>
+            <p>Un cod scurt-durata. Trece prin browser, dar e safe pentru ca e o-singura-folosinta.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <strong>IMK (server-side) schimba code-ul pe token</strong>
+            <p>Trimite code + client_secret la ThinkOut. Server-to-server, niciodata in browser.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <strong>ThinkOut returneaza access_token + refresh_token</strong>
+            <p>Access = scurt (1h), pentru cereri. Refresh = lung (zile-luni), pentru a obtine noi access tokens.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">8</div>
+          <div class="step-body">
+            <strong>IMK foloseste access_token in cererile catre ThinkOut</strong>
+            <p>In header: <code>Authorization: Bearer eyJhbGc...</code></p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">9</div>
+          <div class="step-body">
+            <strong>Cand access_token expira, IMK foloseste refresh_token sa obtina unul nou</strong>
+            <p>Transparent pentru user — nu trebuie sa autorizeze din nou. Functioneaza pana cand refresh_token expira la randul lui (poate luni).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Capcana: token in URL e bug</strong>
+          <p>Vei vedea uneori <code>?token=abc123</code> in URL. E rau — URL-urile apar in log-uri server, in browser history, in referer headers. Token-urile mereu in header Authorization, niciodata in URL.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ERORILE -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Cum citesti o eroare API, pas cu pas</h2>
+
+      <p>Cand o cerere esueaza, API-urile bine facute returneaza doua niveluri de informatie: status code (clasa erorii) si body cu detalii structurate. Iata o eroare reala de la Stripe:</p>
+
+      <pre class="translation-code"><code>Status: 400 Bad Request
+Content-Type: application/json
+
+{
+  "error": {
+    "type": "invalid_request_error",
+    "code": "parameter_missing",
+    "doc_url": "https://stripe.com/docs/error-codes/parameter-missing",
+    "message": "Missing required param: name.",
+    "param": "name"
+  }
+}</code></pre>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Status code — clasa problemei</strong>
+            <p>400 = tu ai gresit cererea. 4xx = corectezi cererea. 5xx = retry cu backoff.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Field <code>code</code> sau <code>type</code> — identifier machine-readable</strong>
+            <p><code>parameter_missing</code>. Util in cod pentru logica conditionala: <em>if error.code == "rate_limit_exceeded" then wait</em>.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Field <code>message</code> — explicatia in cuvinte</strong>
+            <p>"Missing required param: name." Util pentru debug si pentru a-l afisa user-ului uneori.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Field <code>param</code> sau <code>field</code> — care camp e cauza</strong>
+            <p><code>name</code>. Cand validarea esueaza pe un camp specific, asta iti spune unde.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Field <code>doc_url</code> — link direct la documentatie</strong>
+            <p>Stripe te trimite direct la pagina care explica eroarea. Detaliu de calitate. Multe API-uri nu fac asta.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Anchor: VARFUL ICEBERG-ULUI</strong>
+          <p>Status code = varful pe care il vezi instant — iti spune ca e iceberg. Body-ul = restul iceberg-ului, sub apa. Multi se uita doar la varful — BA-ul bun citeste si sub apa, acolo e informatia care iti spune <em>ce sa faci</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Verificare — mortarul</h2>
+
+      <div class="quiz-container" id="quiz-module-3">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Corect. API key pentru server-to-server (IMK ↔ Stripe nu implica user uman care se logheaza la Stripe). OAuth pentru user-driven (IMK ↔ ThinkOut, unde user-ul roman se logheaza la ThinkOut)."
+             data-explanation-wrong="Recheck: cand IMK proceseaza plata abonamentului prin Stripe, user-ul se logheaza in Stripe?">
+          <h3 class="quiz-question">IMK Portal proceseaza plata abonamentului unui user prin Stripe. Ce tip de auth foloseste cu Stripe?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>OAuth 2.0 — user-ul autorizeaza Stripe</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>API Key — IMK foloseste cheia lui de cont Stripe, server-side</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Basic Auth — username si parola de Stripe</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>JWT — IMK genereaza un JWT pentru Stripe</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Da. Access = scurt (1h), pentru cereri. Refresh = lung (saptamani-luni), pentru a obtine noi access tokens cand cel curent expira. Pierderea refresh = mare drama; pierderea access = recuperabila."
+             data-explanation-wrong="Recheck: care e durata fiecaruia si la ce serveste?">
+          <h3 class="quiz-question">Care e diferenta intre access_token si refresh_token in OAuth 2.0?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Sunt identice, doar nume diferite</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Access pentru citire, refresh pentru scriere</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Access = scurt (1h) pentru cereri; refresh = lung, doar pentru a obtine noi access tokens</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Refresh e pentru mobile, access pentru desktop</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-d"
+             data-explanation-right="Exact. Code <code>parameter_missing</code> in field <code>param: 'email'</code> iti spune mecanic ce sa corectezi. Status 400 confirma ca tu trebuie sa modifici cererea."
+             data-explanation-wrong="Recheck structura erorii — care field iti spune EXACT ce e gresit?">
+          <h3 class="quiz-question">Primesti acest raspuns. Ce stii?
+          <pre class="translation-code" style="margin-top: 1em;"><code>Status: 400
+{
+  "error": {
+    "code": "parameter_missing",
+    "param": "email",
+    "message": "Required param missing"
+  }
+}</code></pre></h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Serverul e jos, fac retry</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Sunt rate-limited, astept</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nu sunt autentificat, fac login</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Am uitat sa trimit campul email, il adaug si retrimit</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-3')">Verifica raspunsurile</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-3')">Incearca din nou</button>
+      </div>
+    </section>
+
+    <div class="module-nav-end animate-in">
+      <a href="#module-4" class="module-continue-btn">
+        Continua la Modulul 4 — Citirea zidurilor altora <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-2" class="module-back-link">
+        <i data-lucide="arrow-left" class="icon"></i> Inapoi la Modulul 2
+      </a>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-4">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Modulul 4 · Faza 4: Citirea zidurilor altora</span>
+      <h2 class="module-title">Cum citesti orice documentatie API</h2>
+      <p class="module-subtitle">Documentatiile au structura standard. Daca stii pattern-ul, deschizi orice doc noua si in 5 minute stii unde e ce.</p>
+    </header>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Cele 10 sectiuni standard ale unei documentatii API</h2>
+
+      <p>Ordinea in care apar in meniul lateral si ordinea in care le citesti:</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="rocket" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">1. Getting Started / Quickstart</h3>
+          <p class="concept-card-desc">Prima cerere care merge in 15 minute. Setup cont, instalare SDK, exemplu cap-coada. Daca lipseste = imaturitate.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="key-round" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">2. Authentication</h3>
+          <p class="concept-card-desc">Detaliile auth-ului. Ce tip, cum obtii credentialele, cum se reinnoiesc, cum se revoca.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="book-open" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">3. Reference</h3>
+          <p class="concept-card-desc">Lista de endpoint-uri organizate pe resurse. Dictionar — cauti, nu citesti linear.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="route" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">4. Guides / Tutorials</h3>
+          <p class="concept-card-desc">Scenarii complete care leaga mai multe endpoint-uri intr-un workflow. "Cum sa accepti prima plata."</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="bell" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">5. Webhooks</h3>
+          <p class="concept-card-desc">Cand API-ul iti trimite TIE evenimente (inversul cererii). Stripe te suna cand a platit cineva.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="gauge" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">6. Rate Limits</h3>
+          <p class="concept-card-desc">Cate cereri poti face pe unitate de timp. Ce headers iti returneaza. Ce sa faci la 429.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="alert-octagon" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">7. Errors</h3>
+          <p class="concept-card-desc">Taxonomia erorilor — ce error codes pot aparea, ce inseamna, ce sa faci pentru fiecare.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="git-branch" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">8. Changelog / Versioning</h3>
+          <p class="concept-card-desc">Ce s-a schimbat. API-urile evolueaza — versioning iti spune ce versiune folosesti si ce s-a depreciat.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="code-2" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">9. SDKs</h3>
+          <p class="concept-card-desc">Librarii pre-construite in JavaScript, Python, Ruby etc. Strat de confort peste API-ul brut.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="book-marked" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">10. Glossary / Concepts</h3>
+          <p class="concept-card-desc">Definitii ale termenilor business. "Subscription" vs "Payment Intent" la Stripe au inteles specific.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">OpenAPI / Swagger — standardul de facto</h2>
+
+      <p><strong>OpenAPI</strong> (anterior <strong>Swagger</strong>) e un standard pentru a descrie API-uri intr-un fisier <span class="term" data-definition="YAML (YAML Ain't Markup Language) este un format de fisier text usor de citit de oameni, folosit pentru configuratii si specificatii. Foloseste indentare in loc de paranteze. Mai prietenos decat JSON pentru fisiere mari pe care le scriu oamenii.">YAML</span> sau JSON. Fisierul defineste toate endpoint-urile, parametrii, schemele, erorile, intr-un format machine-readable.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th></th>
+            <th><i data-lucide="file-code" class="icon"></i> OpenAPI spec</th>
+            <th><i data-lucide="layout" class="icon"></i> OpenAPI doc</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ce e?</strong></td>
+            <td>Fisierul YAML/JSON — sursa</td>
+            <td>Site-ul HTML interactiv generat din spec</td>
+          </tr>
+          <tr>
+            <td><strong>Cine il foloseste?</strong></td>
+            <td>Developeri, ca sursa de adevar</td>
+            <td>Oricine vrea sa citeasca docs si sa testeze endpoint-uri "Try it out"</td>
+          </tr>
+          <tr>
+            <td><strong>Cum incepe?</strong></td>
+            <td><code>openapi: 3.0.0</code></td>
+            <td>Pagina web cu sectiuni si endpoint-uri navigable</td>
+          </tr>
+          <tr>
+            <td><strong>Cand cineva zice "trimite-mi OpenAPI"</strong></td>
+            <td>De obicei vrea fisierul</td>
+            <td>Rar — link-ul la doc oricine il are</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">De ce conteaza pentru tine ca BA</strong>
+          <p>Multe documentatii moderne sunt generate automat dintr-un fisier OpenAPI. Cand scrii cerinte pentru un API nou (IMK Portal, Avise), e probabil sa lucrezi cu un OpenAPI YAML. Tool-uri ca Swagger UI, Redoc, Stoplight, Postman pot importa spec-ul si genera doc sau collections de test.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Citirea practica — 5 exercitii pe Stripe</h2>
+
+      <p>Vom folosi documentatia Stripe (<code>docs.stripe.com/api</code>) pentru ca e considerata gold standard. Daca poti citi Stripe, poti citi orice. Cele cinci exercitii imita situatiile reale in care un BA se uita la o documentatie noua.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Exercitiu: gaseste cum se face auth la Stripe</strong>
+            <p>Unde cauti: sectiunea Authentication. Ce vei gasi: API key (Bearer). Doua chei — secret (<code>sk_test_</code>, server-side) si publishable (<code>pk_test_</code>, ok in browser). De ce conteaza pentru BA: cand scrii cerinte de integrare cu Stripe, separa explicit operatii server-side de client-side.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Exercitiu: endpoint-ul "List customers"</strong>
+            <p>Unde cauti: Reference → Customers. Ce vei gasi: <code>GET /v1/customers</code>, fara parametri obligatorii. Important: Stripe foloseste cursor-based pagination (<code>has_more</code>, <code>starting_after</code>) in loc de offset/limit. Pattern modern, scalabil.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Exercitiu: filtrare dupa email</strong>
+            <p>Unde cauti: tot la "List customers", la parametrul <code>email</code>. URL final: <code>GET /v1/customers?email=ion%40example.com</code> (%40 = encoding pentru @). Nu exista endpoint dedicat — filtrare prin query parameter pe list endpoint. Pattern REST standard.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Exercitiu: schema unui Customer</strong>
+            <p>Unde cauti: "The Customer object" la inceputul sectiunii Customers. Ce sa observi: id-ul incepe cu <code>cus_</code> (Stripe prefixeaza tipul resursei — trick util pentru debug). <code>created</code> e timestamp Unix, nu ISO. <code>metadata</code> e obiect liber pentru date custom. <code>livemode: false</code> = cont de test.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Exercitiu: erori la creare cu email gresit</strong>
+            <p>Unde cauti: "Create a customer" si sectiunea Errors. Stripe doseaza erorile in <code>type</code> (clasa: invalid_request_error, card_error, authentication_error) si <code>code</code> (specific). Asta permite logica conditionala in cod.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Regula generala pentru orice doc noua</h2>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Situatie</th>
+            <th>Unde cauti</th>
+            <th>Timp estimat</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Prima vizita (n-ai mai folosit API-ul)</strong></td>
+            <td>Quickstart. Faci prima cerere, ai mainile pe ea.</td>
+            <td>30 min</td>
+          </tr>
+          <tr>
+            <td><strong>Folosesti un endpoint specific</strong></td>
+            <td>Reference, cauti dupa resource. Citesti pagina endpoint-ului.</td>
+            <td>10 min</td>
+          </tr>
+          <tr>
+            <td><strong>Ai un scenariu business</strong></td>
+            <td>Guides. Cauti tutorial pentru scenariul tau.</td>
+            <td>20-30 min</td>
+          </tr>
+          <tr>
+            <td><strong>Intri in productie</strong></td>
+            <td>Webhooks + Rate Limits + Errors (a citi prima data).</td>
+            <td>1-2 ore</td>
+          </tr>
+          <tr>
+            <td><strong>Investighezi o problema</strong></td>
+            <td>Errors (cauti codul) + Reference + Changelog (s-a schimbat ceva?).</td>
+            <td>15-30 min</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="map" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Anchor: LECTURA UNEI HARTI VECHI</strong>
+          <p>Nu citesti harta de la coltul stang sus la dreapta jos. Cauti orasul tau, identifici zona, zoom-ezi acolo. Restul hartii e fundal. Documentatia API la fel — cauti resursa, zoom-ezi pe ea, restul ramane fundal pe care il accesezi la nevoie.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Capcana: iluzia ca stii pentru ca ai citit</strong>
+          <p>Citirea da iluzia de cunoastere. Ca BA, scrie spec-ul in cuvintele tale dupa ce ai citit. Daca nu poti, n-ai inteles. 30 min citit + 5 min test (cu Postman, curl, sandbox) &gt; 2 ore doar citit.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Verificare — citirea documentatiei</h2>
+
+      <div class="quiz-container" id="quiz-module-4">
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Da. Reference e organizat pe resurse (Customers, Charges, Subscriptions) si cauti dupa resource cand stii ce vrei sa faci. Quickstart e pentru orientare initiala."
+             data-explanation-wrong="Recheck: 'vreau sa fac X cu Y' — unde sunt listate operatiile pe Y?">
+          <h3 class="quiz-question">Vrei sa stii cum sa creezi un customer in Stripe. Unde mergi prima oara in doc?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Changelog — sa vad daca s-a schimbat ceva</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Quickstart — sa vad totul de la inceput</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Reference → Customers — sectiunea dedicata resursei</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Webhooks — sa vad ce evenimente exista</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Corect. OpenAPI spec = fisierul YAML/JSON, sursa. OpenAPI doc = site-ul HTML interactiv generat din spec. Cand cineva zice 'trimite-mi OpenAPI', de obicei vrea fisierul, nu link-ul."
+             data-explanation-wrong="Recheck distinctia: spec e fisier, doc e site generat.">
+          <h3 class="quiz-question">Cineva iti zice: "Trimite-mi OpenAPI pentru endpoint-urile noi". Ce trimiti?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Link-ul la documentatia online</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Fisierul YAML/JSON cu specificatia</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Screenshot-uri ale endpoint-urilor</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Cerintele in Word</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-d"
+             data-explanation-right="Da. Stripe (si multe API-uri moderne) folosesc cursor-based pagination — has_more boolean si starting_after cu id-ul ultimului din pagina anterioara. Mai scalabil decat offset/limit pe date mari."
+             data-explanation-wrong="Recheck: Stripe foloseste cursor-based pagination — cum arata pasul de la o pagina la urmatoarea?">
+          <h3 class="quiz-question">Esti la pagina 1 de customers in Stripe. Cum obtii pagina 2?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Trimit din nou GET /v1/customers cu <code>?page=2</code></span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Trimit GET /v1/customers cu <code>?offset=10&amp;limit=10</code></span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Stripe nu suporta paginare</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Trimit GET cu <code>?starting_after=&lt;id-ul ultimului customer&gt;</code></span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-4')">Verifica raspunsurile</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-4')">Incearca din nou</button>
+      </div>
+    </section>
+
+    <div class="module-nav-end animate-in">
+      <a href="#module-5" class="module-continue-btn">
+        Continua la Modulul 5 — Constructia propriului zid <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-3" class="module-back-link">
+        <i data-lucide="arrow-left" class="icon"></i> Inapoi la Modulul 3
+      </a>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-5">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Modulul 5 · Faza 5: Constructia propriului zid</span>
+      <h2 class="module-title">Cum scrii documentatie API</h2>
+      <p class="module-subtitle">Acum invertem perspectiva: din consumator de doc, devii producator. Ce contine o doc bine facuta si cum o construiesti pas cu pas.</p>
+    </header>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Cele 11 elemente per endpoint</h2>
+
+      <p>Pentru fiecare endpoint documentat, documentatia trebuie sa contina toate aceste piese. Daca lipseste vreuna, dev-ul va cere clarificari sau va implementa altceva decat ai vrut.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="hash" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">1. URL + Method</h3>
+          <p class="concept-card-desc">Fara ambiguitate. <code>GET /invoices/{id}</code> cu placeholder pentru path parameter.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="file-text" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">2. Descriere business</h3>
+          <p class="concept-card-desc">Ce face, in cuvinte de business. NU "GET handler for /invoices route". Dev-ul trebuie sa inteleaga business meaning, altfel implementeaza altceva.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="key-round" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">3. Auth requirements</h3>
+          <p class="concept-card-desc">Ce tip de auth, ce scopuri OAuth, ce nivel de cheie. Daca lipseste = guess work.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="route" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">4. Path parameters</h3>
+          <p class="concept-card-desc">Pentru fiecare: nume, tip (UUID, integer), semnificatie business, constrangeri.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="filter" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">5. Query parameters</h3>
+          <p class="concept-card-desc">Optional/obligatoriu, default, constrangeri (min/max, enum), descriere business.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="package" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">6. Request body schema</h3>
+          <p class="concept-card-desc">Pentru POST/PUT/PATCH. Schema JSON cu tipuri, obligatii, descriere per camp.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="check-circle-2" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">7. Response body (success)</h3>
+          <p class="concept-card-desc">Pentru fiecare status code de succes (200, 201, 204), ce contine raspunsul. Schema completa.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="alert-octagon" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">8. Error responses</h3>
+          <p class="concept-card-desc">Status codes posibile cu error codes specifice. Daca documentezi doar succesul, lipseste 50% din contract.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="gauge" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">9. Rate limits specifice</h3>
+          <p class="concept-card-desc">Daca endpoint-ul are limita aparte (scump computational), specifica explicit.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="terminal" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">10. Exemple complete</h3>
+          <p class="concept-card-desc">Cel putin un curl. De preferat si 1-2 limbaje. Cerere completa + raspuns reusit. NU placeholder gen "string", date reale.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="git-branch" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">11. Changelog</h3>
+          <p class="concept-card-desc">In ce versiune introdus, ce s-a modificat, deprecation notices daca exista.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Exercitiu integrat: scriem documentatie pentru "List invoices" la IMK</h2>
+
+      <p>Scenariu: user-ul vrea sa vada lista de facturi din ultimele 30 zile, filtrabila pe status. Endpoint nou care trebuie documentat inainte ca Yopeso sa-l implementeze. Mergem pas cu pas:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Defineste resursa fundamentala — Invoice</strong>
+            <p>Schema obiectului e independenta de operatiile pe el. Apare la fiecare endpoint care intoarce Invoice. Definim: id (UUID), company_id, amount, currency, status (enum), issue_date, due_date, items, notes, created_at, updated_at.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Identifica actiunea — "list"</strong>
+            <p>Deci <code>GET /invoices</code>. Fara path parameter pentru ca nu identificam o factura anume — cerem lista.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Identifica filtre (query parameters)</strong>
+            <p><code>status</code> (enum), <code>date_from</code>, <code>date_to</code>, <code>company_id</code>, <code>limit</code> (default 20, max 100), <code>cursor</code> (pentru paginare).</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Request body — GET nu are body</strong>
+            <p>Skip. Toate filtrele in query parameters.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Response body — lista in <code>data</code>, paginare in <code>has_more</code> + <code>next_cursor</code></strong>
+            <p>Structura standard: <code>{"data": [...], "has_more": true, "next_cursor": "abc"}</code>.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <strong>Erori</strong>
+            <p>400 (parametri invalizi: status nu in enum, date_from &gt; date_to). 401 (nu te-ai autentificat). 403 (nu ai acces la company_id). 429 (rate limit). NU 404 — daca nu sunt rezultate, intorci 200 cu <code>data: []</code>.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">7</div>
+          <div class="step-body">
+            <strong>Auth + rate limits</strong>
+            <p>OAuth 2.0 cu scope <code>invoices:read</code>. Rate limit standard (100/min global, fara override).</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">8</div>
+          <div class="step-body">
+            <strong>Exemple — curl cap-coada cu raspuns succes + un exemplu de eroare</strong>
+            <p>Cu date concrete, nu placeholder. <code>company_id</code> = un UUID real, nu "uuid". Asa exemplele pot fi copy-paste-modificate.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Documentatia finala — cap-coada</h2>
+
+      <p>Ce iese la final, dupa cele 8 paseuri:</p>
+
+      <pre class="translation-code"><code>GET /v1/invoices
+
+Descriere:
+Returneaza lista de facturi pentru companiile la care
+user-ul autentificat are acces. Filtrabila pe status,
+data emiterii si companie. Paginare cursor-based,
+ordonata descrescator dupa issue_date.
+
+Auth: Bearer token (OAuth 2.0). Scope: invoices:read
+
+Query parameters:
+  status       string  enum: draft|sent|paid|overdue|cancelled
+  date_from    date    ISO 8601, &lt;= date_to
+  date_to      date    ISO 8601
+  company_id   UUID    daca lipseste, toate companiile accesibile
+  limit        int     default 20, max 100
+  cursor       string  pentru paginare
+
+Response 200 OK:
+{
+  "data": [ { ...Invoice... } ],
+  "has_more": true,
+  "next_cursor": "eyJpZCI6IjU1MGUuLi4ifQ=="
+}
+
+Errors:
+  400  invalid_parameter   parametru invalid (enum, range)
+  401  invalid_token       auth lipsa sau expirat
+  403  permission_denied   fara acces la company_id
+  429  rate_limit_exceeded vezi header Retry-After
+
+Exemplu:
+curl -X GET "https://api.imk-portal.nl/v1/invoices?\
+status=sent&amp;date_from=2026-04-01&amp;limit=10" \
+  -H "Authorization: Bearer eyJhbGc..."</code></pre>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="hammer" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Anchor: PLANUL ARHITECTULUI PENTRU O CASA</strong>
+          <p>Resursele sunt camerele. Endpoint-urile sunt usile (GET = te uiti, POST = construiesti, DELETE = darami). Schema obiectului e descrierea camerei. Documentatia e schita care arata: ce camere are casa, ce usi merg unde, cu ce cheie deschizi fiecare usa, ce se intampla daca usa se blocheaza. Un arhitect care iti da o casa fara plan iti face viata grea.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Regulile de aur</h2>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Regula</th>
+            <th>De ce conteaza</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Scrie doc INAINTE sa scrii codul</strong></td>
+            <td>Cunoscut ca "API-first design". Documentatia te forteaza sa-ti clarifici intentia. Descoperi automat decizii ambigue (ce se intampla daca date_from &gt; date_to?) INAINTE de implementare, nu dupa.</td>
+          </tr>
+          <tr>
+            <td><strong>Citeste-ti propria doc dupa o saptamana</strong></td>
+            <td>Daca tu te chinui sa o intelegi, va fi mai rau pentru altii. Test simplu de calitate.</td>
+          </tr>
+          <tr>
+            <td><strong>Da exemple concrete, nu placeholder</strong></td>
+            <td>NU <code>"string"</code>. DA <code>"company_id": "550e8400-..."</code>. Exemplele trebuie sa poata fi copy-paste-modificate, nu interpretate.</td>
+          </tr>
+          <tr>
+            <td><strong>Nu uita erorile</strong></td>
+            <td>Daca documentezi doar succesul, lipseste 50% din contract. Dev-ul nu stie ce sa returneze cand merge prost.</td>
+          </tr>
+          <tr>
+            <td><strong>Versioneaza din ziua 1</strong></td>
+            <td><code>/v1/</code> in URL te scuteste de durere mai tarziu. Adaugi <code>/v2/</code> cand vrei breaking changes, fara sa rupi clientii existenti.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Capcana: doc out-of-date</strong>
+          <p>Cea mai mare problema in industrie. Dev-ul modifica un endpoint, uita sa updateze doc-ul. Mecanism de aparare: contract testing (Pact, Dredd) verifica automat in CI/CD ca implementarea respecta specificatia. Daca diverg, build-ul cade.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Verificare — constructia documentatiei</h2>
+
+      <div class="quiz-container" id="quiz-module-5">
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Da. Pentru endpoint-uri de listare, daca nu sunt rezultate, intorci 200 cu data: []. 404 e pentru resource-ul cerut anume care nu exista (GET /invoices/123 si nu exista factura 123)."
+             data-explanation-wrong="Recheck: 'nu sunt rezultate' vs 'resource-ul nu exista' — sunt situatii diferite cu status codes diferite.">
+          <h3 class="quiz-question">User-ul cere <code>GET /invoices?status=cancelled</code> si nu are nicio factura cancelled. Ce status code intorci?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>404 Not Found — nu sunt facturi</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>204 No Content — succes fara continut</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>200 OK cu body <code>{"data": [], "has_more": false}</code></span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>400 Bad Request — filtrul nu produce rezultate</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Corect. API-first design — documenteaza inainte sa implementezi. Te forteaza sa clarifici decizii ambigue (ce se intampla cand date_from > date_to?) inainte ca dev-ul sa ghiceasca."
+             data-explanation-wrong="Recheck: cand e momentul cel mai eficient sa rezolvi ambiguitati — inainte sau dupa implementare?">
+          <h3 class="quiz-question">Cand e momentul ideal sa scrii documentatia pentru un endpoint nou?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Dupa ce dev-ul a terminat implementarea, ca sa fie precisa</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Inainte de implementare — te forteaza sa clarifici decizii</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>In paralel, pentru viteza</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Dupa primul client care se plange ca nu intelege</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-d"
+             data-explanation-right="Da. Toate cele patru sunt esentiale. Daca lipseste vreuna, dev-ul va cere clarificari sau va ghici. Lista celor 11 elemente per endpoint e best practice consolidata."
+             data-explanation-wrong="Recheck: ce ar putea sa lipseasca dintr-o doc fara sa o faca incompleta?">
+          <h3 class="quiz-question">Care din urmatoarele NU sunt obligatorii intr-o documentatie completa de endpoint?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Auth requirements si error responses</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Request body schema (pentru POST) si query parameters</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Exemple cap-coada si descriere business</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Toate de mai sus SUNT obligatorii</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-5')">Verifica raspunsurile</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-5')">Incearca din nou</button>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Zidul e construit</h2>
+
+      <p>Cinci faze, douasprezece caramizi, un zid intreg. De la "vad cuvinte si nu am imagine" la "pot citi orice doc si pot scrie eu doc pentru endpoint nou".</p>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="trophy" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Urmatorii pasi</strong>
+          <p>Ia o documentatie reala (ThinkOut sau Stripe) si parcurge cele 5 exercitii din Modulul 4 — concret, deschide doc, gaseste fiecare lucru. Apoi, ia un endpoint din IMK Portal sau Avise si scrie documentatie pentru el conform Modulului 5. Dupa cele doua exercitii practice, vei vedea ca diferenta intre "stii teoretic" si "stii operational" se inchide.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="module-nav-end animate-in">
+      <a href="#module-0" class="module-continue-btn">
+        Inapoi la inceput — recapitulare <i data-lucide="rotate-ccw" class="icon"></i>
+      </a>
+      <a href="#module-4" class="module-back-link">
+        <i data-lucide="arrow-left" class="icon"></i> Inapoi la Modulul 4
+      </a>
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-6">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Modulul 6 · Bonus: Tehnici de memorare</span>
+      <h2 class="module-title">Memory palace si mnemonics pentru tot ce ai invatat</h2>
+      <p class="module-subtitle">Cum sa retii status codes, methodele HTTP si piesele cererii — folosind tehnici de la memory athletes (Dominic O'Brien, Alex Mullen). Nu re-citire. Tehnici care fixeaza in memorie pe termen lung.</p>
+    </header>
+
+    <!-- SCREEN 1: De ce nu functioneaza re-citirea -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">De ce re-citirea cursului NU functioneaza</h2>
+
+      <p>Reciteste de 5 ori capitolul cu status codes. La examenul de luni, dai un sondaj cu colegi care l-au recitit la fel: <strong>retentie sub 30%</strong>. De ce? Pentru ca re-citirea da iluzia de cunoastere. Recunosti textul ("am vazut asta"), dar nu il poti reproduce ("ce e 403?").</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="x-circle" class="icon-xl" style="color: #C44545;"></i>
+          <h3 class="concept-card-title">Re-citire = iluzie</h3>
+          <p class="concept-card-desc">Familiaritatea textului iti spune "stiu asta". Dar familiaritate ≠ recall. La test te blochezi: "stiu ca am citit, dar nu-mi vine".</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="check-circle-2" class="icon-xl icon-success"></i>
+          <h3 class="concept-card-title">Active recall = real</h3>
+          <p class="concept-card-desc">Inchizi cursul si scrii din memorie ce e 403. Daca poti, stii. Daca nu, ai un gol de umplut. Asta antreneaza ce contezi la munca.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="brain" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Cele trei tehnici care chiar functioneaza</strong>
+          <p><strong>1. Memory palace</strong> — plasezi informatii in locuri fizice familiare, le "vizitezi" mental. Tehnica veche de 2500 ani, folosita de campionii mondiali. <strong>2. Active recall</strong> — te testezi, nu re-citesti. <strong>3. Spaced repetition</strong> — repeti la intervale crescande (1 zi, 3 zile, 7, 14, 30). Combinatia celor trei = retentie 90%+.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Memory palace - principiul -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Memory palace — cum functioneaza</h2>
+
+      <p>Creierul tau a evoluat sa retina <strong>locuri</strong> (unde ai mancare, unde e leul) extrem de bine — mult mai bine decat liste de numere abstracte. Trucul: convertesti informatia abstracta in imagini, plasezi imaginile in locuri fizice familiare, apoi "te plimbi" prin locuri ca sa recuperezi informatia.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Alegi un palat — un loc pe care il cunosti foarte bine</strong>
+            <p>Apartamentul tau. Drumul de acasa la birou. Casa parintilor. Trebuie sa-l poti parcurge mental cu ochii inchisi, in ordine fixa.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Identifici 10 locuri (statii) in palat, in ordine</strong>
+            <p>Ex apartament: 1. Usa de la intrare, 2. Cuierul, 3. Coltul hol-bucatarie, 4. Frigiderul, 5. Aragazul... Locuri concrete, vizibile, in ordine de plimbare.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Pentru fiecare info de retinut, creezi o imagine ABSURDA si o plasezi intr-un loc</strong>
+            <p>Absurda = absurd de memorabila. Cu cat mai bizara, miscare, mirosuri, sunete, cu atat mai bine. Creierul ignora normal-ul si retine bizar-ul.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Cand vrei sa recuperezi, te plimbi mental prin palat</strong>
+            <p>"La usa era... cuierul tinea... in frigider gaseam..." Ordinea palatului = ordinea informatiilor. Aceasta e baza tehnicilor de la World Memory Championships.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Memory palace pentru status codes -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Palatul tau pentru status codes — 10 locuri, 10 imagini</h2>
+
+      <p>Imagineaza apartamentul tau. Plimbarea standard prin el e: <strong>usa → cuierul → bucatarie → frigider → aragaz → masa → sufragerie → balcon → dormitor → baie</strong>. Vom plasa cele 10 status codes in aceste 10 locuri, cu imagini absurde.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Statia</th>
+            <th>Cod</th>
+            <th>Imaginea absurda pe care o plasezi acolo</th>
+            <th>Ce iti spune</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1. Usa intrare</strong></td>
+            <td>200 OK</td>
+            <td>Doi ochi VERZI imensi pe usa care iti fac cu ochiul si zic "OK!"</td>
+            <td>Succes — a mers</td>
+          </tr>
+          <tr>
+            <td><strong>2. Cuierul</strong></td>
+            <td>201 Created</td>
+            <td>Un cui (UNU) iese din cuier si naste un balon nou-nascut care plange</td>
+            <td>Succes la creare</td>
+          </tr>
+          <tr>
+            <td><strong>3. Hol-bucatarie</strong></td>
+            <td>204 No Content</td>
+            <td>O camera complet GOALA cu un patrate (4 colturi) pe podea — nimic in el</td>
+            <td>Succes, dar fara raspuns (DELETE)</td>
+          </tr>
+          <tr>
+            <td><strong>4. Frigider</strong></td>
+            <td>400 Bad Request</td>
+            <td>Deschizi frigiderul si e plin de patru baliegi (4-00) putrede — ai pus prost</td>
+            <td>Tu ai gresit cererea</td>
+          </tr>
+          <tr>
+            <td><strong>5. Aragaz</strong></td>
+            <td>401 Unauthorized</td>
+            <td>Aragazul iti cere PAROLA inainte sa se aprinda — nu te cunoaste</td>
+            <td>Te-ai logat? Token expirat?</td>
+          </tr>
+          <tr>
+            <td><strong>6. Masa</strong></td>
+            <td>403 Forbidden</td>
+            <td>La masa stai trei (3) gardieni mari care te cunosc dar nu te lasa sa mananci</td>
+            <td>Logat dar fara permisiune</td>
+          </tr>
+          <tr>
+            <td><strong>7. Sufragerie</strong></td>
+            <td>404 Not Found</td>
+            <td>Cele patru pereti ai sufrageriei NU EXISTA — vezi prin ei, casa s-a evaporat</td>
+            <td>Resource-ul nu exista</td>
+          </tr>
+          <tr>
+            <td><strong>8. Balcon</strong></td>
+            <td>429 Too Many Requests</td>
+            <td>O coada de 429 oameni asteapta sa intre pe balcon, urla "PREA MULTI!"</td>
+            <td>Rate limit depasit — astepti</td>
+          </tr>
+          <tr>
+            <td><strong>9. Dormitor</strong></td>
+            <td>500 Internal Server Error</td>
+            <td>Patul tau e in FLACARI — un server in flacari, totul arde la EI</td>
+            <td>Bug la server. Nu vina ta. Retry.</td>
+          </tr>
+          <tr>
+            <td><strong>10. Baie</strong></td>
+            <td>503 Service Unavailable</td>
+            <td>Pe usa baiei: "INCHIS, instalator vine maine" — temporar indisponibil</td>
+            <td>Mentenanta. Retry mai tarziu.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Cum sa cimentezi palatul in 10 minute</strong>
+          <p>Inchide ochii. Te plimbi mental: pornesc de la usa, vad ochii VERZI care zic OK (200). Trec la cuier, vad cuiul nascand (201). In hol, camera goala (204). La frigider, baliegile (400). La aragaz, parola (401). La masa, trei gardieni (403). In sufragerie, pereti care nu exista (404). Pe balcon, coada de 429 oameni (429). In dormitor, patul arde (500). La baie, "inchis" (503). Repeti turul de 3 ori. Apoi la cateva ore. Apoi maine.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Mnemonics pentru methode HTTP -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Methodele HTTP — mnemonics cu obiecte de bucatarie</h2>
+
+      <p>Pentru cele 5 methode (GET/POST/PUT/PATCH/DELETE), tehnica e diferita: fiecare method = un OBIECT FIZIC pe care il vezi si stii instant ce face. Anchor-ul vine din modulul 2, dar acum il fixam adanc.</p>
+
+      <div class="grid-3-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="glasses" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">GET = OCHELARII</h3>
+          <p class="concept-card-desc">Cu ochelarii te uiti, vezi, dar nu schimbi nimic. Idempotent (poti privi de 100 ori, e acelasi rezultat). Safe.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="oven" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">POST = CUPTORUL</h3>
+          <p class="concept-card-desc">Bagi ingrediente (body), iese ceva NOU (resource creat). De fiecare data cand pornesti cuptorul, faci alta prajitura. NU e idempotent.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="construction" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">PUT = INLOCUIRE BLAT</h3>
+          <p class="concept-card-desc">Smulgi blatul intreg si pui altul. Trebuie sa aduci blat complet, nu un colt. Repeti = ai blatul nou pus.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="scissors" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">PATCH = PETIC PE BLAT</h3>
+          <p class="concept-card-desc">Pui un petec doar acolo unde-i o zgarietura. Restul blatului ramane intact. Modifici partial, nu inlocuiesti.</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="trash-2" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">DELETE = COS DE GUNOI</h3>
+          <p class="concept-card-desc">Arunci ce ai. Daca arunci de 10 ori acelasi obiect, dupa prima oara nu mai ai ce arunca — dar starea finala e aceeasi (lipsa).</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="zap" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Mnemonic pentru ordine: "Ochelarii Coc Pizza, Patch Disparu" (G-P-P-P-D)</strong>
+          <p>GET (ochelari), POST (coc, cuptor), PUT (pizza intreaga), PATCH (petec), DELETE (disparu). E o propozitie absurda — exact ce vrei pentru memorare. CRUD-ul real e Create-Read-Update-Delete, dar in ordinea de invatare pe API-uri vine GET primul. Tine ordinea G-P-P-P-D si stii ca a doua P (PUT) e mai mare decat a treia P (PATCH).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Mnemonics pentru piesele cererii si raspunsului -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Piesele cererii si raspunsului — acronyme</h2>
+
+      <p>Cererea are 4 piese: <strong>Method, URL, Headers, Body</strong>. Raspunsul are 3 piese: <strong>Status, Headers, Body</strong>. Doua mnemonics simple pentru fiecare:</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="send" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Cererea: <strong>M-U-H-B</strong></h3>
+          <p class="concept-card-desc"><strong>M</strong>ulti <strong>U</strong>rsi <strong>H</strong>ranesc <strong>B</strong>ebelusi. Method, URL, Headers, Body. Plus o imagine absurda: o mama ursa cu pachet postal in laba — exact ordinea cum se imbraca un pachet (servicu, adresa, eticheta, continut).</p>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="inbox" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Raspunsul: <strong>S-H-B</strong></h3>
+          <p class="concept-card-desc"><strong>S</strong>aritele <strong>H</strong>oti <strong>B</strong>uni. Status, Headers, Body. Plus o imagine: postasul care iti aduce scrisoarea — verifici plicul cu confirmare (status), antetul (headers), continutul (body). Ordinea de citire.</p>
+        </div>
+      </div>
+
+      <h2 class="screen-heading" style="margin-top: var(--space-12);">Cele 4 piese ale URL-ului: <strong>S-H-P-Q</strong></h2>
+
+      <p>Scheme, Host, Path, Query parameters. Mnemonic: <strong>S</strong>apte <strong>H</strong>ipopotami <strong>P</strong>orneau <strong>Q</strong>uadrille — o imagine clara, hipopotami care danseaza. Acroniumul iti aminteste ordinea: <code>https://</code> (scheme) <code>api.snelstart.nl</code> (host) <code>/companies/12345</code> (path) <code>?status=active</code> (query).</p>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Regula generala: mnemonic-ul TREBUIE sa fie absurd</strong>
+          <p>"Multi ursi hranesc bebelusi" e mai usor de retinut decat "MUHB" pentru ca creierul tau prefera scenarii cu imagini, miscare, emotie. Cu cat mai absurd, cu atat mai bine. Daca mnemonic-ul tau suna normal sau plictisitor, schimba-l. Memorabilitatea = bizar + concret.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 6: Spaced repetition plan -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Spaced repetition — planul de 30 de zile</h2>
+
+      <p>Curba uitarii a lui Ebbinghaus (1885, repetat de zeci de ori): dupa 20 minute uitam 40% din ce am invatat. Dupa 1 zi, 70%. Dupa 1 saptamana, 90%. Solutia: re-vizionezi materialul la intervale crescande, cand mai stii 50-60% (pragul ideal de "lupta usoara").</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Ziua</th>
+            <th>Ce faci</th>
+            <th>Cat dureaza</th>
+            <th>Ce verifici</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ziua 0 (acum)</strong></td>
+            <td>Parcurgi modulul, faci toate quiz-urile, construiesti palatul mental</td>
+            <td>60-90 min</td>
+            <td>Inchizi cursul, scrii din memorie cele 10 status codes + cele 5 methode</td>
+          </tr>
+          <tr>
+            <td><strong>Ziua 1 (maine)</strong></td>
+            <td>Active recall fara cursul deschis: scrii palatul, mnemonicele, M-U-H-B</td>
+            <td>10 min</td>
+            <td>Ce ai uitat: re-vizitezi locul fizic din palat unde era plasat</td>
+          </tr>
+          <tr>
+            <td><strong>Ziua 3</strong></td>
+            <td>Quizurile din cursul HTML, fara sa te uiti la raspunsuri inainte</td>
+            <td>15 min</td>
+            <td>Ce ratezi: NU re-citesti, ci re-faci doar mnemonic-ul pentru acel concept</td>
+          </tr>
+          <tr>
+            <td><strong>Ziua 7</strong></td>
+            <td>Exercitiu real: deschide docs.stripe.com si citeste 1 endpoint</td>
+            <td>20 min</td>
+            <td>Identifici cele 4 piese ale cererii, status codes posibile, headers ceruti</td>
+          </tr>
+          <tr>
+            <td><strong>Ziua 14</strong></td>
+            <td>Active recall din nou + un endpoint nou din ThinkOut docs</td>
+            <td>15 min</td>
+            <td>Daca recall-ul e 80%+, ai cimentat. Sub 60%, repeti palatul.</td>
+          </tr>
+          <tr>
+            <td><strong>Ziua 30</strong></td>
+            <td>Test final: scrii pe foaie tot palatul + mnemonicele, fara nicio sursa</td>
+            <td>20 min</td>
+            <td>Dupa 30 zile, daca tii 80%+, ai mutat in long-term memory. Done.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Capcana cea mai frecventa: prea des, prea repede</strong>
+          <p>Daca repeti zilnic, nu inveti — doar mentii. Intervalele crescande forteaza recall-ul mai greu, ceea ce intareste sinapsele. Daca la ziua 3 mai stii 90%, ai asteptat prea putin. Daca mai stii 30%, ai asteptat prea mult. Tinta: 50-70% recall la fiecare re-vizionare. Asta e zona de "lupta usoara" unde se face invatarea.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 7: Active recall - testul final -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Active recall — testul final, fara sa te uiti la curs</h2>
+
+      <p>Acum, inchide mental cursul si raspunde. Scrie pe o foaie sau spune cu voce tare. Dupa, verifici. Acesta e test-ul real, nu cititul pasiv.</p>
+
+      <div class="quiz-container" id="quiz-module-6">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Da. Active recall = a-ti testa memoria fara a te uita la material. Cititul pasiv da iluzia de cunoastere; recall-ul iti spune ce STII de fapt. Asta e diferenta cheie."
+             data-explanation-wrong="Recheck: ce e diferit la active recall fata de re-citire?">
+          <h3 class="quiz-question">Care e PRINCIPIUL fundamental al active recall?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Citesti materialul de mai multe ori, pe rand</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Te testezi fara sa te uiti la material, apoi verifici</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Faci notite mai detaliate de cate ori re-citesti</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Subliniezi cu marker textul important</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Corect. 403 = la masa, trei gardieni mari (3) care te cunosc dar nu te lasa la mancare. Te-au identificat (deci nu 401) dar n-ai voie aici."
+             data-explanation-wrong="Recheck palatul: la masa este 403 cu trei gardieni mari (3 = forbidden). 401 e la aragaz cu parola.">
+          <h3 class="quiz-question">In palatul tau, ce STATIE corespunde cu 403 Forbidden?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Aragazul (cere parola)</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Frigiderul (baliegi putrede)</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Masa (trei gardieni te cunosc dar nu te lasa)</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Sufrageria (pereti care nu exista)</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Da. PUT = inlocuire blat (smulgi blatul intreg, pui altul). PATCH = petec pe blat (modifici doar zona zgariata, restul ramane). Cea mai usoara cale de a tine diferenta."
+             data-explanation-wrong="Recheck mnemonic-ul: ce face diferit PUT fata de PATCH in metafora bucatariei?">
+          <h3 class="quiz-question">In analogia bucatariei, care e diferenta PUT vs PATCH?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>PUT pune in cuptor, PATCH scoate din cuptor</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>PUT face prajituri noi, PATCH face acelasi tip</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>PUT inlocuieste blatul intreg, PATCH pune un petec local</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>PUT foloseste ochelari, PATCH foloseste cos de gunoi</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Corect. M-U-H-B = Method, URL, Headers, Body. Plus imaginea mamei ursului cu pachet postal. Daca tii ordinea, recunosti instant orice cerere din documentatie."
+             data-explanation-wrong="Recheck mnemonic-ul cererii: Multi Ursi Hranesc Bebelusi.">
+          <h3 class="quiz-question">Ce inseamna mnemonic-ul <strong>M-U-H-B</strong>?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Method, User, Host, Body</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Master, URL, Header, Bearer</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Method, URL, Headers, Body — cele 4 piese ale unei cereri</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Mock, Update, Hash, Boot</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Da. La 50-70% recall e zona ideala — esti aproape sa-ti amintesti, dar trebuie sa te chinui. Acest chin intareste sinapsele. Daca-ti amintesti 95%, ai asteptat prea putin. Daca sub 30%, prea mult."
+             data-explanation-wrong="Recheck regula intervalelor crescande — la ce procentaj de recall vrei sa fii cand re-vizionezi?">
+          <h3 class="quiz-question">Cand re-vizionezi materialul cu spaced repetition, la ce procentaj de recall (cat mai stii) e ideal sa fii?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>90-100% — sa fii sigur ca stii bine</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>50-70% — zona de "lupta usoara"</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>10-30% — sa fortez creierul</span></button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>0% — sa o iau de la zero</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module-6')">Verifica raspunsurile</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module-6')">Incearca din nou</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 8: Synthesis - de aici incolo -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">De aici incolo — cum sa nu uiti</h2>
+
+      <p>Cursul nu se termina la ultima pagina. Memoria se construieste in timp, cu reviews scurte. Iata planul concret:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Maine dimineata, 10 minute</strong>
+            <p>Scrii pe foaie cele 10 status codes (palatul) si cele 5 methode (obiectele de bucatarie) FARA sa te uiti la curs. Ce ai uitat — re-vizitezi doar acea statie din palat. Nu re-citesti tot.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Peste 3 zile, 15 minute</strong>
+            <p>Re-faci toate quiz-urile din cursul HTML, dar fara sa te uiti la explicatii inainte. Doar dupa ce raspunzi, verifici. Acest moment de "stiu sau nu stiu" e ce intareste.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Peste o saptamana, real-world</strong>
+            <p>Deschizi docs.stripe.com sau ThinkOut docs si citesti UN endpoint nou. Identifici: ce method? ce path? ce headers cere? ce status codes returneaza? Daca poti raspunde din memorie, ai cimentat.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Peste 30 zile, test final</strong>
+            <p>Pe o foaie alba, scrii toata teoria din memorie: cele 4 piese ale cererii, cele 3 ale raspunsului, cele 10 status codes, cele 5 methode, anchor-ul fizic pentru fiecare. Daca tii 80%+, e in long-term memory. Done.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="trophy" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Felicitari — ai parcurs cursul</strong>
+          <p>Acum ai construit zidul (modulele 1-5) si ai uneltele sa-l tii in minte pe termen lung (modulul 6). Cand te intorci la ThinkOut docs sau Stripe API, vei vedea altceva decat ai vazut acum o saptamana — vei vedea structura, nu cuvinte intamplatoare.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="module-nav-end animate-in">
+      <a href="#module-0" class="module-continue-btn">Inapoi la inceput — Reia cursul <i data-lucide="rotate-ccw" class="icon"></i></a>
+      <a href="#module-5" class="module-back-link"><i data-lucide="arrow-left" class="icon"></i> Inapoi la Modulul 5</a>
+    </div>
+
+  </div>
+</section>
+  </main>
+
+  <!-- Activate Lucide icons after the page is built -->
+  <script>
+    window.addEventListener('load', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+
+</body>
+</html>

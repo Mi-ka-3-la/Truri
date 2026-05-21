@@ -1,0 +1,786 @@
+<section class="module" id="module-5">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Module 5 · Domain 3 deep dive</span>
+      <h1 class="module-title">Configure &amp; use Dependabot and Dependency Review</h1>
+      <p class="module-subtitle">Domain 3 of GH-500 — 35% of the exam. The single largest domain. Miss this and passing becomes mathematically very hard even with perfect scores elsewhere.</p>
+    </header>
+
+    <!-- SCREEN 1: Five supply chain tools -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Five tools, one supply chain security story</h2>
+
+      <p>The exam tests "which tool does X?" constantly on Domain 3. Before anything else, internalize this map.</p>
+
+      <table class="scope-matrix animate-in">
+        <caption class="scope-matrix-caption">
+          <i data-lucide="grid" class="icon"></i>
+          The 5 supply chain security tools on GitHub
+        </caption>
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>What it does mechanically</th>
+            <th>When it intervenes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dependency graph</strong></td>
+            <td>Reads manifest and lock files; builds an inventory of all direct + transitive dependencies</td>
+            <td>Passive, continuous — foundation for everything else</td>
+          </tr>
+          <tr>
+            <td><strong>GitHub Advisory Database</strong></td>
+            <td>Curated database of known vulnerabilities (CVEs + GHSAs). Dependabot queries it.</td>
+            <td>External — the source of truth for "what's vulnerable"</td>
+          </tr>
+          <tr>
+            <td><strong>SBOM</strong></td>
+            <td>Formal export of the dependency inventory in SPDX format</td>
+            <td>On demand — for audit and compliance</td>
+          </tr>
+          <tr>
+            <td><strong>Dependabot</strong></td>
+            <td>Three sub-features: alerts, security updates, version updates</td>
+            <td>Continuous — on existing dependencies in the repo</td>
+          </tr>
+          <tr>
+            <td><strong>Dependency Review</strong></td>
+            <td>Checks the dependency changes in a PR diff before merge</td>
+            <td>Pre-merge, on every pull request</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The most frequently confused pair</strong>
+          <p><strong>Dependabot</strong> watches what's already in your repo, continuously, even after merge. <strong>Dependency Review</strong> watches what you're trying to ADD in a PR, before you merge. Same dependency focus, completely different timing. The exam will put both as adjacent answer options — the timing word in the question tells you which to pick: <em>"before merge"</em> → Dependency Review; <em>"continuously"</em> or <em>"after it turned vulnerable"</em> → Dependabot alerts.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Dependency Graph -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The dependency graph — the foundation everything else builds on</h2>
+
+      <p>Dependabot alerts can't work without it. Security updates can't work without it. It's the prerequisite, not optional.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="git-branch" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">What the graph contains</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><strong>Direct dependencies</strong> — explicitly declared in your manifest or lock file</li>
+            <li><strong>Indirect (transitive) dependencies</strong> — packages used by your packages</li>
+            <li><strong>Dependents</strong> — repos that depend on yours (public repos only — NOT on private repos)</li>
+          </ul>
+          <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-top: 0.75rem;">View at: <strong>Insights → Dependency graph → Dependencies or Dependents tab</strong></p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="toggle-right" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Scope conditions</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><strong>Public repos:</strong> auto-generated, always on</li>
+            <li><strong>Private repos:</strong> available but must be manually enabled by an admin</li>
+          </ul>
+          <p style="margin-top: 0.75rem; padding: 0.6rem 0.75rem; background: var(--color-surface-2, #F4EFE6); border-radius: 6px; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;">Settings → Security → Advanced Security → Dependency graph → Enable</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: manifest only vs manifest + lock file</strong>
+          <p>If a repo uses <em>only a manifest file</em> (e.g., <code>package.json</code>) without a lock file (e.g., no <code>package-lock.json</code>), the dependency graph is still generated — but <strong>indirect (transitive) dependencies are NOT included in vulnerability checks</strong>. You can miss Dependabot alerts on transitive deps entirely. Always use lock files for complete coverage.</p>
+        </div>
+      </div>
+
+      <div class="schema-card animate-in" style="margin-top: var(--space-6, 1.5rem);">
+        <div class="schema-card-header">
+          <i data-lucide="table" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">Supported ecosystems — the exam loves this table</h3>
+            <p class="schema-card-sub">Lock files recommended for full transitive dependency coverage.</p>
+          </div>
+        </div>
+        <table class="comparison-table" style="margin-top: 1rem;">
+          <thead>
+            <tr><th>Package manager</th><th>Language(s)</th><th>Recommended lock file</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>npm</td><td>JavaScript</td><td><code>package-lock.json</code></td></tr>
+            <tr><td>Yarn</td><td>JavaScript</td><td><code>yarn.lock</code></td></tr>
+            <tr><td>pnpm</td><td>JavaScript</td><td><code>pnpm-lock.yaml</code></td></tr>
+            <tr><td>pip / Poetry</td><td>Python</td><td><code>requirements.txt</code> / <code>poetry.lock</code></td></tr>
+            <tr><td>Composer</td><td>PHP</td><td><code>composer.lock</code></td></tr>
+            <tr><td>RubyGems</td><td>Ruby</td><td><code>Gemfile.lock</code></td></tr>
+            <tr><td>Maven</td><td>Java, Scala</td><td><code>pom.xml</code></td></tr>
+            <tr><td>Cargo</td><td>Rust</td><td><code>Cargo.lock</code></td></tr>
+            <tr><td>Go modules</td><td>Go</td><td><code>go.mod</code></td></tr>
+            <tr><td>NuGet</td><td>.NET, C++</td><td><code>.csproj</code>, <code>.vbproj</code></td></tr>
+            <tr><td>Swift Package Manager</td><td>Swift</td><td><code>Package.resolved</code></td></tr>
+            <tr><td>GitHub Actions</td><td>YAML workflows</td><td><code>.yml</code>, <code>.yaml</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Advisory Database + SBOM -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">GitHub Advisory Database and SBOM</h2>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="database" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">GitHub Advisory Database</h3>
+          <p class="pattern-desc">Open-source, curated by GitHub. Uses <span class="term" data-definition="CVSS: Common Vulnerability Scoring System. An industry-standard 0.0–10.0 numeric score (with version 3.x being the current norm) that quantifies how severe a vulnerability is based on attack vector, complexity, required privileges, user interaction, and impact on confidentiality / integrity / availability. The score maps to qualitative buckets: 0.1–3.9 low, 4.0–6.9 moderate, 7.0–8.9 high, 9.0–10.0 critical."><strong>CVSS</strong></span> for severity: low / moderate / high / critical.</p>
+          <p class="pattern-desc" style="margin-top: 0.5rem;">Sources: NVD, npm Security Advisories, community contributions, ML-assisted review of public commits.</p>
+          <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--color-surface-2, #F4EFE6); border-radius: 8px; font-size: 0.85rem;">
+            <strong>Identifiers — know all four:</strong>
+            <ul style="padding-left: 1.25rem; line-height: 1.7; margin-top: 0.25rem;">
+              <li><strong>CVE ID</strong> — the specific vulnerability (global standard)</li>
+              <li><strong>GHSA ID</strong> — GitHub's own advisory identifier</li>
+              <li><strong>CWE ID</strong> — the weakness type (e.g., CWE-89 = SQL injection)</li>
+              <li><strong>CVSS score</strong> — the numerical severity rating</li>
+            </ul>
+          </div>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="file-text" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">SBOM (Software Bill of Materials)</h3>
+          <p class="pattern-desc">A formal, machine-readable inventory of all dependencies. Format: <strong>SPDX</strong> — not CycloneDX, not JSON, not SARIF.</p>
+          <p class="pattern-desc" style="margin-top: 0.5rem;">Export via: the <em>Export SBOM</em> button in the Dependency graph, or via the REST API.</p>
+          <div style="margin-top: 0.75rem; padding: 0.75rem; background: var(--color-accent-light, #FDEEE9); border-radius: 8px; font-size: 0.85rem; border-left: 3px solid var(--color-accent);">
+            <strong>Why it matters for compliance:</strong> <em>Executive Order 14028</em> requires an SBOM for software sold to the US federal government. EO 14028 in a question → SBOM in SPDX format.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Dependabot's 3 sub-features -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Dependabot's three sub-features — know which does what</h2>
+
+      <p>Dependabot is an umbrella for three distinct capabilities. The exam asks about each individually and tests whether you confuse them with each other.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">A</div>
+          <div class="step-body">
+            <strong>Dependabot alerts</strong>
+            <p>Notifies you when a dependency in your repo appears in the GitHub Advisory Database as vulnerable.</p>
+            <p style="margin-top: 0.4rem;"><strong>Two triggers:</strong> (1) a new advisory is added for a package you already use, OR (2) your dependency graph changes and you added something already vulnerable.</p>
+            <p style="margin-top: 0.4rem; font-size: 0.87rem; color: var(--color-warning, #B45309);"><strong>Not on by default</strong> — must be enabled manually on both public AND private repos.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">B</div>
+          <div class="step-body">
+            <strong>Dependabot security updates</strong>
+            <p>Automatically opens pull requests to update vulnerable dependencies to a safe version. PR is authored by the <code>dependabot</code> bot, labeled <code>dependencies</code>, and includes a <span class="term" data-definition="Compatibility score: the percentage of CI runs in other public repositories that passed successfully with the same dependency version update. High score means low risk of breaking changes.">compatibility score</span>.</p>
+            <p style="margin-top: 0.4rem; font-size: 0.87rem; color: var(--color-warning, #B45309);"><strong>Prerequisites (ALL must be true):</strong> dependency graph enabled AND Dependabot alerts enabled.</p>
+            <p style="margin-top: 0.3rem; font-size: 0.87rem;"><strong>Auto-enables on new repos when:</strong> not a fork, not archived, public OR private with graph+alerts enabled, not explicitly disabled.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">C</div>
+          <div class="step-body">
+            <strong>Dependabot version updates</strong>
+            <p>Opens PRs to update dependencies to their newest versions — regardless of whether there's a vulnerability. Requires a <code>.github/dependabot.yml</code> file. Without this file, version updates simply don't run.</p>
+            <p style="margin-top: 0.4rem; font-size: 0.87rem; color: var(--color-warning, #B45309);"><strong>Fork trap:</strong> version updates are NOT auto-enabled on forks. To activate on a fork: Insights → Dependency graph → Dependabot → Create config file.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: grouped security updates vs grouped version updates</strong>
+          <p>The <code>groups</code> option in <code>dependabot.yml</code> applies <strong>only to version updates</strong>. To enable grouped security updates (bundling multiple security PRs into one), you must toggle a separate feature in <code>Settings → Code security and analysis</code>. The exam will show a YAML with <code>groups</code> and ask why security updates aren't being grouped — the answer is they need the separate UI toggle, not a YAML change.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Configuration paths -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Enabling Dependabot — paths at every level</h2>
+
+      <p>The exam tests the exact UI paths for enabling Dependabot at repo, user, org, and enterprise level. Each level has a distinct path.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Repository level</strong>
+            <p><code>Settings → Code security and analysis</code> → Enable <strong>Dependency graph</strong> first, then enable <strong>Dependabot alerts</strong>. Order matters — graph must be on before alerts.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>User level (across all your repos)</strong>
+            <p><code>Profile → Settings → Code security and analysis</code> → Enable all → optionally tick "Automatically enable for new repositories".</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Organization level</strong>
+            <p><code>Profile → Your organizations → [org] → Settings → Code security and analysis</code> → Enable all → optionally tick "Automatically enable for new repositories".</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Enterprise level</strong>
+            <p><code>Profile → [enterprise] → Settings → Code security and analysis</code> → Enable all.</p>
+            <p style="margin-top: 0.4rem; font-size: 0.87rem; color: var(--color-error, #C4432A);"><strong>Critical: Enterprise OVERRIDES org and repo.</strong> If enterprise disables Dependabot, no org or repo can re-enable it regardless of local settings. Only an enterprise owner can change this.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="users" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Who sees Dependabot alerts by default</strong>
+          <p>Users with <strong>write, maintain, or admin access</strong> plus <strong>org owners</strong>. To grant access to others: <code>Settings → Code security and analysis → Access to alerts</code> → type name → Save.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 6: dependabot.yml -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The <code>dependabot.yml</code> file — structure and key fields</h2>
+
+      <p>Version updates require a config file at <code>.github/dependabot.yml</code>. Without it, version updates don't run. The exam tests valid vs invalid YAML structure.</p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="file-code" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">Minimum valid structure</h3>
+            <p class="schema-card-sub">Three required fields per entry: package-ecosystem, directory, schedule.interval. And always version: 2 at the top.</p>
+          </div>
+        </div>
+        <pre style="background: var(--color-surface-2, #F4EFE6); padding: 1.25rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; overflow-x: auto; margin: 1rem 0 0;"><code>version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"</code></pre>
+        <p class="schema-card-note">Valid interval values: <code>daily</code> | <code>weekly</code> | <code>monthly</code>. The <code>registries:</code> key is optional and used for private registries with authentication.</p>
+      </div>
+
+      <div class="schema-card animate-in" style="margin-top: 1.5rem;">
+        <div class="schema-card-header">
+          <i data-lucide="layers" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">Grouped version updates example</h3>
+            <p class="schema-card-sub">The <code>groups</code> option — applies to version updates only, not security updates.</p>
+          </div>
+        </div>
+        <pre style="background: var(--color-surface-2, #F4EFE6); padding: 1.25rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.6; overflow-x: auto; margin: 1rem 0 0;"><code>version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+      development-dependencies:
+        dependency-type: "development"</code></pre>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Grouping rules the exam will test</strong>
+          <p>Dependabot <strong>WILL group</strong> dependencies from different directories if they share the same ecosystem. Dependabot <strong>WILL NOT group</strong> across different ecosystems (npm + pip = separate PRs, always). Dependabot <strong>WILL NOT group</strong> security updates together with version updates — those are always separate PRs regardless of configuration.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 7: Dependency Review -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Dependency Review — the pre-merge gate</h2>
+
+      <p>Dependency Review runs on every pull request and inspects only the dependency changes in the PR diff. It can block the merge if vulnerabilities are detected — but only if configured as a required status check.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th></th>
+            <th><i data-lucide="bell" class="icon-sm"></i> Dependabot alerts</th>
+            <th><i data-lucide="git-pull-request" class="icon-sm"></i> Dependency Review</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>When?</strong></td>
+            <td>Continuous — after a dep turns vulnerable (even retroactively)</td>
+            <td>Pre-merge, on every PR — inspects only the PR diff</td>
+          </tr>
+          <tr>
+            <td><strong>What?</strong></td>
+            <td>Existing dependencies already in the repo</td>
+            <td>Only dependencies being added or changed in the PR</td>
+          </tr>
+          <tr>
+            <td><strong>Can block merge?</strong></td>
+            <td>No — alerts only; developer decides</td>
+            <td>Yes — if set as a required status check</td>
+          </tr>
+          <tr>
+            <td><strong>Where?</strong></td>
+            <td>Security tab → Dependabot alerts</td>
+            <td>PR checks + diff annotations on the PR itself</td>
+          </tr>
+          <tr>
+            <td><strong>Private repos without GHAS</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free for all repos</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Requires GHAS license</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="step-cards stagger-children" style="margin-top: 1.5rem;">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Setup via Marketplace (recommended method)</strong>
+            <p>Repository → Actions tab → Search "dependency review" → Click Configure → Commit <code>dependency-review.yml</code> to <code>.github/workflows/</code>.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Key configuration options — memorize these</strong>
+            <p><code>fail-on-severity: critical | high | moderate | low</code> — the value is <strong>moderate</strong>, NOT medium. NOT severe. NOT important.</p>
+            <p style="margin-top: 0.4rem;"><code>allow-licenses</code> OR <code>deny-licenses</code> — <strong>mutually exclusive</strong>. Using both in the same workflow causes an error. If license is unknown → action informs but does NOT fail.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Enforce via branch protection rules</strong>
+            <p><code>Settings → Branches → Add branch protection rule</code> → enable "Require status checks to pass before merging" → enable "Require branches to be up to date before merging" → search and add <code>dependency-review</code> as a required check.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="schema-card animate-in" style="margin-top: 1.5rem;">
+        <div class="schema-card-header">
+          <i data-lucide="file-code" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">dependency-review.yml — example workflow</h3>
+            <p class="schema-card-sub">Place this at .github/workflows/dependency-review.yml</p>
+          </div>
+        </div>
+        <pre style="background: var(--color-surface-2, #F4EFE6); padding: 1.25rem; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.6; overflow-x: auto; margin: 1rem 0 0;"><code>name: 'Dependency review'
+on:
+  pull_request:
+    branches: [ "main" ]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          comment-summary-in-pr: always
+          fail-on-severity: high
+          deny-licenses: GPL-1.0-or-later</code></pre>
+        <p class="schema-card-note">This config fails on high/critical vulnerabilities and blocks GPL-licensed deps. Note: <code>allow-licenses</code> and <code>deny-licenses</code> cannot be used together — pick one.</p>
+      </div>
+    </section>
+
+    <!-- SCREEN 8: Exam-style quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 3 practice — exam-style questions</h2>
+
+      <p>Ten questions. The first four are the official Microsoft Learn knowledge check questions for this domain. The remaining six target the most common exam traps.</p>
+
+      <div class="exam-quiz-container" id="exam-quiz-module-5">
+
+        <div class="exam-question-block"
+             data-correct="option-a"
+             data-explanation-a="Correct. Direct dependencies are explicitly declared in your manifest or lock file — the packages you deliberately chose to depend on."
+             data-explanation-b="Wrong. These are indirect (transitive) dependencies — packages used by your packages, not declared by you directly in the manifest."
+             data-explanation-c="Wrong. Dependencies not referenced in the manifest aren't tracked by the dependency graph at all.">
+          <h3 class="exam-question-stem">1. What are direct dependencies?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Dependencies that are explicitly defined in the manifest or lock file.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Dependencies used by packages that are dependencies of your project.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Dependencies that aren't referenced in the manifest file.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-a"
+             data-explanation-a="Correct. Two triggers: (1) a new advisory is added to the GitHub Advisory Database for a package you already use, OR (2) your dependency graph changes (you added a package that was already vulnerable). Both are required knowledge."
+             data-explanation-b="Wrong. PRs without dependency changes don't trigger Dependabot alerts — there's no dependency change to check."
+             data-explanation-c="Wrong. Removing a vulnerability from the Advisory Database would close alerts, not generate new ones — the opposite of the question.">
+          <h3 class="exam-question-stem">2. When is a Dependabot alert generated?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>When a new advisory is added to the GitHub Advisory Database, or when the dependency graph for a repository changes.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Whenever a pull request attempts to merge changes into main that contain no dependency changes.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Whenever a new vulnerability is removed from the GitHub Advisory Database.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-a"
+             data-explanation-a="Correct. The official prerequisite list includes: not a fork, not archived, public OR private with dependency graph + alerts enabled, not explicitly disabled. 'Repository is public' satisfies the condition."
+             data-explanation-b="Wrong. Forks are explicitly EXCLUDED from auto-enable — they are the opposite of a prerequisite."
+             data-explanation-c="Wrong. Archived repos are explicitly EXCLUDED from auto-enable — also the opposite of a prerequisite.">
+          <h3 class="exam-question-stem">3. What is a prerequisite for Dependabot to automatically enable security updates for a repository?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Repository is public.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Repository is a fork.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Repository is archived.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-a"
+             data-explanation-a="Correct. The GitHub Notifications inbox uses filter syntax. is:done filters to notifications you have marked as done — the exact syntax GitHub supports."
+             data-explanation-b="Wrong. is:saved is not a valid Notifications filter syntax."
+             data-explanation-c="Wrong. is:complete is not a valid Notifications filter syntax.">
+          <h3 class="exam-question-stem">4. What query can you use in the GitHub Notifications inbox to view all notifications marked as done?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span><code>is:done</code></span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span><code>is:saved</code></span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span><code>is:complete</code></span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. The groups option is valid YAML and IS supported by Dependabot for version updates. The problem is not invalid syntax."
+             data-explanation-b="Correct. The groups option in dependabot.yml applies only to version updates. Grouped security updates is a separate feature that must be enabled from Settings → Code security and analysis. The groups YAML key has no effect on security update bundling."
+             data-explanation-c="Wrong. Dependabot can group dependencies from different directories within the same ecosystem. The limitation is about security vs version updates, not directories."
+             data-explanation-d="Wrong. The groups option is supported in dependabot.yml version 2. This is not a versioning issue.">
+          <h3 class="exam-question-stem">5. A team has enabled Dependabot version updates and added a <code>groups</code> configuration to their <code>dependabot.yml</code>. They expect security update PRs to also be grouped. Why aren't security updates being grouped?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>The groups option has invalid YAML syntax in this context.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>The groups option only affects version updates. Grouped security updates must be enabled separately in repository settings.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Dependabot cannot group dependencies from different directories.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>The groups option is only supported in dependabot.yml version 3 or higher.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. The action is configured for the correct triggering event (pull_request)."
+             data-explanation-b="Wrong. GPL-1.0-or-later is a valid SPDX license identifier and a valid value for deny-licenses."
+             data-explanation-c="Correct. allow-licenses and deny-licenses are mutually exclusive in dependency-review-action. Using both in the same workflow file causes the action to error immediately. Choose one or the other."
+             data-explanation-d="Wrong. The action does not require both options — it works fine with only one.">
+          <h3 class="exam-question-stem">6. A team's dependency review workflow uses both <code>allow-licenses: MIT, Apache-2.0</code> AND <code>deny-licenses: GPL-1.0-or-later</code> in the same job. The action fails on every run. What's the cause?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>The action is not configured for the correct triggering event.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>GPL-1.0-or-later is not a valid value for deny-licenses.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>allow-licenses and deny-licenses are mutually exclusive — using both in the same workflow causes an error.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>The action requires both options to function correctly.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-d"
+             data-explanation-a="Wrong. The dependency graph setting at repo level is subordinate to enterprise policy in the inheritance chain."
+             data-explanation-b="Wrong. Repository admin permissions apply within their scope but do not override enterprise-level policy."
+             data-explanation-c="Wrong. Contacting an org owner won't help — org owners also cannot override enterprise settings."
+             data-explanation-d="Correct. Enterprise-level settings override org and repo settings. When an enterprise disables Dependabot, it cannot be re-enabled at org or repo level. Only an enterprise owner can change the enterprise-level policy.">
+          <h3 class="exam-question-stem">7. An enterprise has disabled Dependabot alerts at the enterprise level. A repository administrator wants to enable Dependabot alerts for their private repo. What happens when they enable it in repository settings?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Dependabot alerts activate because the dependency graph is enabled at the repo level.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>It works because repository admin permissions override enterprise policy.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>An organization owner must enable it at the org level first.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>It has no effect — enterprise settings override org and repo settings. Only an enterprise owner can change this.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. CycloneDX is a popular SBOM format but it is NOT what GitHub exports. GitHub uses SPDX."
+             data-explanation-b="Correct. GitHub exports SBOMs in SPDX (Software Package Data Exchange) format. This is required for EO 14028 compliance."
+             data-explanation-c="Wrong. SARIF is the format for code scanning results, not for SBOMs."
+             data-explanation-d="Wrong. JSON is a generic data format, not an SBOM specification standard.">
+          <h3 class="exam-question-stem">8. A security team needs to produce a Software Bill of Materials (SBOM) to comply with federal procurement requirements (Executive Order 14028). What format does GitHub use when exporting an SBOM?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>CycloneDX</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>SPDX</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>SARIF</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>JSON</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. medium is NOT a valid value. This is the most common mistake — the correct term is moderate."
+             data-explanation-b="Wrong. severe is NOT a valid value for fail-on-severity."
+             data-explanation-c="Correct. The four valid values are: critical, high, moderate, and low. The correct term is moderate, not medium."
+             data-explanation-d="Wrong. important is NOT a valid value for this option.">
+          <h3 class="exam-question-stem">9. A developer configuring the Dependency Review action wants it to fail when a PR introduces vulnerabilities rated as "moderate" severity or higher. Which value is correct for <code>fail-on-severity</code>?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span><code>fail-on-severity: medium</code></span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span><code>fail-on-severity: severe</code></span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span><code>fail-on-severity: moderate</code></span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span><code>fail-on-severity: important</code></span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. The dependency graph IS available on private repos — it just needs to be manually enabled. It shows both direct and transitive dependencies."
+             data-explanation-b="Correct. On private repositories, the dependency graph does NOT include the dependents list (repos that use this one). Dependents are only shown on public repositories."
+             data-explanation-c="Wrong. The dependency graph on private repos does include transitive dependencies — as long as lock files are used."
+             data-explanation-d="Wrong. The private repo dependency graph compares against the GitHub Advisory Database exactly as public repos do once enabled.">
+          <h3 class="exam-question-stem">10. A developer wants to see which other repositories depend on their private library using GitHub's dependency graph. What limitation will they encounter?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>The dependency graph is not available for private repositories at all.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>The dependents list (repos that use this repo) is not included in the dependency graph for private repositories.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Transitive dependencies are not shown in the dependency graph for private repositories.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>The dependency graph on private repos does not compare against the GitHub Advisory Database.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-quiz-footer">
+          <button class="exam-check-btn" onclick="checkExamQuiz('exam-quiz-module-5')">Reveal Answers</button>
+          <button class="exam-reset-btn" onclick="resetExamQuiz('exam-quiz-module-5')">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 9: Exam traps cheat sheet -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 3 exam traps — rapid-fire summary</h2>
+
+      <p>The 10 most common wrong answers on Domain 3 questions. Cover the right column and test yourself.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>If the question says…</th>
+            <th>The trap answer</th>
+            <th>The correct answer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>"flag <strong>before merge</strong>"</td>
+            <td>Dependabot alerts</td>
+            <td><strong>Dependency Review</strong> — pre-merge only</td>
+          </tr>
+          <tr>
+            <td>"<strong>continuously</strong>" or "after it turned vulnerable"</td>
+            <td>Dependency Review</td>
+            <td><strong>Dependabot alerts</strong> — continuous post-merge monitoring</td>
+          </tr>
+          <tr>
+            <td>Private repo, "list repos that depend on this"</td>
+            <td>Expecting the dependents tab to work</td>
+            <td>Private repos have <strong>no dependents list</strong> in the graph</td>
+          </tr>
+          <tr>
+            <td><code>groups</code> in <code>dependabot.yml</code> + security updates</td>
+            <td>Expecting groups to bundle security PRs</td>
+            <td><code>groups</code> only affects <strong>version updates</strong>; security grouping is a separate Settings toggle</td>
+          </tr>
+          <tr>
+            <td><code>allow-licenses</code> AND <code>deny-licenses</code> in same workflow</td>
+            <td>Thinking both can coexist</td>
+            <td>They are <strong>mutually exclusive</strong> — using both causes an error</td>
+          </tr>
+          <tr>
+            <td>Manifest only, no lock file</td>
+            <td>Expecting full vulnerability coverage</td>
+            <td>Without lock file, <strong>transitive deps aren't checked</strong> for vulnerabilities</td>
+          </tr>
+          <tr>
+            <td>Enterprise disables Dependabot</td>
+            <td>Repo admin can re-enable at repo level</td>
+            <td>Enterprise settings <strong>override</strong> everything; only enterprise owner can change</td>
+          </tr>
+          <tr>
+            <td>Fork + version updates not working</td>
+            <td>Expecting auto-enable on forks</td>
+            <td>Version updates are <strong>NOT auto-enabled on forks</strong> — must create dependabot.yml manually</td>
+          </tr>
+          <tr>
+            <td>SBOM format question</td>
+            <td>Answering CycloneDX</td>
+            <td>GitHub uses <strong>SPDX</strong> format, not CycloneDX</td>
+          </tr>
+          <tr>
+            <td>fail-on-severity for "medium" vulnerabilities</td>
+            <td>Using <code>fail-on-severity: medium</code></td>
+            <td>The correct value is <strong><code>moderate</code></strong>, not <code>medium</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SCREEN 10: Closing -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 3 done — where you stand now</h2>
+
+      <p>With Domains 1, 2, and 3 covered, you now control <strong>65% of GH-500's exam points</strong>. The remaining 35% is Domain 4 (Code Scanning with CodeQL, 25%) and Domain 5 (Best Practices, 10%).</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="bar-chart-3" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Points secured so far</h3>
+          <p class="pattern-desc">Domain 1 (15%) + Domain 2 (15%) + Domain 3 (35%) = <strong>65% of GH-500 covered</strong>. If you score confidently on these three domains, you enter the remaining sections with a very strong foundation.</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="brain" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Domain 4 key topics</h3>
+          <p class="pattern-desc">Next: Code Scanning with CodeQL (25%). Focus on: enabling CodeQL via Actions, workflow configuration, query suites (default vs security-extended), SARIF upload, compiled vs interpreted language differences, and the CodeQL CLI workflow.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Module complete</strong>
+          <p>Domain 3 done. The two highest-value things to retain: (1) Dependabot vs Dependency Review timing distinction — this alone appears on multiple questions. (2) The 10 traps above — groups, allow/deny-licenses, enterprise override, SPDX, and "moderate" not "medium" recur across test day questions.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Continue CTA -->
+    <div class="continue-cta animate-in">
+      <a href="#module-6" class="btn btn-continue">
+        Continue to Module 6: Code Scanning with CodeQL <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-4" class="btn-back-link">
+        <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 4
+      </a>
+    </div>
+  </div>
+</section>

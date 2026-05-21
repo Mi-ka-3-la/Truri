@@ -1,0 +1,358 @@
+<section class="module" id="module-2" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">02</span>
+      <h1 class="module-title">The AI Proposal</h1>
+      <p class="module-subtitle">How a chat message becomes a schedule preview — from the accountant's words to the artifact appearing in the chat panel.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: HERO — data flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Eight steps from chat to artifact — step through the journey</h2>
+
+        <div class="flow-animation" data-steps="[
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;Accountant types: Please set up a 12-month amortization for our $36,000 insurance prepayment&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;AI Engine reads the message, identifies the intent, and decides to call proposeSchedule&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-1&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Backend API receives the tool call and starts the executor function&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-3&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-4&quot;, &quot;label&quot;: &quot;Database looks up both accounts: Prepaid Insurance (Asset) and Insurance Expense (Expense)&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-3&quot;, &quot;to&quot;: &quot;actor-4&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Backend validates accounts -- at least one must be a balance sheet account. Check passes.&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-4&quot;, &quot;to&quot;: &quot;actor-3&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Backend calculates 12 monthly entries of $3,000 each ($36,000 divided by 12 months)&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Backend creates an Artifact record (type: propose_schedule) storing all parameters and calculated entries&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;AI Engine receives the artifact ID and surfaces the proposal in the chat panel&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-3&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;Accountant sees the schedule preview in chat -- 12 rows, $3,000 each. Ready to review and accept.&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-1&quot;}
+        ]">
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">👤</div>
+              <span>Accountant</span>
+            </div>
+
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">🤖</div>
+              <span>AI Engine</span>
+            </div>
+
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">⚙️</div>
+              <span>Backend API</span>
+            </div>
+
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">🗄️</div>
+              <span>Database</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet-m2"></div>
+          <div class="flow-step-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Notice that the schedule is not created at step 7 — only an <span class="term" data-definition="An artifact is a saved proposal record in the database. It captures the full schedule preview at a point in time: accounts, dates, amounts, and pre-calculated entries. The accountant must accept it before any schedule or journal entry is actually created.">artifact</span> is. The accountant must accept the proposal before anything touches the books. This is the core design decision you will explore in Screen 4.</p>
+      </section>
+
+      <!-- Screen 2: Group chat animation — the AI deliberating -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Behind the scenes: the AI thinks before it calls</h2>
+
+        <p>Before calling <code>proposeSchedule</code>, the AI Engine runs its own internal reasoning. It first looks up the available accounts to confirm it has the right ones. Step through the conversation to see how it unfolds:</p>
+
+        <div class="chat-window" id="chat-module2">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-sender="user" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-1)">A</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-1)">Accountant</span>
+                <p>Please set up a 12-month amortization schedule for our $36,000 insurance prepayment. Debit Prepaid Insurance, credit Insurance Expense.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="ai" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AI Engine</span>
+                <p>User asked about insurance amortization. Let me check what accounts are available before I propose anything.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="ai" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AI Engine &rarr; Tool call</span>
+                <p><code>findAccounts({ query: "insurance" })</code></p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="backend" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">BE</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Backend API</span>
+                <p>Found 2 matches. Prepaid Insurance (Asset, balance sheet). Insurance Expense (Expense, income statement). Returning both.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="ai" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AI Engine</span>
+                <p>Found Prepaid Insurance (Asset) and Insurance Expense (Expense). Prepaid Insurance is a balance sheet account. I can proceed with the proposal.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="ai" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AI Engine &rarr; Tool call</span>
+                <p><code>proposeSchedule({ debitAccountId: "prepaid-ins-001", creditAccountId: "ins-exp-002", amount: 36000, periods: 12, ... })</code></p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="backend" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">BE</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Backend API</span>
+                <p>Accounts validated. Calculating 12 monthly entries of $3,000 each. Creating artifact record...</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="backend" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">BE</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Backend API</span>
+                <p>Artifact created with type <code>propose_schedule</code>. All parameters and calculated entries saved. Returning success to AI Engine.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-sender="user" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">AI</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">AI Engine &rarr; Accountant</span>
+                <p>I have prepared a 12-month amortization schedule for your $36,000 insurance prepayment. Each monthly entry is $3,000. Please review and accept if it looks correct.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" id="chat-module2-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+              <span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why findAccounts first?</strong>
+            <p>The <code>proposeSchedule</code> tool description explicitly tells the AI: call <code>findAccounts</code> first if account IDs are not already known. This is deliberate — the AI should confirm it has the right accounts before committing anything to a proposal. The AI is not guessing; it reads its own tool documentation before deciding what to call.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Code translation of the executor -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The executor in plain English</h2>
+
+        <p>The <span class="term" data-definition="An executor is the function that runs when an AI tool is called. It receives the validated arguments from the AI, does the real work (database lookups, calculations, artifact creation), and returns a result back to the AI engine.">executor</span> is the backend function that does the actual work when the AI calls <code>proposeSchedule</code>. Here it is, directly from <code>avise-api/src/ai/tools/proposeSchedule.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> executor: <span class="code-function">AI.Tools.Executor</span>&lt;ProposeScheduleSchema&gt; =</span>
+<span class="code-line">  <span class="code-keyword">async</span> ({ companyId, userId, args }) <span class="code-operator">=></span> {</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> [debitAccount, creditAccount] =</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">Promise.all</span>([</span>
+<span class="code-line">      accountsData.<span class="code-function">get</span>(companyId, args.<span class="code-property">debitAccountId</span>),</span>
+<span class="code-line">      accountsData.<span class="code-function">get</span>(companyId, args.<span class="code-property">creditAccountId</span>),</span>
+<span class="code-line">    ]);</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> validation =</span>
+<span class="code-line">    <span class="code-function">validateAccountsIncludeBalanceSheet</span>(</span>
+<span class="code-line">      [debitAccount, creditAccount]</span>
+<span class="code-line">    );</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (!validation.<span class="code-property">valid</span>) {</span>
+<span class="code-line">    <span class="code-keyword">throw new</span> <span class="code-function">Error</span>(validation.<span class="code-property">error</span>);</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> artifact = <span class="code-keyword">await</span> <span class="code-function">createArtifact</span>({</span>
+<span class="code-line">    companyId,</span>
+<span class="code-line">    userId,</span>
+<span class="code-line">    <span class="code-property">type</span>: <span class="code-string">"propose_schedule"</span>,</span>
+<span class="code-line">    <span class="code-property">data</span>: { ...args, calculatedEntries }</span>
+<span class="code-line">      <span class="code-keyword">as</span> ProposeScheduleDataWithCalculations,</span>
+<span class="code-line">  });</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> { <span class="code-property">status</span>: <span class="code-string">"success"</span>, artifact };</span>
+<span class="code-line">};</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This is the function the backend runs each time the AI calls proposeSchedule. It receives the company, the user, and all the arguments the AI passed.</p>
+              <p class="tl"><span class="term" data-definition="Promise.all runs multiple async operations at the same time and waits for all of them to finish. Instead of looking up account A, waiting, then looking up account B, both lookups happen simultaneously — cutting the wait time in half.">Promise.all</span> runs both account lookups simultaneously (parallel, not sequential) — so the backend does not waste time waiting for each one before starting the next.</p>
+              <p class="tl">Look up the debit account (e.g. Prepaid Insurance) by its ID.</p>
+              <p class="tl">Look up the credit account (e.g. Insurance Expense) at the same time.</p>
+              <p class="tl">Run <span class="term" data-definition="Validation is a check that data meets the rules before proceeding. Here the rule is: at least one of the two accounts must be a balance sheet account. If both are income statement accounts, the schedule would not make accounting sense.">validation</span>: check that at least one of the two accounts is a <span class="term" data-definition="A balance sheet account is an account that appears on the balance sheet (Assets, Liabilities, Equity). Examples: Prepaid Insurance (Asset), Accounts Payable (Liability). Income statement accounts like Expenses and Revenue do NOT qualify. Schedules must involve at least one balance sheet account.">balance sheet account</span>.</p>
+              <p class="tl">If validation fails, throw an error. The AI engine catches this and apologises to the user, explaining which rule was broken.</p>
+              <p class="tl">Create an <span class="term" data-definition="An artifact is a saved proposal record. Think of it like a draft email sitting in your outbox: it has been written and saved, but it has not been sent yet. The schedule only becomes real when the accountant accepts the artifact.">Artifact</span> record in the database. This is NOT a schedule -- it is a saved proposal. Think of it like a draft email in your outbox.</p>
+              <p class="tl">Store all the parameters the user provided (accounts, amount, dates, dimensions) plus the calculated entries (the 12 monthly rows already computed).</p>
+              <p class="tl">Return success to the AI engine. It will surface the artifact as a preview card in the chat panel.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">📬</div>
+          <div class="callout-content">
+            <strong class="callout-title">The draft email analogy</strong>
+            <p>An artifact is exactly like a draft email. The content is composed and saved. Nothing has been sent. You review it, adjust the wording if needed, and then click Send (Accept). Only then does it leave your outbox and actually do something. If you delete the draft, nothing happened.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Design decision — proposal not creation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Why propose and not create?</h2>
+
+        <p>The tool description says it plainly: <em>"This tool does not create or post anything, it simply offers a suggestion for the user, so it is safe to use without confirming every detail first."</em> That single sentence encodes four important design decisions:</p>
+
+        <div class="pattern-cards stagger-children">
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2)">
+            <div class="pattern-icon" style="background: var(--color-info-light); color: var(--color-actor-2)">🛡️</div>
+            <h4 class="pattern-title">Safe to call</h4>
+            <p class="pattern-desc">The AI can propose a schedule without asking for confirmation first. If the AI misunderstood the request, the accountant simply rejects it. No harm done — nothing has touched the books.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-1)">
+            <div class="pattern-icon" style="background: var(--color-accent-light); color: var(--color-actor-1)">🧑‍💼</div>
+            <h4 class="pattern-title">Human in the loop</h4>
+            <p class="pattern-desc">The accountant reviews every entry before anything touches the <span class="term" data-definition="The general ledger is the master record of all financial transactions for a company. Every journal entry that gets posted ends up here. Errors in the general ledger are hard to reverse and can affect financial statements, audits, and tax filings — which is why human sign-off before posting is so important.">general ledger</span>. Accounting data requires human sign-off. The AI is an assistant, not the authority.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-5)">
+            <div class="pattern-icon" style="background: var(--color-success-light); color: var(--color-actor-5)">✏️</div>
+            <h4 class="pattern-title">Editable before accept</h4>
+            <p class="pattern-desc">The accountant can adjust dates, amounts, accounts, and dimensions in the review UI before clicking Accept. The proposal is a starting point, not a final answer.</p>
+          </div>
+
+          <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4)">
+            <div class="pattern-icon" style="background: var(--color-accent-light); color: var(--color-actor-4)">📸</div>
+            <h4 class="pattern-title">Artifact = snapshot</h4>
+            <p class="pattern-desc">The artifact stores the full proposal at a single point in time, including pre-calculated entries. If the accountant waits a week before reviewing, the proposal still remembers exactly what was calculated — no recomputation needed.</p>
+          </div>
+
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🏗️</div>
+          <div class="callout-content">
+            <strong class="callout-title">The <span class="term" data-definition="Human in the loop is a design pattern where an automated system always requires a human to review and confirm before taking irreversible action. It is common in finance, medicine, and legal systems where automated errors are costly or hard to undo.">human-in-the-loop</span> pattern in practice</strong>
+            <p>Any action that modifies financial records — posting journal entries, creating schedules, adjusting balances — goes through the proposal pattern. The AI can prepare as much as it likes. Only a confirmed human click creates real data. This boundary is enforced in the backend: the creation logic only runs when the user explicitly accepts.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module2">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — the executor calls validateAccountsIncludeBalanceSheet immediately after the account lookups. If both accounts are income statement accounts, validation fails, the executor throws an error, and the AI receives that error and reports it back to the accountant. No artifact is ever created."
+               data-explanation-wrong="The executor does not silently ignore the problem or proceed to create an artifact. The validation runs before createArtifact is ever called. An error at this stage stops execution completely and the AI sees the error message, which it relays to the user as a clear explanation of what went wrong.">
+            <h3 class="quiz-question">The AI calls proposeSchedule but the accountant provided two income statement accounts — neither is a balance sheet account. What happens?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The executor creates the artifact anyway and flags it as a warning for the accountant to review</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The executor throws an error immediately -- validateAccountsIncludeBalanceSheet fails -- and the AI reports back that the accounts need to include a balance sheet account</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The AI asks the accountant for the correct account before calling the tool</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Exactly right -- proposeSchedule only creates an Artifact record, never a schedule. The schedule and its journal entries are only created when the accountant clicks Accept in the review UI. Until that moment, the artifact is like a draft: saved and visible, but not yet posted to the general ledger."
+               data-explanation-wrong="proposeSchedule does not create a schedule -- that is the entire point of the proposal pattern. The tool description says explicitly that it does not create or post anything. The artifact is a saved preview. Only the Accept action (a separate flow covered in Module 3) creates the actual schedule and its entries.">
+            <h3 class="quiz-question">After proposeSchedule runs successfully, has a schedule been created in the system?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes -- the schedule and all 12 journal entries are created and ready to view</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Yes -- but only as a draft that can still be cancelled</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>No -- only an Artifact record was created. The schedule and its journal entries are only created when the accountant accepts the proposal.</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right -- the proposeSchedule tool description explicitly says to call findAccounts first if the account IDs are not already known. The AI reads its own tool documentation before deciding what to call. This ensures the proposal uses real, validated account IDs rather than guessed ones."
+               data-explanation-wrong="The AI does not call proposeSchedule immediately without knowing the account IDs -- that would risk proposing the wrong accounts. And it does not ask the user for account IDs directly, as the user would not know the internal IDs. Instead, it calls findAccounts first to discover the available accounts and obtain their IDs, then uses those confirmed IDs when calling proposeSchedule.">
+            <h3 class="quiz-question">Scenario: the accountant asks the AI to set up an amortization schedule, but does not specify account IDs. What does the AI do before calling proposeSchedule?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Calls findAccounts first to discover available accounts -- the proposeSchedule tool description explicitly says to do this when account IDs are not already known</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Calls proposeSchedule immediately using guessed account names and lets the backend validate them</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Asks the accountant to provide the exact account IDs before proceeding</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

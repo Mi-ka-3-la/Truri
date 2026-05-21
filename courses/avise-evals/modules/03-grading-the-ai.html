@@ -1,0 +1,281 @@
+<section class="module" id="module-3" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">Grading the AI</h1>
+      <p class="module-subtitle">Criteria are the individual checks that score one specific thing about the AI&apos;s response.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: What is a Criteria? -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Grader: What Is a Criterion?</h2>
+        <p>
+          Imagine a checklist a film critic uses after seeing a movie: "Did it have a compelling plot? Were the performances strong? Was the pacing good?" Each item on the list is checked independently and gets its own score. Together they form a picture of quality.
+        </p>
+        <p>
+          In the evals system, each check on the list is called a
+          <span class="term" data-definition="A Criterion (plural: criteria) is a single, specific check that produces a score between 0 and 1. It takes the AI's response as input, checks one thing about it, and returns a number.">Criterion</span>
+          (or a
+          <span class="term" data-definition="In this codebase, Metric and Criterion are related concepts. A Criteria IS the scoring logic. A Metric wraps the Criteria and knows how to register it with Evalite.">Metric</span>).
+          Each one checks exactly one thing and returns a score from 0 to 1. They are combined to build a full picture of the AI's response quality.
+        </p>
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">ℹ️</div>
+          <div class="callout-content">
+            <strong class="callout-title">The Score Contract</strong>
+            <p>Every criterion must return a number between 0 and 1 (inclusive). 1 = fully passed. 0 = fully failed. Values in between represent partial success. This consistency is what allows scores to be averaged, combined, and compared.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: StringMatch -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check #1: Did the AI Say the Right Thing?</h2>
+        <p>
+          The most common check is <code>StringMatch</code> — it looks at the AI's final text response and asks: does it contain (or start with, or exactly equal) a specific string?
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">new</span> <span class="code-function">StringMatch</span>(
+  <span class="code-string">"Acme Corp"</span>,
+  {
+    type: <span class="code-string">"contains"</span>,
+    caseInsensitive: <span class="code-keyword">true</span>,
+  }
+)</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a new StringMatch check that looks for a specific vendor name.</p>
+              <p class="tl">We are looking for "Acme Corp" somewhere inside the AI response...</p>
+              <p class="tl">...using a "contains" match (not an exact match of the whole response).</p>
+              <p class="tl">Case-insensitive means "acme corp", "ACME CORP", and "Acme Corp" all count as a match.</p>
+              <p class="tl">Result: 1 if the response contains "Acme Corp", 0 if it does not.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="badge-list animate-in">
+          <div class="badge-item">
+            <code class="badge-code">exact</code>
+            <span class="badge-desc">The full response must equal the expected string exactly</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">contains</code>
+            <span class="badge-desc">The expected string must appear somewhere in the response (most common)</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">starts-with</code>
+            <span class="badge-desc">The response must begin with the expected string</span>
+          </div>
+          <div class="badge-item">
+            <code class="badge-code">ends-with</code>
+            <span class="badge-desc">The response must end with the expected string</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: ArtifactsExist -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check #2: Did the AI Produce the Right Output?</h2>
+        <p>
+          Sometimes the AI does more than respond in text — it produces a structured
+          <span class="term" data-definition="An artifact in Avise is a structured data object that the AI creates alongside its text response. Examples: a proposed schedule (with dates, amounts, account IDs) or a proposed journal entry. Artifacts are like structured forms the AI fills out.">artifact</span>.
+          For example, when you ask it to create a monthly schedule, it produces a <code>propose_schedule</code> artifact with all the schedule parameters (dates, accounts, amounts) ready for the system to use.
+        </p>
+        <p>
+          <code>ArtifactsExist</code> checks that the AI created exactly the right artifact types — no more, no less.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">new</span> <span class="code-function">ArtifactsExist</span>([
+  <span class="code-string">"propose_schedule"</span>
+])</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Check that the AI created exactly one artifact of type "propose_schedule".</p>
+              <p class="tl">Score 1 if the propose_schedule artifact exists AND no unexpected artifacts were created.</p>
+              <p class="tl">Score 0 if the artifact is missing, or if the AI also created other unexpected artifacts.</p>
+              <p class="tl">This catches cases where the AI creates an artifact when it should not, or fails to create one when it should.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: ArtifactPropertyMatch -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check #3: Are the Artifact's Values Correct?</h2>
+        <p>
+          Knowing an artifact exists is not enough. You also need to verify its contents. <code>ArtifactPropertyMatch</code> uses
+          <span class="term" data-definition="JSONPath is a query language for JSON objects. It lets you navigate deeply nested data structures using a dot-notation path, like $.termStart to get the termStart field from a JSON object.">JSONPath</span>
+          expressions to extract specific fields from the artifact and compare them to expected values.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">new</span> <span class="code-function">ArtifactPropertyMatch</span>(
+  <span class="code-string">"propose_schedule"</span>,
+  {
+    <span class="code-string">"$.termStart"</span>: <span class="code-string">"2025-01-01"</span>,
+    <span class="code-string">"$.termEnd"</span>:   <span class="code-string">"2025-12-31"</span>,
+    <span class="code-string">"$.totalAmount"</span>: <span class="code-number">12000</span>,
+  }
+)</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Look at the "propose_schedule" artifact the AI created.</p>
+              <p class="tl">Check that its termStart field is exactly "2025-01-01" (the schedule must start January 1st).</p>
+              <p class="tl">Check that its termEnd field is exactly "2025-12-31" (must end December 31st).</p>
+              <p class="tl">Check that totalAmount is exactly 12000 dollars.</p>
+              <p class="tl">Score 1 only if ALL three properties match. Score 0 if any one is wrong.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: ToolCallsExist and ValidateArtifact -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Checks #4 &amp; #5: Did the AI Use the Right Tools?</h2>
+        <p>
+          The AI agent uses
+          <span class="term" data-definition="Tools in AI are functions the agent is allowed to call. For example, findJournalEntries() queries the database for journal entries. The AI decides which tools to call based on the user prompt.">tools</span>
+          to do its work (look up data, create schedules, etc.). Two more criteria check the tooling behavior:
+        </p>
+
+        <div class="icon-rows animate-in stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">🔧</div>
+            <div>
+              <strong>ToolCallsExist</strong>
+              <p>Verifies the AI called specific tools. e.g., it MUST call both <code>findAccounts</code> AND <code>proposeSchedule</code> — if it skips one, score is 0.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-3)">🔬</div>
+            <div>
+              <strong>ValidateArtifact</strong>
+              <p>Runs a custom JavaScript function against the artifact data. Use this for complex checks that cannot be expressed as a simple property match (e.g., verifying debits equal credits within 0.01).</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-4)">🆔</div>
+            <div>
+              <strong>Arbitrary (shouldNotContainLowLevelIds)</strong>
+              <p>A fully custom criterion — scans the AI response for UUIDs or CUIDs and returns 0 if any are found. The AI should never expose raw database IDs to users.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: The flow of scoring -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">How Scoring Actually Works</h2>
+        <p>Behind the scenes, every criterion follows the same process: receive the response, extract what you care about, compare it, return a score.</p>
+
+        <div class="flow-animation" data-steps='[
+          {"highlight":"flow-actor-1","label":"Step 1: The AI runs and returns a ConversationResponse — a record of everything that happened (messages, tool calls, artifacts)."},
+          {"highlight":"flow-actor-2","label":"Step 2: The criterion extracts what it needs. StringMatch takes the last text message. ArtifactPropertyMatch loads the conversation from DB to find the artifact.","packet":true,"from":"actor-1","to":"actor-2"},
+          {"highlight":"flow-actor-3","label":"Step 3: The criterion compares extracted data against expectations (expected string, expected JSON path value, etc.).","packet":true,"from":"actor-2","to":"actor-3"},
+          {"highlight":"flow-actor-4","label":"Step 4: It returns a MetricScore with a number (0-1) and optional metadata explaining the result.","packet":true,"from":"actor-3","to":"actor-4"},
+          {"highlight":"flow-actor-4","label":"Step 5: Evalite records the score and metadata. The metadata explains WHY the score was what it was — which properties matched, which did not."}
+        ]'>
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon">🤖</div>
+              <span>AI Response</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon">🔍</div>
+              <span>Extractor</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon">⚖️</div>
+              <span>Comparison</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon">📊</div>
+              <span>MetricScore</span>
+            </div>
+          </div>
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 7: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Quick Check</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct. ArtifactPropertyMatch uses JSONPath to navigate into the artifact and check specific field values. ArtifactsExist only checks whether the artifact exists at all — not whether its contents are right."
+               data-explanation-wrong="Not quite. ArtifactsExist only checks that the artifact was created. To verify specific fields like termStart and totalAmount, you need ArtifactPropertyMatch with JSONPath expressions.">
+            <h3 class="quiz-question">You want to verify that the AI proposed a schedule with termStart = "2025-01-01" and totalAmount = 12000. Which criterion should you use?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>ArtifactsExist — check that a propose_schedule artifact was created</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>ArtifactPropertyMatch — check specific field values inside the artifact using JSONPath</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>StringMatch — look for "2025-01-01" and "12000" in the text response</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly. shouldNotContainLowLevelIds is an Arbitrary criterion that scans the text response for UUID or CUID patterns. If any raw database IDs appear, the AI has exposed internal implementation details — which would confuse users and break the UX."
+               data-explanation-wrong="Not quite. ToolCallsExist checks which tools the agent called (findJournalEntries, proposeSchedule). The shouldNotContainLowLevelIds check is an Arbitrary that scans the actual text response for UUID/CUID patterns.">
+            <h3 class="quiz-question">A user asks "Show me JE #42." The AI responds correctly but includes the raw database ID "cm9f7h3x0001k0xl5a7d" in its message. Which criterion catches this?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Arbitrary (shouldNotContainLowLevelIds) — scans the text response for UUID/CUID strings</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>ToolCallsExist — checks which tools were called during the interaction</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>ArtifactPropertyMatch — checks fields in the artifact for database IDs</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

@@ -1,0 +1,227 @@
+<section class="module" id="module-4">
+  <div class="module-content">
+    <div class="module-number">04</div>
+    <h2 class="module-title">The Chat Loop</h2>
+    <p class="module-subtitle">The iterative engine that drives every response — file processing, stub replacement, tool execution, artifact tracking, and conversation persistence.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The loop in one picture</h2>
+      <p>Every message goes through <code>createOrContinueConversation()</code> in <code>ai/index.ts</code>. It runs a <code>for</code> loop up to <code>MAX_ITERATIONS</code> times. Here is the decision tree inside each iteration:</p>
+
+      <pre class="mermaid">
+flowchart TD
+  A["New message arrives"] --> B["Process file uploads\n(extract content or upload to provider)"]
+  B --> C["Build ToolRegistry\n(20+ built-in + MCP tools)"]
+  C --> D["Send messages + system prompt\nto LLM provider"]
+  D --> E{Any tool calls?}
+  E -- No --> F["Return final response\nto user"]
+  E -- Yes --> G{Any stub tools?}
+  G -- Yes --> H["Replace stubs with\nfull implementations\nDo NOT save messages"]
+  H --> D
+  G -- No --> I["Execute all tools\nin sequence"]
+  I --> J["Save messages + tool\nresults to database"]
+  J --> K{toolCallCount < MAX?}
+  K -- Yes --> D
+  K -- No --> L["Force final response\n(no more tools allowed)"]
+      </pre>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="shield" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">MAX_TOOL_CALLS is the safety valve</strong>
+          <p>The config sets a maximum number of tool calls per user message. Once hit, the tool registry is no longer passed to the LLM — forcing the next response to be text-only. This prevents runaway loops from burning through API budget.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">File uploads — two very different paths</h2>
+      <p>Before the first LLM call, <code>processFilesForContext()</code> handles any attached files. The handling depends on the file type:</p>
+
+      <div class="grid-2-cols stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="file-image" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h4 class="pattern-title">PROVIDER path — images &amp; PDFs</h4>
+          <p class="pattern-desc">The file bytes are uploaded directly to the LLM provider (OpenAI Files API). The provider returns a <code>providerFileId</code>. On every subsequent turn, this ID is passed alongside the messages so the LLM can "see" the file natively.</p>
+          <div class="flex-wrap">
+            <span style="background: var(--color-accent-light); color: var(--color-accent); padding: 2px 8px; border-radius: 20px; font-size: var(--text-xs);">PNG</span>
+            <span style="background: var(--color-accent-light); color: var(--color-accent); padding: 2px 8px; border-radius: 20px; font-size: var(--text-xs);">JPG</span>
+            <span style="background: var(--color-accent-light); color: var(--color-accent); padding: 2px 8px; border-radius: 20px; font-size: var(--text-xs);">PDF</span>
+          </div>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="file-code" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h4 class="pattern-title">CONTENT path — Excel, CSV, Word, text</h4>
+          <p class="pattern-desc">The file bytes are read and converted to plain text content. This extracted text is injected into the conversation context as a string. No external upload — the content lives in the message itself.</p>
+          <div class="flex-wrap">
+            <span style="background: var(--color-success-light); color: var(--color-success); padding: 2px 8px; border-radius: 20px; font-size: var(--text-xs);">XLSX</span>
+            <span style="background: var(--color-success-light); color: var(--color-success); padding: 2px 8px; border-radius: 20px; font-size: var(--text-xs);">CSV</span>
+            <span style="background: var(--color-success-light); color: var(--color-success); padding: 2px 8px; border-radius: 20px; font-size: var(--text-xs);">DOCX</span>
+            <span style="background: var(--color-success-light); color: var(--color-success); padding: 2px 8px; border-radius: 20px; font-size: var(--text-xs);">TXT</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="hard-drive" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">All files are also saved to the Avise file library</strong>
+          <p>Before processing, every uploaded file gets a row in the <code>files</code> table via <code>files.create()</code>. The <code>aviseFileId</code> is stored on the message context. On subsequent turns, the loop can re-fetch from S3 if the content was not stored on the message (re-hydration).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The artifact lifecycle</h2>
+      <p>Artifacts are the interactive cards rendered in the chat — proposed journal entries, tables, schedules. Here is how they are born, stored, and acted on:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Tool creates the artifact</strong>
+            <p>When <code>proposeJournalEntry</code> runs, it calls <code>createArtifact()</code>. This writes a row to the artifacts table with <code>type: "journalEntry"</code>, a <code>data</code> JSON blob, and a <code>status: "pending"</code>. The tool returns the artifact ID to the LLM.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>LLM references the artifact in its response</strong>
+            <p><code>attachArtifactReferences()</code> scans the LLM's text response for artifact IDs and replaces them with structured references the frontend knows how to render.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Frontend renders the artifact card</strong>
+            <p>Each artifact type has its own React component in <code>AiChatItem/artifacts/</code>. The <code>journalEntry</code> card shows debit/credit lines with edit controls. The <code>table</code> card shows sortable columns. The <code>schedule</code> card shows the full monthly entry preview.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>User acts — artifact action mutation fires</strong>
+            <p>When the user clicks "Post to GL", the frontend calls <code>useArtifactActionsMutation</code> which hits the artifact actions endpoint. The backend validates and executes the real action (create JE, create schedule, etc.) and updates the artifact status.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Code-walk: the core loop iteration</h2>
+      <p>This is the most important function in the entire AI system — the innermost logic of <code>createOrContinueConversation()</code> in <code>ai/index.ts</code>:</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/ai/index.ts — the chat loop (simplified)</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">for</span> (<span class="code-keyword">let</span> i = <span class="code-number">0</span>; i &lt; MAX_ITERATIONS; i++) {
+  <span class="code-keyword">const</span> assistantMessage =
+    <span class="code-keyword">await</span> <span class="code-function">sendConversationMessagesToProvider</span>({
+      systemPrompt: <span class="code-function">chatSystemPrompt</span>(overrides.systemPrompt),
+      inputMessages: [...conversation.messages, ...nextInputMessages],
+      toolRegistry: toolCallCount &lt; MAX_TOOL_CALLS
+        ? toolRegistry : <span class="code-keyword">undefined</span>,
+    });</code></pre>
+          <div class="code-walk-explanation">
+            <p>Each iteration sends the full conversation history plus any new messages to the LLM. The tool registry is included UNLESS we have already hit MAX_TOOL_CALLS — at that point we pass <code>undefined</code>, which forces the LLM to respond in text only. This is what stops infinite tool loops.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>  <span class="code-keyword">if</span> (toolRegistry.<span class="code-function">areAnyToolsStub</span>(toolCalls)) {
+    toolRegistry = toolRegistry
+      .<span class="code-function">getNewRegistryWithStubToolsReplaced</span>(toolCalls);
+    <span class="code-keyword">continue</span>; <span class="code-comment">// Re-run — do NOT save messages</span>
+  }</code></pre>
+          <div class="code-walk-explanation">
+            <p>Stub detection. If any of the requested tool calls are stubs, we swap the registry and loop again WITHOUT saving anything to the database. The user never sees this iteration — it is internal bookkeeping.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>  conversation.messages.push(
+    ...nextInputMessages, assistantMessage
+  );
+  <span class="code-keyword">await</span> <span class="code-function">asyncMapSequential</span>(
+    nextInputMessages,
+    (<span class="code-property">message</span>) =&gt;
+      conversationData.<span class="code-function">createMessage</span>(message)
+  );</code></pre>
+          <div class="code-walk-explanation">
+            <p>Now that we know there are no stub tools, we commit the messages to the database. Messages are saved sequentially (not in parallel) to preserve ordering. The context is cleaned of S3 metadata before writing.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">4</div>
+          <pre class="code-walk-code"><code>  <span class="code-keyword">if</span> (toolCalls.length === <span class="code-number">0</span>) {
+    <span class="code-keyword">return</span> { <span class="code-comment">/* final response */</span> };
+  }
+  nextInputMessages = [
+    assistantMessage,
+    ...<span class="code-keyword">await</span> <span class="code-function">executeToolCalls</span>(toolCalls),
+  ];
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>If there are no tool calls in the response, the conversation is done — return the answer. Otherwise, execute all tools, collect their results, and set them as the next input so the LLM can see what the tools returned.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module4">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — stub tool calls are detected BEFORE messages are saved to the database. The loop swaps the registry and re-runs. Messages are only persisted once we confirm there are no stub tool calls in the response."
+             data-explanation-wrong="Messages are only saved after stub detection passes. When stubs are found, the loop re-runs WITHOUT committing anything — so the stub iteration never appears in conversation history.">
+          <h3 class="quiz-question">The AI calls a stub tool. What happens to the messages from that iteration in the database?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>They are saved immediately, then overwritten in the next iteration</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>They are NOT saved — the loop re-runs and only commits messages once all stubs are resolved</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>They are saved with a stub_tool_call status flag</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct — the CONTENT path extracts text from the Excel file and injects it directly into the conversation. The PROVIDER path (used for images/PDFs) uploads to the LLM provider. The path is determined by file type, not file size."
+             data-explanation-wrong="Excel files go through the CONTENT path — their data is extracted as text and embedded in the context. Only images and PDFs go to the PROVIDER path (uploaded to the LLM provider). This is determined by file type.">
+          <h3 class="quiz-question">A user uploads an Excel file (.xlsx). Which file handling path does the backend use?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>PROVIDER path — uploaded to the LLM provider as a binary file</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Stored in S3 only — the AI receives a URL reference</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>CONTENT path — text is extracted from the file and injected into the conversation context</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — when the user clicks Post, the frontend calls useArtifactActionsMutation which fires an action request. The backend artifact actions endpoint validates and executes the real database write (creating the journal entry). The artifact status is updated to reflect completion."
+             data-explanation-wrong="The artifact card is rendered by the frontend. Clicking Post calls useArtifactActionsMutation, which sends an action request to the backend. The backend then executes the real create operation against the database.">
+          <h3 class="quiz-question">A user reviews a proposed journal entry artifact and clicks 'Post to GL'. What executes the actual database write?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>useArtifactActionsMutation fires, the backend artifact actions endpoint validates and creates the real journal entry</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The proposeJournalEntry tool already wrote the draft to the database — clicking Post just changes a status flag</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The LLM is called again with a 'confirm' instruction, which triggers the createJournalEntry tool</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-5" class="btn module-continue-btn">Continue to Module 5: Rules &amp; Guardrails <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-3" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 3</a>
+      </div>
+    </section>
+  </div>
+</section>

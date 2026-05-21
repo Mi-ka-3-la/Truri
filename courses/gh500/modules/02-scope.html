@@ -1,0 +1,187 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Module 2 · Scope &amp; availability</span>
+      <h1 class="module-title">Where each feature works (and where it doesn't)</h1>
+      <p class="module-subtitle">Same feature, different repository, different behavior. The exam tests this constantly — it's the easiest place to lose points if you skim.</p>
+    </header>
+
+    <!-- SCREEN 1: The matrix (Pattern C — comparison/scope screen) -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The availability matrix the exam tests every single time</h2>
+
+      <p>Three columns, three real-world repository situations. The cells tell you exactly what's available in each. Read it slowly the first time — every cell can become an exam question.</p>
+
+      <table class="scope-matrix animate-in">
+        <caption class="scope-matrix-caption">
+          <i data-lucide="grid" class="icon"></i>
+          GHAS feature availability by repository type
+        </caption>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Public repository</th>
+            <th>Private repo (no GHAS)</th>
+            <th>Private repo (with GHAS)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Secret scanning (alerts)</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free, automatic</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Not available</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Available</td>
+          </tr>
+          <tr>
+            <td><strong>Push protection</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free (partner patterns)</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Not available</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Available + custom patterns</td>
+          </tr>
+          <tr>
+            <td><strong>Code scanning (CodeQL)</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Not available</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Available</td>
+          </tr>
+          <tr>
+            <td><strong>Dependabot alerts</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free</td>
+          </tr>
+          <tr>
+            <td><strong>Dependency graph</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free, automatic</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free (must be enabled)</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free</td>
+          </tr>
+          <tr>
+            <td><strong>Dependency Review (PR check)</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Free</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Not available</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Available</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: the middle column</strong>
+          <p>"Private repository without a GHAS license" is the column the exam targets most. Most features are <strong>not</strong> available there — only Dependabot alerts and the dependency graph. If a question scenario says "private repo, no advanced security license", any answer involving secret scanning, code scanning, push protection, or Dependency Review is wrong. Those features simply don't exist in that scope.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: The public repo nuance -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Why public repos get so much for free</h2>
+
+      <p>GitHub makes GHAS-class security features free on public repositories. Why? Two reasons matter for the exam: <strong>open source security has spillover effects</strong> (a vulnerability in a popular OSS library hurts every project that uses it), and <strong>visibility is already public</strong> (a secret leaked in a public repo is already a serious incident regardless of whether GitHub scans for it).</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="globe" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">On public repos, by default</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li>Secret scanning alerts: <strong>on automatically</strong></li>
+            <li>Push protection for partner patterns: <strong>on by default since 2024</strong></li>
+            <li>Dependency graph: <strong>on automatically</strong></li>
+            <li>Dependabot alerts: <strong>on automatically</strong></li>
+            <li>Code scanning (CodeQL): available but requires you to set up the workflow</li>
+            <li>Dependency Review: available on every PR</li>
+          </ul>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="lock" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">On private repos without GHAS</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li>Secret scanning alerts: <strong>not available</strong></li>
+            <li>Push protection: <strong>not available</strong></li>
+            <li>Dependency graph: <strong>available but must be enabled</strong> (not on by default)</li>
+            <li>Dependabot alerts: <strong>available</strong> (free for everyone)</li>
+            <li>Code scanning: <strong>not available</strong></li>
+            <li>Dependency Review: <strong>not available</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The pattern to memorize</strong>
+          <p>Public repos get <em>almost everything for free</em>. Private repos without a GHAS license get <em>only Dependabot</em>. Buying GHAS for a private repo brings it up to parity with public repos and adds custom secret patterns on top.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: The adjacent comparison the exam loves -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Two adjacent features the exam will absolutely test</h2>
+
+      <p>Inside the Dependabot family there are two features that watch dependencies — but they intervene at different moments. Knowing which is which is one of the most common Domain 1 exam questions.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th></th>
+            <th>
+              <i data-lucide="bell" class="icon-sm"></i>
+              Dependabot alerts
+            </th>
+            <th>
+              <i data-lucide="git-pull-request" class="icon-sm"></i>
+              Dependency Review
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>When does it intervene?</strong></td>
+            <td>Continuously — after a dependency turns vulnerable (even if it was added long ago)</td>
+            <td>On every pull request — before the merge happens</td>
+          </tr>
+          <tr>
+            <td><strong>What does it scan?</strong></td>
+            <td>Existing dependencies declared in the repo's manifest files</td>
+            <td>Only the dependencies being added or changed in the PR diff</td>
+          </tr>
+          <tr>
+            <td><strong>Where does it surface?</strong></td>
+            <td>Security tab → Dependabot alerts</td>
+            <td>PR check status + diff annotations on the PR itself</td>
+          </tr>
+          <tr>
+            <td><strong>Can it block?</strong></td>
+            <td>No — it alerts; the developer decides what to do</td>
+            <td>Yes — if configured as a required check, vulnerable dependencies block the merge</td>
+          </tr>
+          <tr>
+            <td><strong>Free on private repos?</strong></td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes, for everyone</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> No — requires GHAS</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: the verb tells you which one</strong>
+          <p>Look for the timing word in the question. <strong>"Before merge"</strong> → Dependency Review. <strong>"Already in the repo"</strong> or <strong>"turned vulnerable"</strong> or <strong>"continuously monitors"</strong> → Dependabot alerts. The two will appear as adjacent answer options on at least one question — bet on it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Continue CTA -->
+    <div class="continue-cta animate-in">
+      <a href="#module-3" class="btn btn-continue">
+        Continue to Module 3: Integration &amp; practice quiz <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-1" class="btn-back-link">
+        <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 1
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,123 @@
+<section class="module" id="module-6">
+  <div class="module-content">
+    <div class="module-number">06</div>
+    <h2 class="module-title">Gaps &amp; Architectural Improvements</h2>
+    <p class="module-subtitle">Seven honest gaps in the current DevOps setup — and concrete proposals for each one.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Seven architectural gaps</h2>
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">No staging environment</code>
+          <span class="badge-desc">Code goes: PR → dev → prod. There is no staging environment that mirrors production. Bugs that only appear under production-like data or load are found in prod.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">No automated rollback</code>
+          <span class="badge-desc">If a deploy to prod breaks things, there is no automated rollback mechanism. Engineers must manually revert the GitOps commit and wait for Argo CD to redeploy the previous image.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4);">Remote cache not available locally</code>
+          <span class="badge-desc">The Turborepo remote cache (<code>turbocache.avise-turbocache.svc.cluster.local</code>) is only accessible from inside Kubernetes. Local dev gets no cache benefit — every workspace rebuilds from scratch.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4);">Frontend and backend have different deploy pipelines</code>
+          <span class="badge-desc">avise-web deploys via AWS Amplify while backend services go through GitHub Actions → ECR → GitOps → Argo CD. Two separate systems means two failure surfaces, two sets of env var management, and hard-to-coordinate deploys.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4);">Single region — no disaster recovery</code>
+          <span class="badge-desc">Everything runs in us-east-2 (Ohio). AWS outage in that region takes down the entire product. No multi-region failover or even a documented RTO/RPO.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted);">No canary or blue/green deployments</code>
+          <span class="badge-desc">Deployments are rolling updates — Kubernetes replaces pods one by one. There is no canary traffic splitting (e.g., route 5% of traffic to the new version first) or blue/green switch.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted);">No centralized secret rotation</code>
+          <span class="badge-desc">Secrets in AWS Secrets Manager are static. If a key is rotated, all services must be redeployed to pick up the new value. There is no automatic secret rotation or live reload mechanism.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Proposed improvements</h2>
+
+      <div class="grid-2-cols stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error);">
+          <i data-lucide="layers" class="icon-lg" style="color: var(--color-error);"></i>
+          <h4 class="pattern-title">1. Add a staging environment</h4>
+          <p class="pattern-desc"><strong>What:</strong> A third environment between dev and prod in the GitOps repo (<code>apps/envs/staging/</code>). Same Kustomize structure, production-scale data, separate secrets.<br><strong>How:</strong> The release workflow adds a staging deploy step before prod. Prod deploy only happens after staging passes automated smoke tests.<br><strong>Impact:</strong> Catches production-only bugs before real users see them.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-error);">
+          <i data-lucide="undo-2" class="icon-lg" style="color: var(--color-error);"></i>
+          <h4 class="pattern-title">2. Automated rollback on failed health checks</h4>
+          <p class="pattern-desc"><strong>What:</strong> Configure Argo CD to automatically roll back to the previous image tag if the new deployment fails its readiness/liveness probe within N minutes.<br><strong>How:</strong> Argo CD Rollouts plugin or Kubernetes native rollback policy. The GitOps commit includes the previous image tag as a rollback reference.<br><strong>Impact:</strong> Reduces mean time to recovery (MTTR) from hours to minutes for bad deploys.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="hard-drive" class="icon-lg" style="color: var(--color-actor-4);"></i>
+          <h4 class="pattern-title">3. Expose Turbo remote cache to local dev</h4>
+          <p class="pattern-desc"><strong>What:</strong> Use Turborepo&rsquo;s token-based remote cache API via an HTTPS endpoint exposed outside the cluster (or via VPN).<br><strong>How:</strong> Configure <code>TURBO_TOKEN</code> and <code>TURBO_TEAM</code> env vars locally. Or switch to Turborepo&rsquo;s managed hosted cache (turbo.build).<br><strong>Impact:</strong> Local developers benefit from CI build cache — avise-api build drops from minutes to seconds on cache hit.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="merge" class="icon-lg" style="color: var(--color-actor-4);"></i>
+          <h4 class="pattern-title">4. Unify frontend and backend deploy pipelines</h4>
+          <p class="pattern-desc"><strong>What:</strong> Move avise-web out of Amplify and into Kubernetes (e.g., nginx container or Next.js standalone mode) or at minimum into the same GitOps/Argo CD system.<br><strong>How:</strong> Add avise-web to the release.yml workflow, build a Docker image, push to ECR, deploy via GitOps like the backend.<br><strong>Impact:</strong> One deployment system to understand, one env var management story, coordinated backend+frontend deploys.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-info);">
+          <i data-lucide="traffic-cone" class="icon-lg" style="color: var(--color-info);"></i>
+          <h4 class="pattern-title">5. Canary deployments for avise-api</h4>
+          <p class="pattern-desc"><strong>What:</strong> Route a small percentage of traffic (5-10%) to the new pod before completing the full rollout.<br><strong>How:</strong> Argo Rollouts (already in the cluster) with a canary strategy. Define success metrics (error rate, latency) in the Rollout spec — Argo automatically promotes or aborts.<br><strong>Impact:</strong> Bad deploys affect a small fraction of users before auto-abort, not everyone simultaneously.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-info);">
+          <i data-lucide="key-round" class="icon-lg" style="color: var(--color-info);"></i>
+          <h4 class="pattern-title">6. Automatic secret rotation</h4>
+          <p class="pattern-desc"><strong>What:</strong> Use AWS Secrets Manager rotation policies + Kubernetes External Secrets Operator to automatically reload secrets into pods without redeployment.<br><strong>How:</strong> Install External Secrets Operator in the cluster. Define ExternalSecret resources in the GitOps repo. When a secret rotates in AWS, Kubernetes automatically gets the new value.<br><strong>Impact:</strong> Zero-downtime secret rotation. Reduces the blast radius of a compromised key.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Priority matrix</h2>
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">P0</code>
+          <span class="badge-desc"><strong>Automated rollback</strong> — reduces MTTR from hours to minutes. Argo Rollouts is already in the cluster; this is configuration, not new infrastructure.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">P0</code>
+          <span class="badge-desc"><strong>Staging environment</strong> — required before enterprise client growth. Prod bugs become much more expensive at scale.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4); font-weight: 700;">P1</code>
+          <span class="badge-desc"><strong>Canary deployments</strong> — high impact on deploy safety. Argo Rollouts config change, no new services.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4); font-weight: 700;">P1</code>
+          <span class="badge-desc"><strong>Turbo remote cache for local dev</strong> — high dev velocity impact. Requires VPN/auth setup or switching to turbo.build hosted cache.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info); font-weight: 700;">P2</code>
+          <span class="badge-desc"><strong>Unified deploy pipeline</strong> — valuable long term. Requires evaluating whether K8s-hosted frontend fits the team&rsquo;s operational model.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted); font-weight: 700;">P3</code>
+          <span class="badge-desc"><strong>Secret rotation + multi-region</strong> — important for enterprise compliance but requires significant infra investment.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="target" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The fastest wins are configuration changes, not new infrastructure</strong>
+          <p>Automated rollback (Argo Rollouts config) and canary deployments (Rollout strategy YAML) both leverage existing infrastructure. They require days of work, not months — and they directly reduce the blast radius of every future deploy.</p>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-0" class="btn module-continue-btn">
+          <i data-lucide="check-circle-2" class="icon"></i> Course Complete — Back to Overview
+        </a>
+        <a href="#module-5" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 5</a>
+      </div>
+    </section>
+  </div>
+</section>

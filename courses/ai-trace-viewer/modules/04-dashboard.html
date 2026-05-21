@@ -1,0 +1,321 @@
+<section class="module" id="module-4" style="background: var(--color-bg)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">04</span>
+      <h1 class="module-title">The Dashboard Engine</h1>
+      <p class="module-subtitle">How the app answers 13 different questions simultaneously — and why that matters for every data-heavy app you build.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: Hero — the KPI cards visual + parallel concept -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The dashboard loads everything in one shot</h2>
+
+        <p>When the Dashboard opens, it shows four <span class="term" data-definition="KPI stands for Key Performance Indicator — a single important number that summarises performance. On this dashboard: total conversations, active users, artifact production rate, and average message count. KPIs are the headline numbers at the top of a dashboard.">KPIs</span> and nine charts simultaneously. All of it comes from a single function call that fires 13 <span class="term" data-definition="A database query is a request for specific data — like 'count all conversations from this week' or 'find the top 8 most-used tools.' Each query is a separate question to the database.">database queries</span> in <span class="term" data-definition="Parallel execution means running multiple operations at the same time instead of one after another. Like having 13 chefs each making a different dish simultaneously — the meal is ready when the slowest chef finishes, not after all 13 finish in sequence.">parallel</span>.</p>
+
+        <!-- Hero: the KPI cards as visual grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin: var(--space-8) 0;" class="stagger-children">
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-2);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Total Conversations</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">2,847</div>
+            <div style="font-size: var(--text-xs); color: var(--color-success); margin-top: var(--space-1);">↑ 12% this week</div>
+          </div>
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-3);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Active Users</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">341</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1);">Distinct users with sessions</div>
+          </div>
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-4);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Artifact Production Rate</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">68%</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1);">Conversations that produced an output</div>
+          </div>
+          <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-left: 4px solid var(--color-actor-5);">
+            <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Avg Message Count</div>
+            <div style="font-family: var(--font-display); font-size: var(--text-4xl); font-weight: 800; color: var(--color-text);">8.4</div>
+            <div style="font-size: var(--text-xs); color: var(--color-text-muted); margin-top: var(--space-1);">Messages per conversation on average</div>
+          </div>
+        </div>
+
+        <p>Each of these four numbers comes from a separate <span class="term" data-definition="An aggregate query is a database question that summarises many rows into one number — like COUNT (how many rows?), AVG (what is the average?), or MAX (what is the highest?). The dashboard is almost entirely built from aggregate queries.">aggregate query</span>. All four run at the same time — alongside nine chart queries.</p>
+      </section>
+
+      <!-- Screen 2: The 13 queries badge list -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">13 questions, answered simultaneously</h2>
+
+        <div class="badge-list animate-in stagger-children">
+          <div class="badge-item animate-in">
+            <code class="badge-code">totalRow</code>
+            <span class="badge-desc">COUNT of all conversations in the date range</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">activeUsersRow</code>
+            <span class="badge-desc">COUNT DISTINCT of user IDs — no duplicates</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">avgRow</code>
+            <span class="badge-desc">AVG of message counts per conversation</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">artifactRateRow</code>
+            <span class="badge-desc">Ratio of conversations that produced at least one artifact</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">byDayRows</code>
+            <span class="badge-desc">Conversation count per day for 60 days — the trend line chart</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">toolCallRows</code>
+            <span class="badge-desc">Top 8 most-called AI tools, by frequency</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">artifactTypeRows</code>
+            <span class="badge-desc">Distribution of artifact types (journal entry, schedule, report...)</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">topCompanyRows</code>
+            <span class="badge-desc">Top 8 companies by conversation volume</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">lengthRows</code>
+            <span class="badge-desc">Conversation length buckets: 1–5 msgs, 6–10 msgs, 11–20 msgs, 20+</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">contextZoneRows</code>
+            <span class="badge-desc">Context health distribution: Healthy / Watch / At Risk</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">avgPeakTokenRow</code>
+            <span class="badge-desc">Average peak input token count across all conversations</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">tokensByDayRows</code>
+            <span class="badge-desc">Daily input and output token totals — the cost signal</span>
+          </div>
+          <div class="badge-item animate-in">
+            <code class="badge-code">topicRows</code>
+            <span class="badge-desc">Conversation count per business topic (Account Management, Journal Entries, etc.)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Promise.all code translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The code that fires all 13 at once</h2>
+
+        <p>The mechanism is a single JavaScript construct: <code>Promise.all</code>. From <code>services/dashboard-service.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> [</span>
+<span class="code-line">  totalRow,</span>
+<span class="code-line">  activeUsersRow,</span>
+<span class="code-line">  avgRow,</span>
+<span class="code-line">  <span class="code-comment">// ... 10 more ...</span></span>
+<span class="code-line">] = <span class="code-keyword">await</span> <span class="code-function">Promise.all</span>([</span>
+<span class="code-line">  prisma.<span class="code-function">$queryRaw</span><span class="code-string">`SELECT COUNT(ac.id)...`</span>,</span>
+<span class="code-line">  prisma.<span class="code-function">$queryRaw</span><span class="code-string">`SELECT COUNT(DISTINCT ac.user_id)...`</span>,</span>
+<span class="code-line">  prisma.<span class="code-function">$queryRaw</span><span class="code-string">`SELECT AVG(sub.cnt)...`</span>,</span>
+<span class="code-line">  <span class="code-comment">// ... 10 more queries ...</span></span>
+<span class="code-line">]);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Declare 13 named variables to hold the results — one per query.</p>
+              <p class="tl">Result 1 will hold the total conversation count.</p>
+              <p class="tl">Result 2 will hold the active user count.</p>
+              <p class="tl">Result 3 will hold the average message count. And so on.</p>
+              <p class="tl"><span class="term" data-definition="Promise.all takes an array of promises (pending operations) and waits for ALL of them to complete. Crucially, it starts all of them simultaneously rather than waiting for each one before starting the next.">Promise.all</span> starts ALL 13 queries at the same time. We wait (await) until every single one has returned.</p>
+              <p class="tl">First query: COUNT all rows in ai_conversations.</p>
+              <p class="tl">Second query runs simultaneously: COUNT DISTINCT user_ids (no double-counting users).</p>
+              <p class="tl">Third query runs simultaneously: AVG of a sub-query that counts messages per conversation.</p>
+              <p class="tl">All 13 run in parallel. Total wait = the slowest single query, not the sum of all 13.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">⚡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Serial vs. parallel: the numbers</strong>
+            <p>If each query takes ~60ms and you run them in sequence: 13 × 60ms = 780ms. Run them in parallel with Promise.all: ~60ms total (the time of the single slowest query). This is the single highest-impact optimisation in data-heavy apps. When you notice a page loading slowly, "are these fetches running in parallel?" is always one of the first questions to ask.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: Context health — CTE pattern -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The context health query: a two-stage SQL detective story</h2>
+
+        <p>One of the most sophisticated queries is <strong>Context Health</strong> — it classifies each conversation by how close it came to hitting the AI <span class="term" data-definition="Every AI model has a context window — the maximum amount of text it can hold in memory at once. Think of a whiteboard: the bigger the conversation, the more whiteboard space it uses. At 100k tokens the AI is near its limit and may start forgetting the beginning of the conversation.">context window</span> limit. It uses a SQL pattern called a <span class="term" data-definition="A CTE (Common Table Expression) is defined with the WITH keyword. It creates a named temporary result set you can query in the next step — like assigning an intermediate calculation to a variable before using it. CTEs make complex SQL readable by breaking it into named stages.">CTE (WITH clause)</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">WITH</span> peak <span class="code-keyword">AS</span> (</span>
+<span class="code-line">  <span class="code-keyword">SELECT</span> ac.id,</span>
+<span class="code-line">    <span class="code-function">MAX</span>(...<span class="code-string">'inputTokens'</span>...) <span class="code-keyword">AS</span> peak_tokens</span>
+<span class="code-line">  <span class="code-keyword">FROM</span> ai_conversations ac ...</span>
+<span class="code-line">  <span class="code-keyword">GROUP BY</span> ac.id</span>
+<span class="code-line">)</span>
+<span class="code-line"><span class="code-keyword">SELECT</span></span>
+<span class="code-line">  <span class="code-keyword">CASE</span></span>
+<span class="code-line">    <span class="code-keyword">WHEN</span> peak_tokens <span class="code-operator">&lt;</span>  <span class="code-number">50000</span>  <span class="code-keyword">THEN</span> <span class="code-string">'Healthy'</span></span>
+<span class="code-line">    <span class="code-keyword">WHEN</span> peak_tokens <span class="code-operator">&lt;</span> <span class="code-number">100000</span>  <span class="code-keyword">THEN</span> <span class="code-string">'Watch'</span></span>
+<span class="code-line">    <span class="code-keyword">ELSE</span>                            <span class="code-string">'At Risk'</span></span>
+<span class="code-line">  <span class="code-keyword">END</span> <span class="code-keyword">AS</span> zone,</span>
+<span class="code-line">  <span class="code-function">COUNT</span>(*)::int <span class="code-keyword">AS</span> count</span>
+<span class="code-line"><span class="code-keyword">FROM</span> peak <span class="code-keyword">GROUP BY</span> zone</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Step 1 — define a named intermediate result called "peak"...</p>
+              <p class="tl">For each conversation,</p>
+              <p class="tl">...find the single highest token count across all its messages (MAX = the biggest number in the group).</p>
+              <p class="tl">Join the conversations and messages tables to get token data.</p>
+              <p class="tl">One result row per conversation.</p>
+              <p class="tl">End of Step 1. "peak" now behaves like a temporary table.</p>
+              <p class="tl">Step 2 — classify each row in "peak" with a label...</p>
+              <p class="tl">CASE is SQL for if/else.</p>
+              <p class="tl">Under 50k tokens: the conversation used less than half the typical AI limit — safe.</p>
+              <p class="tl">50k–100k: getting close — worth watching.</p>
+              <p class="tl">Over 100k: at the limit — the AI may already be losing context.</p>
+              <p class="tl">Assign each conversation to its zone.</p>
+              <p class="tl">Count how many conversations fall into each zone. GROUP BY zone gives one result row per zone.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Cache config -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The performance tuning knob — one file controls everything</h2>
+
+        <p>All cache durations live in a single config file, <code>services/cache-config.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-function">CACHE_SECONDS</span> = {</span>
+<span class="code-line">  <span class="code-property">dashboard</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">  <span class="code-property">errors</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">  <span class="code-property">notes</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">  <span class="code-property">referenceData</span>: <span class="code-number">900</span>,</span>
+<span class="code-line">  <span class="code-property">traces</span>: <span class="code-number">120</span>,</span>
+<span class="code-line">} <span class="code-keyword">as const</span>;</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">A lookup object — think of it as a settings panel for how long each type of data stays cached.</p>
+              <p class="tl">Dashboard charts expire after 2 minutes (120 seconds).</p>
+              <p class="tl">Error data also refreshes every 2 minutes.</p>
+              <p class="tl">Notes counters refresh every 2 minutes so new comments appear quickly.</p>
+              <p class="tl">Reference data (org/company dropdowns) is cached for 15 minutes — it almost never changes.</p>
+              <p class="tl">Individual conversation traces also expire after 2 minutes.</p>
+              <p class="tl">"as const" tells TypeScript these numbers are compile-time constants — they cannot be reassigned accidentally at runtime.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🎚️</div>
+          <div class="callout-content">
+            <strong class="callout-title">One file, one dial</strong>
+            <p>If the dashboard feels stale, you lower <code>dashboard: 120</code> to <code>30</code>. If reference data is expensive to rebuild, you raise it to <code>3600</code>. Centralising this config is a deliberate design choice — it makes performance tuning a one-line change instead of a codebase search. When you build similar apps, consider having a single cache config file from the start.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module4">
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Right — Promise.all fires all queries simultaneously. You wait for the slowest one, not the sum of all of them. This is why parallelising data fetches is one of the most impactful performance wins in web development."
+               data-explanation-wrong="If queries ran in series (one after another), you would add the times together. Promise.all runs them in parallel, so the total wait time equals the slowest single query — not the sum. 13 × 60ms sequentially would be 780ms. In parallel it is just 60ms.">
+            <h3 class="quiz-question">The dashboard has 13 queries. The slowest takes 200ms, the others average 50ms. How long does it take to load?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>About 200ms — parallel execution means you wait for the slowest one</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>About 800ms — 13 queries at an average of ~62ms each</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>About 2,600ms — the server waits for each query before starting the next</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct — lowering the cache duration in CACHE_SECONDS is the precise, centralised fix. The dashboard queries themselves do not control how long their results are stored — that is the cache layer's job. Changing 120 to 30 makes the cache expire 4x faster."
+               data-explanation-wrong="The SQL queries themselves determine what data is fetched — not how long results are kept. Cache duration is configured separately in CACHE_SECONDS, wrapped by unstable_cache. That is the right place to make this change.">
+            <h3 class="quiz-question">Users complain the dashboard shows numbers from 5 minutes ago. What is the most targeted fix?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add a TIMESTAMP WHERE clause to each of the 13 SQL queries</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Add a manual "refresh" button that reloads the page</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Lower the dashboard value in CACHE_SECONDS — from 120 to 30</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly — a CTE (WITH clause) defines a named intermediate result. Step 1 computes the peak token count per conversation. Step 2 classifies each conversation into Healthy/Watch/At Risk using that intermediate result. Breaking it into two named stages makes it readable."
+               data-explanation-wrong="A CTE is not about running queries in parallel — that is Promise.all. A CTE is about breaking a complex single query into readable stages by giving intermediate results a name, like assigning a variable before using it.">
+            <h3 class="quiz-question">The context health query uses a "WITH peak AS (...)" clause. What is the purpose of this pattern?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It runs the peak-token calculation in parallel with the zone classification</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It computes the peak tokens per conversation first (named "peak"), then the second query classifies those results — breaking a complex query into two readable stages</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It caches the intermediate result in memory so the second query runs faster</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module4')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module4')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

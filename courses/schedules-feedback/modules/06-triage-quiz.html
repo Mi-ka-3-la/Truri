@@ -1,0 +1,219 @@
+<section class="module" id="module-6">
+  <div class="module-content">
+    <div class="module-number">06</div>
+    <h2 class="module-title">Triage Quiz</h2>
+    <p class="module-subtitle">Six real-world scenarios — one per theme. Can you identify the theme, the file, and the change type without looking back?</p>
+
+    <!-- SCREEN 1: Quiz questions A-C -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Scenarios 1–3</h2>
+      <p>Read each scenario and select the best answer. Each question is worth one theme.</p>
+
+      <div class="quiz-container" id="quiz-module6-a">
+
+        <!-- Q1 — Theme A -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Theme A — List view too rigid. The dimension filter in usePreparedSchedulesPageFilterSet.ts is a connectedSelectAndMulti control that only supports one dimension name at a time. The client wants to combine Vendor + Class + Account, which requires restructuring the filter to accept multiple dimension name/value pairs, plus a backend schema change."
+             data-explanation-wrong="This is Theme A. Theme B is about the export file missing dimension data — that client can see the data in the UI but loses it on export. This client is asking for richer filtering in the list itself, which is the list-view rigidity problem.">
+          <h3 class="quiz-question">Scenario 1 — Cellino: &ldquo;I need to filter the Prepared Schedules list by Vendor AND by Class AND by expense account at the same time. Right now I can only filter by one dimension.&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme B — Export omits dimensions. File: preparedSchedulesReportService.ts</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — List view too rigid. File: usePreparedSchedulesPageFilterSet.ts + backend query schema</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Entry status confusion. File: PreparedSchedulePage.tsx</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 — Theme B -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Theme B — Export omits dimension data. The root cause: includeDimensionValueColumn in preparedSchedulesReportService.ts is only set to true when a dimensionName query param is passed. If the user exports without filtering by dimension, the flag is false and the column is absent. Fix: always include dimension data when schedules have dimensionValueId set."
+             data-explanation-wrong="This is Theme B, not Theme A. The client CAN see Vendor in the UI — so the list view is working. The problem is that the export file drops the dimension column. That lives in preparedSchedulesReportService.ts and utils.ts, not in the list-view filter components.">
+          <h3 class="quiz-question">Scenario 2 — Bleecker: &ldquo;In the app I can see which Vendor each schedule belongs to. But every time I export to Excel, the Vendor column isn&rsquo;t there. Our finance team works out of Excel so this is blocking us.&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme B — Export omits dimensions. File: preparedSchedulesReportService.ts + utils.ts. Change type: backend bug fix (small)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — List view too rigid. File: PreparedSchedulesTable.tsx</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme F — Duplicate companies. File: company import logic</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 — Theme C -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Theme C — Journal numbering is manual (HIGH priority). The fix requires two changes: (1) the frontend form in CreateSchedulePageV2 needs a Base Name input, and (2) transformEntriesForSchedule in helpers.ts needs to append the 1-based index to the base name when building each entry."
+             data-explanation-wrong="This is Theme C — the only HIGH-priority feature in the backlog. It requires changes to both the frontend form (CreateSchedulePageV2) and the backend helper (transformEntriesForSchedule in helpers.ts). It is a new feature, not a bug fix — the system never had auto-increment.">
+          <h3 class="quiz-question">Scenario 3 — Flueid&rsquo;s Peter: &ldquo;Every month I add 12 entries to a schedule. I name them Amortization 1, Amortization 2 … Amortization 12. I type every single one. Can the system just count for me?&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — List view too rigid. No backend change needed.</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Entry status confusion. Change type: chore (small).</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme C — Journal numbering is manual (HIGH). Files: helpers.ts + CreateSchedulePageV2. Change type: new feature (medium)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6-a')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6-a')">Try Again</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Quiz questions D-F -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Scenarios 4–6</h2>
+      <p>Three more scenarios — the trickier ones.</p>
+
+      <div class="quiz-container" id="quiz-module6-b">
+
+        <!-- Q4 — Theme D -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Theme D — Entry status confusion (CHORE). The entry was Posted when the period was opened, then the period was deactivated. The entry is correctly Posted in the database — the bug is that the schedule UI shows it as pending because it counts Scheduled entries, not Posted-in-inactive-period entries. Fix: add contextual messaging in PreparedSchedulePage.tsx. No data changes needed."
+             data-explanation-wrong="This is Theme D. The entry's status is correct in the database (Posted). The issue is that the UI counts Scheduled entries as 'pending' without explaining that this entry was already accepted. It's a UX/messaging fix in PreparedSchedulePage.tsx, not a data-layer bug.">
+          <h3 class="quiz-question">Scenario 4 — J Cummins: &ldquo;I archived an entry on a schedule, but the schedule still shows it as pending. I thought archiving would remove it.&rdquo; (The entry was posted when the period was open; the period is now inactive.)</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme F — Duplicate companies. Requires SQL investigation.</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Entry status confusion (CHORE). File: PreparedSchedulePage.tsx — add contextual messaging. The data is correct; the UX is misleading.</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme E — Source transaction reloading. File: EditPreparedScheduleDetailsPage.tsx</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q5 — Theme E -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Theme E — Source transactions broken (HIGHEST). The root cause is in EditPreparedScheduleDetailsPage.tsx: watch('sourceIds') triggers a re-render and fires useJournalLinesByIdQuery on every change. For large clients with many transactions, this query is slow and causes visible loading-state flashing. The fix is to debounce sourceIds before passing them to the query."
+             data-explanation-wrong="This is Theme E, not Theme C. Theme C is about auto-incrementing journal entry names. Theme E is the performance/UX bug where the source transaction section keeps reloading — caused by the watch('sourceIds') pattern in EditPreparedScheduleDetailsPage.tsx firing the journal lines query too frequently.">
+          <h3 class="quiz-question">Scenario 5 — Bleecker: &ldquo;When I&rsquo;m creating a schedule for a bigger client, the source transaction section keeps jumping up and down. It shows a loading spinner over and over even after I&rsquo;m done selecting transactions.&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme E — Source transactions broken (HIGHEST). File: EditPreparedScheduleDetailsPage.tsx. Fix: debounce sourceIds before passing to useJournalLinesByIdQuery</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme C — Journal numbering is manual. File: helpers.ts</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme B — Export omits dimensions. File: preparedSchedulesReportService.ts</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q6 — Theme F -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Theme F — Duplicate companies (HIGHEST). Finstrat discovered this via Leasehold Improvement A/D schedules. It was fixed by manual SQL deletion, but the root cause — probably in company import or company-creation guard logic — was never addressed. The support tooling (archiveDuplicates.ts) targets duplicate schedule entries, not duplicate companies."
+             data-explanation-wrong="This is Theme F — the duplicate company data integrity issue. It is not a list view or export problem. The fix requires an engineering investigation into how the duplicate company was created (likely during import), then adding a deduplication guard to company creation.">
+          <h3 class="quiz-question">Scenario 6 — Finstrat: &ldquo;We found two separate 'Rivet Industries' company records in our account. We discovered this while looking at our Leasehold Improvement A/D schedules.&rdquo; The team fixed it manually with SQL. What should happen next?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — Add a Vendor deduplication filter to the list view.</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Add a contextual message on duplicate entries. CHORE-level fix.</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme F — Duplicate companies (HIGHEST). Next step: engineering spike to find root cause in company import/creation, then add a deduplication guard. The SQL fix was a band-aid.</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6-b')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6-b')">Try Again</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Finish / reference card -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Your Schedules triage reference card</h2>
+      <p>You&rsquo;ve completed the course. Use this cheat sheet next time a Schedules ticket lands in your queue.</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">A</code>
+          <span class="badge-desc">&ldquo;I need more columns / better filtering in the list&rdquo; → usePreparedSchedulesPageFilterSet.ts + PreparedSchedulesTable.tsx · LOW–MEDIUM</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">B</code>
+          <span class="badge-desc">&ldquo;The export is missing my dimension/vendor data&rdquo; → preparedSchedulesReportService.ts + utils.ts · MEDIUM</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">C</code>
+          <span class="badge-desc">&ldquo;I have to manually type Description 1, 2, 3…&rdquo; → helpers.ts + CreateSchedulePageV2 · HIGH</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">D</code>
+          <span class="badge-desc">&ldquo;Entry still shows pending after I archived it&rdquo; → PreparedSchedulePage.tsx (UX messaging) · CHORE</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">E</code>
+          <span class="badge-desc">&ldquo;Source transactions section keeps reloading / bouncing&rdquo; → EditPreparedScheduleDetailsPage.tsx (debounce sourceIds) · HIGHEST</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">F</code>
+          <span class="badge-desc">&ldquo;Duplicate company records in schedules&rdquo; → company import / creation logic · HIGHEST (spike needed)</span>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in" style="margin-top: var(--space-8);">
+        <div class="callout-icon"><i data-lucide="target" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">What to do with every new Schedules complaint</strong>
+          <p>1) Match it to a theme. 2) Find the file. 3) Label the change type (bug/feature/chore/architectural). 4) Estimate complexity (small/medium/large). That&rsquo;s everything engineering needs to triage and size the story.</p>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-0" class="btn module-continue-btn">
+          <i data-lucide="check-circle-2" class="icon"></i> Course Complete — Back to Overview
+        </a>
+        <a href="#module-5" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 5
+        </a>
+      </div>
+    </section>
+  </div>
+</section>

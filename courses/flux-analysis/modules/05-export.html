@@ -1,0 +1,219 @@
+<section class="module" id="module-5">
+  <div class="module-content">
+    <div class="module-number">05</div>
+    <h2 class="module-title">Exporting Your Flux Report</h2>
+    <p class="module-subtitle">An Export button already exists — but it only produces XLSX for company flux. Here&apos;s the full picture of what&apos;s available today and where the gaps are.</p>
+
+    <!-- SCREEN 1: Anchor — what exists today -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The export map — who gets what today</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-5);">
+          <i data-lucide="file-spreadsheet" class="icon-xl" style="color: var(--color-actor-5);"></i>
+          <h3 class="pattern-title">Company Flux → XLSX</h3>
+          <p class="pattern-desc">An &ldquo;Export&rdquo; button is already in the top-right corner of the Flux Analysis page. Clicking it downloads an Excel file with all visible accounts, balances, and changes.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-success); font-weight: 600;">EXISTS TODAY</span>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="file-text" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">Consolidation Flux → CSV</h3>
+          <p class="pattern-desc">The Consolidation Flux Analysis page already has a CSV export. It downloads a comma-separated file with classification, account name, balances, % change, and $ change columns.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-success); font-weight: 600;">EXISTS TODAY</span>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-text-muted); opacity: 0.7;">
+          <i data-lucide="file-x" class="icon-xl icon-muted"></i>
+          <h3 class="pattern-title">Company Flux → CSV</h3>
+          <p class="pattern-desc">There is no CSV export for the main company-level Flux Analysis page (Balance Sheet or Income Statement). Only XLSX is available today.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-error); font-weight: 600;">NOT YET BUILT</span>
+        </div>
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-text-muted); opacity: 0.7;">
+          <i data-lucide="file-x" class="icon-xl icon-muted"></i>
+          <h3 class="pattern-title">Single-Account Flux → Any format</h3>
+          <p class="pattern-desc">The drilldown panel for individual accounts (with the dimension pivot) has no export button. There is no export at all for single-account flux.</p>
+          <span style="font-size: var(--text-xs); color: var(--color-error); font-weight: 600;">NOT YET BUILT</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — how the export works -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">How the existing XLSX export works</h2>
+
+      <p>The same endpoint that serves the JSON report also serves the <span class="term" data-definition="XLSX is the file format for Microsoft Excel spreadsheets. It's a ZIP archive containing XML files that define the spreadsheet structure, styling, and data.">XLSX</span> file — the format is decided by an HTTP header called <code>Accept</code>.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/controllers/financialStatements/fluxController.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code>async function fluxBalanceSheetReport(req, res) {
+  const report = await fluxBalanceSheet
+    .constructFluxBalanceSheet(company, validQuery);</code></pre>
+          <div class="code-walk-explanation">
+            <p>The backend always builds the full report first — same data regardless of whether you want JSON or XLSX.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>  <span class="code-keyword">if</span> (req.headers.accept === <span class="code-string">XLSX_MIME_TYPE</span>) {
+    <span class="code-keyword">const</span> xlsxFormattedReport = formatFluxBSReportAsXLSX(
+      report, company, endsOn
+    );
+    res.contentType(XLSX_MIME_TYPE);
+    <span class="code-keyword">const</span> buffer = <span class="code-keyword">await</span> xlsxFormattedReport.writeBuffer();
+    <span class="code-keyword">return</span> res.send(buffer);</code></pre>
+          <div class="code-walk-explanation">
+            <p>If the browser sent <code>Accept: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</code> (the XLSX <span class="term" data-definition="A MIME type is a standardized string that tells a browser or server what kind of content is being sent — like a label on a package. The browser sends it in the Accept header to say &apos;please give me this format.&apos;">MIME type</span>), the report is formatted as an Excel file using the <code>ExcelJS</code> library and sent back as a binary download.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>  }
+  <span class="code-keyword">return</span> res.json(report);
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>Otherwise (default), the same report is sent as <span class="term" data-definition="JSON (JavaScript Object Notation) is a text format for structured data — like a nested list with labels. It&apos;s what the browser receives and turns into the table you see on screen.">JSON</span> — which the browser then uses to render the table. Same data, two formats, one endpoint.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The same endpoint serves both the table and the download</strong>
+          <p>There is no separate &ldquo;export endpoint&rdquo;. The <code>GET /companies/:id/reports/flux/balance-sheet</code> endpoint checks the <code>Accept</code> header and decides: if the browser wants Excel, it sends XLSX; otherwise it sends JSON for the table. This is the standard content negotiation pattern used across all reports in Avise.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — what the XLSX includes -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">What&apos;s in the XLSX file</h2>
+
+      <p>The XLSX export from company flux includes more than the on-screen table. It includes task information too — because it uses a slightly older formatter that fetches tasks separately:</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">Current period balance</code>
+          <span class="badge-desc">Formatted as currency with the company&apos;s home currency symbol.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Prior period balance</code>
+          <span class="badge-desc">Same formatting. Column header uses the actual period display name (e.g., &ldquo;September 2024&rdquo;).</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">% Change</code>
+          <span class="badge-desc">Formatted as a percentage column, not a currency column. The XLSX cell is actually typed as percentage.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Amount Change ($ Change)</code>
+          <span class="badge-desc">Dollar delta between the two periods.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Status</code>
+          <span class="badge-desc">The task status (Prepared, Reviewed, etc.) for accounts that have a flux task. Blank for accounts without tasks.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Resolution Comment</code>
+          <span class="badge-desc">The explanation text entered when a flux task was prepared. Also blank if no task exists.</span>
+        </div>
+      </div>
+
+      <p style="margin-top: var(--space-6);">The CSV export for consolidation flux has slightly different columns: <strong>Classification, Sub-Classification, Account Type, Fully Qualified Account Name, Account Name, [Prior Period], [Current Period], % Change, Amount Change</strong>. No task columns — it&apos;s a pure financial export.</p>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Apply what you know about the export capabilities.</p>
+
+      <div class="quiz-container" id="quiz-module5">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — company-level Flux Analysis only supports XLSX export today. CSV export does not exist for company flux (only for consolidation flux). The Export button in the top-right downloads an Excel file."
+             data-explanation-wrong="The company-level Flux Analysis page exports to XLSX only. CSV export exists for the Consolidation Flux page but not for the standard Balance Sheet or Income Statement flux for a regular company.">
+          <h3 class="quiz-question">An accountant opens the Income Statement Flux page for their company and clicks the Export button. What file do they receive?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A CSV file with all accounts and balances</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>An XLSX (Excel) file with balances, changes, and any task status/explanation columns</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A PDF formatted financial statement</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct — the same endpoint serves both the table (JSON) and the download (XLSX). The format is determined by the Accept header the browser sends with the request. No separate export endpoint exists."
+             data-explanation-wrong="There is no separate export endpoint. The same GET endpoint that returns JSON for the table also returns XLSX when the browser&apos;s request has Accept: application/vnd.openxmlformats... This is standard content negotiation.">
+          <h3 class="quiz-question">How does the backend decide whether to return the flux data as JSON (for the table) or as XLSX (for the download)?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>There are two separate endpoints — one for the table, one for download</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A <code>?format=xlsx</code> query parameter on the URL</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The <code>Accept</code> HTTP header sent by the browser — same endpoint, different format</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — the XLSX export includes Status and Resolution Comment columns that are not part of the core financial data. These come from the flux tasks that exist for accounts in that period."
+             data-explanation-wrong="The XLSX file does include task information. In addition to the four financial columns, it has Status (the task workflow state) and Resolution Comment (the explanation text) for any account that has a flux task created.">
+          <h3 class="quiz-question">Which extra columns appear in the XLSX export that are NOT visible in the on-screen flux table by default?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Status and Resolution Comment (from flux tasks)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Dimension breakdown columns</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>None — the XLSX contains exactly the same columns as the table</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-0" class="btn module-continue-btn">
+          <i data-lucide="check-circle-2" class="icon"></i>
+          Finish Course — Back to Overview
+        </a>
+        <a href="#module-4" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 4
+        </a>
+      </div>
+    </section>
+  </div>
+</section>

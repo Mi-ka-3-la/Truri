@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autentificare — Curs Complet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117; --surface: #161b22; --surface2: #1c2128; --border: #30363d;
+  --text: #e6edf3; --text-dim: #8b949e;
+  --accent: #e6b422; --accent-dim: rgba(230,180,34,0.12);
+  --break-color: #f85149; --break-bg: rgba(248,81,73,0.08);
+  --anchor-color: #3fb950; --anchor-bg: rgba(63,185,80,0.08);
+  --retrieval-color: #e6b422; --retrieval-bg: rgba(230,180,34,0.07);
+  --mono: 'JetBrains Mono','Courier New',monospace;
+  --serif: 'Lora',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--serif);min-height:100vh;line-height:1.75;}
+
+/* ── MAP VIEW ── */
+.map-view { display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:1.5rem 1rem 3rem; }
+.map-header { text-align:center; margin-bottom:1.5rem; }
+.map-title { font-family:var(--mono); font-size:1.1rem; color:var(--accent); letter-spacing:0.12em; }
+.map-subtitle { font-size:0.875rem; color:var(--text-dim); margin-top:0.3rem; font-style:italic; }
+.map-svg-wrap { width:100%; max-width:1000px; }
+#mapSvg { width:100%; height:auto; }
+.map-legend { display:flex; flex-wrap:wrap; gap:0.6rem; justify-content:center; margin-top:1.5rem; max-width:900px; }
+.legend-item { display:flex; align-items:center; gap:0.4rem; font-family:var(--mono); font-size:0.65rem; color:var(--text-dim); padding:0.3rem 0.6rem; border-radius:3px; border:1px solid var(--border); cursor:pointer; transition:all 0.2s; }
+.legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.legend-item:hover { border-color: var(--accent); color: var(--text); }
+
+/* ── COURSE VIEW ── */
+.course-header { background:var(--surface); border-bottom:1px solid var(--border); padding:0.9rem 1.5rem; position:sticky; top:0; z-index:100; }
+.course-header-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; }
+.btn-map { font-family:var(--mono); font-size:0.7rem; background:none; border:1px solid var(--border); color:var(--text-dim); padding:0.3rem 0.75rem; border-radius:3px; cursor:pointer; transition:all 0.2s; }
+.btn-map:hover { border-color:var(--accent); color:var(--accent); }
+.course-counter { font-family:var(--mono); font-size:0.7rem; color:var(--accent); }
+.cat-badge { font-family:var(--mono); font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:2px; font-weight:600; letter-spacing:0.08em; }
+.progress-track { height:2px; background:var(--border); border-radius:1px; margin:0.4rem 0; }
+.progress-fill { height:100%; border-radius:1px; transition:width 0.3s ease; }
+.dots-row { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; padding-top:0.3rem; }
+.dot { width:6px; height:6px; border-radius:50%; background:var(--border); cursor:pointer; border:none; padding:0; transition:all 0.2s; }
+.dot.active { transform:scale(1.5); }
+.dot.done { opacity:0.6; }
+
+/* ── CHUNK CONTENT ── */
+.course-main { max-width:760px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+.chunk-cat { font-family:var(--mono); font-size:0.6rem; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:0.35rem; }
+.chunk-title { font-size:1.75rem; font-weight:600; margin-bottom:0.25rem; line-height:1.3; }
+.chunk-sub { font-style:italic; color:var(--text-dim); margin-bottom:2rem; font-size:0.975rem; }
+
+.section { margin-bottom:1.5rem; }
+.slabel { font-family:var(--mono); font-size:0.58rem; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; display:block; margin-bottom:0.5rem; }
+
+.block-break { background:var(--break-bg); border-left:3px solid var(--break-color); padding:0.9rem 1.1rem; border-radius:0 6px 6px 0; }
+.block-break .slabel { color:var(--break-color); }
+
+.block-concept p { font-size:0.975rem; }
+.block-concept strong { color:var(--accent); font-weight:600; }
+.block-concept em { color:var(--text-dim); font-style:italic; }
+
+.block-anchor { background:var(--anchor-bg); border:1px solid rgba(63,185,80,0.25); padding:0.9rem 1.1rem; border-radius:6px; }
+.block-anchor .slabel { color:var(--anchor-color); }
+.anchor-word { font-family:var(--mono); font-size:1rem; font-weight:600; color:var(--anchor-color); display:block; margin-bottom:0.3rem; }
+.anchor-exp { font-size:0.875rem; color:var(--text-dim); font-style:italic; }
+
+.block-contrast { background:var(--surface2); border:1px solid var(--border); padding:0.9rem 1.1rem; border-radius:6px; }
+.block-contrast .slabel { color:var(--text-dim); }
+.contrast-pair { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.5rem; }
+.c-bad,.c-good { padding:0.6rem 0.8rem; border-radius:4px; font-size:0.875rem; line-height:1.6; }
+.c-bad { background:var(--break-bg); border:1px solid rgba(248,81,73,0.18); }
+.c-good { background:var(--anchor-bg); border:1px solid rgba(63,185,80,0.18); }
+.c-tag { font-family:var(--mono); font-size:0.58rem; display:block; margin-bottom:0.25rem; }
+.c-bad .c-tag { color:var(--break-color); }
+.c-good .c-tag { color:var(--anchor-color); }
+
+/* RETRIEVAL ACTIV */
+.block-retrieval { background:var(--retrieval-bg); border:1px solid rgba(230,180,34,0.3); border-radius:6px; padding:1rem 1.1rem; }
+.block-retrieval .slabel { color:var(--retrieval-color); }
+.retrieval-intro { font-size:0.875rem; color:var(--text-dim); font-style:italic; margin-bottom:0.75rem; }
+.retrieval-steps { list-style:none; counter-reset:r; }
+.retrieval-steps li { counter-increment:r; display:flex; gap:0.75rem; padding:0.35rem 0; font-size:0.9rem; color:var(--text); border-bottom:1px solid rgba(230,180,34,0.12); }
+.retrieval-steps li:last-child { border-bottom:none; }
+.retrieval-steps li::before { content:counter(r); font-family:var(--mono); font-size:0.7rem; color:var(--accent); min-width:16px; margin-top:3px; font-weight:600; }
+
+.block-exercise { background:var(--surface); border:1px solid var(--accent); border-radius:6px; padding:1.1rem; }
+.block-exercise .slabel { color:var(--accent); }
+.exercise-prompt { font-size:0.95rem; margin-bottom:0.85rem; line-height:1.7; }
+textarea { width:100%; min-height:100px; background:var(--bg); border:1px solid var(--border); border-radius:4px; color:var(--text); font-family:var(--serif); font-size:0.875rem; padding:0.65rem 0.8rem; resize:vertical; line-height:1.65; }
+textarea:focus { outline:none; border-color:var(--accent); }
+textarea::placeholder { color:var(--text-dim); }
+
+.block-cal { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:1rem 1.1rem; }
+.block-cal .slabel { color:var(--text-dim); margin-bottom:0.6rem; }
+.cal-item { display:flex; align-items:flex-start; gap:0.65rem; padding:0.4rem 0; border-bottom:1px solid var(--border); cursor:pointer; }
+.cal-item:last-child { border-bottom:none; }
+.cal-box { width:16px; height:16px; border:1px solid var(--border); border-radius:3px; background:var(--bg); flex-shrink:0; display:flex; align-items:center; justify-content:center; margin-top:3px; font-size:10px; transition:all 0.18s; }
+.cal-item.ticked .cal-box { background:var(--anchor-color); border-color:var(--anchor-color); color:#0f1117; font-weight:bold; }
+.cal-text { font-size:0.875rem; color:var(--text-dim); line-height:1.55; transition:color 0.18s; }
+.cal-item.ticked .cal-text { color:var(--text); }
+
+.nav-bar { display:flex; justify-content:space-between; align-items:center; margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border); }
+.btn { font-family:var(--mono); font-size:0.75rem; padding:0.5rem 1.1rem; border-radius:4px; cursor:pointer; border:1px solid var(--border); background:var(--surface); color:var(--text); transition:all 0.18s; letter-spacing:0.04em; }
+.btn:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+.btn:disabled { opacity:0.25; cursor:not-allowed; }
+.btn-primary { background:var(--accent); color:#0f1117; border-color:var(--accent); font-weight:600; }
+.btn-primary:hover { background:#f2c133; border-color:#f2c133; color:#0f1117; }
+
+.complete-wrap { text-align:center; padding:3rem 1rem; }
+.complete-wrap h1 { font-size:1.6rem; margin-bottom:0.75rem; }
+.complete-wrap p { color:var(--text-dim); font-style:italic; margin-bottom:2rem; }
+.anchors-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0.5rem; max-width:700px; margin:0 auto 2rem; text-align:left; }
+.anchor-card { background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:0.65rem 0.8rem; display:flex; gap:0.6rem; align-items:flex-start; }
+.ac-num { font-family:var(--mono); font-size:0.6rem; color:var(--text-dim); min-width:20px; margin-top:2px; }
+.ac-body { display:flex; flex-direction:column; gap:0.15rem; }
+.ac-word { font-family:var(--mono); font-size:0.75rem; font-weight:600; }
+.ac-chunk { font-size:0.8rem; color:var(--text-dim); font-style:italic; }
+
+/* SVG interaction */
+.map-node { cursor:pointer; }
+.map-node:hover circle { filter:brightness(1.2); }
+.map-node:hover text { fill:#fff; }
+.map-child { cursor:pointer; }
+.map-child rect { transition:fill 0.2s; }
+.map-child:hover rect { fill:rgba(255,255,255,0.08); }
+
+@media(max-width:600px){
+  .contrast-pair{grid-template-columns:1fr;}
+  .anchors-grid{grid-template-columns:1fr;}
+  .course-main{padding:1.5rem 1rem 3rem;}
+  .chunk-title{font-size:1.4rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ MAP VIEW ══════════════════ -->
+<div id="viewMap" class="map-view">
+  <div class="map-header">
+    <div class="map-title">AUTENTIFICARE — Harta Conceptelor</div>
+    <div class="map-subtitle">Click pe orice concept pentru a incepe capitolul</div>
+  </div>
+  <div class="map-svg-wrap">
+    <svg id="mapSvg" viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+  <div class="map-legend" id="mapLegend"></div>
+</div>
+
+<!-- ══════════════════ COURSE VIEW ══════════════════ -->
+<div id="viewCourse" style="display:none">
+  <div class="course-header">
+    <div class="course-header-top">
+      <button class="btn-map" onclick="goToMap()">&#x2190; Harta</button>
+      <span id="catBadge" class="cat-badge"></span>
+      <span id="courseCounter" class="course-counter"></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+    <div class="dots-row" id="dotsRow"></div>
+  </div>
+  <div class="course-main" id="courseMain"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// MAP DATA
+// ══════════════════════════════════════════════════════
+const BRANCHES = [
+  {
+    label:"Fundamente", color:"#e6b422", angle:0,
+    children:[
+      {label:"Auth vs Authz", chunk:0},
+      {label:"Factorii de autentificare", chunk:1}
+    ]
+  },
+  {
+    label:"Parole & Stocare", color:"#f85149", angle:51.4,
+    children:[
+      {label:"Stocarea parolelor", chunk:6},
+      {label:"Account Recovery", chunk:7}
+    ]
+  },
+  {
+    label:"Sesiuni & Tokeni", color:"#3fb950", angle:102.9,
+    children:[
+      {label:"Sesiuni & Cookie-uri", chunk:2},
+      {label:"JWT", chunk:3},
+      {label:"Access vs Refresh Token", chunk:4},
+      {label:"Token Storage", chunk:5}
+    ]
+  },
+  {
+    label:"Protocoale", color:"#58a6ff", angle:154.3,
+    children:[
+      {label:"OAuth 2 — Arhitectura", chunk:9},
+      {label:"PKCE", chunk:10},
+      {label:"OAuth 1 vs OAuth 2", chunk:11},
+      {label:"OpenID Connect (OIDC)", chunk:12}
+    ]
+  },
+  {
+    label:"Enterprise", color:"#a371f7", angle:205.7,
+    children:[
+      {label:"SAML", chunk:13},
+      {label:"LDAP & Active Directory", chunk:14},
+      {label:"SSO", chunk:15}
+    ]
+  },
+  {
+    label:"Auth Moderna", color:"#ffa657", angle:257.1,
+    children:[
+      {label:"MFA & 2FA", chunk:8},
+      {label:"M2M Auth", chunk:16},
+      {label:"Passwordless & Passkeys", chunk:17}
+    ]
+  },
+  {
+    label:"Securitate", color:"#ff7b72", angle:308.6,
+    children:[
+      {label:"Vectori de atac", chunk:18},
+      {label:"Securitate practica", chunk:19}
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════════════
+// CHUNK DATA — 20 capitole
+// ══════════════════════════════════════════════════════
+const CHUNKS = [
+  // ── 0 ──
+  {
+    id:0, title:"Auth vs Authz", sub:"Cea mai confundata distinctie in securitate",
+    branch:0,
+    break_:`Cand un developer zice "userul e logat, deci poate vedea orice", confunda doua sisteme distincte. Rezultatul concret: userul A acceseaza datele userului B — nu pentru ca sistemul de login e spart, ci pentru ca logica de acces nu exista sau e gresita. Breach-ul nu e la poarta, e inauntru.`,
+    concept:`<strong>Autentificarea</strong> raspunde la "cine esti?" — verifica identitatea (parola, token, amprenta). <strong>Autorizarea</strong> raspunde la "ce ai voie sa faci?" — verifica permisiunile (roluri, politici, proprietate). Sunt doua sisteme separate care ruleaza <em>in ordine obligatorie</em>: mai intai autentifici, abia apoi autorizezi. Un user poate fi autentificat (stim cine e) dar neautorizat (nu are voie la resursa asta). Invers este imposibil logic: nu poti autoriza un user neautentificat — nu stii pe cine autorizezi.`,
+    anchor:"POARTA SI BILET",
+    anchorExp:`Poarta (autentificare): esti cine zici ca esti? Biletul (autorizare): ai acces la zona asta? Poti trece poarta si sa nu ai bilet la zona VIP. Nu poti folosi biletul fara sa treci poarta. Ordinea e obligatorie, nu optionala.`,
+    bad:`"Userul e logat → are acces la tot."`,
+    good:`"Userul e logat (autentificat) + are rolul ACCOUNTANT + resursa ii apartine (autorizat) → are acces."`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Pe o foaie alba scrie: diferenta dintre autentificare si autorizare, intr-o singura propozitie fiecare.",
+      "Scrie ancora si ce inseamna fiecare parte a ei.",
+      "Deschide si compara. Bifezi calibrarea DUPA comparatie."
+    ],
+    exercise:`In Avise, Cristina (accountant) e logata. Un coleg nou, Mihai, a creat un JE gresit si vrea ca Cristina sa il stearga. Poate? Formuleaza raspunsul in termeni de Auth vs Authz: care sistem spune DA, care spune NU, si de ce ordinea conteaza?`,
+    cal:[
+      "Pot explica Auth vs Authz fara sa folosesc niciun termen tehnic, intr-un minut?",
+      "Daca vad bug-ul 'userul A vede datele userului B', stiu in ce sistem e bug-ul (autentificare sau autorizare)?",
+      "Inteleg de ce un user autentificat poate fi neautorizat, dar un user neautentificat nu poate fi autorizat?"
+    ]
+  },
+  // ── 1 ──
+  {
+    id:1, title:"Factorii de Autentificare", sub:"De ce MFA e rezistent acolo unde parola nu e",
+    branch:0,
+    break_:`Un sistem cu o singura parola e spart de indata ce parola e compromisa — prin phishing, breach intr-o alta aplicatie, sau simpla ghicire. Dar de ce MFA rezista acolo unde parola singura nu rezista? Raspunsul nu e "mai multe parole", ci o structura cu trei categorii independente.`,
+    concept:`Trei categorii fundamentale: <strong>ceva ce STII</strong> (parola, PIN, raspuns la intrebare de securitate), <strong>ceva ce AI</strong> (telefon, token fizic, smart card, YubiKey), <strong>ceva ce ESTI</strong> (amprenta, fata, iris — biometrie). <em>MFA inseamna cel putin 2 categorii diferite</em> — nu 2 instante din aceeasi categorie. Doua parole = tot categoria "ceva ce stii" = nu e MFA. Parola + cod pe telefon = categoria 1 + categoria 2 = e MFA. Forta vine din independenta categoriilor: a compromite o parola nu te ajuta sa clonezi amprenta.`,
+    anchor:"SEIF CU 3 LACATE DIN MATERIALE DIFERITE",
+    anchorExp:`Primul lacat e de metal (ceva ce stii), al doilea e de lemn (ceva ce ai), al treilea e de sticla (ceva ce esti). Stiinta sa deschizi un lacat de metal nu te ajuta deloc cu lacatul de sticla. Independenta materialelor = forta MFA.`,
+    bad:`Parola + intrebare de securitate (amandoua in categoria "ceva ce stii" — nu e MFA real).`,
+    good:`Parola (ceva ce stii) + cod TOTP pe telefon (ceva ce ai) — doua categorii diferite.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie pe foaie: cele 3 categorii, cate un exemplu concret pentru fiecare.",
+      "Scrie de ce 2 parole nu inseamna MFA.",
+      "Deschide si compara."
+    ],
+    exercise:`Un utilizator Avise are parola + o intrebare de securitate ("orasul natal"). E asta MFA? Argumenteaza in termeni de categorii. Ce ar trebui schimbat pentru ca autentificarea sa fie MFA real?`,
+    cal:[
+      "Pot numi cele 3 categorii fara sa ma gandesc?",
+      "Pot explica de ce 2 parole nu inseamna MFA, in termeni de categorii?",
+      "Stiu sa dau un exemplu concret de MFA real si unul de MFA fals?"
+    ]
+  },
+  // ── 2 ──
+  {
+    id:2, title:"Ce se intampla dupa autentificare", sub:"Sesiuni, cookie-uri si stare pe un protocol stateless",
+    branch:2,
+    break_:`Fara un mecanism de "tine minte ca esti autentificat", userul ar trebui sa isi introduca parola la fiecare click. HTTP e stateless prin natura — fiecare request e independent, serverul nu stie cine a trimis requestul anterior. Autentificarea rezolva o singura verificare. Mecanismul de mai jos rezolva <em>toate</em> requesturile urmatoare.`,
+    concept:`Doua abordari principale. <strong>Session-based</strong>: serverul creeaza o sesiune (obiect stocat in memorie sau DB cu userId, permisiuni, timestamp), genereaza un ID unic, il trimite catre browser intr-un cookie. La fiecare request urmator, browserul trimite cookie-ul automat, serverul cauta sesiunea in store si stie cine esti. Stare la server. <strong>Token-based (JWT)</strong>: serverul emite un token semnat criptografic care contine informatia despre user direct in el. Browserul trimite token-ul la fiecare request, serverul il valideaza local — fara cautare in DB. Stare la client.`,
+    anchor:"ECUSON vs AGENTIE",
+    anchorExp:`Session = ecusonul tau e un numar de referinta, agentia (serverul) tine evidenta in registru. Token = ecusonul tau contine toate informatiile tale, semnat de agentie. Oricine verifica stampila stie cine esti fara sa sune la agentie.`,
+    bad:`Session fara expirare + fara invalidare la logout = sesiunea ramane activa dupa ce userul "iese".`,
+    good:`Session cu TTL + invalidare explicita la logout + regenerare ID dupa login (session fixation protection).`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie: ce inseamna stateless si de ce creeaza o problema pentru autentificare.",
+      "Scrie diferenta dintre session-based si token-based in 2 propozitii.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise foloseste autentificare session-based. Cristina se logheaza, lucreaza 4 ore, inchide browserul fara sa apese Logout. Ce se intampla cu sesiunea ei? Ce ar trebui sa se intample si de ce? Ce ar fi diferit daca s-ar folosi token-based?`,
+    cal:[
+      "Stiu sa explic de ce HTTP e stateless si de ce asta e o problema pentru autentificare?",
+      "Pot descrie diferenta dintre session-based si token-based in termeni de 'unde sta starea'?",
+      "Stiu ce e un cookie si de ce browserul il trimite automat?"
+    ]
+  },
+  // ── 3 ──
+  {
+    id:3, title:"JWT — JSON Web Token", sub:"Structura, semnare, si ce se intampla cand o faci gresit",
+    branch:2,
+    break_:`Un developer primeste un JWT si nu stie ca e semnat, nu criptat. Il considera confidential si pune date sensibile in el — pe care orice client le poate citi cu un simplu base64 decode. O alta greseala clasica: accepta algoritmul din header fara validare, inclusiv "alg: none" — un atacator modifica payload-ul si trimite un token nesemnat care trece validarea.`,
+    concept:`JWT are 3 parti separate prin punct: <strong>HEADER.PAYLOAD.SIGNATURE</strong>. <em>Header</em>: tipul tokenului si algoritmul de semnare (HS256 = HMAC simetric cu cheie secreta; RS256 = RSA asimetric cu cheie publica/privata). <em>Payload</em>: claims — date despre user: sub (subject/userId), iat (issued at), exp (expiry), roluri, etc. <em>Signature</em>: header + payload encodate + cheia secreta, procesate prin algoritmul ales. Serverul verifica semnatura la fiecare request — daca payload-ul a fost modificat cat de putin, semnatura nu mai e valida. <strong>CRITIC</strong>: JWT e semnat, NU criptat. Oricine il are il poate citi (base64 decode). Nu pune date sensibile in payload.`,
+    anchor:"PASAPORTUL",
+    anchorExp:`Il poti citi oricine il tine in mana — informatiile sunt vizibile. Dar nu il poti falsifica — semnatura de la granita (HMAC/RSA) te prinde imediat daca ai modificat ceva. Semnat ≠ criptat.`,
+    bad:`Accepta orice algoritm din header, inclusiv "alg: none". Pune parole sau date de card in payload.`,
+    good:`Valideaza explicit algoritmul pe server (whitelist). Nu stoca nimic confidential in JWT. Seteaza exp scurt.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie pe foaie: cele 3 parti ale unui JWT si ce contine fiecare.",
+      "Scrie: JWT e semnat sau criptat? Ce inseamna asta practic?",
+      "Scrie vulnerabilitatea 'alg: none' in propriile cuvinte.",
+      "Deschide si compara."
+    ],
+    exercise:`Harris iti spune ca in JWT-ul de la Avise se stocheaza si email-ul userului si rolul lui. Ce ii raspunzi? E o problema de securitate? De ce sau de ce nu?`,
+    cal:[
+      "Pot desena din memorie structura unui JWT cu cele 3 parti?",
+      "Pot explica diferenta dintre semnat si criptat fara jargon tehnic?",
+      "Stiu ce vulnerabilitate introduce 'alg: none' si cum se apara impotriva ei?"
+    ]
+  },
+  // ── 4 ──
+  {
+    id:4, title:"Access Token vs Refresh Token", sub:"Tensiunea dintre securitate si experienta utilizatorului",
+    branch:2,
+    break_:`Un access token cu durata de 30 de zile e o vulnerabilitate: daca e furat, atacatorul are 30 de zile la dispozitie. Un access token cu durata de 5 minute forteaza re-autentificarea constanta — UX dezastruos. Refresh token-ul rezolva exact aceasta tensiune, dar creeaza o alta suprafata de atac daca e implementat gresit.`,
+    concept:`<strong>Access token</strong>: durata scurta (5–15 minute), trimis la fiecare request API, contine permisiunile curente. Cand expira, requestul esueaza cu 401. <strong>Refresh token</strong>: durata lunga (zile/saptamani), trimis <em>exclusiv</em> catre auth server pentru a obtine un nou access token — niciodata catre API-ul de resurse. Fluxul: access token expira → clientul trimite refresh token la /token endpoint → primeste access token nou (si optional refresh token nou — rotation) → continua fara re-autentificare vizibila. Daca refresh token-ul e compromis: poate fi invalidat explicit (revocation list). <em>Token rotation</em>: la fiecare refresh, vechiul refresh token e invalidat si se emite unul nou.`,
+    anchor:"ABONAMENT ANUAL SI BILET DE O ZI",
+    anchorExp:`Abonamentul (refresh token): il folosesti rar, il pastrezi acasa, e valabil un an. Biletul de o zi (access token): il iei cu abonamentul la ghiseu, il folosesti toata ziua, expira diseara. Daca pierzi biletul, pierzi o zi. Daca pierzi abonamentul, problema e mai mare — dar poti sa il anulezi la ghiseu.`,
+    bad:`Un singur token cu durata lunga (furt = compromis timp indelungat, fara posibilitate de revocare).`,
+    good:`Access token scurt + refresh token cu rotation (furt = window de expunere minim + detectie posibila prin rotation).`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie: ce face access token-ul, ce face refresh token-ul, unde se trimite fiecare.",
+      "Scrie de ce refresh token-ul nu se trimite la API-ul de resurse.",
+      "Deschide si compara."
+    ],
+    exercise:`In Avise, un user ramane logat 8 ore. Cum functioneaza asta cu access + refresh tokens? Descrie fluxul complet: ce se intampla cand access token-ul expira la minutul 15, si ce face sistemul automat pentru ca userul sa nu observe.`,
+    cal:[
+      "Pot descrie diferenta dintre cele doua tokeni fara sa folosesc cuvantul 'token' in definitie?",
+      "Stiu de ce refresh token-ul nu se trimite la API-ul de resurse?",
+      "Inteleg ce e token rotation si ce problema rezolva?"
+    ]
+  },
+  // ── 5 ──
+  {
+    id:5, title:"Token Storage", sub:"Unde pui JWT-ul si de ce e o decizie de securitate",
+    branch:2,
+    break_:`Un developer pune JWT-ul in localStorage pentru ca e simplu — un rand de cod. Un atacator injecteaza un script malitios in pagina (XSS — Cross-Site Scripting) si citeste tot localStorage-ul cu doua randuri de JavaScript. JWT-ul e furat, sesiunea compromisa, si nu exista un mecanism automat de detectie.`,
+    concept:`Trei optiuni, fiecare cu trade-offuri diferite. <strong>localStorage / sessionStorage</strong>: simplu, dar orice script din pagina il poate citi — XSS = game over. <strong>httpOnly cookie</strong>: browserul il trimite automat la fiecare request, <em>inaccesibil din JavaScript</em> (XSS protection), dar vulnerabil la CSRF (Cross-Site Request Forgery) — un site malitios poate face un request autentificat in numele tau. Mitigare CSRF: SameSite=Strict sau CSRF token explicit. <strong>In-memory (variabila JS)</strong>: cel mai securizat contra XSS, dar pierdut la refresh de pagina — impractical singur. <em>Best practice actual</em>: httpOnly cookie + Secure flag + SameSite=Strict + CSRF token.`,
+    anchor:"CHEIA CASEI IN 3 LOCURI",
+    anchorExp:`localStorage = cheia sub covoras (oricine stie sa caute o ia). In-memory = cheia in mana (sigura, dar o pierzi cand adormi — page refresh). httpOnly cookie = cheia pe un breloc cu alarma (e la tine mereu, dar trebuie sa te asiguri ca nimeni nu te urmareste — CSRF).`,
+    bad:`JWT in localStorage (simplu de implementat, vulnerabil la orice XSS).`,
+    good:`JWT in httpOnly cookie cu Secure + SameSite=Strict + CSRF token pe requesturi care modifica date.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie: cele 3 optiuni de storage si vulnerabilitatea specifica a fiecareia.",
+      "Scrie best practice-ul complet (cookie + ce flaguri).",
+      "Deschide si compara."
+    ],
+    exercise:`Avise e o SPA (Single Page Application). Francisc vrea sa puna JWT-ul in localStorage ca sa fie simplu. Emi propune httpOnly cookie. Tu, ca PO, trebuie sa intelegi argumentele si sa iei o decizie informata. Care e argumentul decisiv? Ce risc accepti in fiecare varianta?`,
+    cal:[
+      "Pot explica XSS si de ce localStorage e vulnerabil, fara jargon?",
+      "Stiu ce inseamna httpOnly si de ce face ca JavaScript sa nu poata citi cookie-ul?",
+      "Inteleg de ce httpOnly cookie rezolva XSS dar creeaza riscul CSRF?"
+    ]
+  },
+  // ── 6 ──
+  {
+    id:6, title:"Stocarea Parolelor", sub:"De ce nu stochezi niciodata o parola",
+    branch:1,
+    break_:`O baza de date cu parole in plain text e o catastrofa la primul breach. Dar chiar si hashing-ul simplu (MD5, SHA-256) e insuficient — rainbow tables precomputa hashuri pentru toate parolele comune si permit un atacator sa recupereze milioane de parole in secunde dupa ce fura baza de date.`,
+    concept:`<strong>Hash</strong>: functie one-way — din parola produce un sir unic, imposibil de inversat matematic. SHA-256 e hash, dar NU e bun pentru parole — e intentionat rapid (atacatorul incearca miliarde pe secunda pe GPU). <strong>Salt</strong>: sir aleator unic per user, adaugat la parola inainte de hash — face rainbow tables inutile (fiecare hash e unic chiar daca doua parole sunt identice). <strong>bcrypt</strong>: algoritm intentionat lent, cu factor de cost configurabil (cost 12 = ~300ms/hash). <strong>Argon2id</strong>: castigatorul Password Hashing Competition 2015, preferatul actual — rezistent si la atacuri GPU si la atacuri de memorie. Regula: <em>niciodata SHA-256 sau MD5 pentru parole</em> — folosesti bcrypt (cost >= 12) sau Argon2id.`,
+    anchor:"MACINATUL CAFELEI CU CARDAMOM UNIC",
+    anchorExp:`Poti macina boabe in pudra (hash), nu poti face boabe din pudra (one-way). Salt-ul e o boaba de cardamom unica pentru fiecare ceasca — chiar daca ai reteta generala, fiecare ceasca are un gust unic si nu poti face rainbow table pentru toate cescutele din lume.`,
+    bad:`MD5(parola) stocat in DB — rapid de calculat, rainbow tables disponibile online pentru parole comune.`,
+    good:`Argon2id(parola + salt_unic_aleator) stocat in DB — lent intentionat, salt unic, rezistent la GPU.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie: ce e hash, ce e salt si de ce exista fiecare.",
+      "Scrie de ce SHA-256 nu e bun pentru parole (un singur argument concret).",
+      "Numeste algoritmul recomandat in 2024.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise are un endpoint de login. Francisc tocmai a implementat MD5(email + parola) pentru "securitate". Cum ii explici de ce e gresit, si ce ii ceri sa implementeze in loc? (Raspunde ca PO/BA care intelege securitatea, nu ca cineva care repeta reguli.)`,
+    cal:[
+      "Pot explica de ce one-way nu inseamna securizat automat (rainbow tables)?",
+      "Stiu ce face salt-ul si de ce e diferit per user?",
+      "Stiu diferenta practica dintre bcrypt si SHA-256 pentru parole?"
+    ]
+  },
+  // ── 7 ──
+  {
+    id:7, title:"Account Recovery", sub:"Fluxul de reset parola si de ce security questions sunt periculoase",
+    branch:1,
+    break_:`Un flow de "am uitat parola" implementat gresit e o usa din dos: security questions cu raspunsuri publice (numele mamei, orasul natal — informatii disponibile pe Facebook sau LinkedIn) permit unui atacator sa preia contul fara sa cunoasca parola. Fluxul nu e un detail — e o suprafata de atac la fel de importanta ca login-ul principal.`,
+    concept:`<strong>Fluxul corect</strong>: user cere reset → sistemul genereaza un <em>token unic, aleator criptografic, imposibil de ghicit</em> → il stocheaza hashed (nu in plain text) cu un TTL scurt (15–60 minute) → trimite link cu token la email verificat anterior → la click, token-ul e validat si <em>invalidat imediat</em> (single-use) → user seteaza parola noua. <strong>Principii critice</strong>: token predictibil = vulnerabilitate (nu folosi timestamp sau userId); TTL scurt (reduce fereastra de atac); single-use (refolosirea e vulnerabilitate separata); link-ul nu contine email sau userId in URL. <strong>Security questions</strong> sunt deprecate — raspunsurile sunt publice, ghicibile, sau consistente intre site-uri.`,
+    anchor:"CHEIA DE REZERVA LA VECINA CU TERMEN DE VALABILITATE",
+    anchorExp:`Vecina (emailul verificat anterior) tine o cheie speciala (token criptografic) cu data de expirare scrisa pe ea. Folosesti cheia, ea o arunca imediat. Cheie noua = nou request. Nu poti cere o alta cheie in urmatorii 15 minute.`,
+    bad:`Link de reset cu /reset?email=user@example.com&token=1234 — email vizibil in URL, token predictibil.`,
+    good:`Link cu token opac aleator (/reset?t=xK9mP2...), single-use, TTL 15 min, token hashed in DB.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie fluxul complet de reset parola in 5 pasi.",
+      "Scrie de ce security questions sunt un risc de securitate.",
+      "Scrie ce inseamna single-use pentru token.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise vrea sa adauge functionalitate de reset parola. Janno propune security questions. Bogdan propune email cu link. Tu trebuie sa scrii AC-urile pentru fluxul de reset. Scrie cel putin 3 AC-uri care acopera: generarea token-ului, durata de viata, si comportamentul dupa utilizare.`,
+    cal:[
+      "Pot descrie fluxul complet de reset parola corect fara sa ma uit?",
+      "Stiu de ce token-ul se invalideaza dupa prima folosire?",
+      "Pot argumenta de ce security questions sunt insuficiente ca mecanism de recuperare?"
+    ]
+  },
+  // ── 8 ──
+  {
+    id:8, title:"MFA & 2FA", sub:"Tipuri, forta, si de ce SMS nu e cel mai bun al doilea factor",
+    branch:5,
+    break_:`Un site cu 2FA implementat prin SMS pare securizat. Un atacator suna operatorul de telefonie, se da drept utilizatorul tinta, si solicita transferul numarului pe cartela lui (SIM swapping) — acum primeste el SMS-urile. 2FA prin SMS e mai bun decat fara 2FA, dar e departe de cel mai bun al doilea factor disponibil.`,
+    concept:`2FA e un caz specific de MFA (exact 2 factori). <strong>Tipuri ordonate crescator dupa securitate</strong>: (1) SMS OTP — cel mai slab: SIM swapping, interceptie SS7. (2) Email OTP — mai slab decat SMS: depinde de securitatea contului de email. (3) <em>TOTP</em> (Time-based One-Time Password) — Google Authenticator, Authy: cod generat din secret partajat + timestamp, valid 30 secunde, offline, standard RFC 6238. Recomandat. (4) Push notifications — Duo, Okta Verify: user aproba pe telefon, necesita internet. (5) Hardware token — YubiKey, RSA SecurID: cel mai puternic, imposibil de phishing de la distanta, necesita dispozitiv fizic. <strong>TOTP</strong>: la setup, serverul genereaza un secret partajat (QR code) — aplicatia si serverul calculeaza acelasi cod folosind acelasi secret + acelasi timestamp.`,
+    anchor:"LACATUL CU CHEIE ROTATIVA LA 30 DE SECUNDE",
+    anchorExp:`Cheia (codul TOTP) se schimba la fiecare 30 de secunde. Nimeni nu poate refolosi o cheie expirata. Nimeni nu poate ghici urmatoarea cheie fara secretul partajat. Nu e nevoie de internet — cheia se genereaza local.`,
+    bad:`SMS 2FA: convenabil, dar vulnerabil la SIM swapping si interceptie SS7.`,
+    good:`TOTP (Google Authenticator): la fel de convenabil ca SMS, imun la SIM swapping, offline, standard deschis.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie cele 5 tipuri de al doilea factor, de la cel mai slab la cel mai puternic.",
+      "Scrie cum functioneaza TOTP in doua propozitii.",
+      "Scrie de ce SMS e vulnerabil la SIM swapping.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise vrea sa adauge 2FA pentru conturile de accountant (Cristina). Janno propune SMS. Harris propune TOTP. Tu, ca PO, trebuie sa decizi si sa documentezi decizia. Ce factori iei in considerare? Ce recomanzi si de ce? (Gandeste-te si la UX, nu doar la securitate.)`,
+    cal:[
+      "Pot numi cele 5 tipuri de al doilea factor fara sa ma uit?",
+      "Stiu sa explic de ce TOTP e superior SMS-ului in doua motive distincte?",
+      "Inteleg mecanismul TOTP (secret partajat + timestamp) la nivel conceptual?"
+    ]
+  },
+  // ── 9 ──
+  {
+    id:9, title:"OAuth 2 — Arhitectura", sub:"Delegarea de acces fara sa dai parola",
+    branch:3,
+    break_:`OAuth 2 e confundat constant cu autentificarea. OAuth 2 e un protocol de <em>autorizare</em> — permite unei aplicatii sa acceseze resurse in numele unui user, fara ca userul sa dea parola aplicatiei. Cand un app iti cere sa te "loghezi cu Google", Google foloseste OAuth 2 pentru a controla ce date pot fi accesate — nu pentru a-ti verifica identitatea (aceea e sarcina OIDC, care vine deasupra OAuth 2).`,
+    concept:`4 roluri: <strong>Resource Owner</strong> (userul — detine resursa), <strong>Client</strong> (aplicatia care cere access), <strong>Authorization Server</strong> (emite tokeni — Google, GitHub, Okta, Auth0), <strong>Resource Server</strong> (API-ul care detine resursa). 4 grant types principale: <em>Authorization Code</em> — cel mai securizat, pentru server-side apps si SPA (cu PKCE); <em>Implicit</em> — deprecat, tokenul venea direct in browser; <em>Client Credentials</em> — pentru M2M, fara user; <em>Device Authorization</em> — pentru dispozitive fara browser (smart TV, CLI). Authorization Code flow: user → Client → Authorization Server (user logheaza + aproba scopuri) → codul de autorizare → Client (server-side) → access token. Codul e schimbat pe token la server, nu in browser.`,
+    anchor:"SERVICIUL VALET",
+    anchorExp:`Tu (Resource Owner) dai cheia valet (authorization code) vatmanului (Client). Vatmanul duce cheia la receptie (Authorization Server) si primeste un permis de parcare limitat (access token). Vatmanul parchez masina (Resource Server) — fara sa cunoasca adresa ta de acasa (parola).`,
+    bad:`"Aplicatia third-party iti cere parola de Google ca sa importam contactele" — aplicatia are acces nelimitat, permanent, la tot contul.`,
+    good:`OAuth 2: aplicatia primeste access token cu scopuri limitate (readonly contacts), cu expirare — parola ta nu o vede niciodata.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie cele 4 roluri OAuth 2 si ce face fiecare.",
+      "Scrie Authorization Code flow in 4 pasi simpli.",
+      "Scrie de ce OAuth 2 nu e autentificare.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise vrea sa permita importul de date din QuickBooks Online via API. QBO foloseste OAuth 2. Tu esti PO. Identifica: cine e Resource Owner, cine e Client, cine e Authorization Server, si ce scope-uri ar trebui cerute (principiul least privilege — cere minimul necesar).`,
+    cal:[
+      "Pot numi cele 4 roluri OAuth 2 fara sa ma gandesc?",
+      "Inteleg de ce Authorization Code e mai sigur decat Implicit grant type?",
+      "Pot explica de ce OAuth 2 singur nu e autentificare, in doua propozitii?"
+    ]
+  },
+  // ── 10 ──
+  {
+    id:10, title:"PKCE", sub:"Extensia care face Authorization Code sigur pe mobile si SPA",
+    branch:3,
+    break_:`Pe o aplicatie mobila, Authorization Code flow fara PKCE e vulnerabil la authorization code interception: un alt app instalat pe telefon poate intercepta codul de autorizare din redirect URL (custom URL scheme) inainte ca app-ul tau sa il primeasca. Codul interceptat = access token.`,
+    concept:`PKCE (Proof Key for Code Exchange, pronuntat "pixie"): extensie la Authorization Code flow, obligatorie pentru orice client public (SPA, mobile app). <strong>Mecanism</strong>: (1) Clientul genereaza un <em>code_verifier</em> — sir aleator lung, unic per sesiune. (2) Calculeaza <em>code_challenge</em> = SHA256(code_verifier) encoded base64url. (3) Trimite code_challenge la authorization request (nu code_verifier!). (4) Cand schimba codul pe token, trimite si code_verifier original. (5) Auth server verifica: SHA256(code_verifier) == code_challenge stocat. Un interceptor care a furat codul nu are code_verifier si nu poate obtine tokenul.`,
+    anchor:"LACATUL TRIMIS PE O RUTA, CHEIA PE ALTA RUTA",
+    anchorExp:`Trimiti lacatul (code_challenge) prin ruta A. Cheia (code_verifier) vine prin ruta B mai tarziu. Interceptorul care fura lacatul nu are cheia. Interceptorul care fura cheia nu a primit lacatul. Sistemul functioneaza doar daca aceeasi entitate le are pe amandoua.`,
+    bad:`Authorization Code fara PKCE pe mobile/SPA — codul poate fi interceptat si schimbat pe token de un alt app.`,
+    good:`Authorization Code + PKCE — chiar daca codul e interceptat, nu poate fi folosit fara code_verifier.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie cei 5 pasi ai PKCE flow.",
+      "Explica ce problema rezolva in 2 propozitii.",
+      "Scrie ce se intampla daca un atacator fura codul de autorizare dar nu are code_verifier.",
+      "Deschide si compara."
+    ],
+    exercise:`Francisc implementeaza login OAuth 2 in aplicatia mobile Avise. Harris ii spune sa adauge PKCE. Francisc intreaba de ce e necesar daca oricum folosesc HTTPS. Cum ii explici, ca PO care intelege securitatea, de ce HTTPS nu e suficient in acest caz specific?`,
+    cal:[
+      "Pot explica PKCE fara sa folosesc termenii 'code_verifier' sau 'code_challenge'?",
+      "Inteleg de ce PKCE e necesar chiar daca exista HTTPS?",
+      "Stiu in ce context e obligatoriu PKCE (client public vs confidential)?"
+    ]
+  },
+  // ── 11 ──
+  {
+    id:11, title:"OAuth 1 vs OAuth 2", sub:"Doua arhitecturi diferite, nu o evolutie",
+    branch:3,
+    break_:`OAuth 1 si OAuth 2 nu sunt versiunea 1 si versiunea 2 ale aceluiasi lucru — sunt arhitecturi fundamental diferite. OAuth 2 nu a "reparat" OAuth 1. L-a inlocuit cu o filosofie diferita, cu trade-offuri diferite. Confuzia dintre ele e clasica la interviuri.`,
+    concept:`<strong>OAuth 1</strong>: semneaza criptografic fiecare request HTTP individual (HMAC-SHA1 cu consumer secret + token secret + timestamp + nonce). Nu depinde obligatoriu de HTTPS — semnatura protejeaza requestul chiar daca transportul e interceptat. Complex de implementat (calcul manual de semnatura). <strong>OAuth 2</strong>: nu semneaza requesturi individuale. Depinde 100% de HTTPS/TLS pentru securitate. Foloseste Bearer tokens — oricine are tokenul poate face requesturi (fara semnatura per request). Mult mai simplu de implementat, mai flexibil (grant types multiple). <em>Trade-off central</em>: OAuth 1 = complex dar mai robust daca TLS e compromis. OAuth 2 = simplu dar daca tokenul e furat si TLS cade, game over.`,
+    anchor:"SCRISOARE SIGILATA vs MESAGER CU ECUSON",
+    anchorExp:`OAuth 1 = scrisoarea e sigilata cu ceara personalizata pe fiecare plic (semnatura per request). Chiar daca cineva o intercepteaza, stie imediat ca a fost deschisa. OAuth 2 = mesager cu ecuson (bearer token). Oricine are ecusonul poate intra. Daca pierzi ecusonul — problema.`,
+    bad:`Asumi ca OAuth 2 e mai sigur ca OAuth 1 in orice situatie. Folosesti OAuth 2 fara TLS.`,
+    good:`Intelegi ca OAuth 2 e mai simplu si mai flexibil, dar cere TLS absolut. OAuth 1 e mai complex dar mai rezistent la compromiterea transportului.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie: cum protejeaza fiecare protocol requesturile HTTP (una propozitie fiecare).",
+      "Scrie ce inseamna 'Bearer token' si de ce e un risc.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise expune un API pentru integrari externe. Harris propune autentificare cu Bearer token (OAuth 2). Un partener cere HMAC request signing (OAuth 1 style). Tu trebuie sa intelegi diferenta si sa decizi ce sa documentezi in specificatia de integrare. Ce criterii folosesti?`,
+    cal:[
+      "Pot explica diferenta principala dintre OAuth 1 si OAuth 2 fara sa enumar caracteristici tehnice?",
+      "Inteleg de ce OAuth 2 cere TLS absolut?",
+      "Stiu ce inseamna Bearer token si care e riscul specific?"
+    ]
+  },
+  // ── 12 ──
+  {
+    id:12, title:"OpenID Connect (OIDC)", sub:"Identitatea adaugata peste autorizarea OAuth 2",
+    branch:3,
+    break_:`Cand "te loghezi cu Google" intr-o aplicatie, nu e OAuth 2 pur — OAuth 2 stie ca ai acordat acces la resurse, dar nu stie cine esti ca utilizator. Aplicatia primeste un access token dar nu are nicio informatie verificata despre identitatea ta. OIDC adauga stratul de identitate care lipseste.`,
+    concept:`OIDC (OpenID Connect): un strat de <strong>identitate</strong> construit direct peste OAuth 2. Adauga: <em>ID token</em> (un JWT care contine informatii verificate despre user: sub — user ID unic, name, email, picture, iat, exp, iss — issuer, aud — audience); <em>UserInfo endpoint</em> (API pentru claims suplimentare); standardizarea scope-urilor (openid obligatoriu, profile, email, address, phone). <strong>Diferenta critica</strong>: OAuth 2 emite access token (pentru a accesa API-uri). OIDC emite access token + <em>ID token</em> (pentru a stii cine e userul). "Sign in with Google" = OAuth 2 (autorizare) + OIDC (identitate). Platformele ca Auth0, Okta, Cognito, Azure AD implementeaza OIDC complet.`,
+    anchor:"VIZA SI PASAPORT",
+    anchorExp:`OAuth 2 = viza (ce ai voie sa faci in tara, ce resurse poti accesa). OIDC = pasaportul (cine esti, identitate verificata). Poti intra in tara cu viza, dar nu poti deschide un cont bancar doar cu viza — ai nevoie si de pasaport. Aplicatia ta are nevoie de amandoua.`,
+    bad:`"Ne logam cu Google" implementat ca OAuth 2 pur — aplicatia stie ca 'cineva cu access la Google Calendar a aprobat', dar nu stie cine e acel cineva.`,
+    good:`OAuth 2 + OIDC: "Ana Popescu, ana@gmail.com, verified email, a aprobat access la Calendar" — identitate verificata + autorizare.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie: ce adauga OIDC peste OAuth 2.",
+      "Scrie ce contine un ID token (cel putin 4 claims).",
+      "Scrie diferenta dintre access token si ID token intr-o propozitie fiecare.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise vrea sa permita "Sign in with Google" pentru utilizatori. Tu scriei story-ul tehnic. Ce protocol e necesar (OAuth 2, OIDC, sau ambele) si de ce? Ce date vei primi dupa autentificarea cu succes si ce vei stoca in baza de date Avise?`,
+    cal:[
+      "Pot explica de ce OAuth 2 singur nu e suficient pentru 'Sign in with Google'?",
+      "Stiu ce e un ID token si cum difera de access token?",
+      "Pot numi cel putin 4 claims standard dintr-un ID token OIDC?"
+    ]
+  },
+  // ── 13 ──
+  {
+    id:13, title:"SAML", sub:"Standardul enterprise pentru SSO pe XML",
+    branch:4,
+    break_:`Intr-un mediu enterprise, o companie cu 500 de angajati nu poate administra 500 de conturi separate in fiecare din cele 30 de SaaS tools folosite. Cand un angajat pleaca, trebuie dezactivat in 30 de locuri. SAML rezolva asta, dar cu o arhitectura XML-based care difera complet de OAuth/OIDC.`,
+    concept:`SAML (Security Assertion Markup Language): protocol XML-based pentru SSO enterprise. Trei roluri: <strong>Identity Provider / IdP</strong> (compania, prin Okta / Azure AD / ADFS — detine identitatea), <strong>Service Provider / SP</strong> (SaaS tool-ul — Salesforce, Jira, Slack), <strong>Principal</strong> (userul). Flow simplificat: user acceseaza Salesforce → Salesforce redirectioneaza la IdP → user se autentifica la IdP → IdP genereaza un <em>SAML Assertion</em> (document XML semnat cu cheia privata a IdP) care contine: cine e userul, ce atribute are, cat timp e valid → assertion e trimis catre SP → SP valideaza semnatura cu cheia publica a IdP si acorda acces. SP nu stocheaza credentialele — IdP-ul e sursa de adevar.`,
+    anchor:"CARNETUL DE SERVICIU CORPORATE",
+    anchorExp:`HR-ul (IdP) emite carnetul de serviciu semnat si stampilat. Il prezinti la intrarea in cladire partener (SP). Cladirea valideaza semnatura HR-ului si te lasa sa intri — fara sa verifice cu HR-ul in timp real. Un singur carnet, acces in toate cladirile partenere.`,
+    bad:`Fiecare SaaS tool are propriul cont si parola proprie — 30 de parole, 30 de breach-uri posibile, admin dezactivare manuala la plecare.`,
+    good:`SAML SSO: un singur IdP, autentificare o singura data, acces in toate SP-urile — dezactivare instantanee la IdP dezactiveaza tot.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie cei 3 actori SAML si ce face fiecare.",
+      "Scrie ce e un SAML Assertion in propriile cuvinte.",
+      "Scrie diferenta principala dintre SAML si OIDC.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise vrea sa se integreze cu un client enterprise care foloseste Azure AD ca IdP. Userul vrea sa acceseze Avise cu credentialele companiei (SSO). Ce protocol se foloseste (SAML sau OIDC)? Cine e IdP, cine e SP? Ce trebuie configurat de ambele parti pentru ca integrarea sa functioneze?`,
+    cal:[
+      "Pot explica SAML flow in 4 pasi fara sa ma uit?",
+      "Stiu ce e un SAML Assertion si de ce e semnat?",
+      "Inteleg diferenta dintre SAML si OIDC la nivel de use case (cand alegi fiecare)?"
+    ]
+  },
+  // ── 14 ──
+  {
+    id:14, title:"LDAP & Active Directory", sub:"Infrastructura de identitate din spatele SSO-ului enterprise",
+    branch:4,
+    break_:`OAuth, OIDC, SAML explica cum circula identitatea intre sisteme. LDAP explica unde sunt stocate efectiv identit_atile si credentialele intr-o organizatie enterprise. Fara sa intelegi LDAP/AD, SSO enterprise ramane un protocol fara infrastructura — stii protocolul de transport dar nu stii ce transporta.`,
+    concept:`<strong>LDAP</strong> (Lightweight Directory Access Protocol): protocol pentru accesarea unui director de identitati — o baza de date ierarhica (arbore) cu utilizatori, grupuri, roluri, permisiuni. Organizata ca: dc=company,dc=com → ou=employees → cn=Ana Popescu (Distinguished Name). <strong>Active Directory</strong> (AD): implementarea Microsoft a LDAP + Kerberos, standard in organizatii enterprise. AD stocheaza toti utilizatorii, toate grupurile, toate policy-urile de acces. Un IdP enterprise (Okta, Azure AD, OneLogin) se conecteaza la AD pentru a sincroniza identit_atile. Fluxul complet SSO enterprise: SaaS (Avise) → SAML/OIDC → IdP (Okta) → LDAP/AD (verifica credentialele) → raspuns → IdP emite assertion → Avise acorda acces.`,
+    anchor:"REGISTRUL POPULATIEI",
+    anchorExp:`LDAP e registrul populatiei — tine evidenta tuturor cetatenilor (useri), a adreselor lor (ou, cn), si a relatiilor dintre ei (grupuri, ierarhie). Pasaportul (SAML Assertion) e emis pe baza registrului, nu e registrul insusi. Fara registru, nu poti emite pasapoarte.`,
+    bad:`Fiecare aplicatie mentine propria baza de date de useri — sincronizare manuala, inconsistente, probleme la off-boarding.`,
+    good:`Identitati centralizate in AD, sincronizate via IdP, propagate prin SAML/OIDC catre toate aplicatiile — o sursa de adevar.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie ce e LDAP si ce stocheaza.",
+      "Scrie relatia dintre AD, IdP, si SP in 3 propozitii.",
+      "Deschide si compara."
+    ],
+    exercise:`Un client enterprise al Avise foloseste Active Directory si Okta ca IdP. Spune, pas cu pas, ce se intampla cand un angajat nou, adaugat azi in AD, se logheaza maine in Avise pentru prima oara prin SSO. La ce nivel se intampla fiecare pas?`,
+    cal:[
+      "Pot explica ce e LDAP fara sa folosesc cuvantul 'director'?",
+      "Inteleg rolul IdP ca intermediar intre AD si aplicatii?",
+      "Stiu ce inseamna Distinguished Name si cum descrie pozitia unui user in arbore?"
+    ]
+  },
+  // ── 15 ──
+  {
+    id:15, title:"SSO — Single Sign-On", sub:"O singura autentificare valabila peste tot",
+    branch:4,
+    break_:`Fara SSO, un angajat cu 15 tools SaaS are 15 parole diferite. Comportamentul uman predictibil: parole identice intre site-uri, parole scrise pe post-it, sau reset constant. Un singur breach expune toate conturile. SSO nu e un feature de confort — e o decizie de arhitectura de securitate.`,
+    concept:`SSO: o singura autentificare puternica la Identity Provider → valida pentru toate Service Provider-urile configurate, fara re-autentificare. <strong>Protocoalele care implementeaza SSO</strong>: SAML (enterprise B2B), OIDC (web/mobile/consumer), Kerberos (intranet Windows, invizibil pentru user). <strong>Componente</strong>: IdP (Okta, Azure AD, Google Workspace, OneLogin) + SP-uri (toate aplicatiile). <strong>Session management in SSO</strong>: IdP mentine o sesiune globala — SP-urile verifica sesiunea existenta la IdP fara sa ceara parola din nou. <strong>Single Logout (SLO)</strong>: o singura delogare la IdP trimite notificari de logout catre toate SP-urile active. <strong>Risk</strong>: IdP-ul devine single point of failure si single point of breach — securizarea lui e critica.`,
+    anchor:"CARTELA DE HOTEL",
+    anchorExp:`O singura cartela (sesiunea la IdP) deschide camera, sala de fitness, restaurantul, parcarea si spa-ul (toate SP-urile). Predai cartela la receptie (SLO) si nu mai intri nicaieri. Daca cineva fura cartela (IdP breach) — are acces la tot.`,
+    bad:`Un cont per aplicatie: 15 parole, 15 suprafete de breach, off-boarding manual in 15 sisteme.`,
+    good:`SSO cu IdP centralizat: 1 autentificare puternica (MFA), off-boarding instant (dezactivare in IdP = dezactivare everywhere).`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie protocoalele care pot implementa SSO (cel putin 3).",
+      "Scrie ce e Single Logout si de ce e important.",
+      "Scrie riscul principal al SSO (single point of...) si cum se mitiga.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise vrea sa ofere SSO pentru clienti enterprise. Un client enterprise foloseste Okta. Tu scrii story-ul de integrare SSO. Ce informatii ai nevoie de la client? Ce trebuie configurat in Avise? Ce se schimba in experienta utilizatorului dupa integrare?`,
+    cal:[
+      "Pot explica SSO fara sa folosesc termeni tehnici, ca si cum as explica unui manager de cont?",
+      "Inteleg de ce SLO e mai complex decat logout dintr-o singura aplicatie?",
+      "Stiu de ce IdP-ul e single point of failure si ce masuri de mitigare exista?"
+    ]
+  },
+  // ── 16 ──
+  {
+    id:16, title:"Machine-to-Machine Auth (M2M)", sub:"Cand sistemele trebuie sa se autentifice intre ele",
+    branch:5,
+    break_:`Un microservice care apeleaza alt microservice nu are "un user" care se autentifica. Mecanismele pentru useri (parola, MFA) nu se aplica. Dar serviciile neautentificate sunt la fel de periculoase ca userii neautentificati — orice entitate care apeleaza un API trebuie sa dovedeasca ca are dreptul.`,
+    concept:`3 mecanisme principale. <strong>API Keys</strong>: un sir secret generat, inclus in header (Authorization: Bearer sau X-API-Key). Simplu, dar: fara expirare implicita, greu de rotat, greu de revocat individual, niciun standard de format. Util pentru integrari simple externe. <strong>OAuth 2 Client Credentials</strong>: serviciul se autentifica cu client_id + client_secret la auth server, primeste access token cu expirare scurta, il foloseste pentru apeluri. Token expira si e regenerat automat — rotatie implicita. Standard, auditabil, revocabil. Recomandat pentru M2M intern. <strong>mTLS (mutual TLS)</strong>: ambele parti prezinta certificate — nu doar serverul (ca in HTTPS normal), ci si clientul. Cel mai puternic, folosit in zero-trust architectures. Imposibil de falsificat fara certificatul clientului.`,
+    anchor:"CHEIE DE SERVICIU CU CHIP vs ECUSON DE VIZITATOR",
+    anchorExp:`API key = ecuson de vizitator: il imprimi simplu, functioneaza, dar daca il pierzi — problema. Client Credentials = cheie de serviciu cu chip: expira, se regenereaza, e legata de un serviciu specific. mTLS = cheie de serviciu cu chip + scanner biometric: ambele parti se verifica reciproc, imposibil de falsificat.`,
+    bad:`API key hard-codat in cod surs_ + versioat in git — oricine are acces la repo are acces la API.`,
+    good:`Client Credentials + secret manager (AWS Secrets Manager, HashiCorp Vault): secret injectat la runtime, rotatie automata, audit trail complet.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie cele 3 mecanisme M2M si un avantaj + dezavantaj pentru fiecare.",
+      "Scrie ce e mTLS si cum difera de HTTPS normal.",
+      "Deschide si compara."
+    ],
+    exercise:`In Avise, serviciul de import QBO trebuie sa apeleze API-ul intern de procesare JE. Harris propune Client Credentials. Bogdan propune API key salvat in .env. Tu arbitrezi. Care sunt argumentele pentru fiecare? Ce alegi pentru productie si de ce?`,
+    cal:[
+      "Pot explica diferenta dintre API key si Client Credentials fara jargon tehnic?",
+      "Inteleg ce inseamna 'mutual' in mTLS si ce problema suplimentara rezolva?",
+      "Stiu de ce API key in git e o vulnerabilitate grava?"
+    ]
+  },
+  // ── 17 ──
+  {
+    id:17, title:"Passwordless & Passkeys", sub:"Eliminarea parolei ca suprafata de atac",
+    branch:5,
+    break_:`80% din breach-urile legate de autentificare implica parole — furate prin phishing, refolosite din alte site-uri, sau slabe. Passwordless nu e un feature de confort — e o arhitectura care elimina categoric principalul vector de atac. Passkeys in particular sunt immune la phishing prin design.`,
+    concept:`<strong>Magic links</strong>: userul introduce email → primeste un link unic cu token (TTL 10–15 min, single-use) → click = autentificat. Simplu, nicio parola stocata. Dezavantaj: depinde de securitatea emailului. <strong>WebAuthn / Passkeys</strong>: standardul W3C care foloseste criptografie cu cheie publica. La inregistrare: dispozitivul genereaza o pereche de chei — <em>cheia privata ramane pe dispozitiv</em> (in secure enclave, hardware-level), cheia publica e trimisa serverului. La autentificare: serverul trimite un challenge → dispozitivul semneaza cu cheia privata → serverul verifica cu cheia publica. Cheia privata <em>nu paraseste niciodata dispozitivul</em>. Phishing-resistant: cheia e legata de domeniu (nu poti fi pacalit pe fake-site.com). <strong>Passkeys</strong> = implementarea user-friendly a WebAuthn (Apple FaceID/TouchID, Google Password Manager, Windows Hello).`,
+    anchor:"STAMPILA PERSONALA IN SEIF",
+    anchorExp:`La inregistrare iti faci o stampila unica (pereche de chei). Stampila (cheia privata) ramane in seiful tau hardware. La autentificare, stampilezi documentul serverului (semnezi challenge-ul). Nimeni nu poate copia stampila — e fizic in seiful tau. Chiar daca furi documentul stampilat, nu poti crea unul nou.`,
+    bad:`Parola: secretul e stocat la server. Daca serverul e breach-uit, parola ta e expusa. Phishing functional.`,
+    good:`Passkey: cheia privata nu paraseste dispozitivul. Serverul nu stie secretul. Phishing imposibil (cheia e legata de domeniu).`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie cum functioneaza WebAuthn: la inregistrare si la autentificare, in cate pasi.",
+      "Scrie de ce passkeys sunt immune la phishing.",
+      "Scrie diferenta dintre magic link si passkey.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise vrea sa lanseze passwordless login pentru utilizatorii mobili. Janno propune magic links (simplu). Harris propune passkeys (mai complex de implementat). Tu faci analiza. Ce avantaje si riscuri are fiecare? Pentru ce tip de user din Avise (accountant, admin, integrator API) e potrivit fiecare?`,
+    cal:[
+      "Pot explica de ce passkeys sunt immune la phishing fara sa folosesc cuvantul 'criptografie'?",
+      "Inteleg diferenta dintre cheia publica si cheia privata in contextul passkeys?",
+      "Stiu ce e secure enclave si de ce conteaza pentru securitatea passkeys?"
+    ]
+  },
+  // ── 18 ──
+  {
+    id:18, title:"Vectori de Atac", sub:"Ce ataca atacatorul si cum te aperi specific",
+    branch:6,
+    break_:`Un sistem proiectat fara sa cunoasca atacurile va fi aparut generic — HTTPS, parola complicata, si speranta. Fiecare vector de atac are un mecanism specific si o aparare specifica. Apararea generica nu functioneaza contra atacurilor tintite.`,
+    concept:`<strong>Brute force</strong>: incearca sistematic parole. Aparare: rate limiting, exponential backoff, CAPTCHA, account lockout. <strong>Credential stuffing</strong>: foloseste liste user/parola furate din alte breach-uri (79% din useri refolosesc parole). Aparare: MFA, detectie anomalii (IP nou, locatie noua), Have I Been Pwned API la inregistrare. <strong>Phishing</strong>: pagina falsa colecteaza credentiale. Aparare: FIDO2/passkeys (legate de domeniu, immune), security keys. <strong>Session hijacking</strong>: fura session ID sau JWT. Aparare: httpOnly cookies, HTTPS-only, token rotation, session binding la IP/User-Agent. <strong>CSRF</strong> (Cross-Site Request Forgery): pagina malitioasa face requesturi autentificate in numele tau. Aparare: CSRF tokens, SameSite=Strict cookie attribute, verificare Origin header. <strong>SQL Injection pe login</strong>: ' OR '1'='1 in campul de parola. Aparare: prepared statements (parametrizate), ORM-uri care nu fac string concatenation.`,
+    anchor:"TABLA DE SAH A ATACATORULUI",
+    anchorExp:`Fiecare atac e o mutare cu o contra-mutare specifica. Brute force nu se apara cu CSRF tokens. CSRF nu se apara cu rate limiting. Nu poti apara generic — trebuie sa cunosti mutarile individuale si sa ai contra-mutarile corecte pentru fiecare.`,
+    bad:`"Avem HTTPS si parola de 8 caractere, suntem securizati" — aparare oarba, fara cunoastere a vectorilor.`,
+    good:`"Am mapat fiecare vector, avem rate limiting la login, MFA activ, CSRF tokens, httpOnly cookies, prepared statements" — aparare informata si specifica.`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie 6 vectori de atac si apararea specifica pentru fiecare (o singura masura per vector).",
+      "Scrie diferenta dintre brute force si credential stuffing.",
+      "Deschide si compara."
+    ],
+    exercise:`Avise are un endpoint /api/login. Tu faci o lista de security requirements (AC-uri de securitate) pentru acest endpoint. Scrie cel putin 5, bazate pe vectorii din acest capitol. Formuleaza-le ca AC-uri testabile (DA/NU).`,
+    cal:[
+      "Pot numi 6 vectori de atac fara sa ma uit si sa spun apararea specifica pentru fiecare?",
+      "Inteleg diferenta dintre brute force si credential stuffing ca mecanisme de atac?",
+      "Stiu de ce HTTPS singur nu apara contra CSRF sau SQL Injection?"
+    ]
+  },
+  // ── 19 ──
+  {
+    id:19, title:"Securitate Practica", sub:"Checklist-ul unui developer inainte de deploy",
+    branch:6,
+    break_:`Un developer care stie toata teoria dar nu stie ce sa faca concret in cod va lua decizii gresite la implementare: SHA-256 pentru parole (rapid = periculos), JWT in localStorage (XSS-vulnerable), tokeni fara expirare (furt permanent), secrete in git (breach din prima zi). Teoria fara checklist practic se pierde in detalii.`,
+    concept:`<strong>Checklist complet pre-deploy pentru autentificare</strong>: <em>Parole</em>: bcrypt (cost>=12) sau Argon2id — niciodata MD5/SHA. <em>JWT</em>: valideaza algoritmul explicit (whitelist, refu_a 'none'), seteaza exp scurt (<15 min), foloseste librarii mature. <em>Token storage</em>: httpOnly cookie + Secure + SameSite=Strict + CSRF token. <em>Transport</em>: HTTPS everywhere + HSTS header (Strict-Transport-Security). <em>Rate limiting</em>: pe /login, /register, /reset-password, /token. <em>Headers de securitate</em>: Content-Security-Policy, X-Frame-Options, X-Content-Type-Options. <em>Logging</em>: logheza failed logins cu IP + timestamp (nu parola, nu token). <em>Secrets</em>: niciodata in cod sau git — secret manager (AWS Secrets Manager, HashiCorp Vault, env vars inject_ate la runtime). <em>Dependencies</em>: nu implementa criptografie manual — librarii auditate (jsonwebtoken, bcryptjs, Argon2). <em>Account lockout</em>: dupa N incercari esuate, lockout temporar cu notificare email.`,
+    anchor:"LISTA DE CONTROL INAINTE DE ZBOR",
+    anchorExp:`Pilotul nu zboara fara sa bifeze fiecare item de pe lista, indiferent de experienta. Implementezi autentificare fara lista = zbori cu verificarile facute dupa decolare. Lista nu e birocratie — e supravietuire.`,
+    bad:`"Am implementat autentificarea in 2 ore, functioneaza in dev, facem deploy" — checklist = zero.`,
+    good:`"Am implementat autentificarea in 2 zile, am trecut prin checklist, am codul revizuit de un coleg cu focus pe securitate."`,
+    retrieval:[
+      "Inchide fisierul.",
+      "Scrie checklist-ul din memorie — tinteste 8 din 10 iteme.",
+      "Scrie itemul pe care crezi ca il uiti cel mai des si de ce.",
+      "Deschide si compara. Bifa itemele pe care le-ai prins.",
+      "Repeta exercitiul peste 24 de ore fara sa te uiti in curs."
+    ],
+    exercise:`Emi a implementat un nou endpoint de login in Avise. Tu faci code review din perspectiva de securitate. Pe baza checklist-ului din acest capitol, scrie 5 intrebari concrete pe care le pui in code review (nu "e securizat?" ci "ce algoritm de hashing se foloseste si cu ce cost factor?").`,
+    cal:[
+      "Pot recita cel putin 8 iteme din checklist fara sa ma uit?",
+      "Stiu sa fac code review de securitate pe un flow de autentificare?",
+      "Am claritate despre care iteme sunt responsabilitatea dev-ului vs ops vs PO?"
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let currentChunk = 0;
+const completed = new Set();
+const calStates = {};
+const textStates = {};
+
+// ══════════════════════════════════════════════════════
+// MIND MAP
+// ══════════════════════════════════════════════════════
+function initMindMap() {
+  const svg = document.getElementById('mapSvg');
+  const cx = 500, cy = 320;
+  const branchR = 158, childR = 275;
+
+  function toXY(angle, r) {
+    const rad = (angle - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function svgEl(tag, attrs, text) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function wrapText(svg, x, y, txt, color, fontSize, maxW, onClick) {
+    const words = txt.split(' ');
+    const lines = [];
+    let line = '';
+    const approxCharW = fontSize * 0.55;
+    const maxChars = maxW / approxCharW;
+    for (const w of words) {
+      if ((line + ' ' + w).trim().length > maxChars && line) {
+        lines.push(line.trim()); line = w;
+      } else {
+        line = (line + ' ' + w).trim();
+      }
+    }
+    if (line) lines.push(line);
+    const lh = fontSize * 1.35;
+    const totalH = lines.length * lh;
+    const g = svgEl('g', { cursor: onClick ? 'pointer' : 'default' });
+    if (onClick) g.onclick = onClick;
+    lines.forEach((l, i) => {
+      const t = svgEl('text', {
+        x, y: y - totalH/2 + i*lh + lh*0.5,
+        'text-anchor': 'middle', fill: color,
+        'font-size': fontSize, 'font-family': 'JetBrains Mono, monospace',
+        'font-weight': '600'
+      }, l);
+      g.appendChild(t);
+    });
+    return g;
+  }
+
+  // Glow filter
+  const defs = svgEl('defs', {});
+  const filter = svgEl('filter', {id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%'});
+  const fe = svgEl('feGaussianBlur', {stdDeviation:'3', result:'blur'});
+  const feMerge = svgEl('feMerge', {});
+  ['blur','SourceGraphic'].forEach(i => {
+    const ref = svgEl('feMergeNode', {in:i}); feMerge.appendChild(ref);
+  });
+  filter.appendChild(fe); filter.appendChild(feMerge); defs.appendChild(filter);
+  svg.appendChild(defs);
+
+  // Background
+  svg.appendChild(svgEl('rect', {width:'1000', height:'640', fill:'#0f1117', rx:'8'}));
+
+  // Process each branch
+  BRANCHES.forEach((branch, bi) => {
+    const n = BRANCHES.length;
+    const baseAngle = (360 / n) * bi;
+    const bp = toXY(baseAngle, branchR);
+
+    // Spread children around branch direction
+    const nc = branch.children.length;
+    const spread = Math.min(20, 50 / Math.max(nc, 1));
+
+    branch.children.forEach((child, ci) => {
+      const offset = (ci - (nc - 1) / 2) * spread * 2;
+      const childAngle = baseAngle + offset;
+      const cp = toXY(childAngle, childR);
+
+      // Line branch → child
+      svg.appendChild(svgEl('line', {
+        x1: bp.x, y1: bp.y, x2: cp.x, y2: cp.y,
+        stroke: branch.color, 'stroke-width': '1.5', opacity: '0.5'
+      }));
+
+      // Child node — background pill
+      const chunkIdx = child.chunk;
+      const pill = svgEl('g', {cursor:'pointer'});
+      pill.onclick = () => goToChunk(chunkIdx);
+
+      const pillW = 130, pillH = 28;
+      const rect = svgEl('rect', {
+        x: cp.x - pillW/2, y: cp.y - pillH/2,
+        width: pillW, height: pillH, rx: '4',
+        fill: 'rgba(22,27,34,0.9)',
+        stroke: branch.color, 'stroke-width': '1', opacity: '0.9'
+      });
+      pill.appendChild(rect);
+
+      const words = child.label.split(' ');
+      const lines2 = [];
+      let cur = '';
+      for (const w of words) {
+        if ((cur+' '+w).trim().length > 17 && cur) { lines2.push(cur.trim()); cur = w; }
+        else cur = (cur+' '+w).trim();
+      }
+      if (cur) lines2.push(cur);
+      const fs2 = lines2.length > 1 ? 9.5 : 10.5;
+      const lh2 = fs2 * 1.3;
+      lines2.forEach((l, i) => {
+        pill.appendChild(svgEl('text', {
+          x: cp.x, y: cp.y - (lines2.length-1)*lh2/2 + i*lh2 + fs2*0.35,
+          'text-anchor':'middle', fill: branch.color,
+          'font-size': fs2, 'font-family': 'JetBrains Mono, monospace',
+          'font-weight':'500'
+        }, l));
+      });
+      svg.appendChild(pill);
+    });
+
+    // Curved line center → branch
+    const cp1 = toXY(baseAngle, branchR * 0.35);
+    const cp2 = toXY(baseAngle, branchR * 0.65);
+    const path = svgEl('path', {
+      d: `M ${cx} ${cy} C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${bp.x} ${bp.y}`,
+      stroke: branch.color, 'stroke-width': '2.5', fill: 'none', opacity: '0.7'
+    });
+    svg.appendChild(path);
+
+    // Branch node
+    const bg = svgEl('g', {cursor:'pointer'});
+    bg.onclick = () => goToChunk(branch.children[0].chunk);
+    bg.appendChild(svgEl('circle', {
+      cx: bp.x, cy: bp.y, r: '30',
+      fill: branch.color + '22', stroke: branch.color, 'stroke-width': '2'
+    }));
+    const bWords = branch.label.split(' ');
+    const bLines = [];
+    let bCur = '';
+    for (const w of bWords) {
+      if ((bCur+' '+w).trim().length > 10 && bCur) { bLines.push(bCur.trim()); bCur = w; }
+      else bCur = (bCur+' '+w).trim();
+    }
+    if (bCur) bLines.push(bCur);
+    const bFs = bLines.length > 1 ? 8.5 : 9.5;
+    const bLh = bFs * 1.35;
+    bLines.forEach((l, i) => {
+      bg.appendChild(svgEl('text', {
+        x: bp.x, y: bp.y - (bLines.length-1)*bLh/2 + i*bLh + bFs*0.35,
+        'text-anchor':'middle', fill: branch.color,
+        'font-size': bFs, 'font-family': 'JetBrains Mono, monospace', 'font-weight':'600'
+      }, l));
+    });
+    svg.appendChild(bg);
+  });
+
+  // Center node
+  const cg = svgEl('g', {});
+  cg.appendChild(svgEl('circle', {cx, cy, r:'48', fill:'#e6b42222', stroke:'#e6b422', 'stroke-width':'2.5'}));
+  ['AUTH', 'ENTI', 'FICARE'].forEach((l, i) => {
+    cg.appendChild(svgEl('text', {
+      x: cx, y: cy - 14 + i*13,
+      'text-anchor':'middle', fill:'#e6b422',
+      'font-size':'10.5', 'font-family':'JetBrains Mono, monospace', 'font-weight':'700'
+    }, l));
+  });
+  svg.appendChild(cg);
+
+  // Legend
+  const legend = document.getElementById('mapLegend');
+  BRANCHES.forEach((b, i) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-dot" style="background:${b.color}"></span>${b.label} (${b.children.length})`;
+    item.onclick = () => goToChunk(b.children[0].chunk);
+    legend.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+function goToMap() {
+  document.getElementById('viewCourse').style.display = 'none';
+  document.getElementById('viewMap').style.display = 'flex';
+  window.scrollTo(0, 0);
+}
+
+function goToChunk(idx) {
+  currentChunk = idx;
+  document.getElementById('viewMap').style.display = 'none';
+  document.getElementById('viewCourse').style.display = 'block';
+  renderChunk(idx);
+  window.scrollTo(0, 0);
+}
+
+function nextChunk() {
+  completed.add(currentChunk);
+  currentChunk++;
+  if (currentChunk >= CHUNKS.length) { renderComplete(); return; }
+  renderChunk(currentChunk);
+  window.scrollTo(0, 0);
+}
+
+function prevChunk() {
+  if (currentChunk > 0) { currentChunk--; renderChunk(currentChunk); window.scrollTo(0, 0); }
+}
+
+// ══════════════════════════════════════════════════════
+// CHUNK RENDERING
+// ══════════════════════════════════════════════════════
+function updateHeader(c, idx) {
+  const b = BRANCHES[c.branch];
+  const badge = document.getElementById('catBadge');
+  badge.textContent = b.label;
+  badge.style.background = b.color + '22';
+  badge.style.color = b.color;
+  badge.style.border = '1px solid ' + b.color + '44';
+
+  document.getElementById('courseCounter').textContent = `${idx + 1} / ${CHUNKS.length}`;
+  const pct = ((idx + 1) / CHUNKS.length) * 100;
+  const fill = document.getElementById('progFill');
+  fill.style.width = pct + '%';
+  fill.style.background = b.color;
+
+  const dotsRow = document.getElementById('dotsRow');
+  dotsRow.innerHTML = '';
+  CHUNKS.forEach((ch, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === idx ? ' active' : '') + (completed.has(i) && i !== idx ? ' done' : '');
+    d.style.background = i === idx ? BRANCHES[ch.branch].color : (completed.has(i) ? BRANCHES[ch.branch].color + '88' : '');
+    d.title = ch.title;
+    d.onclick = () => { completed.add(currentChunk); goToChunk(i); };
+    dotsRow.appendChild(d);
+  });
+}
+
+function renderChunk(idx) {
+  const c = CHUNKS[idx];
+  const b = BRANCHES[c.branch];
+  updateHeader(c, idx);
+
+  const retSteps = c.retrieval.map(s => `<li>${s}</li>`).join('');
+  const calItems = c.cal.map((q, i) => {
+    const key = `c${c.id}_q${i}`;
+    const ticked = calStates[key] ? ' ticked' : '';
+    return `<div class="cal-item${ticked}" onclick="toggleCal(this,'${key}')">
+      <div class="cal-box">${calStates[key] ? '✓' : ''}</div>
+      <div class="cal-text">${q}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('courseMain').innerHTML = `
+    <div class="chunk-cat" style="color:${b.color}">${b.label}</div>
+    <h1 class="chunk-title">${c.title}</h1>
+    <p class="chunk-sub">${c.sub}</p>
+
+    <div class="section">
+      <div class="block-break">
+        <span class="slabel">&#x26A1; ce se strica fara asta</span>
+        <p>${c.break_}</p>
+      </div>
+    </div>
+
+    <div class="section block-concept">
+      <span class="slabel" style="color:var(--text-dim)">conceptul</span>
+      <p>${c.concept}</p>
+    </div>
+
+    <div class="section">
+      <div class="block-anchor">
+        <span class="slabel">&#x1F511; ancora</span>
+        <span class="anchor-word">${c.anchor}</span>
+        <span class="anchor-exp">${c.anchorExp}</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-contrast">
+        <span class="slabel">contrast</span>
+        <div class="contrast-pair">
+          <div class="c-bad"><span class="c-tag">&#x2716; fara model</span>${c.bad}</div>
+          <div class="c-good"><span class="c-tag">&#x2714; cu model</span>${c.good}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-retrieval">
+        <span class="slabel">&#x1F9E0; retrieval activ — inainte sa bifezi calibrarea</span>
+        <div class="retrieval-intro">Memoria nu se construieste prin citire — se construieste prin recuperare activa. Faci asta acum, nu dupa.</div>
+        <ol class="retrieval-steps">${retSteps}</ol>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-exercise">
+        <span class="slabel">&#x1F3AF; exercitiu — extinde conceptul</span>
+        <div class="exercise-prompt">${c.exercise}</div>
+        <textarea placeholder="Scrie raspunsul tau aici..." oninput="textStates[${c.id}]=this.value">${textStates[c.id]||''}</textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-cal">
+        <span class="slabel">&#x1F4E1; calibrare — bifezi doar ce simti ca ai cu adevarat</span>
+        ${calItems}
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn" onclick="prevChunk()" ${idx===0?'disabled':''}>&#x2190; anterior</button>
+      <span style="font-family:var(--mono);font-size:0.65rem;color:var(--text-dim)">${idx+1} din ${CHUNKS.length}</span>
+      <button class="btn btn-primary" onclick="nextChunk()" style="background:${b.color};border-color:${b.color}">
+        ${idx===CHUNKS.length-1?'finalizeaza &#x2713;':'urmator &#x2192;'}
+      </button>
+    </div>
+  `;
+}
+
+function renderComplete() {
+  document.getElementById('courseMain').innerHTML = `
+    <div class="complete-wrap">
+      <h1>Curs complet. &#x2713;</h1>
+      <p>Toate cele ${CHUNKS.length} capitole parcurse.</p>
+      <div class="anchors-grid">
+        ${CHUNKS.map((c,i) => `
+          <div class="anchor-card" onclick="goToChunk(${i})" style="cursor:pointer">
+            <span class="ac-num">${String(i+1).padStart(2,'0')}</span>
+            <div class="ac-body">
+              <span class="ac-word" style="color:${BRANCHES[c.branch].color}">${c.anchor}</span>
+              <span class="ac-chunk">${c.title}</span>
+            </div>
+          </div>`).join('')}
+      </div>
+      <p style="font-size:0.875rem;margin-bottom:1.5rem">Daca poti asocia fiecare ancora cu titlul ei fara sa te uiti — ai construit modelul.<br>Daca nu — click pe ancora si reia capitolul.</p>
+      <button class="btn" onclick="goToMap()">&#x2190; Inapoi la harta</button>
+    </div>
+  `;
+  document.getElementById('courseCounter').textContent = 'Complet ✓';
+  document.getElementById('progFill').style.width = '100%';
+}
+
+function toggleCal(el, key) {
+  calStates[key] = !calStates[key];
+  el.classList.toggle('ticked');
+  el.querySelector('.cal-box').textContent = calStates[key] ? '✓' : '';
+}
+
+// ── INIT ──
+initMindMap();
+</script>
+</body>
+</html>

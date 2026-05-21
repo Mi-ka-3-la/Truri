@@ -1,0 +1,399 @@
+<section class="module" id="module-4">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">04</div>
+      <h1 class="module-title">6 User Feedback Themes</h1>
+      <p class="module-subtitle">Every client complaint about Schedules falls into one of these six buckets. Know the buckets, and you can triage any new ticket in under 30 seconds.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Anchor: Pattern Cards Grid (severity overview)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Six themes, ranked by severity</h2>
+
+      <p class="animate-in">These themes were distilled from 10 <span class="term" data-definition="Shortcut (now Linear) is the project management tool Avise uses to track engineering stories, bugs, and feature requests. A 'story' is a single unit of work — like a bug report or a feature ask.">Shortcut</span> stories across multiple clients. Each pattern card shows the severity, the number of clients affected, and the one-sentence summary.</p>
+
+      <div class="bento-grid stagger-children animate-in" style="grid-template-columns: repeat(6, 1fr);">
+
+        <!-- Card A -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-info);">
+          <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-info) 14%, transparent);">
+            <i data-lucide="layout-list" class="icon" style="color: var(--color-info);"></i>
+          </div>
+          <div class="pattern-title">A &mdash; List View Too Rigid</div>
+          <p class="pattern-desc">LOW&ndash;MEDIUM &middot; 4 stories &middot; 3+ clients. The Prepared Schedules list is missing columns (Vendor, Debit Account) and can only filter by one <span class="term" data-definition="A dimension in Avise is a custom tagging attribute — like Vendor, Department, or Class — that categorizes journal lines for reporting.">dimension</span> at a time.</p>
+        </div>
+
+        <!-- Card B -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-info);">
+          <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-info) 14%, transparent);">
+            <i data-lucide="download" class="icon" style="color: var(--color-info);"></i>
+          </div>
+          <div class="pattern-title">B &mdash; Export Omits Dimensions</div>
+          <p class="pattern-desc">MEDIUM &middot; 1 story &middot; 3 clients. The <span class="term" data-definition="XLSX is the file format used by Microsoft Excel. Avise can export schedule data as an XLSX spreadsheet for clients who want to analyse or archive it outside the app.">XLSX</span> export doesn&rsquo;t include <span class="term" data-definition="A dimension in Avise is a custom tagging attribute — like Vendor, Department, or Class — that categorizes journal lines for reporting.">dimension</span> data (e.g., Vendor) even when the dimension is visible in the UI.</p>
+        </div>
+
+        <!-- Card C -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4);">
+          <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-actor-4) 14%, transparent);">
+            <i data-lucide="hash" class="icon" style="color: var(--color-actor-4);"></i>
+          </div>
+          <div class="pattern-title">C &mdash; Manual Journal Numbering</div>
+          <p class="pattern-desc">HIGH &middot; 1 story &middot; 1 client (Flueid). Users have to type &lsquo;Description 2&rsquo;, &lsquo;Description 3&rsquo; manually. The system should <span class="term" data-definition="Auto-increment means the system automatically suggests the next value in a sequence — like 'Description 2' after 'Description 1' — without the user typing it.">auto-increment</span>.</p>
+        </div>
+
+        <!-- Card D -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-text-muted);">
+          <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-text-muted) 14%, transparent);">
+            <i data-lucide="help-circle" class="icon" style="color: var(--color-text-muted);"></i>
+          </div>
+          <div class="pattern-title">D &mdash; Entry Status Confusion</div>
+          <p class="pattern-desc">CHORE &middot; 1 story &middot; 1 client (J Cummins). Archiving an already-<span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements and cannot be easily reversed.">posted</span> entry in an inactive period still shows the entry as &lsquo;pending&rsquo; on the schedule.</p>
+        </div>
+
+        <!-- Card E -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-error);">
+          <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-error) 14%, transparent);">
+            <i data-lucide="alert-triangle" class="icon" style="color: var(--color-error);"></i>
+          </div>
+          <div class="pattern-title">E &mdash; Source Transactions Broken</div>
+          <p class="pattern-desc">HIGHEST &middot; 2 stories &middot; 2+ clients. The source transaction section flashes, bounces, and reloads when creating a schedule &mdash; especially for large clients.</p>
+        </div>
+
+        <!-- Card F -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-error);">
+          <div class="pattern-icon" style="background: color-mix(in srgb, var(--color-error) 14%, transparent);">
+            <i data-lucide="copy" class="icon" style="color: var(--color-error);"></i>
+          </div>
+          <div class="pattern-title">F &mdash; Duplicate Companies</div>
+          <p class="pattern-desc">HIGHEST &middot; 1 story &middot; 1 client (Finstrat). Duplicate company records surfaced while viewing Leasehold Improvement schedules. Fixed manually with <span class="term" data-definition="SQL (Structured Query Language) is the language used to query and update a relational database directly. A manual SQL fix means an engineer ran a database command to delete the duplicate record — it wasn't done through the app's UI.">SQL</span> &mdash; root cause unresolved.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Theme A deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme A &mdash; The list view doesn&rsquo;t behave like a real data table</h2>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="quote"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">&ldquo;It would be helpful to have a Vendor column on the Prepared Schedules screen without having to put the vendor name in the schedule name itself.&rdquo;</span>
+          <p>Story #7410 &mdash; also reported independently by Jones. The workaround of embedding the vendor in the schedule name is fragile and hard to search.</p>
+        </div>
+      </div>
+
+      <div class="grid-2-cols animate-in" style="margin: var(--space-6) 0;">
+
+        <div class="pattern-card" style="border-top: 4px solid var(--color-error);">
+          <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4);">
+            <i data-lucide="x-circle" class="icon" style="color: var(--color-error);"></i>
+            <strong style="font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-error);">Today</strong>
+          </div>
+          <ul style="margin: 0; padding-left: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2);">
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">One <span class="term" data-definition="A dimension in Avise is a custom tagging attribute — like Vendor, Department, or Class — that categorizes journal lines for reporting.">dimension</span> filter at a time</li>
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">No Vendor column</li>
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">No Debit Account column</li>
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">No way to hide inactive schedules</li>
+          </ul>
+        </div>
+
+        <div class="pattern-card" style="border-top: 4px solid var(--color-success);">
+          <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4);">
+            <i data-lucide="check-circle-2" class="icon" style="color: var(--color-success);"></i>
+            <strong style="font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-success);">What Users Want</strong>
+          </div>
+          <ul style="margin: 0; padding-left: var(--space-5); display: flex; flex-direction: column; gap: var(--space-2);">
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">Filter by multiple dimensions simultaneously (Vendor + Class + Account)</li>
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">Persistent Vendor column</li>
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">Persistent Debit Account column</li>
+            <li style="font-size: var(--text-sm); color: var(--color-text-secondary);">Toggle to hide inactive schedules</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="badge-list animate-in">
+        <div class="badge-item">
+          <span class="badge-code">Story 7410</span>
+          <span class="badge-desc">Fixed Vendor column (Bleecker + Jones)</span>
+        </div>
+        <div class="badge-item">
+          <span class="badge-code">Story 7396</span>
+          <span class="badge-desc">Debit Account column (Cellino)</span>
+        </div>
+        <div class="badge-item">
+          <span class="badge-code">Story 7397</span>
+          <span class="badge-desc">Multi-dimension filter (Cellino)</span>
+        </div>
+        <div class="badge-item">
+          <span class="badge-code">Story 7411</span>
+          <span class="badge-desc">Hide inactive schedules (Newlab)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Theme B + C deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme B &mdash; The export and the UI are out of sync</h2>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="quote"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">&ldquo;The Vendor dimension is visible in Avise but when I export the Schedules report, Vendor is not in the file.&rdquo;</span>
+          <p>Story #7398 &mdash; also reported by Bleecker and Jones. Three independent clients hit this.</p>
+        </div>
+      </div>
+
+      <p class="animate-in">The <span class="term" data-definition="XLSX is the file format used by Microsoft Excel. Avise can export schedule data as an XLSX spreadsheet for clients who want to analyse or archive it outside the app.">XLSX</span> export only includes a &lsquo;Dimension Value&rsquo; column when the <code>dimensionName</code> <span class="term" data-definition="A query parameter is a key-value pair appended to a URL that tells the server what to filter or include in the response — for example, ?dimensionName=Vendor tells the export API to add a Vendor column.">query param</span> is passed to the report <span class="term" data-definition="An API (Application Programming Interface) is the set of endpoints a server exposes so that the browser or another service can request data or trigger actions.">API</span>. If the user never applied a dimension filter &mdash; or applied it inside the UI but it wasn&rsquo;t reflected in the export request &mdash; the column is absent. Even when it IS included, all dimension values are collapsed into one comma-joined string, not separate columns.</p>
+
+      <hr class="animate-in" style="border: none; border-top: 1px solid var(--color-border-light); margin: var(--space-8) 0;" />
+
+      <h3 class="animate-in" style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-4);">Theme C &mdash; Journal entry names don&rsquo;t auto-increment</h3>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="quote"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">&ldquo;When adding a new entry to a schedule, if the first JE description is Description 1, the next should auto-suggest Description 2.&rdquo;</span>
+          <p>Story #7742 &mdash; HIGH priority. The only HIGH-severity feature request in the backlog.</p>
+        </div>
+      </div>
+
+      <p class="animate-in">Currently, <code>helpers.ts</code> applies a single <code>HARDCODED_SCHEDULE_JE_DESCRIPTION</code> string to EVERY entry &mdash; it doesn&rsquo;t use the user&rsquo;s description at all for the entry&rsquo;s internal description field. The <span class="term" data-definition="A JE (Journal Entry) is a financial transaction record that debits one account and credits another. In Avise Schedules, one JE is created per period per schedule.">JE</span> name (used as display text) is a separate input field, and the user must type each one manually. <span class="term" data-definition="Auto-increment means the system automatically suggests the next value in a sequence — like 'Description 2' after 'Description 1' — without the user typing it.">Auto-increment</span> would require the create/edit form to detect the pattern and pre-fill the next entry&rsquo;s name field.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Theme D deep-dive (Conditional Flow)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme D &mdash; The &lsquo;pending&rsquo; label survives when it shouldn&rsquo;t</h2>
+
+      <p class="animate-in">This is a UX symptom of the underlying state model. The schedule page shows entries as &lsquo;pending&rsquo; if their journal entry status is <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger. It is waiting for an admin to open the accounting period.">Scheduled</span>. But when a period was opened and then made inactive, the entry is actually <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements and cannot be easily reversed.">Posted</span> &mdash; and archiving it doesn&rsquo;t un-post it.</p>
+
+      <div class="grid-2-cols animate-in stagger-children" style="margin: var(--space-6) 0;">
+
+        <!-- Active Period Path -->
+        <div>
+          <p style="font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-success); margin-bottom: var(--space-4);">Active period &mdash; archive works as expected</p>
+
+          <div class="step-cards" style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <div class="step-card animate-in">
+              <div class="step-card-number">1</div>
+              <div class="step-card-content">Entry has status = <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger.">Scheduled</span> (not yet accepted)</div>
+            </div>
+
+            <div class="step-card animate-in">
+              <div class="step-card-number">2</div>
+              <div class="step-card-content">User archives the entry</div>
+            </div>
+
+            <div class="step-card animate-in" style="border-left: 3px solid var(--color-success);">
+              <div class="step-card-number" style="background: var(--color-success);">3</div>
+              <div class="step-card-content">Entry status &rarr; Deleted. Schedule shows one fewer pending entry. <i data-lucide="check" class="icon-sm" style="color: var(--color-success); margin-left: 4px; vertical-align: middle;"></i></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inactive Period Path -->
+        <div>
+          <p style="font-size: var(--text-sm); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-error); margin-bottom: var(--space-4);">Inactive period &mdash; the confusing case</p>
+
+          <div class="step-cards" style="display: flex; flex-direction: column; gap: var(--space-3);">
+            <div class="step-card animate-in">
+              <div class="step-card-number">1</div>
+              <div class="step-card-content">Entry had status = <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger.">Scheduled</span>, then period was opened &rarr; status = <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements.">Posted</span></div>
+            </div>
+
+            <div class="step-card animate-in">
+              <div class="step-card-number">2</div>
+              <div class="step-card-content">Period is later set to inactive</div>
+            </div>
+
+            <div class="step-card animate-in">
+              <div class="step-card-number">3</div>
+              <div class="step-card-content">User archives the entry in the schedule view</div>
+            </div>
+
+            <div class="step-card animate-in" style="border-left: 3px solid var(--color-error);">
+              <div class="step-card-number" style="background: var(--color-error);">4</div>
+              <div class="step-card-content">Entry becomes Deleted, but it was ALREADY <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements.">Posted</span>. Schedule may still show it as &lsquo;pending&rsquo; because the UI counts <span class="term" data-definition="Scheduled status means the journal entry has been created but not yet accepted.">Scheduled</span> entries, not period status. <i data-lucide="x" class="icon-sm" style="color: var(--color-error); margin-left: 4px; vertical-align: middle;"></i></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon">
+          <i data-lucide="alert-triangle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Story #7763 &mdash; J Cummins</span>
+          <p>The user reasonably assumed that archiving the entry would make the schedule &lsquo;clean.&rsquo; The UI never explained that the entry had already been accepted in a previously-open period. This is a CHORE: the fix is adding contextual messaging, not changing data logic.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 5 — Themes E + F deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme E &mdash; Source transaction section reloads on every keystroke</h2>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon">
+          <i data-lucide="alert-triangle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">HIGHEST priority &mdash; affects Bleecker and Mission Driven (2+ clients)</span>
+          <p>Story #7769: &lsquo;The source transaction section keeps reloading and bouncing up and down on the page when creating a schedule for a larger client.&rsquo; Story #7747 (internal): &lsquo;Fetching your data glitches and flashes.&rsquo;</p>
+        </div>
+      </div>
+
+      <p class="animate-in">The root cause: <code>EditPreparedScheduleDetailsPage.tsx</code> watches <code>sourceIds</code> via <code>watch(&apos;sourceIds&apos;)</code> from <span class="term" data-definition="React Hook Form is a library that manages form state in React. The watch() function subscribes to field changes and re-renders the component whenever that field updates.">React Hook Form</span>. Every time source IDs change &mdash; including on initial render &mdash; it triggers <code>useJournalLinesByIdQuery</code> with the new IDs. For clients with many transactions, this query is expensive and fires repeatedly. The <code>keepPreviousData</code> option helps but doesn&rsquo;t prevent the flashing loading state. This is a <span class="term" data-definition="A race condition is a bug where two operations that depend on timing happen in the wrong order — like the UI trying to show source transactions before the query has finished loading.">race condition</span> between the form state and the data-fetching layer.</p>
+
+      <hr class="animate-in" style="border: none; border-top: 1px solid var(--color-border-light); margin: var(--space-8) 0;" />
+
+      <h3 class="animate-in" style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-4);">Theme F &mdash; Duplicate company records</h3>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon">
+          <i data-lucide="alert-triangle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">HIGHEST priority &mdash; Finstrat reported duplicate &lsquo;Rivet Industries&rsquo; company records (Story #7358)</span>
+          <p>Discovered while viewing Leasehold Improvement A/D schedules. Fixed by manual <span class="term" data-definition="SQL (Structured Query Language) is the language used to query and update a relational database directly. A manual SQL fix means an engineer ran a database command to delete the duplicate record — it wasn't done through the app's UI.">SQL</span> deletion but the root cause &mdash; likely in company import or schedule-company linking &mdash; was never addressed. The support dashboard now has ArchiveDuplicates tooling, but that targets schedule entries, not companies.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 6 — Application: Mini quiz on themes
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Quick check &mdash; which theme?</h2>
+
+      <div class="quiz-container animate-in" id="quiz-module4">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Theme B &mdash; Export omits dimension data. The XLSX export only includes a dimension column when the dimensionName query param is passed. The UI can show the dimension while the export request doesn&rsquo;t carry it."
+             data-explanation-wrong="This is a parity gap between UI and export &mdash; Theme B. The list view (Theme A) is about column visibility in the table itself, not the exported file.">
+          <p class="quiz-question">A client emails: &ldquo;I export the Prepared Schedules report every month but the Vendor column is never in the file even though I can see Vendor data in the app.&rdquo; Which theme?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Theme A &mdash; List view too rigid
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Theme B &mdash; Export omits dimensions
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Theme E &mdash; Source transactions broken
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Theme C, HIGH severity &mdash; the only HIGH-priority feature in the current backlog. Auto-incrementing JE names would require changes to the create/edit form and the transformEntriesForSchedule helper."
+             data-explanation-wrong="This is Theme C &mdash; the auto-increment request. It&rsquo;s the only HIGH-severity feature request. Theme A is about the list view columns and filters.">
+          <p class="quiz-question">A client says: &ldquo;When I add new journal entries to a schedule, I have to type Description 1, Description 2, Description 3 manually. Can&rsquo;t the system just count for me?&rdquo; Which theme? And what severity?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Theme A, LOW&ndash;MEDIUM
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Theme D, CHORE
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Theme C, HIGH
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Posted &mdash; once accepted (period opened), the entry is Posted in the database. Period deactivation doesn&rsquo;t change it. The &lsquo;pending&rsquo; label in the UI is misleading &mdash; this is the Theme D UX bug."
+             data-explanation-wrong="The entry is Posted. Opening the period changed it from Scheduled to Posted. Period deactivation is a period-level state change only &mdash; it doesn&rsquo;t roll back journal entry statuses.">
+          <p class="quiz-question">An entry was accepted last month when the period was open. The admin then deactivated that period. The user now sees the entry as &lsquo;pending&rsquo; on the schedule and tries to archive it. What is the entry&rsquo;s actual database status?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements and cannot be easily reversed.">Posted</span> &mdash; it was accepted when the period opened; period deactivation doesn&rsquo;t change JE status
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="Scheduled status means the journal entry has been created but not yet accepted into the general ledger.">Scheduled</span> &mdash; because the period is now inactive, entries revert to Scheduled
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Deleted &mdash; because the period was archived
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Larger clients &mdash; the query that loads source transactions fires on every form change, and for a client with many transactions, each query takes longer. The more transactions, the worse the bounce."
+             data-explanation-wrong="The bug affects all clients but is worst for larger clients because the source transaction query is proportionally slower when there are more transactions to fetch.">
+          <p class="quiz-question">Theme E (source transaction bouncing) is worst for which type of client?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Small clients with fewer than 10 schedules
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Large clients with many transactions &mdash; the query is slower and refires more noticeably
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Clients using the Rollforward Report view only
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-5">
+          Continue to Module 5: Where to Change the Code
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-3">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to Module 3
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>

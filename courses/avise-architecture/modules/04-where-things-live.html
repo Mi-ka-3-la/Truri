@@ -1,0 +1,362 @@
+<section class="module" id="module-4" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ============================================================
+         SCREEN 1 — ANCHOR: 5-system bento grid
+         ============================================================ -->
+    <section class="screen animate-in">
+      <header class="module-header">
+        <span class="module-eyebrow">Module 4</span>
+        <h1 class="module-title">Where Things Live</h1>
+        <p class="module-subtitle">Avise stores data in 5 different places. That&apos;s not laziness — each storage system exists because it&apos;s the right tool for a specific job.</p>
+      </header>
+
+      <p>Think of a law firm&apos;s filing system: permanent case files go in locked cabinets, access badges live with security, faxes go in a shredder when done, and archived documents go in off-site storage. Everything has a place — because <em>mixing them would be chaos</em>.</p>
+
+      <div class="bento-grid stagger-children">
+
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-1);">
+          <div class="pattern-icon" style="background: var(--color-actor-1);">
+            <i data-lucide="database" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">PostgreSQL</h3>
+          <span class="tech-tag">Permanent records</span>
+          <p class="pattern-desc">Journal entries, tasks, companies, users — the source of truth for all business data. Medium speed, highly reliable.</p>
+        </div>
+
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <div class="pattern-icon" style="background: var(--color-actor-2);">
+            <i data-lucide="shield" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">SpiceDB</h3>
+          <span class="tech-tag">Permission graph</span>
+          <p class="pattern-desc">Who can access what resource — and nothing else. Very fast, completely separate from business data.</p>
+        </div>
+
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="zap" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Redis</h3>
+          <span class="tech-tag">Fast temporary store</span>
+          <p class="pattern-desc">
+            <span class="term" data-definition="BullMQ is a queue library that stores job definitions in Redis. When avise-api restarts mid-job, Redis still holds the job — the next worker picks it up.">BullMQ</span>
+            job definitions, session cache. Extremely fast, not permanent.
+          </p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <div class="pattern-icon" style="background: var(--color-actor-4);">
+            <i data-lucide="cloud" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">AWS S3</h3>
+          <span class="tech-tag">File warehouse</span>
+          <p class="pattern-desc">Uploaded PDFs, Excel files, generated exports. Slow to retrieve, but very cheap at scale — exactly the right tradeoff for large files.</p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in" style="border-top: 4px solid #7C3AED;">
+          <div class="pattern-icon" style="background: #7C3AED;">
+            <i data-lucide="search" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">TurboPuffer</h3>
+          <span class="tech-tag">AI vector index</span>
+          <p class="pattern-desc">
+            Semantic
+            <span class="term" data-definition="An embedding is a mathematical representation of text as a list of numbers. Similar meanings produce numbers that are close together — so 'rent' and 'lease payments' cluster near each other.">embeddings</span>
+            of documents for AI-powered search. Fast for &quot;find similar meaning&quot; queries that PostgreSQL cannot do.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 2 — MECHANISM: ER diagram
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Everything traces back to a Company</h2>
+
+      <p>
+        PostgreSQL is Avise&apos;s permanent record keeper. Its tables are organized in a tree:
+        <span class="term" data-definition="An Organization is the top-level account in Avise — like a firm or enterprise. Organizations contain Companies, which contain all the financial data.">Organizations</span>
+        contain Companies, and Companies hold everything else. Here is the actual shape of the data:
+      </p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="database" class="icon-lg" aria-hidden="true"></i>
+          <div>
+            <h3 class="schema-card-title">The PostgreSQL schema, at a glance</h3>
+            <p class="schema-card-sub">Arrows show &quot;one to many&quot; — one Company has many JournalEntries.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+erDiagram
+  Organization ||--o{ Company : "has many"
+  Company ||--o{ JournalEntry : "has many"
+  Company ||--o{ Task : "has many"
+  Company ||--o{ User : "belongs to many"
+  JournalEntry ||--o{ JournalLine : "has many"
+  JournalEntry {
+    string id PK
+    string companyId FK
+    string status
+    datetime createdAt
+  }
+  Task {
+    string id PK
+    string companyId FK
+    string assigneeId FK
+    string status
+    datetime dueDate
+  }
+  Company {
+    string id PK
+    string organizationId FK
+    string name
+  }
+        </pre>
+        <p class="schema-card-note">Read the arrows as &quot;one to many.&quot; One Organization has many Companies; each Company has many JournalEntries and Tasks. Users belong to Companies.</p>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Start from Company, walk down.</strong>
+          <p>Everything in Avise traces back to a Company. Companies belong to Organizations. Journal entries, tasks, and users all hang off companies — this tree organizes all permanent data. If you&apos;re ever confused about where data lives in PostgreSQL, start from Company and walk down.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 3 — MECHANISM: SpiceDB
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">SpiceDB: permissions live in a completely separate database</h2>
+
+      <p>
+        When you ask &quot;Can this user edit this task?&quot; — Avise queries
+        <span class="term" data-definition="SpiceDB is a dedicated permissions database. It stores only relationships: 'User A is an admin of Company B.' It never stores journal entries, tasks, or any business data.">SpiceDB</span>,
+        not PostgreSQL. Business data and permission data grow at different rates and must stay separate.
+      </p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/authorization/authorizationClient.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// SpiceDB is NOT PostgreSQL. It&apos;s a completely separate database.</span>
+<span class="code-comment">// It stores ONLY relationships: "User A is an admin of Company B"</span></code></pre>
+          <div class="code-walk-explanation">
+            <p>SpiceDB never holds a journal entry, a task, or a company name. Its entire job is to answer one question: &quot;does this relationship exist?&quot; — fast.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// When you ask "Can this user edit this task?" — the app queries SpiceDB.</span>
+<span class="code-comment">// PostgreSQL never gets asked about permissions.</span>
+<span class="code-keyword">import</span> { ResourcePermissions, ResourceRelations } <span class="code-keyword">from</span> <span class="code-string">"../generated/allspice/types"</span>;</code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              The types come from
+              <span class="term" data-definition="Allspice is an internal Avise tool that reads the SpiceDB schema and generates TypeScript types. Every permission check is type-safe — if you reference a resource that doesn&apos;t exist in SpiceDB, TypeScript catches it at compile time.">Allspice</span>
+              — Avise&apos;s own code-generation tool. It reads the SpiceDB schema and produces TypeScript types automatically.
+            </p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// The Allspice DSL generates these types from the SpiceDB schema.</span>
+<span class="code-comment">// Every permission check is type-safe at compile time:</span>
+<span class="code-comment">// "task" and "assignee" are checked against the real schema.</span>
+<span class="code-keyword">export type</span> <span class="code-function">WriteRelationshipsInput</span>&lt;
+  Resource <span class="code-keyword">extends</span> <span class="code-keyword">keyof</span> ResourceRelations &amp; <span class="code-keyword">string</span>,
+  Subject <span class="code-keyword">extends</span> <span class="code-keyword">keyof</span> ResourceRelations[Resource] &amp; <span class="code-keyword">string</span>,
+&gt; = WriteRelationshipsParams&lt;ResourceRelations, ResourcePermissions, Resource, Subject&gt;[];</code></pre>
+          <div class="code-walk-explanation">
+            <p>
+              The
+              <span class="term" data-definition="A generic type is a TypeScript feature that lets you write code that works with different types while still being type-safe. The angle brackets &lt;Resource, Subject&gt; are placeholders filled in when the type is used.">generic type</span>
+              ensures that &quot;task&quot; and &quot;assignee&quot; are real names from the SpiceDB schema — not strings you typed by hand. A typo becomes a compile error, not a runtime bug.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="shield" class="icon-lg" aria-hidden="true"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Avise invented Allspice to make permissions type-safe.</strong>
+          <p>If you write a permission check for a resource that doesn&apos;t exist in SpiceDB, TypeScript catches it at compile time — before it ever hits production. Business data grows constantly. Permission data changes rarely. Mixing them in one database would cause either slow permission checks or slow business queries — so they live apart by design.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 4 — MECHANISM: Redis + S3 + TurboPuffer
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Three more storage systems — each solving a different problem</h2>
+
+      <p>PostgreSQL handles permanent records. SpiceDB handles permissions. These three handle everything else — and each exists because the alternatives would be catastrophically wrong.</p>
+
+      <div class="grid-3-cols stagger-children">
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <div class="pattern-icon" style="background: var(--color-actor-3);">
+            <i data-lucide="zap" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">Redis — BullMQ backend</h3>
+          <p class="pattern-desc">
+            <span class="term" data-definition="BullMQ is a job queue system that uses Redis as its storage engine. Jobs are added to a queue in Redis, and worker processes pick them up and run them — even if the server that added the job has since restarted.">BullMQ</span>
+            stores job definitions in Redis. If avise-api restarts mid-job, Redis still holds the job. The next worker picks it up. Data survives server restarts without needing a full database.
+          </p>
+          <p style="margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary);">
+            <strong>When to use:</strong> any async work that must survive server failures.
+          </p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <div class="pattern-icon" style="background: var(--color-actor-4);">
+            <i data-lucide="cloud" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">AWS S3 — file warehouse</h3>
+          <p class="pattern-desc">
+            When a user uploads a PDF, the file goes directly to
+            <span class="term" data-definition="AWS S3 (Simple Storage Service) is Amazon&apos;s file storage system. It can hold files of any size cheaply. Avise stores only the S3 key (a reference like a library card number) in PostgreSQL — not the file itself.">S3</span>.
+            Avise stores only the S3 key (like a library card number) in PostgreSQL — not the file itself. Storing a 50MB file in a relational database would be catastrophically slow.
+          </p>
+          <p style="margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary);">
+            <strong>When to use:</strong> any user-uploaded file, any generated export.
+          </p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-top: 4px solid #7C3AED;">
+          <div class="pattern-icon" style="background: #7C3AED;">
+            <i data-lucide="search" class="icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="pattern-title">TurboPuffer — vector search</h3>
+          <p class="pattern-desc">
+            When the AI searches for &quot;journal entries about rent expense,&quot; a
+            <span class="term" data-definition="A SQL LIKE query finds rows where text contains an exact substring. It cannot find that 'lease payments' and 'rent expense' are the same concept — it only matches the exact letters you typed.">SQL LIKE query</span>
+            won&apos;t work. TurboPuffer stores
+            <span class="term" data-definition="Vector embeddings are lists of numbers that represent the meaning of text. Similar meanings produce numbers that are mathematically close — so &apos;rent&apos; and &apos;lease payments&apos; cluster together in the vector space.">vector embeddings</span>:
+            mathematical representations of meaning. Similar meanings cluster together, so &quot;rent&quot; and &quot;lease payments&quot; match.
+          </p>
+          <p style="margin-top: var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary);">
+            <strong>When to use:</strong> semantic or AI-powered search.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         SCREEN 5 — APPLICATION: Quiz
+         ============================================================ -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Three scenarios. Each one tests whether you know which storage system owns that type of data.</p>
+
+      <div class="quiz-container" id="quiz-m4">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Permissions are SpiceDB&apos;s entire purpose. They never go in PostgreSQL — that would mean querying business data tables every time you need to check a permission, which would be both slow and a design violation."
+             data-explanation-wrong="Permissions are SpiceDB&apos;s entire purpose. They never go in PostgreSQL — that would mean querying business data tables every time you need to check a permission. SpiceDB exists to keep permission checks fast and separate.">
+          <h3 class="quiz-question">A user is added as an admin of Company X. Where is this permission relationship stored?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL — in the users table</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>SpiceDB — as a permission relationship</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Redis — as a cached permission</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>AWS S3 — in a permissions file</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct. PostgreSQL stores the reference — the S3 key. The actual file lives in S3. This keeps the database fast and the storage cheap."
+             data-explanation-wrong="PostgreSQL stores the reference — the S3 key. The actual file lives in S3. This keeps the database fast and the storage cheap. Storing the file itself in PostgreSQL would make every query that touches that row extremely slow.">
+          <h3 class="quiz-question">A user uploads a 100MB financial report. After it&apos;s uploaded, what does PostgreSQL store?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The full file content</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Nothing — it all goes to S3</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The S3 key (a reference to where the file lives)</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>A compressed version of the file</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly. Semantic search — finding content by meaning, not exact words — requires vector embeddings. That&apos;s TurboPuffer&apos;s job. PostgreSQL would only find exact text matches."
+             data-explanation-wrong="Semantic search — finding content by meaning, not exact words — requires vector embeddings. That&apos;s TurboPuffer&apos;s job. PostgreSQL full-text search still requires the words to appear in the document. TurboPuffer understands that &apos;capital expenditures&apos; and &apos;capex&apos; and &apos;equipment purchases&apos; mean the same thing.">
+          <h3 class="quiz-question">The AI assistant needs to find journal entries that &quot;discuss capital expenditures&quot; even if the user didn&apos;t use those exact words. Which storage system handles this?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL full-text search</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>TurboPuffer vector index</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Redis cache</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>SpiceDB</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m4')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m4')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-5" class="btn module-continue-btn">
+          Continue to Module 5: The Outside World
+          <i data-lucide="arrow-right" class="icon" aria-hidden="true"></i>
+        </a>
+        <a href="#module-3" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm" aria-hidden="true"></i> Back to Module 3
+        </a>
+      </div>
+    </section>
+
+  </div>
+</section>

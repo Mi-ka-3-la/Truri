@@ -1,0 +1,370 @@
+<section class="module" id="module-5" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h1 class="module-title">From Run to Dashboard</h1>
+      <p class="module-subtitle">How eval results travel from your laptop to a shareable web dashboard via S3 and the Evals Viewer.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The full pipeline overview -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Results Pipeline</h2>
+        <p>
+          Running <code>pnpm evals</code> in <code>avise-api</code> does more than just score responses. It launches a full pipeline that stores results persistently and makes them available to the whole team through a web interface.
+        </p>
+
+        <div class="flow-steps animate-in stagger-children">
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">1</div>
+            <p>evalite runs locally</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">2</div>
+            <p>Results stored in evalite.db</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">3</div>
+            <p>Export script uploads to S3</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">4</div>
+            <p>Evals Viewer reads from S3</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step animate-in">
+            <div class="flow-step-num">5</div>
+            <p>Team views results in browser</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: evalite.config.ts -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Runner: Evalite</h2>
+        <p>
+          <span class="term" data-definition="Evalite is an open-source library that acts as a test runner for AI evals. It sits on top of Vitest (a modern JavaScript test runner) and adds AI-specific features: recording scores, viewing results in a local UI, and exporting data.">Evalite</span>
+          is the engine that powers everything. It integrates with
+          <span class="term" data-definition="Vitest is a fast JavaScript/TypeScript test runner, similar to Jest. It discovers test files, runs them, and reports results. Evalite uses Vitest as its foundation and adds AI evaluation capabilities on top.">Vitest</span>
+          and provides a local UI to browse results during development. When you run <code>pnpm evals:watch</code>, it re-runs evals whenever files change — like a live coding environment, but for AI quality.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-comment">// evalite.config.ts</span>
+<span class="code-keyword">import</span> { <span class="code-function">defineConfig</span> }
+  <span class="code-keyword">from</span> <span class="code-string">"evalite"</span>;
+
+<span class="code-keyword">export default</span> <span class="code-function">defineConfig</span>({
+  <span class="code-property">include</span>: [
+    <span class="code-string">"evals/**/*.eval.ts"</span>
+  ],
+});</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This is the configuration file that tells Evalite where to find eval files.</p>
+              <p class="tl">It looks for all files matching the pattern "*.eval.ts" inside the evals/ folder.</p>
+              <p class="tl">Every file with that suffix is an eval file — Evalite will discover and run it automatically.</p>
+              <p class="tl">The naming convention *.eval.ts makes eval files easy to identify at a glance.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Export to S3 -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Sharing Results: Export to S3</h2>
+        <p>
+          Evalite stores results in a local
+          <span class="term" data-definition="SQLite is a lightweight database that lives in a single file on disk. No server required. evalite uses it to store all the eval scores, inputs, outputs, and metadata from your most recent run.">SQLite</span>
+          database file (<code>evalite.db</code>). But that file lives on your laptop — nobody else can see it. The export script solves this.
+        </p>
+        <p>
+          Running <code>pnpm evals</code> automatically calls <code>scripts/exportEvaliteToS3.ts</code> after the evals complete. This script reads the evalite output, packages it as a static HTML bundle, and uploads it to
+          <span class="term" data-definition="S3 (Simple Storage Service) is Amazon's cloud file storage. Think of it as a giant, shared hard drive in the cloud. Files uploaded to S3 can be read by anyone with the right permissions, from anywhere.">S3</span>
+          under a timestamped folder.
+        </p>
+
+        <div class="icon-rows animate-in stagger-children">
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-1)">⏱️</div>
+            <div>
+              <strong>Timestamped folders</strong>
+              <p>Each run is stored as a separate folder in S3: <code>2025-05-14T10:30:00Z/</code>. This preserves the full history so you can compare runs over time.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-2)">📦</div>
+            <div>
+              <strong>Static HTML bundle</strong>
+              <p>Evalite exports its UI as a self-contained HTML app. The export script uploads this bundle to S3 so the viewer can serve it inside an iframe.</p>
+            </div>
+          </div>
+          <div class="icon-row animate-in">
+            <div class="icon-circle" style="background: var(--color-actor-5)">🔐</div>
+            <div>
+              <strong>AWS IAM authentication</strong>
+              <p>The script uses the AWS SDK with IAM credentials. Only developers with the right AWS permissions can upload new results — keeping the history trustworthy.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: avise-evals-viewer architecture -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Dashboard: avise-evals-viewer</h2>
+        <p>
+          The <code>avise-evals-viewer</code> workspace is a small
+          <span class="term" data-definition="Next.js is a React-based framework for building web applications. It can render pages on the server or in the browser, making it suitable for both fast public pages and authenticated internal tools.">Next.js</span>
+          web app that lists eval runs from S3 and displays them. It is a simple but effective internal dashboard.
+        </p>
+
+        <div class="arch-diagram animate-in">
+          <div class="arch-zone" style="border-color: var(--color-accent); margin-bottom: var(--space-4)">
+            <h4 class="arch-zone-label">Browser</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="Sidebar.tsx — lists all available eval runs pulled from S3. Clicking a run navigates to its detail page."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon">📋</div>
+                <span>Sidebar</span>
+              </div>
+              <div class="arch-component"
+                   data-desc="RunPage — when a run is selected, it renders the evalite static HTML bundle inside an iframe. The iframe is the actual Evalite UI."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon">🖼️</div>
+                <span>Run View (iframe)</span>
+              </div>
+              <div class="arch-component"
+                   data-desc="RefreshButton.tsx — a simple button that forces the page to re-fetch runs from S3. Useful after uploading a new run."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon">🔄</div>
+                <span>Refresh Button</span>
+              </div>
+            </div>
+          </div>
+          <div class="arch-zone" style="border-color: var(--color-actor-3)">
+            <h4 class="arch-zone-label">Server (Next.js API Routes)</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+              <div class="arch-component"
+                   data-desc="GET /api/runs/[runId]/json — fetches the eval run JSON data from S3 for a given run ID."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon">📄</div>
+                <span>JSON Route</span>
+              </div>
+              <div class="arch-component"
+                   data-desc="GET /api/runs/[runId]/assets/[...path] — proxies static files from S3 (like the evalite HTML bundle) to the browser. This is how the iframe gets its content."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon">📁</div>
+                <span>Assets Route</span>
+              </div>
+              <div class="arch-component"
+                   data-desc="services/s3.ts — listRuns() and getObject() — the S3 client. Lists top-level prefixes (each is a run timestamp) and fetches file bodies."
+                   onclick="showArchDesc(this)">
+                <div class="arch-icon">☁️</div>
+                <span>S3 Service</span>
+              </div>
+            </div>
+          </div>
+          <div class="arch-description" id="arch-desc">Click any component to learn what it does</div>
+        </div>
+      </section>
+
+      <!-- Screen 5: The S3 service code -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Reading Runs from S3</h2>
+        <p>
+          The <code>listRuns()</code> function in <code>services/s3.ts</code> is what populates the sidebar. It asks S3 to list all top-level "prefixes" — each one is a timestamped folder representing one eval run.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-keyword">async function</span> <span class="code-function">listRuns</span>(): <span class="code-keyword">Promise</span>&lt;<span class="code-keyword">string</span>[]&gt; {
+  <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> Aws.s3.<span class="code-function">send</span>(
+    <span class="code-keyword">new</span> <span class="code-function">ListObjectsV2Command</span>({
+      Bucket: config.evals.s3Bucket,
+      Delimiter: <span class="code-string">"/"</span>,
+    })
+  );
+
+  <span class="code-keyword">const</span> runs = response.CommonPrefixes
+    ?.<span class="code-function">map</span>(p =&gt; p.Prefix.<span class="code-function">replace</span>(<span class="code-string">/\/$/</span>, <span class="code-string">""</span>))
+    ?? [];
+
+  <span class="code-keyword">return</span> runs.<span class="code-function">sort</span>().<span class="code-function">reverse</span>();
+}</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Define an async function that returns a list of run IDs from S3.</p>
+              <p class="tl">Ask S3 to list all objects in the evals bucket, but use "/" as a delimiter — this groups objects by folder instead of listing every file.</p>
+              <p class="tl">S3 returns "CommonPrefixes" — each one is a folder name (e.g. "2025-05-14T10:30:00Z/").</p>
+              <p class="tl">Strip the trailing "/" from each folder name to get the clean run ID.</p>
+              <p class="tl">Sort in reverse order so the most recent runs appear first in the sidebar.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: The iframe trick -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The Clever Iframe Trick</h2>
+        <p>
+          The evalite UI is already a polished, self-contained web app. Rather than rebuilding it from scratch, <code>avise-evals-viewer</code> simply loads it inside an
+          <span class="term" data-definition="An iframe (inline frame) is an HTML element that embeds another webpage inside the current page. The inner page runs independently — it can have its own JavaScript, styles, and navigation.">iframe</span>.
+          The assets route on the server proxies files from S3 to the browser, so the iframe can load the full evalite UI as if it were a local page.
+        </p>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Proxy = No CORS Problems</strong>
+            <p>The browser cannot fetch files from S3 directly due to CORS security restrictions. The Next.js server acts as a middleman: it fetches from S3 server-side and forwards the response to the browser. This pattern — server-side proxying — is a common solution for securely loading content from external storage.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 7: Final quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Final Check</h2>
+
+        <div class="quiz-container" id="quiz-module5">
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Right. The export script is what bridges the gap between a local eval run and the shared team dashboard. Without it, every run would be invisible to everyone except the person who ran it on their machine."
+               data-explanation-wrong="Not quite. The export script is what moves results from a local SQLite file to S3. Only once results are in S3 can the evals viewer display them to the whole team.">
+            <h3 class="quiz-question">A developer ran evals locally and saw great results in the local Evalite UI. But the team cannot see anything in the shared evals dashboard. What is missing?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The evals viewer needs to be restarted to pick up new runs</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The export script was not run — results are still in the local evalite.db and have not been uploaded to S3</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The evals were written with skipEvaluateAgent instead of evaluateAgent</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly. Timestamped S3 folders mean every run is preserved. You can compare the scores from last week against today to see whether a code change improved or regressed the AI quality."
+               data-explanation-wrong="Not quite. The timestamped folder structure is specifically for preserving history. Each run gets its own folder (like 2025-05-14T10:30:00Z/) so older runs are never overwritten — the full trend is visible.">
+            <h3 class="quiz-question">Why does the export script store each run under a timestamped folder in S3 rather than overwriting a single &quot;latest&quot; folder?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>To preserve history so you can compare results across different runs and track quality trends over time</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>To avoid S3 file conflicts when multiple developers run evals simultaneously</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Because S3 does not support overwriting files — each upload creates a new version automatically</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Correct. The assets route proxies S3 files through the Next.js server to the browser. This solves the CORS problem (browsers cannot directly fetch from S3) and keeps AWS credentials on the server where they are safe — never exposed to the browser."
+               data-explanation-wrong="Not quite. The iframe cannot directly load files from S3 because browsers block cross-origin requests (CORS). The Next.js server acts as a proxy — it fetches from S3 server-side and forwards the response, keeping credentials safe and bypassing CORS.">
+            <h3 class="quiz-question">Why does avise-evals-viewer use a server-side assets route to serve the evalite UI rather than having the iframe load directly from S3?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>S3 files are compressed and must be decompressed server-side before they can be used in a browser</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Next.js caches S3 responses, making the viewer faster than fetching from S3 directly</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Browsers block direct S3 fetches due to CORS; the server proxy bypasses this and keeps AWS credentials safe on the server</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+        </div>
+      </section>
+
+      <!-- Screen 8: What you know now -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">You Now Understand the Full Picture</h2>
+        <p>
+          From a natural-language prompt to a score on a shared dashboard — you have traced the entire evals pipeline. Here is a summary of what you have learned:
+        </p>
+
+        <div class="step-cards animate-in stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Why evals exist</strong>
+              <p>AI is non-deterministic. You cannot test it with regular unit tests. Evals run real interactions and score them automatically.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>How the stage is set</strong>
+              <p>EvalsContext loads real data from the database. EvalJournalEntry lazily resolves account data. AccountCache saves redundant DB calls.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>How individual grades work</strong>
+              <p>StringMatch checks text, ArtifactsExist checks output type, ArtifactPropertyMatch checks field values, ToolCallsExist checks tool usage.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <strong>How grades are combined</strong>
+              <p>And requires all, Or needs one, AverageScores gives partial credit, Predicate adds conditional logic.</p>
+            </div>
+          </div>
+          <div class="step-card animate-in">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <strong>How results reach the team</strong>
+              <p>Evalite runs locally → export script uploads to S3 → avise-evals-viewer proxies and displays results via an iframe.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in" style="margin-top: var(--space-8)">
+          <div class="callout-icon">🎯</div>
+          <div class="callout-content">
+            <strong class="callout-title">Your Superpower</strong>
+            <p>Now when you ask an AI to add a new feature or change the agent behavior, you can say: "Write an eval that checks X" — and you know exactly which criterion type to reach for, how to combine them, and where the results will show up.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

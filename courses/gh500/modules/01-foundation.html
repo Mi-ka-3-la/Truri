@@ -1,0 +1,152 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Module 1 · Foundation</span>
+      <h1 class="module-title">What GHAS actually is</h1>
+      <p class="module-subtitle">Three features, two products, one suite. The names are layered — let's untangle them before anything else.</p>
+    </header>
+
+    <!-- SCREEN 1: Foundation (Pattern A) — the 3 features as concept cards -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">GHAS in one breath: three features fighting three security risks</h2>
+
+      <div class="grid-3-cols stagger-children section-spacing">
+        <div class="concept-card animate-in">
+          <i data-lucide="key-round" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Secret scanning</h3>
+          <p class="concept-card-desc">Finds <span class="term" data-definition="A credential or token — API keys, OAuth tokens, database passwords, private SSH keys — that should never be stored in source code because anyone with repo access can use them.">secrets</span> that have ended up in source code. Targets the risk of credential exposure.</p>
+          <span class="concept-card-domain">Domain 1 · Sub-skill: Describe secret scanning</span>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="search-code" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Code scanning</h3>
+          <p class="concept-card-desc">Analyzes your code for security vulnerabilities and coding errors. Powered by <span class="term" data-definition="CodeQL: GitHub's static analysis engine. It treats code as data you can query, and ships with thousands of pre-written security queries that find vulnerability patterns like SQL injection, XSS, and unsafe deserialization.">CodeQL</span> or any tool that emits <span class="term" data-definition="SARIF: Static Analysis Results Interchange Format. A standard JSON format for tools to report security findings. GitHub accepts SARIF files from any third-party scanner, not just CodeQL.">SARIF</span>.</p>
+          <span class="concept-card-domain">Domain 1 · Sub-skill: Describe code scanning</span>
+        </div>
+        <div class="concept-card animate-in">
+          <i data-lucide="package-search" class="icon-xl icon-accent"></i>
+          <h3 class="concept-card-title">Dependabot</h3>
+          <p class="concept-card-desc">Tracks the open-source packages your project depends on. Alerts you when one has a known vulnerability, and (optionally) opens pull requests to update them.</p>
+          <span class="concept-card-domain">Domain 1 · Sub-skill: Describe Dependabot</span>
+        </div>
+      </div>
+
+      <p>These three are <strong>features</strong>, not products. They live inside a suite called <span class="term" data-definition="GHAS: GitHub Advanced Security. The umbrella suite that bundles secret scanning, code scanning, and Dependabot capabilities and offers them as a paid add-on for private repositories.">GHAS</span>. The exam tests both the umbrella name (GHAS) and the individual feature names — and the relationship between them.</p>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="clipboard-list" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Domain 1 coverage: 15% of GH-500</strong>
+          <p>This module addresses the "Describe GHAS features and functionality" objective. By the end, you'll be able to tell apart each feature's purpose and explain how they fit together — which is what every Domain 1 question tests.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — what each feature actually does, with step-card breakdown -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">What each feature actually does, mechanically</h2>
+
+      <p>The exam doesn't just ask "what does secret scanning detect?" — it asks scenarios. To recognize those scenarios, you need to know the mechanism, not just the name.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Secret scanning — the always-on watcher</strong>
+            <p>GitHub maintains a library of patterns supplied by <span class="term" data-definition="Partners in the secret scanning program: companies whose credentials GitHub knows how to recognize — AWS, Google, Stripe, Slack, dozens of others. Each partner provides regex patterns that match their token format, and a webhook URL so GitHub can notify them when a credential leaks.">partner companies</span> (AWS, Stripe, Slack, etc.). Every commit to a scanned repo is checked against these patterns. When a match is found, an <span class="term" data-definition="An alert in the repository's Security tab. Each alert names the secret type, points to the commit/file/line where it appeared, and indicates whether validity checks confirmed it as still active.">alert</span> is created and (for partner tokens) the partner is automatically notified so they can revoke it.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Code scanning — the static analyzer</strong>
+            <p>You configure it via a workflow (typically using the CodeQL action) that runs on every push or pull request. The scanner reads your source code, applies a library of security queries, and emits a <span class="term" data-definition="A SARIF file (Static Analysis Results Interchange Format) is the standardized output that any scanner can produce. GitHub ingests it and turns each finding into an alert in the Security tab.">SARIF file</span>. GitHub turns each finding into an alert with a severity, a vulnerability category (<span class="term" data-definition="CWE: Common Weakness Enumeration. A community-maintained catalog of software weakness types, each with a numeric ID. CWE-89 = SQL injection. CWE-79 = Cross-site scripting. Static analyzers tag each finding with the CWE ID that classifies the weakness so you can group similar issues across tools.">CWE-numbered</span>), and a line-level pointer in the code.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Dependabot — the dependency watcher</strong>
+            <p>It builds a <span class="term" data-definition="Dependency graph: GitHub's parsed inventory of all open-source packages your repository declares (in package.json, requirements.txt, go.mod, etc.) plus their transitive dependencies. It's the foundation Dependabot uses to know what to watch.">dependency graph</span> from your manifests (package.json, requirements.txt, etc.) and cross-references it against the <span class="term" data-definition="GitHub Advisory Database: a curated database of vulnerabilities affecting open-source packages, identified by CVE numbers and GHSA (GitHub Security Advisory) numbers. Dependabot queries it to know what's vulnerable.">GitHub Advisory Database</span>. When a dependency becomes vulnerable (or was already vulnerable when you added it), Dependabot opens an alert and, if security updates are enabled, an automated pull request to bump the version.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The shape that helps you remember</strong>
+          <p>Each feature watches a different layer of risk. Secret scanning watches <em>what's in your code that shouldn't be there</em>. Code scanning watches <em>what your code does that could be exploited</em>. Dependabot watches <em>what your code depends on that someone else might have broken</em>. Three layers, three watchers.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: The product rebranding -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Why you'll see two names for the same thing</h2>
+
+      <p>If you read material from before 2024, you'll see "GHAS" referenced as one product with three features. If you read newer material, you'll see "Secret Protection" and "Code Security" as separate products. Both are correct — the suite was unbundled.</p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="folder-tree" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">The current product structure</h3>
+            <p class="schema-card-sub">One suite, two products, three feature families.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+graph TB
+  GHAS["🛡️ GitHub Advanced Security<br/>(parent suite)"]
+  SP["🔑 Secret Protection<br/>(product)"]
+  CS["🔍 Code Security<br/>(product)"]
+  DEP["📦 Dependabot<br/>(included free for everyone)"]
+
+  SS["Secret scanning"]
+  PP["Push protection"]
+  CQ["CodeQL code scanning"]
+  CA["Copilot Autofix"]
+  THIRD["Third-party SARIF upload"]
+
+  DA["Dependabot alerts"]
+  DSU["Dependabot security updates"]
+  DR["Dependency Review"]
+
+  GHAS --> SP
+  GHAS --> CS
+  GHAS -.-> DEP
+  SP --> SS
+  SP --> PP
+  CS --> CQ
+  CS --> CA
+  CS --> THIRD
+  DEP --> DA
+  DEP --> DSU
+  DEP --> DR
+
+  classDef anchor fill:#FDEEE9,stroke:#D94F30,stroke-width:2px,color:#1F1D1B;
+  class GHAS,SP,CS anchor;
+        </pre>
+        <p class="schema-card-note">Solid arrows: paid products under GHAS. Dashed arrow: Dependabot is free for everyone (public AND private), even without a GHAS license. That distinction matters for the exam — Dependabot is the only feature in this diagram that doesn't need a paid license to use.</p>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: features vs products</strong>
+          <p>Questions may use the product name ("Which feature is part of Secret Protection?") or the feature name ("What does push protection do?") interchangeably. Push protection sits inside Secret Protection. Secret scanning sits inside Secret Protection. CodeQL scanning sits inside Code Security. Dependabot stands on its own. Know which feature lives in which product bucket.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Continue CTA -->
+    <div class="continue-cta animate-in">
+      <a href="#module-2" class="btn btn-continue">
+        Continue to Module 2: Where each feature works <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-0" class="btn-back-link">
+        <i data-lucide="arrow-left" class="icon-sm"></i> Back to overview
+      </a>
+    </div>
+  </div>
+</section>

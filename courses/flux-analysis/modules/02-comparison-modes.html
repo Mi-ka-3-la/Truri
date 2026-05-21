@@ -1,0 +1,259 @@
+<section class="module" id="module-2">
+  <div class="module-content">
+    <div class="module-number">02</div>
+    <h2 class="module-title">Picking Your Comparison Mode</h2>
+    <p class="module-subtitle">Month over Month, Quarter over Quarter, Year over Year — not just cosmetic labels. Each one pulls different date ranges from the database.</p>
+
+    <!-- SCREEN 1: Anchor — the three modes -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Three lenses on the same data</h2>
+
+      <div class="bento-grid stagger-children">
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="calendar-days" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h3 class="pattern-title">Month over Month</h3>
+          <p class="pattern-desc">Current month vs. the immediately prior month. Best for operational close reviews — "what changed this month?"</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">monthOverMonth</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="calendar-range" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h3 class="pattern-title">Quarter over Quarter</h3>
+          <p class="pattern-desc">Current fiscal quarter vs. the prior fiscal quarter. Smooths out month-to-month noise for trends.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">quarterOverQuarter</code>
+        </div>
+        <div class="bento-2 pattern-card animate-in" style="border-top: 4px solid var(--color-actor-4);">
+          <i data-lucide="calendar" class="icon-xl" style="color: var(--color-actor-4);"></i>
+          <h3 class="pattern-title">Year over Year</h3>
+          <p class="pattern-desc">Current fiscal year-to-date vs. the same period last year. Best for seasonality-adjusted analysis.</p>
+          <code style="font-size: var(--text-xs); color: var(--color-text-muted);">yearOverYear</code>
+        </div>
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">The comparison dropdown is feature-flagged</strong>
+          <p>The <span class="term" data-definition="A feature flag is an on/off switch controlled by engineers that enables or disables a feature for specific users or organizations — without a code deployment.">feature flag</span> <code>additional-flux-report-types</code> controls whether QoQ and YoY appear in the dropdown. When it is off, only Month over Month is available. Today this flag defaults to off, so most users only see the MoM option.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Mechanism — how the selection flows to the screen (Group Chat) -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">What actually happens when you pick a comparison</h2>
+
+      <p>Your dropdown selection travels from the UI through the <span class="term" data-definition="An API (Application Programming Interface) is a defined channel through which one piece of software sends a request to another and receives a response. Here, the frontend (what you see) sends a request to the backend (the server) with your chosen comparison.">API</span> to the backend, which uses it to decide which two date ranges to load from the database. Here&apos;s the conversation:</p>
+
+      <div class="chat-window" id="chat-module2">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-msg="0" data-sender="ui" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Your Browser (UI)</span>
+              <p>User selected &ldquo;Current Month vs Prior Month.&rdquo; Sending request to backend with <code>comparison=monthOverMonth</code>, <code>periodId=oct-2024</code>.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="1" data-sender="api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Backend API</span>
+              <p>Got it. <code>monthOverMonth</code> means: current range = Oct 1–31, comparison range = Sep 1–30. Fetching balances for both date ranges now.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="2" data-sender="db" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4)">D</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4)">Database</span>
+              <p>Here are the journal line balances for Oct and Sep for all accounts. October: $1.2M total activity. September: $980k total activity.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="3" data-sender="api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">Backend API</span>
+              <p>Calculating deltas per account: $ change = Oct balance − Sep balance. % change = (delta / |Sep balance|) × 100. Building the report structure.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="4" data-sender="ui" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">U</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">Your Browser (UI)</span>
+              <p>Report received. Rendering the table with column headers &ldquo;October 2024&rdquo;, &ldquo;September 2024&rdquo;, &ldquo;Amount Change&rdquo;, &ldquo;% Change&rdquo;. Done!</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-module2-typing" style="display:none">
+          <div class="chat-avatar" id="chat-module2-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Mechanism — date ranges per comparison type -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Quarter and Year comparisons use fiscal calendar, not calendar year</h2>
+
+      <p>For QoQ and YoY, the backend doesn&apos;t use January 1 as the year start — it uses your company&apos;s configured <span class="term" data-definition="The fiscal year start is the date a company considers the beginning of its financial year. Many companies use January 1, but others (retail, government, etc.) use different dates like April 1 or October 1.">fiscal year start</span>. This ensures the quarters line up correctly for your business.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/services/reports/flux/fluxUtils.ts — getReportParamsFromFluxReportType()</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">case</span> <span class="code-string">FluxComparison.monthOverMonth</span>:
+  <span class="code-keyword">return</span> {
+    <span class="code-property">compareTo</span>: <span class="code-string">CompareToOptions.PreviousMonth</span>,
+    <span class="code-property">startDate</span>: formatDate(period.startsOn),
+    <span class="code-property">endDate</span>: formatDate(period.endsOn),
+  };</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Month over Month:</strong> simplest case — compare to the immediately prior calendar month. Start and end dates come directly from the selected period&apos;s boundaries.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">case</span> <span class="code-string">FluxComparison.quarterOverQuarter</span>:
+  <span class="code-keyword">return</span> {
+    <span class="code-property">compareTo</span>: <span class="code-string">CompareToOptions.PreviousQuarter</span>,
+    <span class="code-property">startDate</span>: formatDate(fiscalQuarterStartDate),
+    <span class="code-property">endDate</span>: formatDate(fiscalQuarterEndDate),
+  };</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Quarter over Quarter:</strong> the date range expands to cover the entire fiscal quarter. <code>fiscalQuarterStartDate</code> is computed using the company&apos;s <code>fiscalYearStartMonth</code> and <code>fiscalYearStartDay</code> settings. If your FY starts April 1, Q1 is April–June, not January–March.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">case</span> <span class="code-string">FluxComparison.yearOverYear</span>:
+  <span class="code-keyword">return</span> {
+    <span class="code-property">compareTo</span>: <span class="code-string">CompareToOptions.PreviousYear</span>,
+    <span class="code-property">startDate</span>: formatDate(fiscalYearStartDate),
+    <span class="code-property">endDate</span>: formatDate(fiscalYearEndDate),
+  };</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>Year over Year:</strong> date range expands to the full fiscal year. The backend computes this YTD (year-to-date) range and compares it to the same YTD span in the prior fiscal year. So if you select October 2024, you get FY24 YTD (April–October) vs FY23 YTD (April–October).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Threshold alerts only work for Month over Month</strong>
+          <p>The yellow alert icon (and the <code>create-mom-flux-task</code> feature) only fires when comparison is <code>monthOverMonth</code>. QoQ and YoY will never show threshold alerts, even if thresholds are configured in Settings. This is a hardcoded rule in the UI cell renderer.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Apply what you know about comparison modes.</p>
+
+      <div class="quiz-container" id="quiz-module2">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — QoQ uses the company&apos;s fiscal year start to determine quarter boundaries, not January 1. A company with an April 1 fiscal year has Q1 = April–June, not January–March."
+             data-explanation-wrong="Quarter over Quarter does NOT assume January as the year start. It uses the company&apos;s configured fiscal year start date, so the quarter boundaries vary per company.">
+          <h3 class="quiz-question">Your company&apos;s fiscal year starts April 1. You select &ldquo;Quarter over Quarter&rdquo; in October. Which quarter does the CURRENT period cover?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>July–September (Q3 of the calendar year)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>July–September (Q2 of the fiscal year, since FY starts April 1)</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>October alone (the month you selected)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right — the yellow threshold alert icon only triggers for Month over Month comparisons. It is hardcoded to only appear when comparison = monthOverMonth, regardless of how thresholds are set."
+             data-explanation-wrong="The yellow alert icon is tied specifically to Month over Month comparison mode. Even with thresholds configured, the icon will not appear when you switch to Year over Year.">
+          <h3 class="quiz-question">You have both % Change Threshold and $ Change Threshold configured in Settings. You switch the comparison to &ldquo;Year over Year.&rdquo; What happens to the yellow alert icons?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons still appear for accounts over threshold</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons appear only for the % Change column, not $ Change</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Alert icons disappear completely — they only work for Month over Month</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly — the column headers dynamically reflect the actual period names from the date ranges, so the user always sees &lsquo;October 2024&rsquo; and &lsquo;September 2024&rsquo; rather than generic labels."
+             data-explanation-wrong="The backend sends the actual period display names (e.g., &lsquo;October 2024&rsquo;) as part of the report, and the frontend uses those as column headers. They are never hardcoded as &lsquo;Current&rsquo; and &lsquo;Prior&rsquo;.">
+          <h3 class="quiz-question">What text appears as column headers for the two balance columns when comparing October to September Month over Month?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>&ldquo;October 2024&rdquo; and &ldquo;September 2024&rdquo; — actual period display names</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>&ldquo;Current Period&rdquo; and &ldquo;Prior Period&rdquo; — generic labels</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>&ldquo;This Month&rdquo; and &ldquo;Last Month&rdquo;</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Try Again</button>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-3" class="btn module-continue-btn">
+          Continue to Module 3: The % Change Column
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-1" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 1
+        </a>
+      </div>
+    </section>
+  </div>
+</section>

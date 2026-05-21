@@ -1,0 +1,264 @@
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">01</div>
+      <h1 class="module-title">What Schedules Does</h1>
+      <p class="module-subtitle">The happy path &mdash; from &ldquo;I have a lease expense&rdquo; to a fully-posted <span class="term" data-definition="A journal entry is a record of a financial transaction in your accounting system. It debits one account and credits another, keeping your books balanced.">journal entry</span> that repeats itself every month.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Anchor: what schedules are
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Schedules automate repeating journal entries</h2>
+
+      <div class="bento-grid stagger-children">
+
+        <div class="bento-3 pattern-card animate-in">
+          <div class="pattern-icon">
+            <i data-lucide="file-text" class="icon"></i>
+          </div>
+          <p class="pattern-title">Prepared Schedule</p>
+          <p class="pattern-desc">A container that holds a recurring expense &mdash; like rent, insurance, or a software subscription &mdash; with all its entries pre-planned.</p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in">
+          <div class="pattern-icon">
+            <i data-lucide="list-ordered" class="icon"></i>
+          </div>
+          <p class="pattern-title">Journal Entries</p>
+          <p class="pattern-desc">Each month inside the schedule is one <span class="term" data-definition="A journal entry is a debit-and-credit record that moves value between accounts in your general ledger. Avise creates these automatically for each period of a schedule.">journal entry</span>. Avise creates them all upfront in <span class="term" data-definition="Scheduled status means the journal entry has been created but not yet posted to the general ledger. It is waiting for the accounting period to be opened by an admin.">Scheduled status</span>, then accepts them when periods open.</p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in">
+          <div class="pattern-icon">
+            <i data-lucide="link-2" class="icon"></i>
+          </div>
+          <p class="pattern-title">Source Transactions</p>
+          <p class="pattern-desc">The real transaction that started the expense &mdash; e.g., the invoice line. Linking it tells Avise where this schedule came from.</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="lightbulb"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Think: a standing order at your bank</span>
+          <p>You set it up once &mdash; amount, account, frequency. The bank executes it monthly without you touching it. Schedules do the same for <span class="term" data-definition="A journal entry is a debit-and-credit record in your accounting system that records a financial transaction by affecting at least two accounts.">journal entries</span> in your <span class="term" data-definition="The general ledger is the master record of all financial transactions for a company. Every posted journal entry ends up here and feeds financial statements like the income statement and balance sheet.">general ledger</span>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Mechanism: happy path flow animation
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">What happens when you create a schedule</h2>
+
+      <div class="flow-animation animate-in"
+           data-steps='[
+             {"highlight":"flow-actor-1","label":"User fills out the Create Schedule form with name, term dates, entries, and optional source transactions"},
+             {"highlight":"flow-actor-2","label":"Frontend sends POST /v1/companies/:id/schedules with entries, name, termStart, termEnd, sourceLineIds","packet":true,"from":"actor-1","to":"actor-2"},
+             {"highlight":"flow-actor-3","label":"Backend validates accounts are Balance Sheet type, creates journal entries with Scheduled status","packet":true,"from":"actor-2","to":"actor-3","payload":"status: Scheduled\nentryType: JournalEntry\nplatform: Avise"},
+             {"highlight":"flow-actor-4","label":"PreparedSchedule row created. ScheduleLinkedTransactions rows link each JE. ScheduleSourceLines link source transactions.","packet":true,"from":"actor-3","to":"actor-4"},
+             {"highlight":"flow-actor-5","label":"When admin opens the period, Scheduled entries become Posted — they hit the general ledger.","packet":true,"from":"actor-4","to":"actor-5","payload":"JournalEntryStatus: Scheduled → Posted"}
+           ]'>
+
+        <div id="flow-label" class="flow-step-label">Click &ldquo;Next Step&rdquo; to begin</div>
+        <div id="flow-payload" class="flow-payload"></div>
+
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">
+              <i data-lucide="user" class="icon"></i>
+            </div>
+            <span>User</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">
+              <i data-lucide="layout-dashboard" class="icon"></i>
+            </div>
+            <span>Create Form</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">
+              <i data-lucide="zap" class="icon"></i>
+            </div>
+            <span>Backend API</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-4">
+            <div class="flow-actor-icon">
+              <i data-lucide="database" class="icon"></i>
+            </div>
+            <span>Database</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-5">
+            <div class="flow-actor-icon">
+              <i data-lucide="unlock" class="icon"></i>
+            </div>
+            <span>Period Open</span>
+          </div>
+        </div>
+
+        <div class="flow-packet"></div>
+
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">&#8592; Prev</button>
+          <button class="btn btn-primary flow-next-btn">Next Step &rarr;</button>
+          <button class="btn flow-reset-btn">Reset</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Mechanism: three views users see
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Three places to find Schedules in the UI</h2>
+
+      <div class="icon-rows stagger-children">
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="--icon-color: var(--color-accent);">
+            <i data-lucide="layout-list" class="icon"></i>
+          </div>
+          <div>
+            <strong>Prepared Schedules List</strong>
+            <p>The main list view at <code>/schedules/prepared-schedules</code>. Shows all schedules as rows in a <span class="term" data-definition="A rollforward table shows the movement of a balance from an opening amount through additions, changes, and disposals to a closing amount — one column per accounting period.">rollforward table</span> &mdash; columns for each month, Additions / Scheduled / Ending Balance.</p>
+          </div>
+        </div>
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="--icon-color: var(--color-actor-2);">
+            <i data-lucide="file-spreadsheet" class="icon"></i>
+          </div>
+          <div>
+            <strong>Single Schedule View (PreparedSchedulePage)</strong>
+            <p>Click a schedule name to see its entries, source transactions, files, and entry-by-entry status. This is the detail page for one <span class="term" data-definition="A Prepared Schedule is the top-level record in the Schedules feature. It groups all the journal entries for a single recurring expense, along with its term dates, dimension values, and source transactions.">Prepared Schedule</span>.</p>
+          </div>
+        </div>
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="--icon-color: var(--color-actor-3);">
+            <i data-lucide="bar-chart-3" class="icon"></i>
+          </div>
+          <div>
+            <strong>Rollforward Report</strong>
+            <p>A pivot view grouped by <span class="term" data-definition="A dimension value is a metadata tag on a journal entry — for example, the Department, Vendor, or Cost Center. In Schedules, entries can be filtered and grouped by dimension value in the rollforward report.">dimension value</span> &mdash; shows how all schedules roll forward over time within a dimension like Department or Vendor.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="download"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">The export button lives on the Prepared Schedules list</span>
+          <p>An Excel (XLSX) file is generated when you click Export. It sends the same query params as the list view &mdash; same date range, same filters &mdash; to the backend&rsquo;s report endpoint.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Application: quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <div class="quiz-container animate-in" id="quiz-module1">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly &mdash; Schedules creates all entries upfront in Scheduled status. When each period opens, the entry is accepted automatically."
+             data-explanation-wrong="Schedules exist precisely to remove this manual work. Entries are pre-created in Scheduled status and accepted when periods open &mdash; no monthly re-entry needed.">
+          <p class="quiz-question">A client wants to automate their monthly rent expense of $12,000. They ask you: do they need to re-enter the journal entry every month?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Yes &mdash; they need to create a new journal entry every month
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              No &mdash; they create one Prepared Schedule and entries are automatically accepted each period
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Only if they use the Rollforward Report view
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct &mdash; Scheduled is the holding status. Entries sit there until the period opens, at which point they transition to Posted."
+             data-explanation-wrong="Entries start as Scheduled &mdash; not Posted. Posted only happens when the period is opened and entries are accepted.">
+          <p class="quiz-question">What status do journal entries have immediately after a schedule is created?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Scheduled
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Posted
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Pending
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right &mdash; a source transaction is a journal line (the original transaction) that initiated the schedule. It shows up in the Additions column of the rollforward report."
+             data-explanation-wrong="Source transactions are journal lines &mdash; the originating transactions that caused the schedule to be created. They are not the scheduled entries themselves.">
+          <p class="quiz-question">What is a Source Transaction on a Prepared Schedule?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A future journal entry that will be posted when the period opens
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              An external bank transaction imported from QuickBooks
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A journal line from an existing transaction that initiated the schedule &mdash; it appears in the Additions column
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Reset</button>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-2">
+          Continue to Module 2: Meet the Actors
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-0">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to overview
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>

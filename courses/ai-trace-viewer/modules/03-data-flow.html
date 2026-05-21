@@ -1,0 +1,265 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">From Click to Conversation</h1>
+      <p class="module-subtitle">Trace the exact journey your data takes — from mouse click to fully rendered conversation on screen.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The animated flow — hero visual -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Every click triggers a pipeline — step through it</h2>
+
+        <div class="flow-animation" data-steps="[
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;You click a conversation row in the Trace List&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;Next.js receives the request — checks cache first&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-1&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;Cache miss — calls the trace service function&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Prisma translates TypeScript into a SQL JOIN query&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-3&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-4&quot;, &quot;label&quot;: &quot;PostgreSQL runs the query — returns conversation rows&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-3&quot;, &quot;to&quot;: &quot;actor-4&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;Prisma converts rows into a FullTrace TypeScript object&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-4&quot;, &quot;to&quot;: &quot;actor-3&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;Next.js stores the result in cache (tagged so it can be cleared later)&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-3&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;Browser renders the conversation — you see the messages!&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-1&quot;}
+        ]">
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">🖥️</div>
+              <span>Browser</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">⚡</div>
+              <span>Next.js</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">🔄</div>
+              <span>Prisma</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-4">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-4)">🗄️</div>
+              <span>PostgreSQL</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click "Next Step" to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <p>Notice step 7 — the result is stored in cache <em>with a tag</em>. That tag is what makes the clever trick in Module 5 possible: when you post a note, the app uses that tag to tell Next.js "throw away this cached result so the next viewer gets fresh data."</p>
+      </section>
+
+      <!-- Screen 2: The cache code — with the full revalidateTag explanation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The cache: how it stores and how it forgets</h2>
+
+        <p>Here is the actual code that sets up caching — from <code>services/trace-service.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-function">getTrace</span> = <span class="code-function">unstable_cache</span>(</span>
+<span class="code-line">  getTraceUncached,</span>
+<span class="code-line">  [<span class="code-string">"trace-detail"</span>],</span>
+<span class="code-line">  {</span>
+<span class="code-line">    <span class="code-property">revalidate</span>: <span class="code-property">CACHE_SECONDS</span>.<span class="code-property">traces</span>,</span>
+<span class="code-line">    <span class="code-property">tags</span>: [<span class="code-string">"trace"</span>],</span>
+<span class="code-line">  }</span>
+<span class="code-line">);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Create a cached version of the function that fetches a conversation.</p>
+              <p class="tl">Wrap the real function that does the database work.</p>
+              <p class="tl">Give this cache a name so Next.js can identify it.</p>
+              <p class="tl">Settings:</p>
+              <p class="tl">Automatically expire the cached result after 120 seconds — then fetch fresh data.</p>
+              <p class="tl">Tag this cache entry "trace" — this is how we can clear it on demand (see below).</p>
+            </div>
+          </div>
+        </div>
+
+        <p>That <code>tags: ["trace"]</code> is not just a label — it is a handle. When a reviewer posts a new comment, the notes feature calls <span class="term" data-definition="revalidateTag is a Next.js function that immediately removes all cached results with a given tag. Any future request will re-run the real function against the database instead of returning the stale cached value. It is the manual override for the automatic cache expiry.">revalidateTag("trace")</span> — which tells Next.js: <em>delete every cached result tagged "trace" right now</em>. The next person to open that conversation gets fresh data from the database, including the new comment in the note count.</p>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">🏷️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Cache tags: the on/off switch</strong>
+            <p>Automatic expiry (120 seconds) covers the normal case — data gradually goes stale. Tags cover the exceptional case — you know right now that specific data has changed. Together they give you both passive freshness and active invalidation. This two-pronged approach is used in production apps everywhere.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: What the server fetches — the flatMap / artifact lookup -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Two queries in one: messages and their artifacts</h2>
+
+        <p>The function that does the real work is <code>getTraceUncached</code>. After fetching the conversation and messages, it does a second pass to collect any AI-produced <span class="term" data-definition="An artifact is a document or output the AI produced during the conversation — like a proposed journal entry, a schedule, or a balance sheet report. They are stored separately in an 'operations' table and linked to messages via metadata.">artifacts</span>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-property">artifactIds</span> = conversation.<span class="code-property">messages</span>.<span class="code-function">flatMap</span>(<span class="code-property">message</span> <span class="code-operator">=></span></span>
+<span class="code-line">  <span class="code-function">extractArtifactIds</span>(message.<span class="code-property">metadata</span> <span class="code-keyword">as</span> ...),</span>
+<span class="code-line">);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">if</span> (artifactIds.<span class="code-property">length</span> <span class="code-operator">&gt;</span> <span class="code-number">0</span>) {</span>
+<span class="code-line">  <span class="code-keyword">const</span> <span class="code-property">rows</span> = <span class="code-keyword">await</span> prisma.<span class="code-function">$queryRaw</span><span class="code-operator">&lt;</span>...<span class="code-operator">&gt;</span><span class="code-string">`</span></span>
+<span class="code-line">    <span class="code-keyword">SELECT</span> id, status, started_at, stopped_at, operation_data</span>
+<span class="code-line">    <span class="code-keyword">FROM</span>   operations</span>
+<span class="code-line">    <span class="code-keyword">WHERE</span>  id = <span class="code-function">ANY</span>(${artifactIds}) <span class="code-keyword">AND</span></span>
+<span class="code-line">           operation_type = <span class="code-string">'AIArtifact'</span></span>
+<span class="code-line">  <span class="code-string">`</span>;</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl"><span class="term" data-definition="flatMap is a JavaScript method that maps over each item in an array and then flattens the result into a single flat array. Like collecting all the items from many bags into one big pile.">flatMap</span> goes through every message and extracts the artifact IDs mentioned in its metadata — then merges all those ID lists into a single flat list.</p>
+              <p class="tl">Each message stores artifact references in its metadata field — a JSON blob that contains extra context about what the AI was doing.</p>
+              <p class="tl">Only run the next query if there are actually artifact IDs to look up — no point hitting the database with an empty list.</p>
+              <p class="tl">Ask Prisma to run raw SQL — useful when Prisma's standard API is not expressive enough for a specific query.</p>
+              <p class="tl">Fetch only the columns needed (status, timing, data).</p>
+              <p class="tl">From the operations table — a shared table that stores all kinds of operations, not just AI artifacts.</p>
+              <p class="tl">ANY(artifactIds) is a PostgreSQL shorthand: it matches any row whose ID appears in the list. More efficient than a long OR chain.</p>
+              <p class="tl">Filter to only AIArtifact rows — ignoring unrelated operation types in the same table.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: The file tree -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Where all this code lives</h2>
+
+        <p>The data-flow code is split across a logical <span class="term" data-definition="Feature-based architecture organises code by what it does for the user (traces, dashboard, notes) rather than by what type of code it is (all services together, all components together). This means everything related to a feature is co-located and easy to find.">feature-based architecture</span>:</p>
+
+        <div class="file-tree animate-in">
+          <div class="ft-folder open">
+            <span class="ft-name">src/</span>
+            <span class="ft-desc">All application source code</span>
+            <div class="ft-children">
+              <div class="ft-folder">
+                <span class="ft-name">services/</span>
+                <span class="ft-desc">Data fetching with caching — trace-service.ts, dashboard-service.ts, notes-service.ts</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">infrastructure/</span>
+                <span class="ft-desc">Database connections — prisma.ts (PostgreSQL), sqlite.ts (notes + FTS5 index)</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">domain/</span>
+                <span class="ft-desc">Pure business logic — filters.ts, traces.ts (artifact extraction), topics.ts</span>
+              </div>
+              <div class="ft-folder">
+                <span class="ft-name">features/</span>
+                <span class="ft-desc">One folder per feature: traces/ dashboard/ notes/ trace-detail/ reliability/</span>
+              </div>
+              <div class="ft-file">
+                <span class="ft-name">types/index.ts</span>
+                <span class="ft-desc">All shared TypeScript interfaces — FullTrace, TraceSummary, TraceFilters, etc.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">🗺️</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why this matters when talking to AI coding agents</strong>
+            <p>Knowing this structure means you can be precise: "Update the date filter logic in <code>domain/filters.ts</code>, add the date parameter to the Prisma query in <code>features/traces/loaders.ts</code>, and update the UI in <code>features/filters/components/FilterBar.tsx</code>." That specificity produces far better results than "add a date filter."</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz — 3 questions -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Correct — the first person triggers the database query and fills the cache. The second person, 30 seconds later, is within the 2-minute window and gets the stored result instantly. The database is only queried once."
+               data-explanation-wrong="Each user does not get their own database query — the cache is shared on the server. The first request fills it, subsequent requests within the 120-second window get the cached result with no database round-trip.">
+            <h3 class="quiz-question">Two reviewers open the same conversation 30 seconds apart. How many times does PostgreSQL get queried?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Twice — each person gets their own database query</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Once — the first person fills the cache, the second gets the stored result</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Zero — the browser caches the page after the first load</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Exactly — revalidateTag clears all cache entries with the given tag on demand. Adding a note calls revalidateTag so the next person to open that conversation gets fresh data, even if the 2-minute window has not expired yet."
+               data-explanation-wrong="The cache expires automatically after 2 minutes — but that passive expiry alone is not enough when you know right now that something has changed. revalidateTag provides the active invalidation: you explicitly tell Next.js to clear entries with a given tag immediately.">
+            <h3 class="quiz-question">A reviewer adds a note. For other team members to see it when they next open the conversation — before the 2-minute cache expiry — what must happen?</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The notes feature calls revalidateTag("trace") to immediately clear the cached conversation data</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The other reviewers must manually refresh their browsers to bypass the cache</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Nothing — notes are stored in SQLite, which the cache does not cover</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right — adding a new displayed field means updating three layers: the Prisma query (ask for the field), the TypeScript interface (describe its shape), and the React component (render it). The database schema is unchanged because the field already exists there."
+               data-explanation-wrong="React renders what the server sends — but it has no say in what fields get fetched. The database schema is also not changed — the field already exists in the database. The gap is in the middle: the Prisma query needs to include the field, and the TypeScript types need to describe it.">
+            <h3 class="quiz-question">The conversation topic is in the database but not shown in Trace Detail. To display it, you would need to change...</h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only the React component — add a field to the UI template</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Only the database schema — add a topic column to the conversations table</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Prisma query (include topic in the fetch), the TypeScript type (add topic to FullTrace), and the React component (render it)</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

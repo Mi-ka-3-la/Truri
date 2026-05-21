@@ -1,0 +1,660 @@
+/* ===================================================================
+   CERT PREP — Additional Styles
+   ===================================================================
+   These styles are SPECIFIC to the pdf-to-cert-prep skill and extend
+   the inherited styles.css and styles-polish.css. Always include this
+   file in the course directory and link it in _base.html AFTER
+   styles-polish.css.
+   
+   <link rel="stylesheet" href="styles.css">
+   <link rel="stylesheet" href="styles-polish.css">
+   <link rel="stylesheet" href="styles-cert.css">  ← this file, LAST
+   =================================================================== */
+
+/* ============================================
+   CONCEPT CARDS
+   ============================================ */
+
+.concept-card {
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-6, 1.5rem);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+  border-top: 4px solid var(--color-accent, #D94F30);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 0.75rem);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.concept-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.08));
+}
+
+.concept-card-title {
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-xl, 1.25rem);
+  margin: 0;
+  color: var(--color-text, #1F1D1B);
+}
+
+.concept-card-desc {
+  font-size: var(--text-base, 1rem);
+  line-height: 1.5;
+  color: var(--color-text-secondary, #5C5751);
+  margin: 0;
+}
+
+.concept-card-domain {
+  display: inline-block;
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-accent, #D94F30);
+  background: var(--color-accent-light, #FDEEE9);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  border-radius: var(--radius-sm, 4px);
+  font-weight: 600;
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* ============================================
+   COMPARISON TABLES
+   ============================================ */
+
+.comparison-table,
+.scope-matrix {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+  margin: var(--space-8, 2rem) 0;
+}
+
+.comparison-table thead th,
+.scope-matrix thead th {
+  background: var(--color-accent-light, #FDEEE9);
+  color: var(--color-text, #1F1D1B);
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-base, 1rem);
+  padding: var(--space-4, 1rem) var(--space-3, 0.75rem);
+  text-align: left;
+  border-bottom: 2px solid var(--color-accent, #D94F30);
+}
+
+.comparison-table thead th:first-child,
+.scope-matrix thead th:first-child {
+  width: 30%;
+}
+
+.comparison-table thead th .icon-sm,
+.scope-matrix thead th .icon-sm {
+  margin-right: var(--space-2, 0.5rem);
+  vertical-align: middle;
+}
+
+.comparison-table tbody td,
+.scope-matrix tbody td {
+  padding: var(--space-3, 0.75rem);
+  border-bottom: 1px solid var(--color-border, #EAE5DD);
+  font-size: var(--text-base, 1rem);
+  color: var(--color-text, #1F1D1B);
+  vertical-align: top;
+}
+
+.comparison-table tbody tr:nth-child(even) td,
+.scope-matrix tbody tr:nth-child(even) td {
+  background: var(--color-bg-alt, #FBF8F3);
+}
+
+.comparison-table tbody tr:last-child td,
+.scope-matrix tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.comparison-table tbody td:first-child,
+.scope-matrix tbody td:first-child {
+  font-weight: 600;
+  color: var(--color-text, #1F1D1B);
+}
+
+.scope-matrix-caption {
+  caption-side: top;
+  text-align: left;
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-lg, 1.125rem);
+  padding: var(--space-3, 0.75rem) 0;
+  color: var(--color-text, #1F1D1B);
+}
+
+.scope-matrix-caption .icon {
+  margin-right: var(--space-2, 0.5rem);
+  vertical-align: middle;
+  color: var(--color-accent, #D94F30);
+}
+
+/* Icon coloring in table cells */
+.comparison-table .icon-success,
+.scope-matrix .icon-success {
+  color: #2D8B55;
+}
+
+.comparison-table .icon-error,
+.scope-matrix .icon-error {
+  color: #C4432A;
+}
+
+/* ============================================
+   DOMAIN WEIGHT MAP (Module 0)
+   ============================================ */
+
+.domain-weight-map {
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-8, 2rem);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+  margin: var(--space-8, 2rem) 0;
+}
+
+.domain-weight-title {
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-2xl, 1.5rem);
+  margin: 0 0 var(--space-2, 0.5rem) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  color: var(--color-text, #1F1D1B);
+}
+
+.domain-weight-sub {
+  font-size: var(--text-base, 1rem);
+  color: var(--color-text-secondary, #5C5751);
+  margin: 0 0 var(--space-6, 1.5rem) 0;
+}
+
+.domain-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+}
+
+.domain-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.domain-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--text-base, 1rem);
+}
+
+.domain-bar-label strong {
+  font-weight: 600;
+  color: var(--color-text, #1F1D1B);
+}
+
+.domain-bar-pct {
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-lg, 1.125rem);
+  color: var(--color-accent, #D94F30);
+}
+
+.domain-bar-track {
+  height: 14px;
+  background: var(--color-bg-alt, #FBF8F3);
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid var(--color-border, #EAE5DD);
+}
+
+.domain-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent, #D94F30), var(--color-accent-hover, #C4432A));
+  border-radius: 7px;
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.domain-bar-row-heavy .domain-bar-pct {
+  font-size: var(--text-xl, 1.25rem);
+}
+
+.domain-bar-row-heavy .domain-bar-fill {
+  background: linear-gradient(90deg, var(--color-accent-hover, #C4432A), var(--color-accent, #D94F30), var(--color-accent-hover, #C4432A));
+}
+
+.domain-weight-note {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-muted, #9E9790);
+  font-style: italic;
+  margin: var(--space-6, 1.5rem) 0 0 0;
+  text-align: right;
+}
+
+/* TOC domain badge in Module 0 */
+.toc-domain-badge {
+  display: inline-block;
+  margin-top: var(--space-2, 0.5rem);
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--color-accent, #D94F30);
+  background: var(--color-accent-light, #FDEEE9);
+  padding: var(--space-1, 0.25rem) var(--space-2, 0.5rem);
+  border-radius: var(--radius-sm, 4px);
+  font-weight: 600;
+}
+
+/* ============================================
+   EXAM-STYLE QUIZ
+   ============================================ */
+
+.exam-quiz-container {
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-8, 2rem);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+  margin: var(--space-8, 2rem) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8, 2rem);
+}
+
+.exam-question-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+  padding-bottom: var(--space-6, 1.5rem);
+  border-bottom: 1px solid var(--color-border, #EAE5DD);
+}
+
+.exam-question-block:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.exam-question-stem {
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  font-weight: 500;
+  font-size: var(--text-lg, 1.125rem);
+  line-height: 1.5;
+  margin: 0;
+  color: var(--color-text, #1F1D1B);
+}
+
+.exam-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.exam-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  background: var(--color-bg-alt, #FBF8F3);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md, 8px);
+  text-align: left;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  font-size: var(--text-base, 1rem);
+  color: var(--color-text, #1F1D1B);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  width: 100%;
+}
+
+.exam-option:hover {
+  background: var(--color-accent-light, #FDEEE9);
+}
+
+.exam-option.selected {
+  border-color: var(--color-accent, #D94F30);
+  background: var(--color-accent-light, #FDEEE9);
+}
+
+.exam-option.correct {
+  border-color: #2D8B55;
+  background: #E8F5EE;
+}
+
+.exam-option.incorrect {
+  border-color: #C4432A;
+  background: #FDECEA;
+}
+
+.exam-option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-surface, #FFFFFF);
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-accent, #D94F30);
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+}
+
+.exam-option.correct .exam-option-letter {
+  color: #2D8B55;
+  background: var(--color-surface, #FFFFFF);
+}
+
+.exam-option.incorrect .exam-option-letter {
+  color: #C4432A;
+  background: var(--color-surface, #FFFFFF);
+}
+
+.exam-option span {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.exam-feedback {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3, 0.75rem);
+  margin-top: var(--space-3, 0.75rem);
+  padding: var(--space-4, 1rem);
+  background: var(--color-bg-alt, #FBF8F3);
+  border-radius: var(--radius-md, 8px);
+  border-left: 4px solid var(--color-accent, #D94F30);
+}
+
+.exam-feedback.revealed {
+  display: flex;
+}
+
+.exam-feedback-row {
+  display: flex;
+  gap: var(--space-3, 0.75rem);
+  align-items: flex-start;
+  font-size: var(--text-sm, 0.875rem);
+  line-height: 1.5;
+}
+
+.exam-feedback-row strong {
+  font-weight: 700;
+  color: var(--color-accent, #D94F30);
+  flex-shrink: 0;
+}
+
+.exam-feedback-row.feedback-correct strong {
+  color: #2D8B55;
+}
+
+.exam-feedback-row.feedback-wrong strong {
+  color: #C4432A;
+}
+
+.exam-quiz-footer {
+  display: flex;
+  gap: var(--space-3, 0.75rem);
+  justify-content: flex-end;
+  padding-top: var(--space-4, 1rem);
+  border-top: 1px solid var(--color-border, #EAE5DD);
+}
+
+.exam-check-btn,
+.exam-reset-btn,
+.mock-submit-btn,
+.mock-reset-btn {
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  font-weight: 600;
+  font-size: var(--text-base, 1rem);
+  padding: var(--space-3, 0.75rem) var(--space-6, 1.5rem);
+  border-radius: var(--radius-md, 8px);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.exam-check-btn,
+.mock-submit-btn {
+  background: linear-gradient(135deg, var(--color-accent, #D94F30), var(--color-accent-hover, #C4432A));
+  color: white;
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.05));
+}
+
+.exam-check-btn:hover,
+.mock-submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+}
+
+.exam-reset-btn,
+.mock-reset-btn {
+  background: var(--color-bg-alt, #FBF8F3);
+  color: var(--color-text, #1F1D1B);
+  border: 1px solid var(--color-border, #EAE5DD);
+}
+
+/* ============================================
+   MOCK EXAM SECTION
+   ============================================ */
+
+.module-mock-exam .module-header {
+  border-bottom: 3px solid var(--color-accent, #D94F30);
+  padding-bottom: var(--space-6, 1.5rem);
+  margin-bottom: var(--space-8, 2rem);
+}
+
+.mock-exam-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4, 1rem);
+  margin: var(--space-8, 2rem) 0;
+}
+
+.mock-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-4, 1rem);
+  background: var(--color-bg-alt, #FBF8F3);
+  border-radius: var(--radius-md, 8px);
+  border-left: 4px solid var(--color-accent, #D94F30);
+}
+
+.mock-meta-item .icon-lg {
+  color: var(--color-accent, #D94F30);
+  flex-shrink: 0;
+}
+
+.mock-meta-item strong {
+  display: block;
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-lg, 1.125rem);
+  color: var(--color-text, #1F1D1B);
+}
+
+.mock-meta-item p {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-secondary, #5C5751);
+}
+
+.mock-exam-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6, 1.5rem);
+}
+
+/* Mock questions look the same as exam questions but explanations don't show until submit */
+.mock-question-block {
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-6, 1.5rem);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.05));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1rem);
+}
+
+.mock-question-number {
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-accent, #D94F30);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mock-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+}
+
+.mock-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  background: var(--color-bg-alt, #FBF8F3);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md, 8px);
+  text-align: left;
+  font-size: var(--text-base, 1rem);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.mock-option:hover {
+  background: var(--color-accent-light, #FDEEE9);
+}
+
+.mock-option.selected {
+  border-color: var(--color-accent, #D94F30);
+  background: var(--color-accent-light, #FDEEE9);
+}
+
+.mock-option.correct {
+  border-color: #2D8B55;
+  background: #E8F5EE;
+}
+
+.mock-option.incorrect {
+  border-color: #C4432A;
+  background: #FDECEA;
+}
+
+.mock-feedback {
+  display: none;
+  margin-top: var(--space-3, 0.75rem);
+}
+
+.mock-feedback.revealed {
+  display: block;
+}
+
+.mock-exam-footer {
+  display: flex;
+  gap: var(--space-3, 0.75rem);
+  justify-content: center;
+  margin: var(--space-8, 2rem) 0;
+}
+
+.mock-exam-results {
+  background: var(--color-surface, #FFFFFF);
+  border-radius: var(--radius-lg, 16px);
+  padding: var(--space-8, 2rem);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.06));
+  margin: var(--space-8, 2rem) 0;
+  border-top: 4px solid var(--color-accent, #D94F30);
+}
+
+.mock-results-score {
+  font-family: var(--font-display, 'Bricolage Grotesque', sans-serif);
+  font-weight: 700;
+  font-size: 3rem;
+  color: var(--color-accent, #D94F30);
+  text-align: center;
+  margin: 0 0 var(--space-3, 0.75rem) 0;
+}
+
+.mock-results-score.passing {
+  color: #2D8B55;
+}
+
+.mock-results-score.failing {
+  color: #C4432A;
+}
+
+.mock-results-summary {
+  text-align: center;
+  font-size: var(--text-lg, 1.125rem);
+  color: var(--color-text-secondary, #5C5751);
+  margin: 0 0 var(--space-6, 1.5rem) 0;
+}
+
+.mock-results-domain-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  margin-top: var(--space-4, 1rem);
+}
+
+.mock-results-domain-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2, 0.5rem) var(--space-3, 0.75rem);
+  background: var(--color-bg-alt, #FBF8F3);
+  border-radius: var(--radius-sm, 4px);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .comparison-table,
+  .scope-matrix {
+    font-size: var(--text-sm, 0.875rem);
+  }
+  
+  .comparison-table thead th,
+  .scope-matrix thead th,
+  .comparison-table tbody td,
+  .scope-matrix tbody td {
+    padding: var(--space-2, 0.5rem);
+  }
+  
+  .mock-exam-meta {
+    grid-template-columns: 1fr;
+  }
+  
+  .domain-weight-map,
+  .exam-quiz-container {
+    padding: var(--space-4, 1rem);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .domain-bar-fill {
+    transition: none;
+  }
+  .concept-card:hover {
+    transform: none;
+  }
+}

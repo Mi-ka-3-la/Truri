@@ -1,0 +1,356 @@
+<section class="module" id="module-3" style="background: var(--color-bg)">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">The Task Lifecycle</h1>
+      <p class="module-subtitle">Every status change is an atomic write — the status and the audit record are inseparable</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- SCREEN 1: ANCHOR — Status flow as numbered step cards -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">A task status moves forward like a relay baton — and can be sent back before it crosses the finish line</h2>
+        <p>
+          When a preparer clicks Mark as Prepared, the task does not just change color.
+          The system simultaneously records a new
+          <span class="term" data-definition="A status field holds the current state of a record — one value from a fixed enum. Changing it means the record has moved to a new phase in its lifecycle.">status</span>
+          AND creates an
+          <span class="term" data-definition="An audit trail is an append-only log of every significant event that has happened to a record — who did what, when, and why. It cannot be edited after the fact, making it a reliable source of truth for compliance and debugging.">audit event</span>
+          in one single database write.
+          No partial state is ever possible.
+        </p>
+
+        <div class="step-cards animate-in stagger-children">
+          <div class="step-card animate-in">
+            <div class="step-num" style="background: var(--color-text-muted)">1</div>
+            <div class="step-body">
+              <strong>Task created — status: <code>unprepared</code></strong>
+              <p>The system generates the task when the period opens. The assignee can see it but no work has started.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num" style="background: var(--color-actor-2)">2</div>
+            <div class="step-body">
+              <strong>Preparer starts — status: <code>in_progress</code></strong>
+              <p>The assignee begins working. The status signals to the reviewer that this task is claimed and active.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in">
+            <div class="step-num" style="background: var(--color-actor-4)">3</div>
+            <div class="step-body">
+              <strong>Preparer submits — status: <code>prepared</code></strong>
+              <p>
+                The assignee marks work as done. The system records the current account balance in
+                <span class="term" data-definition="balanceWhenLastPrepared stores the account balance at the exact moment the preparer submitted. A background job later compares the live balance to this snapshot — if they differ, the task is automatically reopened.">balanceWhenLastPrepared</span>
+                and creates an audit event. The baton is now in the reviewer&apos;s hands.
+              </p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in" style="border-left: 3px solid var(--color-actor-5)">
+            <div class="step-num" style="background: var(--color-actor-5)">4A</div>
+            <div class="step-body">
+              <strong>Reviewer approves — status: <code>reviewed</code></strong>
+              <p>The reviewer signs off. The task is complete. The period can close once all tasks reach this state.</p>
+            </div>
+          </div>
+
+          <div class="step-card animate-in" style="border-left: 3px solid var(--color-actor-1)">
+            <div class="step-num" style="background: var(--color-actor-1)">4B</div>
+            <div class="step-body">
+              <strong>Reviewer rejects — status: <code>reopened</code></strong>
+              <p>
+                The reviewer finds a problem and sends it back. Status becomes <code>reopened</code> — not <code>unprepared</code>,
+                because the audit trail must preserve that this task has been through at least one cycle.
+                Return to step 3.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Status is the baton in a relay race — it cannot change hands without a recorded handoff</strong>
+            <p>
+              In a relay race, the baton physically moves from one runner to the next — there is no ambiguity
+              about who has it. The
+              <span class="term" data-definition="A TaskEvent is a database record created every time a task changes status. It stores the new status, the reason, and a timestamp — forming an append-only audit log that survives even if the task record is later updated again.">TaskEvent</span>
+              log plays the same role: every status change leaves a permanent record of when it happened and why.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: MECHANISM — Code translation of setTaskStatusAndEvent -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">One Prisma update writes the status AND the audit record in a single database transaction</h2>
+        <p>
+          The function <code>setTaskStatusAndEvent</code> is the only place in the codebase where task
+          statuses change. It uses a single
+          <span class="term" data-definition="A Prisma update is a function call that writes changes to one database row. When it includes a nested create (like taskEvents.create), Prisma wraps both writes in one database transaction automatically.">Prisma update</span>
+          with a nested create — which means the database engine executes both writes as an
+          <span class="term" data-definition="An atomic operation is a database write that either succeeds completely or fails completely — it cannot be interrupted halfway. Both the status change and the event creation happen as one indivisible unit.">atomic operation</span>.
+        </p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">function</span> <span class="code-function">setTaskStatusAndEvent</span>(</span>
+<span class="code-line">  companyId: string,</span>
+<span class="code-line">  taskId: string,</span>
+<span class="code-line">  status: TaskStatus,</span>
+<span class="code-line">  eventPayload: TaskEventPayload,</span>
+<span class="code-line">): PrismaPromise&lt;PrismaTask&gt; {</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> eventPayloadJson = {</span>
+<span class="code-line">    ...eventPayload, status</span>
+<span class="code-line">  };</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> prisma.task.update({</span>
+<span class="code-line">    where: { companyId_id: { companyId, id: taskId } },</span>
+<span class="code-line">    data: {</span>
+<span class="code-line">      status,</span>
+<span class="code-line">      statusUpdatedAt: getCurrentSystemJsDateTime(),</span>
+<span class="code-line">      autoReviewEnabled: false,</span>
+<span class="code-line">      taskEvents: {</span>
+<span class="code-line">        create: {</span>
+<span class="code-line">          type: TaskEventType.system_task_update,</span>
+<span class="code-line">          eventPayload: eventPayloadJson,</span>
+<span class="code-line">        },</span>
+<span class="code-line">      },</span>
+<span class="code-line">    },</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+</code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">This function is the single gatekeeper for all status changes. Nothing else in the codebase updates <code>status</code> directly.</p>
+              <p class="tl"><strong>Inputs:</strong> which company, which task, what new status to set, and a
+                <span class="term" data-definition="An event payload is a JSON object that carries the context for a status change — why it happened, who triggered it, and any relevant data. It is stored alongside the audit event so future readers can understand what happened without guessing.">payload</span>
+                object explaining why the change is happening.</p>
+              <p class="tl"><code>status</code> is written into the task row AND into the
+                <span class="term" data-definition="eventPayload is a JSON column in the TaskEvent table that stores the full context of a status change — the new status, the reason, and any supporting data. Storing status inside the payload means each event is self-contained.">eventPayload</span>
+                — so the event record is self-contained and readable without joining back to the task.</p>
+              <p class="tl"><code>statusUpdatedAt</code> is stamped with the current system time — a precise timestamp for every transition.</p>
+              <p class="tl"><code>autoReviewEnabled: false</code> resets the auto-review flag on every status change — the system cannot auto-approve a task the reviewer just manually handled.</p>
+              <p class="tl"><code>taskEvents: { create: ... }</code> is the nested write. Prisma wraps the outer update AND this inner create into one
+                <span class="term" data-definition="A database transaction is a group of database operations that either all succeed together or all fail together. If any operation in the group fails, the database rolls back every change made so far, leaving data in a consistent state.">database transaction</span>
+                automatically.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Atomic writes guarantee that a status change and its audit record are inseparable</strong>
+            <p>
+              If the event creation fails, the status does not change — and vice versa. The database enforces
+              both-or-neither. This is exactly what compliance
+              <span class="term" data-definition="An audit trail requirement is a legal or regulatory obligation to maintain a permanent, tamper-proof log of every change to a financial record — who did what and when. SOX (Sarbanes-Oxley) is the most common US law enforcing this for public companies.">audit trail requirements</span>
+              demand: no status change without a reason on record.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: MECHANISM — Group chat -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Here is what actually happens inside the system when a preparer clicks submit</h2>
+        <p>
+          Three actors collaborate in sequence: the Preparer in the browser, the System API in the backend,
+          and the Database that stores the final result. Watch how the handoffs happen.
+        </p>
+
+        <div class="chat-window" id="chat-module3">
+          <div class="chat-messages">
+
+            <div class="chat-message" data-msg="0" data-sender="preparer" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Preparer</span>
+                <p>I have finished reconciling the Cash account. Clicking Mark as Prepared now.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="1" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">System API</span>
+                <p>Received a PATCH request for task ID clx123... with action: prepare. Running business-rule checks — is this task assigned to the right person? Is the period still open?</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="2" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">System API</span>
+                <p>Checks passed. Calling setTaskStatusAndEvent with status: prepared and the current account balance as part of the event payload.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="3" data-sender="database" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">D</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Starting transaction. Writing status: prepared to the Task row and setting statusUpdatedAt to now. Also setting autoReviewEnabled: false.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="4" data-sender="database" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-3)">D</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-3)">Database</span>
+                <p>Creating a new TaskEvent row linked to this task. Storing the payload: { status: prepared, balance: 84200, reason: preparer_submitted }. Committing transaction — both writes succeeded.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="5" data-sender="api" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-2)">S</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-2)">System API</span>
+                <p>Transaction confirmed. Returning the updated Task record to the client. The reviewer will now see this task in their queue.</p>
+              </div>
+            </div>
+
+            <div class="chat-message" data-msg="6" data-sender="preparer" style="display:none">
+              <div class="chat-avatar" style="background: var(--color-actor-4)">P</div>
+              <div class="chat-bubble">
+                <span class="chat-sender" style="color: var(--color-actor-4)">Preparer</span>
+                <p>The task now shows as Prepared in my list. If the reviewer sends it back, I will see it reappear as Reopened. And if an auditor ever asks why this task changed status, the TaskEvent has the full story.</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="chat-typing" style="display:none">
+            <div class="chat-avatar" id="chat-module3-typing-avatar">?</div>
+            <div class="chat-typing-dots">
+              <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+            </div>
+          </div>
+
+          <div class="chat-controls">
+            <button class="btn chat-next-btn">Next Message</button>
+            <button class="btn chat-all-btn">Play All</button>
+            <button class="btn chat-reset-btn">Replay</button>
+            <span class="chat-progress"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: APPLICATION — Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Apply what you know — three scenarios from the real system</h2>
+        <p>
+          These questions ask you to reason about the lifecycle, the audit trail, and the service
+          layer architecture. Use what you have learned — do not guess by elimination.
+        </p>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Every call to setTaskStatusAndEvent creates a TaskEvent with a full payload — including the reason the status changed and who triggered it. The TaskEvent log is the canonical audit trail for task history. Looking there first is always the right move when debugging unexplained status changes."
+               data-explanation-wrong="The task record itself only shows the current status — it does not record history. Think about which structure was specifically designed to be an append-only log of every status change, including the reason each change happened.">
+            <h3 class="quiz-question">
+              Scenario: A task was at <code>prepared</code> status yesterday and is now back at <code>unprepared</code>.
+              Nobody on the team remembers doing it. Where in the codebase would you look first to find out
+              what happened and why?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The Task record itself — check the status field and statusUpdatedAt timestamp</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The TaskEvent log — every status change records a payload with the reason, so the full history is there</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The RecurringTask template — it might have reset the task when the next period opened</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>The API server logs — search for the task ID in the application log output</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Business rules — like validations that depend on the current state of the task — belong in the service layer. The data layer (setTaskStatusAndEvent and friends) only handles database operations; it does not make business decisions. Adding the check there would mix concerns and make the function harder to test and reuse."
+               data-explanation-wrong="Think about which layer is responsible for business decisions versus which layer is responsible for database operations. The rule you are adding (no preparation without a resolution) is a business rule, not a database operation.">
+            <h3 class="quiz-question">
+              Scenario: You need to enforce a new rule — tasks cannot be marked as <code>prepared</code> unless
+              the <code>resolution</code> field contains at least 10 characters. Where in the architecture
+              should this validation live?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Inside setTaskStatusAndEvent — it is already the only place status changes happen</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In the Prisma schema as a database constraint — enforce it at the database level</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In the service layer — business rules belong above the data layer, which only handles DB operations</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>In the UI form — prevent the submit button from being clicked if the field is too short</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="setTaskStatusAndEvent explicitly sets autoReviewEnabled to false on every call. This ensures that after any manual status change, the system cannot subsequently auto-approve the same task — the reviewer&apos;s manual judgment takes precedence and the auto-review flag must be re-enabled explicitly if desired."
+               data-explanation-wrong="Look at the data block in setTaskStatusAndEvent again. There is one field being set that you might not have noticed on first reading. Think about what happens to automated behavior after a human intervenes manually.">
+            <h3 class="quiz-question">
+              Scenario: The system has an auto-review feature that can approve low-risk tasks without human
+              intervention. The <code>setTaskStatusAndEvent</code> function always sets
+              <code>autoReviewEnabled: false</code>. Why is this important?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>After a manual status change, auto-review must not fire again — a reviewer&apos;s manual decision takes precedence and the flag must be explicitly re-enabled</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>autoReviewEnabled is a legacy field no longer in use; setting it to false is just cleanup</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It prevents the database from running a trigger that would create duplicate TaskEvent records</span>
+              </button>
+              <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It signals to the UI to hide the auto-review toggle until the task is back in unprepared status</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

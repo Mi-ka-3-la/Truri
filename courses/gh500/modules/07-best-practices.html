@@ -1,0 +1,659 @@
+<section class="module" id="module-7">
+  <div class="module-content">
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">Module 7 · Domain 5 deep dive</span>
+      <h1 class="module-title">Best practices &amp; corrective measures</h1>
+      <p class="module-subtitle">Domain 5 of GH-500 — 10% of the exam. The smallest domain by weight, but the questions are the easiest to lose points on through over-thinking. Triage workflows, security policies, advisories, and the audit log.</p>
+    </header>
+
+    <!-- SCREEN 1: Triage and prioritization -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Triage: deciding what to fix first</h2>
+
+      <p>Across all GHAS features (secrets, code scanning, Dependabot), alerts pile up. Domain 5 tests whether you can pick the most impactful work first instead of triaging by gut feel.</p>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>Signal</th>
+            <th>Indicates</th>
+            <th>Triage weight</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>CVSS score / Severity (critical / high)</strong></td>
+            <td>Potential impact if exploited</td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td><span class="term" data-definition="EPSS: Exploit Prediction Scoring System. A daily-updated probability (0–1.0, often expressed as a percentile) maintained by FIRST.org that estimates how likely a CVE is to be exploited in the wild within the next 30 days. Complements CVSS: CVSS tells you how bad it WOULD be; EPSS tells you how likely it is to actually happen. High EPSS + high CVSS = drop everything."><strong>EPSS</strong> / exploit availability</span></td>
+            <td>Likelihood the vuln is being actively exploited</td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td><strong>Reachability / call-path analysis</strong></td>
+            <td>Whether vulnerable code is actually used in production paths</td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td><strong>Validity check passed (secret scanning)</strong></td>
+            <td>Token is still active — credential is live</td>
+            <td>Very high — treat as breached</td>
+          </tr>
+          <tr>
+            <td><strong>Alert age</strong></td>
+            <td>How long the alert has been open</td>
+            <td>Medium — stale alerts may indicate process gaps</td>
+          </tr>
+          <tr>
+            <td><strong>Production vs test paths</strong></td>
+            <td>Where the finding lives in the codebase</td>
+            <td>Production high · test paths lower</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Triage golden rule</strong>
+          <p><strong>Validity-confirmed active secrets are always priority one.</strong> An active AWS key in a public repo outranks a critical CodeQL finding in untested branch code. Treat confirmed live secrets as an active breach: rotate first, investigate after.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Security policy and SECURITY.md -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Security policies — <code>SECURITY.md</code></h2>
+
+      <p>A <code>SECURITY.md</code> file tells external researchers and contributors how to report vulnerabilities responsibly. The exam tests where it goes and what GitHub does with it.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="shield-check" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Where the file lives</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><code>SECURITY.md</code> at the repo root</li>
+            <li>OR <code>docs/SECURITY.md</code></li>
+            <li>OR <code>.github/SECURITY.md</code></li>
+          </ul>
+          <p style="margin-top: 0.5rem; font-size: 0.87rem; color: var(--color-text-secondary);">Same lookup logic as <code>CONTRIBUTING.md</code> — first match wins.</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="link" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">What GitHub does with it</h3>
+          <p class="pattern-desc">When a <code>SECURITY.md</code> exists, GitHub surfaces a "Security policy" link in the repository's Security tab and on the "Report a vulnerability" page. The file's content is rendered as the public report-handling guidance.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Default community at the org level</strong>
+          <p>You can drop a <code>SECURITY.md</code> in the special <code>.github</code> repository of an organization. Any repo in that org without its own SECURITY.md inherits this default. The exam may test "where do you set a security policy for all org repos at once?" — the answer is the <code>.github</code> repo, not the org settings.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Private vulnerability reporting -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Private vulnerability reporting (PVR)</h2>
+
+      <p>PVR is a feature that gives external researchers a private channel to report vulnerabilities directly inside GitHub, without disclosure in public issues.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Enable per repo</strong>
+            <p>Path: <code>Settings → Code security and analysis → Private vulnerability reporting → Enable</code>. Once enabled, anyone with a GitHub account can submit a private report via the repo's Security tab → "Report a vulnerability" button.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Enable across an organization</strong>
+            <p>Path: <code>Org Settings → Code security and analysis → Private vulnerability reporting</code>. You can enable it for all current repos, all new repos, or both. Available for free on both public and private repositories — no GHAS license required.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Triage workflow</strong>
+            <p>Reports show up as draft security advisories in the repo's Security tab. Maintainers triage, discuss in a private collaboration space, request a CVE if needed, and publish the advisory once a fix is shipped.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Exam trap: "PVR requires GHAS"</strong>
+          <p>False. Private vulnerability reporting is free for public and private repos alike. GHAS is not a prerequisite. The exam may bundle PVR with other paid features to mislead you.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Security advisories -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Security advisories — coordinate, fix, then disclose</h2>
+
+      <p>A security advisory is the formal record of a vulnerability in your project. The exam tests the lifecycle states and how CVEs interact with the workflow.</p>
+
+      <div class="schema-card animate-in">
+        <div class="schema-card-header">
+          <i data-lucide="file-warning" class="icon-lg"></i>
+          <div>
+            <h3 class="schema-card-title">Advisory lifecycle</h3>
+            <p class="schema-card-sub">Draft → Reviewed → Published. With optional CVE request along the way.</p>
+          </div>
+        </div>
+        <pre class="mermaid">
+graph LR
+  DRAFT["📝 Draft<br/>(private)"]
+  PRIV["🔒 Private collaboration<br/>(maintainers + reporters +<br/>invited security folks)"]
+  CVE["🆔 Request CVE<br/>(via GitHub —<br/>optional)"]
+  FIX["🔧 Fix shipped<br/>(via temporary private fork<br/>or behind feature flag)"]
+  PUB["🌐 Published<br/>advisory<br/>(public — adds to<br/>GitHub Advisory Database)"]
+
+  DRAFT --> PRIV
+  PRIV --> CVE
+  PRIV --> FIX
+  CVE --> FIX
+  FIX --> PUB
+
+  classDef anchor fill:#FDEEE9,stroke:#D94F30,stroke-width:2px,color:#1F1D1B;
+  class DRAFT,PRIV,FIX,PUB anchor;
+        </pre>
+        <p class="schema-card-note">Once published, the advisory is searchable in the GitHub Advisory Database. Dependabot can then alert downstream consumers of your package.</p>
+      </div>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="git-fork" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Temporary private forks</h3>
+          <p class="pattern-desc">Inside a draft advisory, maintainers can spin up a <strong>temporary private fork</strong> to develop the fix without exposing it publicly. When the advisory is published, the fix is merged to main from the private fork.</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="badge-check" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">CVE Numbering Authority (CNA)</h3>
+          <p class="pattern-desc">GitHub is an official CNA. From inside an advisory you can request a CVE ID without going to MITRE directly. The CVE is reserved during draft and assigned at publish time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Access to alerts and the security overview -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Access control and the security overview</h2>
+
+      <p>Knowing who can see what is a Domain 5 staple. The exam tests both the default permissions and how to broaden them.</p>
+
+      <table class="scope-matrix animate-in">
+        <caption class="scope-matrix-caption">
+          <i data-lucide="users-2" class="icon"></i>
+          Who sees what — defaults
+        </caption>
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Secret scanning alerts</th>
+            <th>Code scanning alerts</th>
+            <th>Dependabot alerts</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Repository admin</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+          </tr>
+          <tr>
+            <td>Security manager (org role)</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+          </tr>
+          <tr>
+            <td>Write access</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> Not by default</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+            <td><i data-lucide="check-circle-2" class="icon icon-success"></i> Yes</td>
+          </tr>
+          <tr>
+            <td>Read access</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> No</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> No</td>
+            <td><i data-lucide="x-circle" class="icon icon-error"></i> No</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="shield" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Security manager role</h3>
+          <p class="pattern-desc">An org-level role designed for security teams: <strong>read access to all repos in the org</strong> PLUS <strong>read/write access to all security alerts</strong>. Granted at: <code>Org Settings → Teams → [team] → Security manager</code>. Up to 10 teams can be designated.</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="layout-dashboard" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Security overview dashboard</h3>
+          <p class="pattern-desc">Cross-repo dashboard at <code>Org → Security tab</code>. Shows enabled GHAS features, open alerts by repo and severity, and adoption trends. Filterable by team, repo, and feature. Requires GHAS for private repos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 6: Audit log and monitoring -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Audit log — the record of who did what</h2>
+
+      <p>The audit log captures security-relevant configuration changes. The exam tests where it lives, how long entries are retained, and which events are tracked.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="scroll-text" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Where it lives</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><strong>Org-level</strong>: <code>Org → Settings → Audit log</code></li>
+            <li><strong>Enterprise-level</strong>: <code>Enterprise → Audit log</code> (aggregates all orgs)</li>
+            <li><strong>Repo-level</strong>: no dedicated UI; events surface in the parent org's audit log</li>
+          </ul>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="clock" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Retention</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><strong>GitHub.com retains for at least 6 months</strong>; most queryable events go back further</li>
+            <li>Export to <code>JSON</code> or <code>CSV</code> for long-term archival</li>
+            <li>Stream to external SIEM via the Audit Log Streaming feature (Enterprise Cloud only)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="info" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Events the exam expects you to know are logged</strong>
+          <p>Enabling/disabling Dependabot, code scanning, or secret scanning; dismissing security alerts; creating/publishing security advisories; changing branch protection rules; adding/removing security managers; modifying custom secret patterns. <strong>Not logged at user level:</strong> individual code scanning query runs — those live in the workflow run history, not the audit log.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 7: Branch protection and code review best practices -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Best-practice settings that show up across the exam</h2>
+
+      <p>Domain 5 questions also touch general repo hygiene that supports GHAS. Internalize this checklist.</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Branch protection on the default branch</strong>
+            <p>Require pull request reviews (at least 1, ideally 2). Require status checks: CodeQL, Dependency Review. Require branches to be up to date before merging. Restrict who can push to the protected branch.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Required reviewers and CODEOWNERS</strong>
+            <p>Use <code>.github/CODEOWNERS</code> to require specific teams to review changes in their areas (e.g., <code>/security/ @org/security-team</code>). Combine with "Require review from Code Owners" in branch protection.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Signed commits</strong>
+            <p>Enable "Require signed commits" in branch protection. Combined with verified commit signatures (GPG, SSH, S/MIME), this prevents impersonation in the commit history.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Secret scanning push protection</strong>
+            <p>Enable push protection at the org level so leaks are blocked at <code>git push</code> time, not after they land in history. Configure bypass rules for true emergencies but require justification.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Pin third-party Actions to SHAs</strong>
+            <p>Reference third-party actions by full commit SHA, not floating tags (<code>uses: actions/checkout@v4</code> is okay because GitHub maintains it; for third-party actions use the 40-char SHA). Mitigates supply-chain attacks via tag re-pointing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 8: Remediation playbooks -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Corrective measures — three playbooks the exam tests</h2>
+
+      <div class="grid-3-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="key-round" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Leaked secret playbook</h3>
+          <ol style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li><strong>Treat as compromised</strong> — assume it's been used</li>
+            <li>Rotate / revoke the credential at the provider</li>
+            <li>Issue a new credential, update services</li>
+            <li>Investigate access logs for misuse</li>
+            <li>Close the secret scanning alert with a reason</li>
+          </ol>
+          <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-warning, #B45309);">Do NOT just delete the commit — git history still contains it.</p>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="package-search" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Vulnerable dependency playbook</h3>
+          <ol style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li>Read the Dependabot alert and Advisory Database entry</li>
+            <li>Check whether a Dependabot security update PR exists</li>
+            <li>If yes, review and merge it</li>
+            <li>If no fix exists, evaluate reachability — is the code path used?</li>
+            <li>Mitigate (config, WAF, code change) or dismiss with reason</li>
+          </ol>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="search-code" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Code scanning finding playbook</h3>
+          <ol style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li>Open the alert in the Security tab — read the data-flow trace</li>
+            <li>Confirm whether the path is reachable from untrusted input</li>
+            <li>Apply the recommended fix or refactor</li>
+            <li>If not exploitable, dismiss with <strong>False positive</strong>, <strong>Used in tests</strong>, or <strong>Won't fix</strong></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 9: Quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 5 practice — exam-style questions</h2>
+
+      <p>Six questions covering the most likely Domain 5 scenarios: policies, PVR, advisories, audit log, security manager role.</p>
+
+      <div class="exam-quiz-container" id="exam-quiz-module-7">
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. The repository root is one valid location, but it isn't the only one. The exam expects you to know all three valid locations."
+             data-explanation-b="Wrong. The Security tab in repo settings is not where SECURITY.md is stored — it's where the rendered file is displayed."
+             data-explanation-c="Correct. GitHub looks for SECURITY.md at the repo root, in docs/, or in .github/, in that order. First match wins. Same lookup logic as CONTRIBUTING.md."
+             data-explanation-d="Wrong. SECURITY.md must be a file in the repo, not a setting in the UI.">
+          <h3 class="exam-question-stem">1. Where can a <code>SECURITY.md</code> file be placed to be recognized as a repository's security policy?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Only at the repository root.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>In the Security tab of the repository settings.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>At the repo root, in <code>docs/</code>, or in <code>.github/</code>.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>SECURITY.md is configured in the UI, not as a file.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. PVR is free; no GHAS license is needed. This is a common distractor that bundles PVR with paid features."
+             data-explanation-b="Correct. Private vulnerability reporting is free for both public and private repositories. No GHAS license required. Enable per repo or org-wide in Code security and analysis settings."
+             data-explanation-c="Wrong. PVR works on private repos as well — visibility is not the gating factor."
+             data-explanation-d="Wrong. The Security tab is where reports are received, not what determines PVR availability.">
+          <h3 class="exam-question-stem">2. Which of the following is true about private vulnerability reporting (PVR)?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>It requires a GitHub Advanced Security license.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>It is free for both public and private repositories — no GHAS license required.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>It is only available on public repositories.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>It is automatically enabled when the Security tab is enabled.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-d"
+             data-explanation-a="Wrong. Repository admin is per-repo only; you'd need to grant it on every repo individually."
+             data-explanation-b="Wrong. Triage role doesn't grant access to security alerts."
+             data-explanation-c="Wrong. Member role is the base role; it doesn't include security alert access."
+             data-explanation-d="Correct. The Security manager org role grants read access to all repos in the organization plus read/write access to security alerts across them. Designed exactly for cross-repo security oversight.">
+          <h3 class="exam-question-stem">3. An organization wants a dedicated security team to review security alerts across all repositories without granting full admin permissions. Which role should they assign?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Repository admin on every repository.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Triage role on every repository.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Organization member role.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Security manager organization role.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-a"
+             data-explanation-a="Correct. Treat a confirmed live secret as breached: rotate the credential at the provider FIRST, then update services, then investigate access logs. Deleting the commit doesn't remove the secret from git history."
+             data-explanation-b="Wrong. Deleting the commit does not remove the secret from history (it lives in earlier commits, reflog, or remote clones). The credential remains compromised."
+             data-explanation-c="Wrong. Dismissing the alert without rotating leaves the live credential exposed. Always rotate first."
+             data-explanation-d="Wrong. Force-pushing to remove history is destructive, breaks all clones, and still doesn't help if anyone has cloned or scraped the repo — which on a public repo, they have.">
+          <h3 class="exam-question-stem">4. Secret scanning detects an AWS access key in a public repo and validity check confirms it is still active. What is the correct FIRST step?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Treat as compromised: rotate (revoke + reissue) the credential at the provider before anything else.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Delete the commit that introduced the secret.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Dismiss the alert with reason "Used in tests".</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Force-push to rewrite history removing the file.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-c"
+             data-explanation-a="Wrong. While org-level audit logs do show some repo events, repo-level changes are not edited in a dedicated repo audit log UI."
+             data-explanation-b="Wrong. The Insights tab on a repository shows contribution and traffic stats, not security audit events."
+             data-explanation-c="Correct. Repository-level security configuration changes (enabling features, dismissing alerts, modifying secret patterns) surface in the parent organization's audit log at Org → Settings → Audit log. There is no dedicated repo-level audit log UI."
+             data-explanation-d="Wrong. The Actions tab logs workflow runs, not security configuration changes.">
+          <h3 class="exam-question-stem">5. Where can administrators view a record of who enabled or disabled Dependabot for a repository?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Repository → Settings → Audit log</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Repository → Insights → Traffic</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Organization → Settings → Audit log</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Repository → Actions tab</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-question-block"
+             data-correct="option-b"
+             data-explanation-a="Wrong. Publishing immediately exposes users before a fix is available — the opposite of responsible disclosure."
+             data-explanation-b="Correct. Use a draft security advisory to coordinate privately: invite collaborators, optionally request a CVE through GitHub (a CNA), develop the fix in a temporary private fork from inside the advisory, then publish when the fix is shipped."
+             data-explanation-c="Wrong. Opening a public issue exposes the vulnerability to attackers before any fix exists."
+             data-explanation-d="Wrong. Going through MITRE directly works but isn't necessary — GitHub is itself a CNA and lets you request a CVE from inside the draft advisory.">
+          <h3 class="exam-question-stem">6. A maintainer wants to coordinate the fix for a newly reported vulnerability in their open-source project before disclosing it publicly. What is the recommended workflow?</h3>
+          <div class="exam-options">
+            <button class="exam-option" data-value="option-a" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">A</div>
+              <span>Publish a security advisory immediately to inform users of the vulnerability.</span>
+            </button>
+            <button class="exam-option" data-value="option-b" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">B</div>
+              <span>Create a draft security advisory, invite collaborators, develop the fix in a temporary private fork, request a CVE through GitHub (a CNA), then publish.</span>
+            </button>
+            <button class="exam-option" data-value="option-c" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">C</div>
+              <span>Open a public issue describing the vulnerability so contributors can help.</span>
+            </button>
+            <button class="exam-option" data-value="option-d" onclick="selectExamOption(this)">
+              <div class="exam-option-letter">D</div>
+              <span>Request a CVE through MITRE directly, then patch.</span>
+            </button>
+          </div>
+          <div class="exam-feedback"></div>
+        </div>
+
+        <div class="exam-quiz-footer">
+          <button class="exam-check-btn" onclick="checkExamQuiz('exam-quiz-module-7')">Reveal Answers</button>
+          <button class="exam-reset-btn" onclick="resetExamQuiz('exam-quiz-module-7')">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 10: Cheat sheet -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Domain 5 exam traps — rapid-fire summary</h2>
+
+      <table class="comparison-table animate-in">
+        <thead>
+          <tr>
+            <th>If the question says…</th>
+            <th>The trap answer</th>
+            <th>The correct answer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Where SECURITY.md lives</td>
+            <td>"Only at the repo root"</td>
+            <td><strong>Root · docs/ · .github/</strong> — three valid locations</td>
+          </tr>
+          <tr>
+            <td>Org-wide default security policy</td>
+            <td>"Org settings → Security policy"</td>
+            <td>SECURITY.md in the special <strong><code>.github</code> repository</strong> of the org</td>
+          </tr>
+          <tr>
+            <td>"Private vulnerability reporting requires GHAS"</td>
+            <td>True (trap)</td>
+            <td><strong>False</strong> — PVR is free for public and private repos</td>
+          </tr>
+          <tr>
+            <td>Security team needs cross-repo alert access</td>
+            <td>Make them admins on every repo</td>
+            <td><strong>Security manager</strong> org role — designed for this</td>
+          </tr>
+          <tr>
+            <td>Live (validity-confirmed) leaked secret</td>
+            <td>Delete the commit / force-push</td>
+            <td><strong>Rotate the credential first</strong>; history cleanup is secondary</td>
+          </tr>
+          <tr>
+            <td>"Who enabled Dependabot for this repo?"</td>
+            <td>Look in repo Settings → Audit log</td>
+            <td><strong>Organization → Settings → Audit log</strong> (no repo-level audit log UI)</td>
+          </tr>
+          <tr>
+            <td>Coordinating a vulnerability fix</td>
+            <td>"Open a public issue", "publish immediately"</td>
+            <td><strong>Draft advisory</strong> → invite collaborators → temporary private fork → publish on fix</td>
+          </tr>
+          <tr>
+            <td>Requesting a CVE</td>
+            <td>"Only through MITRE"</td>
+            <td>GitHub is a <strong>CNA</strong> — request inside the draft advisory</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SCREEN 11: Closing -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">All five domains complete — you've covered 100% of GH-500</h2>
+
+      <p>From Domain 1 to Domain 5, this course has walked through every objective on the exam. You now know not just the features but the traps each domain reuses on test day.</p>
+
+      <div class="grid-2-cols stagger-children section-spacing">
+        <div class="pattern-card animate-in">
+          <i data-lucide="bar-chart-3" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Coverage scorecard</h3>
+          <ul style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li>Domain 1 (15%) — GHAS features &amp; functionality</li>
+            <li>Domain 2 (15%) — Secret scanning configuration</li>
+            <li>Domain 3 (35%) — Dependabot &amp; Dependency Review</li>
+            <li>Domain 4 (25%) — Code Scanning with CodeQL</li>
+            <li>Domain 5 (10%) — Best practices &amp; corrective measures</li>
+            <li><strong>Total: 100% of GH-500 covered</strong></li>
+          </ul>
+        </div>
+        <div class="pattern-card animate-in">
+          <i data-lucide="graduation-cap" class="icon-xl icon-accent"></i>
+          <h3 class="pattern-title">Final-week study plan</h3>
+          <ol style="padding-left: 1.25rem; line-height: 1.7; color: var(--color-text-secondary);">
+            <li>Re-run each module's quiz — aim for ≥80% on each</li>
+            <li>Focus on the rapid-fire trap tables — they encode test-day patterns</li>
+            <li>Memorize: numerical limits, exact path strings, query suite names, dismissal reasons</li>
+            <li>Get a full night of sleep before exam day. Caffeine helps recall less than rest does.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="flag" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Course complete</strong>
+          <p>You've finished the GH-500 prep course covering all five domains. The exam is pattern-matching: features, paths, limits, and traps. You've now seen the patterns repeatedly across this material. Walk in on test day expecting the same shapes — they will be there. Good luck.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Back nav -->
+    <div class="continue-cta animate-in">
+      <a href="#module-0" class="btn btn-continue">
+        Back to course overview <i data-lucide="arrow-right" class="icon"></i>
+      </a>
+      <a href="#module-6" class="btn-back-link">
+        <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 6
+      </a>
+    </div>
+  </div>
+</section>

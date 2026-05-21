@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gandirea in Scenarii Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --surface: #161b22;
+  --surface2: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --accent: #e6b422;
+  --accent-dim: rgba(230,180,34,0.12);
+  --break-color: #f85149;
+  --break-bg: rgba(248,81,73,0.08);
+  --anchor-color: #3fb950;
+  --anchor-bg: rgba(63,185,80,0.08);
+  --missing-color: #a371f7;
+  --missing-bg: rgba(163,113,247,0.08);
+  --mono: 'JetBrains Mono', 'Courier New', monospace;
+  --serif: 'Lora', Georgia, serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--serif); min-height: 100vh; line-height: 1.75; }
+
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; }
+.course-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; }
+.chunk-counter { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); }
+.progress-track { height: 2px; background: var(--border); border-radius: 1px; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width 0.4s ease; }
+
+/* DOTS NAV */
+.dots-row { display: flex; justify-content: center; gap: 8px; padding: 0.6rem 0 0; }
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--border); cursor: pointer; transition: all 0.2s;
+  border: none; padding: 0;
+}
+.dot.active { background: var(--accent); transform: scale(1.3); }
+.dot.done { background: var(--anchor-color); }
+
+/* MAIN */
+.main { max-width: 760px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+/* CHUNK HEADER */
+.chunk-meta { font-family: var(--mono); font-size: 0.62rem; color: var(--text-dim); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.35rem; }
+.chunk-title { font-size: 1.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; line-height: 1.25; }
+.chunk-subtitle { font-size: 1rem; color: var(--text-dim); font-style: italic; margin-bottom: 2rem; }
+
+/* SECTIONS */
+.section { margin-bottom: 1.6rem; }
+.section-label {
+  font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 0.55rem; display: block;
+}
+
+/* BREAK */
+.block-break { background: var(--break-bg); border-left: 3px solid var(--break-color); padding: 1rem 1.2rem; border-radius: 0 6px 6px 0; }
+.block-break .section-label { color: var(--break-color); }
+.block-break p { font-size: 0.975rem; color: var(--text); }
+
+/* CONCEPT */
+.block-concept p { font-size: 0.975rem; color: var(--text); }
+.block-concept strong { color: var(--accent); font-weight: 600; font-style: normal; }
+.block-concept em { color: var(--text-dim); font-style: italic; }
+
+/* ANCHOR */
+.block-anchor {
+  background: var(--anchor-bg); border: 1px solid rgba(63,185,80,0.25);
+  padding: 1rem 1.2rem; border-radius: 6px;
+}
+.block-anchor .section-label { color: var(--anchor-color); }
+.anchor-word { font-family: var(--mono); font-size: 1.05rem; font-weight: 600; color: var(--anchor-color); display: block; margin-bottom: 0.35rem; }
+.anchor-explain { font-size: 0.9rem; color: var(--text-dim); font-style: italic; }
+
+/* CONTRAST */
+.block-contrast { background: var(--surface2); border: 1px solid var(--border); padding: 1rem 1.2rem; border-radius: 6px; }
+.block-contrast .section-label { color: var(--text-dim); }
+.contrast-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-top: 0.6rem; }
+.contrast-bad, .contrast-good { padding: 0.7rem 0.9rem; border-radius: 4px; font-size: 0.875rem; line-height: 1.6; }
+.contrast-bad { background: var(--break-bg); border: 1px solid rgba(248,81,73,0.15); }
+.contrast-good { background: var(--anchor-bg); border: 1px solid rgba(63,185,80,0.15); }
+.contrast-tag { font-family: var(--mono); font-size: 0.6rem; display: block; margin-bottom: 0.3rem; }
+.contrast-bad .contrast-tag { color: var(--break-color); }
+.contrast-good .contrast-tag { color: var(--anchor-color); }
+
+/* LENS GRID */
+.lens-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-top: 0.75rem; }
+.lens-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.7rem 0.8rem; }
+.lens-num { font-family: var(--mono); font-size: 0.58rem; color: var(--accent); margin-bottom: 0.2rem; }
+.lens-name { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+.lens-trigger { font-size: 0.78rem; color: var(--text-dim); font-style: italic; }
+
+/* MANTRA */
+.mantra-box {
+  background: var(--accent-dim); border: 1px solid var(--accent);
+  border-radius: 6px; padding: 1rem 1.5rem;
+  font-family: var(--mono); font-size: 0.9rem; color: var(--accent);
+  letter-spacing: 0.04em; text-align: center; margin: 1rem 0;
+}
+
+/* MISSING ITEMS */
+.missing-list { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+.missing-item { background: var(--missing-bg); border: 1px solid rgba(163,113,247,0.2); border-radius: 6px; padding: 0.9rem 1.1rem; }
+.missing-title { font-family: var(--mono); font-size: 0.7rem; color: var(--missing-color); font-weight: 600; margin-bottom: 0.35rem; letter-spacing: 0.06em; }
+.missing-text { font-size: 0.9rem; color: var(--text-dim); line-height: 1.65; }
+
+/* EXERCISE */
+.block-exercise { background: var(--surface); border: 1px solid var(--accent); border-radius: 6px; padding: 1.25rem; }
+.block-exercise .section-label { color: var(--accent); }
+.exercise-prompt { font-size: 0.95rem; color: var(--text); margin-bottom: 0.9rem; line-height: 1.7; }
+textarea {
+  width: 100%; min-height: 110px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); font-family: var(--serif); font-size: 0.9rem;
+  padding: 0.7rem 0.85rem; resize: vertical; line-height: 1.65;
+}
+textarea:focus { outline: none; border-color: var(--accent); }
+textarea::placeholder { color: var(--text-dim); }
+
+/* CALIBRATION */
+.block-calibration { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 1.1rem 1.2rem; }
+.block-calibration .section-label { color: var(--text-dim); margin-bottom: 0.65rem; }
+.cal-item {
+  display: flex; align-items: flex-start; gap: 0.7rem;
+  padding: 0.45rem 0; border-bottom: 1px solid var(--border); cursor: pointer;
+}
+.cal-item:last-child { border-bottom: none; }
+.cal-box {
+  width: 17px; height: 17px; border: 1px solid var(--border); border-radius: 3px;
+  background: var(--bg); flex-shrink: 0; display: flex; align-items: center;
+  justify-content: center; margin-top: 3px; transition: all 0.18s; font-size: 11px;
+}
+.cal-item.ticked .cal-box { background: var(--anchor-color); border-color: var(--anchor-color); color: #0f1117; font-weight: bold; }
+.cal-text { font-size: 0.875rem; color: var(--text-dim); line-height: 1.55; transition: color 0.18s; }
+.cal-item.ticked .cal-text { color: var(--text); }
+
+/* NAVIGATION */
+.nav-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 2.5rem; padding-top: 1.75rem; border-top: 1px solid var(--border);
+}
+.btn {
+  font-family: var(--mono); font-size: 0.75rem; padding: 0.55rem 1.2rem;
+  border-radius: 4px; cursor: pointer; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); transition: all 0.18s;
+  letter-spacing: 0.05em;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: 0.28; cursor: not-allowed; }
+.btn-primary {
+  background: var(--accent); color: #0f1117; border-color: var(--accent); font-weight: 600;
+}
+.btn-primary:hover { background: #f2c133; border-color: #f2c133; color: #0f1117; }
+
+/* COMPLETE STATE */
+.complete-screen { text-align: center; padding: 3rem 1rem; }
+.complete-title { font-size: 1.6rem; font-weight: 600; margin-bottom: 1rem; }
+.complete-sub { color: var(--text-dim); font-style: italic; margin-bottom: 2rem; }
+.anchors-recap { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: left; max-width: 500px; margin: 0 auto 2rem; }
+.anchors-recap h3 { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1rem; }
+.anchor-recap-item { display: flex; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+.anchor-recap-item:last-child { border-bottom: none; }
+.anchor-recap-num { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); min-width: 24px; margin-top: 3px; }
+.anchor-recap-word { color: var(--anchor-color); font-family: var(--mono); font-weight: 600; min-width: 170px; }
+.anchor-recap-chunk { color: var(--text-dim); font-style: italic; }
+
+@media (max-width: 620px) {
+  .contrast-pair { grid-template-columns: 1fr; }
+  .lens-grid { grid-template-columns: repeat(2, 1fr); }
+  .main { padding: 1.5rem 1rem 3rem; }
+  .chunk-title { font-size: 1.45rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <span class="course-label">Avise · Product Thinking</span>
+    <span class="chunk-counter" id="counter">Chunk 1 / 8</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress" style="width:12.5%"></div></div>
+  <div class="dots-row" id="dotsRow"></div>
+</div>
+
+<div class="main" id="main"></div>
+
+<script>
+const CHUNKS = [
+  {
+    id: 1,
+    title: "De ce ratezi scenarii",
+    subtitle: "Problema reala nu e AC-ul",
+    anchor: "FOTOGRAFIE TAIATA",
+    break_: `Cand un dev zice "nu e bug, e feature", nu e o problema de comunicare si nu e o problema de AC lips&atilde;. E o problema de sincronizare: scenariul n-a existat explicit &icirc;n mintea nim&atilde;nui &icirc;nainte s&atilde; porneasc&atilde; dev-ul. Dup&atilde; ce codul e scris, orice comportament nementionat devine retroactiv "intentionat" &mdash; si toat&atilde; lumea are dreptate din perspectiva ei.`,
+    concept: `Un <strong>scenariu complet</strong> are &icirc;ntotdeauna trei componente: <em>contextul</em> (&icirc;n ce stare se afl&atilde; sistemul si userul c&acirc;nd &icirc;ncepe actiunea), <em>actiunea</em> (ce face userul sau sistemul), si <em>outcome-ul asteptat</em> (ce ar trebui s&atilde; se &icirc;nt&acirc;mple ca rezultat direct). Dac&atilde; oricare din cele trei lipseste, scenariul e incomplet &mdash; si fiecare persoan&atilde; din echip&atilde; &icirc;l va completa diferit &icirc;n capul ei, f&atilde;r&atilde; s&atilde; stie c&atilde; o face.`,
+    anchorExplain: "O poz&atilde; t&atilde;iat&atilde; &icirc;ti arat&atilde; actiunea &mdash; cineva s&atilde;rind &mdash; dar nu contextul (de unde?) si nu outcome-ul (unde aterizeaz&atilde;?). Un scenariu incomplet e la fel: ai o bucat&atilde;, nu imaginea &icirc;ntreag&atilde;.",
+    contrastBad: "Butonul posteaz&atilde; JE-ul.",
+    contrastGood: "C&acirc;nd un JE &icirc;n stare Draft are linii echilibrate si perioada e deschis&atilde;, userul apas&atilde; Post si JE-ul trece &icirc;n Posted, iar balanta contului se actualizeaz&atilde; &icirc;n timp real.",
+    exercise: `Ia feature-ul <strong>TB Upload</strong> din Avise. Scrie un scenariu complet &mdash; cu context (starea sistemului si a userului), actiunea specific&atilde;, si outcome-ul asteptat. C&acirc;nd ai terminat, verific&atilde;: ai toate cele 3 componente? Dac&atilde; nu, ce lipsea?`,
+    calibration: [
+      "Pot distinge un scenariu complet de unul incomplet f&atilde;r&atilde; s&atilde; m&atilde; g&acirc;ndesc?",
+      "Stiu s&atilde; dau un exemplu din Avise pentru fiecare din cele 3 componente (context, actiune, outcome)?",
+      "Dac&atilde; dev-ul zice &lsquo;nu e bug, e feature&rsquo;, pot identifica care component&atilde; lipsea din scenariu?"
+    ]
+  },
+  {
+    id: 2,
+    title: "Inversia Mentala",
+    subtitle: "Situatia mai &icirc;nt&acirc;i, nu layer-ul",
+    anchor: "TEREN vs. HARTA",
+    break_: `Dac&atilde; pornesti de la UI layers &mdash; butonul, label-ul, culoarea, ce trimite la API &mdash; o s&atilde; descrii implementarea, nu comportamentul. "Butonul e disabled" &icirc;i spune dev-ului ce s&atilde; construiasc&atilde;. "Userul nu poate posta un JE &icirc;ntr-o perioad&atilde; &icirc;nchis&atilde;" &icirc;i spune ce problem&atilde; s&atilde; rezolve. Acestea sunt lucruri diferite. Un dev care implementeaz&atilde; primul f&atilde;r&atilde; al doilea va face exact ce i-ai cerut, dar altceva dec&acirc;t ce voiai.`,
+    concept: `<strong>Situatia</strong> e punctul de plecare corect: cine e userul, ce vrea s&atilde; fac&atilde;, &icirc;n ce stare se afl&atilde; sistemul &icirc;n acel moment. Layerele &mdash; ce vede userul, ce face sistemul intern, ce se scrie &icirc;n DB &mdash; sunt un filtru pe care &icirc;l aplici <em>dup&atilde;</em> ce ai situatia clar&atilde;, nu un generator de scenarii. Ordinea conteaz&atilde;: situatie &rarr; scenariu &rarr; layers. Nu invers.`,
+    anchorExplain: "Terenul e realitatea (situatia userului). Harta e reprezentarea ei (layerele UI/BE/DB). F&atilde;r&atilde; teren, harta nu &icirc;nseamn&atilde; nimic. Nu &icirc;ncepi s&atilde; desenezi harta &icirc;nainte s&atilde; cunosti terenul.",
+    contrastBad: "Campul Amount e readonly c&acirc;nd JE-ul e &icirc;n stare Posted.",
+    contrastGood: "Userul &icirc;ncerc&atilde; s&atilde; editeze suma unui JE deja postat &mdash; sistemul &icirc;l blocheaz&atilde; si &icirc;i explic&atilde; de ce.",
+    exercise: `Ti s-a dat AC-ul: <strong>"Butonul de Import e disabled c&acirc;nd nu exist&atilde; fisier selectat."</strong> Rescrie-l ca scenariu pornind de la situatia userului, nu de la buton. Ce se schimb&atilde; c&acirc;nd pornesti din locul corect? Ce informatii noi apar?`,
+    calibration: [
+      "Pot transforma orice AC care &icirc;ncepe cu 'Butonul...' &icirc;ntr-un scenariu bazat pe situatie?",
+      "&Icirc;nteleg de ce descrierea implementarii si descrierea problemei sunt lucruri diferite?",
+      "C&acirc;nd v&atilde;d un AC scris &icirc;n termen de UI, stiu ce &icirc;ntrebare s&atilde; pun ca s&atilde;-l aduc la nivelul corect?"
+    ]
+  },
+  {
+    id: 3,
+    title: "State Map",
+    subtitle: "Deseneaz&atilde; &icirc;nainte s&atilde; scrii",
+    anchor: "HARTA DE METROU",
+    break_: `Stii c&atilde; un JE poate fi Draft sau Posted. Dar mai poate fi Scheduled, Quarantined, Deleted? Si din fiecare stare, ce tranzitii sunt posibile? Cine le poate declansa? &Icirc;n ce conditii pot esua? Dac&atilde; nu le-ai desenat explicit, vei scrie scenariile pentru tranzitiile pe care le-ai v&atilde;zut deja si le vei rata pe cele pe care nu le-ai vizualizat niciodat&atilde;. Scenariile omise nu sunt enumerate niciodat&atilde; &mdash; de aceea sunt omise.`,
+    concept: `<strong>State Map</strong> e o diagram&atilde; simpl&atilde; pe care o faci &icirc;nainte de orice AC: toate <em>st&atilde;rile posibile</em> ale entit&atilde;tii (JE, Invoice, User, Period) si toate <em>tranzitiile posibile</em> &icirc;ntre ele &mdash; cine le declans&atilde;, &icirc;n ce conditii, si ce se &icirc;nt&acirc;mpl&atilde; c&acirc;nd conditia nu e &icirc;ndeplinit&atilde;. Fiecare s&atilde;geat&atilde; din diagram&atilde; e un scenariu potential. S&atilde;getile care lipsesc sunt scenariile pe care nu le-ai g&acirc;ndit &icirc;nc&atilde;.`,
+    anchorExplain: "Statiile sunt st&atilde;rile (Draft, Posted, Quarantined). Liniile sunt tranzitiile. F&atilde;r&atilde; hart&atilde; de metrou, stii c&atilde; exist&atilde; dou&atilde; statii, dar nu stii pe ce linii ajungi de la una la alta, unde trebuie s&atilde; schimbi, si unde nu exist&atilde; conexiune.",
+    contrastBad: "Feature-ul permite postarea unui JE. (1 s&atilde;geat&atilde;, 2 st&atilde;ri.)",
+    contrastGood: "State Map cu 6 st&atilde;ri si 14 tranzitii &mdash; din care 4 sunt invalide si genereaz&atilde; scenarii de eroare distincte.",
+    exercise: `Ia entitatea <strong>JournalEntry</strong> din Avise. F&atilde;r&atilde; s&atilde; te uiti &icirc;n cod sau Figma, scrie toate st&atilde;rile pe care le cunosti si toate tranzitiile dintre ele (cine le face, &icirc;n ce conditii). C&acirc;nd ai terminat: c&acirc;te tranzitii au scenarii scrise &icirc;n backlog? Ce tranzitii nu au niciun scenariu?`,
+    calibration: [
+      "&Icirc;nteleg de ce State Map se face &icirc;nainte de AC, nu dup&atilde;?",
+      "Pot face State Map pentru orice entitate din Avise &icirc;n 10 minute?",
+      "Stiu s&atilde; identific o tranzitie invalid&atilde; si s&atilde; o transform &icirc;n scenariu de eroare?"
+    ]
+  },
+  {
+    id: 4,
+    title: "Example Mapping",
+    subtitle: "Acordul pe exemple concrete",
+    anchor: "TABLA DE JOC",
+    break_: `PO-ul, dev-ul si testerul citesc acelasi story si construiesc fiecare o imagine diferit&atilde; &icirc;n cap. Nimeni nu stie asta. Dev-ul implementeaz&atilde; imaginea lui. Testerul testeaz&atilde; imaginea lui. PO-ul accept&atilde; sau refuz&atilde; dup&atilde; imaginea lui. Divergenta iese la suprafa&t;&atilde; &icirc;n review, c&acirc;nd codul e deja scris &mdash; si atunci fiecare om are dreptate, din perspectiva imaginii lui.`,
+    concept: `<strong>Example Mapping</strong> e o conversatie structurat&atilde; de 30 de minute, f&atilde;cut&atilde; <em>&icirc;nainte</em> de dev, &icirc;n care echipa produce &icirc;mpreun&atilde; trei lucruri: <strong>reguli</strong> (ce trebuie s&atilde; fie adev&atilde;rat pentru ca feature-ul s&atilde; functioneze corect), <strong>exemple concrete</strong> (situatii reale cu date reale &mdash; conturi specifice, perioade reale &mdash; nu abstractii), si <strong>&icirc;ntreb&atilde;ri</strong> (ce nu s-a decis &icirc;nc&atilde; si blocheaz&atilde; implementarea). Acordul pe exemple concrete = acordul pe comportament. "Toat&atilde; lumea a citit story-ul" nu e echivalent cu "toat&atilde; lumea a aprobat aceleasi exemple."`,
+    anchorExplain: "Regulile jocului, mut&atilde;rile posibile, ce nu stim &icirc;nc&atilde;. Dac&atilde; fiecare juc&atilde;tor are alt&atilde; tabl&atilde; &icirc;n cap, joac&atilde; jocuri diferite pe acelasi teren &mdash; si nimeni nu stie asta p&acirc;n&atilde; c&acirc;nd cineva face o mutare &lsquo;invalid&atilde;&rsquo;.",
+    contrastBad: "Story-ul e &icirc;n sprint, toat&atilde; lumea l-a citit, &icirc;ncepem dev.",
+    contrastGood: "Am f&atilde;cut Example Mapping: 8 exemple agreate de toti, 3 &icirc;ntreb&atilde;ri deschise escalate la PM, dev porneste c&acirc;nd avem r&atilde;spunsuri.",
+    exercise: `Ia story-ul <strong>"Userul poate reimporta un Trial Balance pentru o perioad&atilde; &icirc;n care exist&atilde; deja date."</strong> Scrie: 3 reguli, 2 exemple concrete cu date din Avise (conturi reale, perioade reale), si 1 &icirc;ntrebare deschis&atilde; care trebuie s&atilde; ajung&atilde; la PM &icirc;nainte de dev.`,
+    calibration: [
+      "Stiu diferenta dintre o regul&atilde; si un exemplu concret?",
+      "Pot conduce un Example Mapping de 30 de minute cu Harris si Emi?",
+      "C&acirc;nd v&atilde;d o &icirc;ntrebare &icirc;n Example Mapping, stiu s&atilde; o separ de exemple si s&atilde; o escalez?"
+    ]
+  },
+  {
+    id: 5,
+    title: "Cele 6 Lentile",
+    subtitle: "Checklist de completitudine",
+    anchor: "OCHELARI CU 6 LENTILE",
+    break_: `Ai scenariile principale. Ai omis toate celelalte locuri din UI unde acelasi helper shared produce acelasi bug. Sau ai omis ce se &icirc;nt&acirc;mpl&atilde; cu componentele care depind de codul pe care l-ai modificat. Scenariile de baz&atilde; sunt punctul de start &mdash; nu punctul final. Ai nevoie de un filtru sistematic care s&atilde; te asigure c&atilde; n-ai l&atilde;sat categorii &icirc;ntregi afar&atilde;.`,
+    concept: `Cele <strong>6 lentile</strong> se aplic&atilde; <em>dup&atilde;</em> ce ai scenariile de baz&atilde; &mdash; nu &icirc;nainte. Le parcurgi pe r&acirc;nd, ca un checklist: <strong>Happy Path</strong> (scenariul principal care trebuie s&atilde; mearg&atilde;), <strong>Surface Coverage</strong> (unde altundeva &icirc;n sistem apare acelasi comportament), <strong>Edge Cases</strong> (empty/null/many/long/boundary), <strong>Backward Compatibility</strong> (ce altceva depinde de ce modifici), <strong>Non-Functional</strong> (accesibilitate, vizual, performant&atilde;, securitate), <strong>Negative Scope</strong> (ce nu faci &icirc;n acest ticket).`,
+    anchorExplain: "Nu le porti pe toate odat&atilde;. Le schimbi pe r&acirc;nd si te uiti la acelasi feature din fiecare unghi. Fiecare lentil&atilde; arat&atilde; altceva &mdash; si unele lentile nu g&atilde;sesc nimic, ceea ce e si el un r&atilde;spuns.",
+    contrastBad: "Am scris scenariile care mi-au venit &icirc;n minte.",
+    contrastGood: "Am trecut prin toate 6 lentile si stiu ce am g&atilde;sit si ce n-am g&atilde;sit la fiecare.",
+    lenses: [
+      { num: "01", name: "Happy Path", trigger: "Dac&atilde; un singur lucru functioneaz&atilde;, care e?" },
+      { num: "02", name: "Surface Coverage", trigger: "Cine altcineva apeleaz&atilde; acelasi cod / UI?" },
+      { num: "03", name: "Edge Cases", trigger: "Empty / many / long / null / boundary?" },
+      { num: "04", name: "Backward Compat", trigger: "Ce altceva depinde de ce modific?" },
+      { num: "05", name: "Non-Functional", trigger: "Trece review de design / a11y / securitate?" },
+      { num: "06", name: "Negative Scope", trigger: "Ce nu fac &icirc;n acest ticket?" }
+    ],
+    mantra: "Happy. Surfaces. Edges. Compat. Non-functional. What's NOT in?",
+    exercise: `Aplic&atilde; mantria pentru story-ul <strong>"Afis&atilde;m mesajul de eroare specific c&acirc;nd un JE esueaz&atilde; la postare"</strong> din Avise. Trece prin fiecare lentil&atilde; si noteaz&atilde; ce g&atilde;sesti (sau &lsquo;nimic&rsquo; dac&atilde; lentila nu se aplic&atilde;). C&acirc;te scenarii noi ai g&atilde;sit fat&atilde; de ce stiai deja?`,
+    calibration: [
+      "Pot recita mantria din memorie f&atilde;r&atilde; s&atilde; m&atilde; uit?",
+      "&Icirc;nteleg de ce lentilele sunt filtru aplicat dup&atilde; scenarii, nu generator de scenarii?",
+      "Stiu s&atilde; spun ce g&atilde;sesc (sau nu g&atilde;sesc) la fiecare lentil&atilde;, nu doar s&atilde; le enumar?"
+    ]
+  },
+  {
+    id: 6,
+    title: "Cele 3 &Icirc;ntreb&atilde;ri",
+    subtitle: "Ce vede / ce face / ce r&atilde;m&acirc;ne",
+    anchor: "TRANZACTIE BANCARA",
+    break_: `Ai un scenariu care sun&atilde; complet: "Userul posteaz&atilde; JE-ul si vede confirmarea." Testerul &icirc;l valideaz&atilde;, QA-ul &icirc;l aprob&atilde;. Dup&atilde; deploy, un coleg din contabilitate observ&atilde; c&atilde; JE-ul apare &icirc;n UI ca Posted, dar balanta contului nu s-a actualizat. Scenariul era complet la nivelul a ce vede userul &mdash; si incomplet la nivelul a ce face sistemul.`,
+    concept: `Pentru fiecare scenariu complet, pune sistematic <strong>3 &icirc;ntreb&atilde;ri</strong>: (1) <strong>Ce vede userul?</strong> &mdash; interfata, mesaje, stare vizual&atilde;, feedback. (2) <strong>Ce face sistemul intern?</strong> &mdash; ce valid&atilde;ri ruleaz&atilde;, ce API calls se fac, ce logic&atilde; de business se execut&atilde;. (3) <strong>Ce r&atilde;m&acirc;ne scris undeva?</strong> &mdash; ce se scrie &icirc;n DB, ce apare &icirc;n log, ce intr&atilde; &icirc;n audit trail, ce notific&atilde;ri se trimit. Astea 3 prind 80% din ce omit PO-ii &icirc;n mod obisnuit.`,
+    anchorExplain: "(1) Clientul vede: soldul actualizat pe ecran. (2) Banca face intern: verific&atilde; fondurile, blocheaz&atilde; suma, execut&atilde; transferul. (3) R&atilde;m&acirc;ne scris: extrasul de cont, log-ul tranzactiei, notificarea c&atilde;tre compliance. Dac&atilde; omiti oricare, ai o g&atilde;ur&atilde;.",
+    contrastBad: "Userul posteaz&atilde; JE si vede confirmarea. (1 din 3.)",
+    contrastGood: "Userul vede status Posted + suma &icirc;n UI. Sistemul valid&atilde; balanta si apeleaz&atilde; calculateBalances(). &Icirc;n DB: status = POSTED, postedAt = now(). &Icirc;n audit_log: userId + timestamp + sumele afectate.",
+    exercise: `Ia scenariul <strong>"Userul accept&atilde; un Incoming Request din Avise."</strong> R&atilde;spunde la cele 3 &icirc;ntreb&atilde;ri: ce vede userul, ce face sistemul intern (cel putin 2 actiuni), ce r&atilde;m&acirc;ne scris undeva (cel putin 2 locuri). Dac&atilde; nu stii r&atilde;spunsul la &icirc;ntrebarea 2 sau 3, noteaz&atilde; explicit &mdash; e o lacun&atilde; de clarificat cu Harris.`,
+    calibration: [
+      "Pot pune cele 3 &icirc;ntreb&atilde;ri automat, f&atilde;r&atilde; s&atilde; m&atilde; g&acirc;ndesc, pentru orice scenariu?",
+      "Stiu s&atilde; identific c&acirc;nd un scenariu e complet la nivel de UI dar incomplet la nivel de sistem?",
+      "Dac&atilde; nu stiu r&atilde;spunsul la &icirc;ntrebarea 3 (ce r&atilde;m&acirc;ne scris), stiu cui s&atilde; m&atilde; duc s&atilde; &icirc;ntreb?"
+    ]
+  },
+  {
+    id: 7,
+    title: "Decision ACs",
+    subtitle: "Ce n-a decis nimeni &icirc;nc&atilde;",
+    anchor: "FURCULITA &Icirc;N DRUM",
+    break_: `Scrii un scenariu: "C&acirc;nd userul reimport&atilde; un Trial Balance, datele vechi sunt &icirc;nlocuite." Sun&atilde; simplu si natural. Dar ce se &icirc;nt&acirc;mpl&atilde; cu JE-urile derivate din datele vechi? Le stergi? Le marchezi ca invalidate? Le lasi &icirc;ntacte? Tocmai ai f&atilde;cut o alegere de product &mdash; f&atilde;r&atilde; s&atilde; realizezi c&atilde; era o alegere, nu un fapt. Dev-ul face o alegere diferit&atilde;. La review: bug sau feature?`,
+    concept: `Un <strong>Decision AC</strong> nu e un scenariu testabil &mdash; e o &icirc;ntrebare de product pe care o surfasezi explicit &icirc;nainte de dev, pentru c&atilde; altfel fiecare om din echip&atilde; o va r&atilde;spunde singur, &icirc;n cod, diferit. Pe m&atilde;sur&atilde; ce scrii scenariile, orice moment &icirc;n care trebuie s&atilde; "alegi" comportamentul f&atilde;r&atilde; un r&atilde;spuns evident = un Decision AC. &Icirc;l scrii ca &icirc;ntrebare explicit&atilde;, &icirc;l escalezi la PM, si <em>nu pornesti dev-ul</em> p&acirc;n&atilde; n-ai r&atilde;spunsul documentat &icirc;n ticket.`,
+    anchorExplain: "La fiecare decizie de product, drumul se bifurc&atilde;. Dac&atilde; nu alegi explicit directia, fiecare persoan&atilde; din echip&atilde; o alege singur&atilde;, &icirc;n directii diferite &mdash; si niciuna nu stie c&atilde; face o alegere.",
+    contrastBad: "Toat&atilde; lumea presupune ceva. Dev-ul presupune X. PO-ul presupune Y. Se afl&atilde; la review.",
+    contrastGood: "Am identificat 2 decizii neluate, le-am escalat la PM, am r&atilde;spunsuri documentate &icirc;n ticket &icirc;nainte de dev.",
+    exercise: `&Icirc;n story-ul <strong>"JE cu suma zero nu poate fi postat"</strong> din Avise: identific&atilde; cel putin 2 decizii de product care nu sunt explicite &icirc;n story si pe care cineva trebuie s&atilde; le ia. Scrie-le ca &icirc;ntreb&atilde;ri clare, cu variantele posibile de r&atilde;spuns. (Hint: g&acirc;ndeste-te la JE-urile existente cu suma zero si la sursa lor &mdash; Avise vs. QBO sync.)`,
+    calibration: [
+      "Pot distinge o presupunere silentioas&atilde; de un fapt de business &icirc;n timp ce scriu un scenariu?",
+      "Stiu s&atilde; formulez un Decision AC ca &icirc;ntrebare clar&atilde;, nu ca afirmatie?",
+      "&Icirc;nteleg de ce un Decision AC nerezolvat e mai periculos dec&acirc;t un scenariu lips&atilde;?"
+    ]
+  },
+  {
+    id: 8,
+    title: "Sanity Checks + Ce Lipseste",
+    subtitle: "Finalul si golurile modelului",
+    anchor: "ALTIMETRUL",
+    break_: `Ai trecut prin toate lentilele, ai pus cele 3 &icirc;ntreb&atilde;ri, ai surfasat Decision ACs. R&atilde;m&acirc;n dou&atilde; capcane: ACs care sun&atilde; bine dar nu pot fi verificate clar, si ACs care se suprapun si vor fi ambele marcate failed de acelasi bug &mdash; ceea ce creeaz&atilde; confuzie si munc&atilde; dubl&atilde; &icirc;n QA.`,
+    concept: `Dou&atilde; <strong>sanity checks finale</strong> &icirc;nainte s&atilde; &icirc;nchizi orice ticket: (1) <strong>Falsificabil</strong> &mdash; un tester poate rula acest scenariu si poate spune clar DA sau NU, f&atilde;r&atilde; interpretare? Dac&atilde; r&atilde;spunsul e "depinde", rescrie. (2) <strong>F&atilde;r&atilde; overlap</strong> &mdash; dac&atilde; acelasi bug ar face s&atilde; cad&atilde; 2 ACs, mergeaz&atilde;-le &icirc;ntr-unul. Plus: verific&atilde; <strong>altitudinea</strong> &mdash; e la nivel de comportament (bun), de implementare (prea jos, descrie codul nu comportamentul), sau de "sistemul functioneaz&atilde; corect" (prea sus, netestabil)?`,
+    anchorExplain: "Zbori prea jos (implementare: 'functia returneaz&atilde; X'), prea sus ('sistemul functioneaz&atilde; corect'), sau la altitudinea corect&atilde; (comportament: 'userul vede Y c&acirc;nd face Z')? Altimetrul &icirc;ti spune unde esti.",
+    contrastBad: "getErrorMessageFromApiError returneaz&atilde; detail c&acirc;nd e non-empty. (Implementare &mdash; prea jos.)",
+    contrastGood: "C&acirc;nd postarea unui JE esueaz&atilde; cu eroare de validare, userul vede motivul specific, nu mesajul generic. (Comportament &mdash; altitudinea corect&atilde;.)",
+    missing: [
+      {
+        title: "VERIFIER TYPE &mdash; cine verific&atilde; fiecare AC",
+        text: "Nu toti ACs sunt pentru acelasi om. Unii &icirc;i verific&atilde; dev-ul &icirc;n unit test, altii testerul &icirc;n QA, altii BA-ul &icirc;n UAT, altii designer-ul &icirc;n review. Dac&atilde; nu stii cine verific&atilde; un AC, nu stii nici cum se verific&atilde;. Adaug&atilde; o etichet&atilde; simpl&atilde;: DEV / QA / UAT / DESIGN."
+      },
+      {
+        title: "ORDERING &mdash; dependentele &icirc;ntre ACs",
+        text: "Dac&atilde; AC1 pic&atilde;, restul nu conteaz&atilde; &mdash; nu poti testa scenarii de eroare dac&atilde; happy path-ul nu merge. Scrie ACs &icirc;n ordinea dependentelor, nu &icirc;n ordinea &icirc;n care ti-au venit &icirc;n minte. Un AC care depinde de alt AC trebuie s&atilde; apar&atilde; dup&atilde; el."
+      },
+      {
+        title: "AUDIT / DATA TRAIL &mdash; lentila 7 care lipseste",
+        text: "&Icirc;n accounting SaaS, ce se scrie &icirc;n baza de date si &icirc;n audit trail e at&acirc;t de important &icirc;nc&acirc;t merit&atilde; propria lentil&atilde;, nu doar un sub-item sub Non-Functional. Un JE postat f&atilde;r&atilde; audit entry e un JE cu bani pierduti &mdash; nu e o problem&atilde; de UX. Pentru Avise specific, verific&atilde; &icirc;ntotdeauna: exist&atilde; un audit log entry cu userId, timestamp, si valorile afectate?"
+      }
+    ],
+    exercise: `Ia un AC scris de tine recent (din orice story Avise). Trece-l prin cele 3 checks: e falsificabil (DA/NU clar)? se suprapune cu alt AC din acelasi ticket? e la altitudinea corect&atilde; (comportament, nu implementare sau stare abstract&atilde;)? Dac&atilde; pic&atilde; la oricare, rescrie-l &icirc;n spatiul de jos.`,
+    calibration: [
+      "Pot verifica altitudinea unui AC &icirc;n 10 secunde?",
+      "Stiu s&atilde; identific c&acirc;nd dou&atilde; ACs testeaz&atilde; acelasi lucru si s&atilde; le unesc?",
+      "Stiu care din cele 3 adaugiri lipseste cel mai des din ticketele pe care le scriu?"
+    ]
+  }
+];
+
+const ANCHORS = [
+  { chunk: "Scenarii Complete", word: "FOTOGRAFIE TAIATA" },
+  { chunk: "Inversia Mentala", word: "TEREN vs. HARTA" },
+  { chunk: "State Map", word: "HARTA DE METROU" },
+  { chunk: "Example Mapping", word: "TABLA DE JOC" },
+  { chunk: "Cele 6 Lentile", word: "OCHELARI CU 6 LENTILE" },
+  { chunk: "Cele 3 Intrebari", word: "TRANZACTIE BANCARA" },
+  { chunk: "Decision ACs", word: "FURCULITA IN DRUM" },
+  { chunk: "Sanity Checks", word: "ALTIMETRUL" }
+];
+
+let current = 0;
+const completed = new Set();
+const calStates = {};
+
+function buildDots() {
+  const row = document.getElementById('dotsRow');
+  row.innerHTML = '';
+  CHUNKS.forEach((c, i) => {
+    const d = document.createElement('button');
+    d.className = 'dot' + (i === current ? ' active' : '') + (completed.has(i) && i !== current ? ' done' : '');
+    d.title = c.title;
+    d.onclick = () => { goTo(i); };
+    row.appendChild(d);
+  });
+}
+
+function updateHeader() {
+  document.getElementById('counter').textContent = current < CHUNKS.length
+    ? `Chunk ${current + 1} / ${CHUNKS.length}` : 'Complet';
+  const pct = ((current + 1) / CHUNKS.length) * 100;
+  document.getElementById('progress').style.width = Math.min(pct, 100) + '%';
+  buildDots();
+}
+
+function getCalKey(chunkId, i) { return `c${chunkId}_q${i}`; }
+
+function renderChunk(idx) {
+  if (idx >= CHUNKS.length) { renderComplete(); return; }
+  const c = CHUNKS[idx];
+  const cid = c.id;
+
+  let lensesHTML = '';
+  if (c.lenses) {
+    lensesHTML = `<div class="lens-grid">` +
+      c.lenses.map(l => `<div class="lens-card">
+        <div class="lens-num">${l.num}</div>
+        <div class="lens-name">${l.name}</div>
+        <div class="lens-trigger">${l.trigger}</div>
+      </div>`).join('') +
+    `</div>`;
+  }
+
+  let mantraHTML = '';
+  if (c.mantra) {
+    mantraHTML = `<div class="mantra-box">${c.mantra}</div>`;
+  }
+
+  let missingHTML = '';
+  if (c.missing) {
+    missingHTML = `
+    <div class="section">
+      <span class="section-label" style="color:var(--missing-color)">&#x2B; Ce lipseste din modelul standard</span>
+      <div class="missing-list">` +
+        c.missing.map(m => `<div class="missing-item">
+          <div class="missing-title">${m.title}</div>
+          <div class="missing-text">${m.text}</div>
+        </div>`).join('') +
+      `</div>
+    </div>`;
+  }
+
+  const calHTML = c.calibration.map((q, i) => {
+    const key = getCalKey(cid, i);
+    const ticked = calStates[key] ? ' ticked' : '';
+    return `<div class="cal-item${ticked}" data-key="${key}" onclick="toggleCal(this, '${key}')">
+      <div class="cal-box">${calStates[key] ? '✓' : ''}</div>
+      <div class="cal-text">${q}</div>
+    </div>`;
+  }).join('');
+
+  const savedText = calStates[`text_${cid}`] || '';
+
+  document.getElementById('main').innerHTML = `
+    <div class="chunk-meta">Chunk ${cid} din ${CHUNKS.length}</div>
+    <h1 class="chunk-title">${c.title}</h1>
+    <p class="chunk-subtitle">${c.subtitle}</p>
+
+    <div class="section">
+      <div class="block-break">
+        <span class="section-label">&#x26A1; Ce se strica fara asta</span>
+        <p>${c.break_}</p>
+      </div>
+    </div>
+
+    <div class="section block-concept">
+      <span class="section-label" style="color:var(--text-dim)">Conceptul</span>
+      <p>${c.concept}</p>
+      ${lensesHTML}
+      ${mantraHTML}
+    </div>
+
+    <div class="section">
+      <div class="block-anchor">
+        <span class="section-label">&#x1F511; Ancora</span>
+        <span class="anchor-word">${c.anchor}</span>
+        <span class="anchor-explain">${c.anchorExplain}</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-contrast">
+        <span class="section-label">Contrast</span>
+        <div class="contrast-pair">
+          <div class="contrast-bad"><span class="contrast-tag">&#x2716; F&atilde;r&atilde; model</span>${c.contrastBad}</div>
+          <div class="contrast-good"><span class="contrast-tag">&#x2714; Cu model</span>${c.contrastGood}</div>
+        </div>
+      </div>
+    </div>
+
+    ${missingHTML}
+
+    <div class="section">
+      <div class="block-exercise">
+        <span class="section-label">&#x1F3AF; Exercitiu</span>
+        <div class="exercise-prompt">${c.exercise}</div>
+        <textarea id="exerciseArea" placeholder="Scrie r&atilde;spunsul t&atilde;u aici..." oninput="saveText(${cid}, this.value)">${savedText}</textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="block-calibration">
+        <span class="section-label">&#x1F4E1; Calibrare cognitiv&atilde; &mdash; bifezi doar ce simti c&atilde; ai &icirc;ntr-adev&atilde;r</span>
+        ${calHTML}
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn" onclick="prev()" ${idx === 0 ? 'disabled' : ''}>&larr; anterior</button>
+      <button class="btn btn-primary" onclick="next()">
+        ${idx === CHUNKS.length - 1 ? 'Finalizeaz&atilde; cursul &#x2713;' : 'urm&atilde;torul &rarr;'}
+      </button>
+    </div>
+  `;
+}
+
+function renderComplete() {
+  document.getElementById('counter').textContent = 'Complet ✓';
+  document.getElementById('progress').style.width = '100%';
+  buildDots();
+
+  const anchorsHTML = ANCHORS.map((a, i) => `
+    <div class="anchor-recap-item">
+      <span class="anchor-recap-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="anchor-recap-word">${a.word}</span>
+      <span class="anchor-recap-chunk">${a.chunk}</span>
+    </div>`).join('');
+
+  document.getElementById('main').innerHTML = `
+    <div class="complete-screen">
+      <h1 class="complete-title">Curs complet.</h1>
+      <p class="complete-sub">Toate cele 8 chunk-uri parcurse.</p>
+
+      <div class="anchors-recap">
+        <h3>&#x1F511; Ancora per chunk &mdash; testul de memorie</h3>
+        ${anchorsHTML}
+      </div>
+
+      <p style="color:var(--text-dim);font-size:0.9rem;font-style:italic;margin-bottom:1.5rem;">
+        Dac&atilde; poti asocia fiecare ancora cu conceptul ei f&atilde;r&atilde; s&atilde; te uiti, ai construit modelul.<br>
+        Dac&atilde; nu poti, &icirc;ntoarce-te la chunk-ul respectiv.
+      </p>
+
+      <button class="btn" onclick="goTo(0)">Reia de la &icirc;nceput</button>
+    </div>
+  `;
+}
+
+function toggleCal(el, key) {
+  calStates[key] = !calStates[key];
+  el.classList.toggle('ticked');
+  el.querySelector('.cal-box').textContent = calStates[key] ? '✓' : '';
+}
+
+function saveText(cid, val) {
+  calStates[`text_${cid}`] = val;
+}
+
+function goTo(idx) {
+  completed.add(current);
+  current = idx;
+  updateHeader();
+  renderChunk(current);
+  window.scrollTo(0, 0);
+}
+
+function next() {
+  completed.add(current);
+  current++;
+  updateHeader();
+  if (current >= CHUNKS.length) renderComplete();
+  else renderChunk(current);
+  window.scrollTo(0, 0);
+}
+
+function prev() {
+  if (current > 0) { current--; updateHeader(); renderChunk(current); window.scrollTo(0, 0); }
+}
+
+// init
+updateHeader();
+renderChunk(0);
+</script>
+</body>
+</html>

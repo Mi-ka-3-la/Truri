@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedules — Architecture and Feedback Diagnostic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-polish.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#FBF8F3', primaryTextColor: '#1F1D1B', primaryBorderColor: '#2A7B9B', lineColor: '#5C5751', secondaryColor: '#F4EFE6', tertiaryColor: '#FFFFFF', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '15px' }, flowchart: { curve: 'basis', padding: 20 }, er: { layoutDirection: 'LR', minEntityWidth: 120, entityPadding: 16 } });
+  </script>
+  <style>
+    :root {
+      --color-accent:       #2A7B9B;
+      --color-accent-hover: #1F6280;
+      --color-accent-light: #E4F2F7;
+      --color-accent-muted: #5A9DB8;
+    }
+  </style>
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <a href="../../index.html" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;font-weight:600;color:var(--color-accent-muted,#5A9DB8);text-decoration:none;letter-spacing:0.01em;opacity:0.8;transition:opacity 0.15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">← All courses</a>
+      <span class="nav-title">Schedules — Diagnostic</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-0" data-tooltip="Overview" role="tab" aria-label="Overview"></button>
+        <button class="nav-dot" data-target="module-1" data-tooltip="What Schedules Does" role="tab" aria-label="Module 1: What Schedules Does"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Meet the Actors" role="tab" aria-label="Module 2: Meet the Actors"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="The Data Model" role="tab" aria-label="Module 3: The Data Model"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="6 Feedback Themes" role="tab" aria-label="Module 4: 6 Feedback Themes"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Where to Change the Code" role="tab" aria-label="Module 5: Where to Change the Code"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Triage Quiz" role="tab" aria-label="Module 6: Triage Quiz"></button>
+      </div>
+    </div>
+  </nav>
+  <main id="main">
+<section class="module module-landing" id="module-0">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-eyebrow">A diagnostic course on&hellip;</span>
+      <h1 class="module-title-hero">Schedules &mdash; Architecture and Feedback Diagnostic</h1>
+      <p class="module-subtitle-hero">By the end, you can triage any new client feedback about Schedules, map it to the right code, and tell engineering exactly what kind of change it requires.</p>
+    </header>
+
+    <div class="bento-grid animate-in stagger-children">
+      <div class="bento-3 pattern-card animate-in">
+        <div class="pattern-icon">
+          <i data-lucide="clock" class="icon"></i>
+        </div>
+        <p class="pattern-title">~50 minutes &middot; 6 modules</p>
+        <p class="pattern-desc">A structured walkthrough you can complete in one sitting, or revisit one module at a time.</p>
+      </div>
+
+      <div class="bento-3 pattern-card animate-in">
+        <div class="pattern-icon">
+          <i data-lucide="users" class="icon"></i>
+        </div>
+        <p class="pattern-title">For solutions consultants, junior engineers, new PMs</p>
+        <p class="pattern-desc">No prior knowledge of the Schedules codebase required. Familiarity with accounting concepts helps.</p>
+      </div>
+    </div>
+
+    <h2 class="screen-heading animate-in">Six modules ahead</h2>
+
+    <nav class="course-toc animate-in stagger-children" aria-label="Course table of contents">
+
+      <a class="toc-item animate-in" href="#module-1">
+        <span class="toc-num">01</span>
+        <div class="toc-body">
+          <strong>What Schedules Does</strong>
+          <p>The happy path, end-to-end, from the user&rsquo;s perspective.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a class="toc-item animate-in" href="#module-2">
+        <span class="toc-num">02</span>
+        <div class="toc-body">
+          <strong>Meet the Actors</strong>
+          <p>The codebase components that bring Schedules to life.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a class="toc-item animate-in" href="#module-3">
+        <span class="toc-num">03</span>
+        <div class="toc-body">
+          <strong>The Data Model</strong>
+          <p>Three Prisma tables, visualized as an ER diagram.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a class="toc-item animate-in" href="#module-4">
+        <span class="toc-num">04</span>
+        <div class="toc-body">
+          <strong>6 User Feedback Themes</strong>
+          <p>Severity-ranked pattern cards, one deep-dive per theme.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a class="toc-item animate-in" href="#module-5">
+        <span class="toc-num">05</span>
+        <div class="toc-body">
+          <strong>Where to Change the Code</strong>
+          <p>File names, change types, and complexity estimates per theme.</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+      <a class="toc-item animate-in" href="#module-6">
+        <span class="toc-num">06</span>
+        <div class="toc-body">
+          <strong>Triage Quiz</strong>
+          <p>Six scenarios, one per theme. Can you diagnose them?</p>
+        </div>
+        <i data-lucide="arrow-right" class="icon icon-muted"></i>
+      </a>
+
+    </nav>
+
+    <a class="module-start-btn btn btn-primary animate-in" href="#module-1">
+      Start Module 1
+      <i data-lucide="arrow-right" class="icon"></i>
+    </a>
+
+  </div>
+</section>
+<section class="module" id="module-1">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">01</div>
+      <h1 class="module-title">What Schedules Does</h1>
+      <p class="module-subtitle">The happy path &mdash; from &ldquo;I have a lease expense&rdquo; to a fully-posted <span class="term" data-definition="A journal entry is a record of a financial transaction in your accounting system. It debits one account and credits another, keeping your books balanced.">journal entry</span> that repeats itself every month.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Anchor: what schedules are
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Schedules automate repeating journal entries</h2>
+
+      <div class="bento-grid stagger-children">
+
+        <div class="bento-3 pattern-card animate-in">
+          <div class="pattern-icon">
+            <i data-lucide="file-text" class="icon"></i>
+          </div>
+          <p class="pattern-title">Prepared Schedule</p>
+          <p class="pattern-desc">A container that holds a recurring expense &mdash; like rent, insurance, or a software subscription &mdash; with all its entries pre-planned.</p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in">
+          <div class="pattern-icon">
+            <i data-lucide="list-ordered" class="icon"></i>
+          </div>
+          <p class="pattern-title">Journal Entries</p>
+          <p class="pattern-desc">Each month inside the schedule is one <span class="term" data-definition="A journal entry is a debit-and-credit record that moves value between accounts in your general ledger. Avise creates these automatically for each period of a schedule.">journal entry</span>. Avise creates them all upfront in <span class="term" data-definition="Scheduled status means the journal entry has been created but not yet posted to the general ledger. It is waiting for the accounting period to be opened by an admin.">Scheduled status</span>, then accepts them when periods open.</p>
+        </div>
+
+        <div class="bento-3 pattern-card animate-in">
+          <div class="pattern-icon">
+            <i data-lucide="link-2" class="icon"></i>
+          </div>
+          <p class="pattern-title">Source Transactions</p>
+          <p class="pattern-desc">The real transaction that started the expense &mdash; e.g., the invoice line. Linking it tells Avise where this schedule came from.</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="lightbulb"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Think: a standing order at your bank</span>
+          <p>You set it up once &mdash; amount, account, frequency. The bank executes it monthly without you touching it. Schedules do the same for <span class="term" data-definition="A journal entry is a debit-and-credit record in your accounting system that records a financial transaction by affecting at least two accounts.">journal entries</span> in your <span class="term" data-definition="The general ledger is the master record of all financial transactions for a company. Every posted journal entry ends up here and feeds financial statements like the income statement and balance sheet.">general ledger</span>.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Mechanism: happy path flow animation
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">What happens when you create a schedule</h2>
+
+      <div class="flow-animation animate-in"
+           data-steps='[
+             {"highlight":"flow-actor-1","label":"User fills out the Create Schedule form with name, term dates, entries, and optional source transactions"},
+             {"highlight":"flow-actor-2","label":"Frontend sends POST /v1/companies/:id/schedules with entries, name, termStart, termEnd, sourceLineIds","packet":true,"from":"actor-1","to":"actor-2"},
+             {"highlight":"flow-actor-3","label":"Backend validates accounts are Balance Sheet type, creates journal entries with Scheduled status","packet":true,"from":"actor-2","to":"actor-3","payload":"status: Scheduled\nentryType: JournalEntry\nplatform: Avise"},
+             {"highlight":"flow-actor-4","label":"PreparedSchedule row created. ScheduleLinkedTransactions rows link each JE. ScheduleSourceLines link source transactions.","packet":true,"from":"actor-3","to":"actor-4"},
+             {"highlight":"flow-actor-5","label":"When admin opens the period, Scheduled entries become Posted — they hit the general ledger.","packet":true,"from":"actor-4","to":"actor-5","payload":"JournalEntryStatus: Scheduled → Posted"}
+           ]'>
+
+        <div id="flow-label" class="flow-step-label">Click &ldquo;Next Step&rdquo; to begin</div>
+        <div id="flow-payload" class="flow-payload"></div>
+
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon">
+              <i data-lucide="user" class="icon"></i>
+            </div>
+            <span>User</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon">
+              <i data-lucide="layout-dashboard" class="icon"></i>
+            </div>
+            <span>Create Form</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon">
+              <i data-lucide="zap" class="icon"></i>
+            </div>
+            <span>Backend API</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-4">
+            <div class="flow-actor-icon">
+              <i data-lucide="database" class="icon"></i>
+            </div>
+            <span>Database</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-5">
+            <div class="flow-actor-icon">
+              <i data-lucide="unlock" class="icon"></i>
+            </div>
+            <span>Period Open</span>
+          </div>
+        </div>
+
+        <div class="flow-packet"></div>
+
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">&#8592; Prev</button>
+          <button class="btn btn-primary flow-next-btn">Next Step &rarr;</button>
+          <button class="btn flow-reset-btn">Reset</button>
+          <span class="flow-progress"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Mechanism: three views users see
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Three places to find Schedules in the UI</h2>
+
+      <div class="icon-rows stagger-children">
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="--icon-color: var(--color-accent);">
+            <i data-lucide="layout-list" class="icon"></i>
+          </div>
+          <div>
+            <strong>Prepared Schedules List</strong>
+            <p>The main list view at <code>/schedules/prepared-schedules</code>. Shows all schedules as rows in a <span class="term" data-definition="A rollforward table shows the movement of a balance from an opening amount through additions, changes, and disposals to a closing amount — one column per accounting period.">rollforward table</span> &mdash; columns for each month, Additions / Scheduled / Ending Balance.</p>
+          </div>
+        </div>
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="--icon-color: var(--color-actor-2);">
+            <i data-lucide="file-spreadsheet" class="icon"></i>
+          </div>
+          <div>
+            <strong>Single Schedule View (PreparedSchedulePage)</strong>
+            <p>Click a schedule name to see its entries, source transactions, files, and entry-by-entry status. This is the detail page for one <span class="term" data-definition="A Prepared Schedule is the top-level record in the Schedules feature. It groups all the journal entries for a single recurring expense, along with its term dates, dimension values, and source transactions.">Prepared Schedule</span>.</p>
+          </div>
+        </div>
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="--icon-color: var(--color-actor-3);">
+            <i data-lucide="bar-chart-3" class="icon"></i>
+          </div>
+          <div>
+            <strong>Rollforward Report</strong>
+            <p>A pivot view grouped by <span class="term" data-definition="A dimension value is a metadata tag on a journal entry — for example, the Department, Vendor, or Cost Center. In Schedules, entries can be filtered and grouped by dimension value in the rollforward report.">dimension value</span> &mdash; shows how all schedules roll forward over time within a dimension like Department or Vendor.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="download"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">The export button lives on the Prepared Schedules list</span>
+          <p>An Excel (XLSX) file is generated when you click Export. It sends the same query params as the list view &mdash; same date range, same filters &mdash; to the backend&rsquo;s report endpoint.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Application: quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <div class="quiz-container animate-in" id="quiz-module1">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Exactly &mdash; Schedules creates all entries upfront in Scheduled status. When each period opens, the entry is accepted automatically."
+             data-explanation-wrong="Schedules exist precisely to remove this manual work. Entries are pre-created in Scheduled status and accepted when periods open &mdash; no monthly re-entry needed.">
+          <p class="quiz-question">A client wants to automate their monthly rent expense of $12,000. They ask you: do they need to re-enter the journal entry every month?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Yes &mdash; they need to create a new journal entry every month
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              No &mdash; they create one Prepared Schedule and entries are automatically accepted each period
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Only if they use the Rollforward Report view
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Correct &mdash; Scheduled is the holding status. Entries sit there until the period opens, at which point they transition to Posted."
+             data-explanation-wrong="Entries start as Scheduled &mdash; not Posted. Posted only happens when the period is opened and entries are accepted.">
+          <p class="quiz-question">What status do journal entries have immediately after a schedule is created?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Scheduled
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Posted
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Pending
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Right &mdash; a source transaction is a journal line (the original transaction) that initiated the schedule. It shows up in the Additions column of the rollforward report."
+             data-explanation-wrong="Source transactions are journal lines &mdash; the originating transactions that caused the schedule to be created. They are not the scheduled entries themselves.">
+          <p class="quiz-question">What is a Source Transaction on a Prepared Schedule?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A future journal entry that will be posted when the period opens
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              An external bank transaction imported from QuickBooks
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A journal line from an existing transaction that initiated the schedule &mdash; it appears in the Additions column
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module1')">Reset</button>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-2">
+          Continue to Module 2: Meet the Actors
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-0">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to overview
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-2">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">02</div>
+      <h1 class="module-title">Meet the Actors</h1>
+      <p class="module-subtitle">Six files do most of the work. Once you know which is which, you can tell engineering exactly where to look.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Anchor: Section Preview Map (Mermaid flowchart)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">The six-file cast at a glance</h2>
+
+      <pre class="mermaid">
+graph LR
+  A["Browser / React\nPreparedSchedulesPage.tsx"] --> B["Backend Controller\npreparedSchedulesController.ts"]
+  B --> C["Service Layer\ncrud.ts + helpers.ts"]
+  C --> D["Database\nPrisma PreparedSchedule model"]
+  C --> E["Report Service\npreparedSchedulesReportService.ts"]
+  E --> F["XLSX Formatter\npreparedScheduleReportXlsxFormatter.ts"]
+      </pre>
+
+      <p class="animate-in">Each of the six feedback themes maps to one or more of these files. By the time you finish this course you will be able to read a client complaint and immediately point to the node above that needs to change.</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Mechanism: Tech Stack Architecture
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">The tech stack, layer by layer</h2>
+
+      <div class="stagger-children">
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-2); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="monitor" class="icon"></i>
+          </div>
+          <p class="pattern-title">React Frontend (avise-web)</p>
+          <p class="pattern-desc">TypeScript + React. The PreparedSchedulesPage, SchedulePage, and CreateSchedulePageV2 folders. Uses TanStack Query for data fetching and React Hook Form for the create/edit flows.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-3); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="zap" class="icon"></i>
+          </div>
+          <p class="pattern-title">Express API (avise-api)</p>
+          <p class="pattern-desc">Node.js + Express. The preparedSchedulesController handles REST endpoints. The preparedSchedules/ service folder owns business logic &mdash; create, update, delete, list. <span class="term" data-definition="A feature flag is a switch engineers control server-side that enables or disables a feature for specific clients without a code deployment.">Feature flags</span> (Split) gate async creation and multi-line schedules.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-4); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="refresh-cw" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a TypeScript library that lets you query the database using JavaScript objects instead of writing raw SQL.">Prisma</span>
+            <span class="term" data-definition="An ORM (Object-Relational Mapper) translates between your code's objects and database rows automatically. You call prisma.preparedSchedule.findMany() and it generates the SQL for you.">ORM</span> (avise-domains)
+          </p>
+          <p class="pattern-desc">TypeScript ORM over PostgreSQL. Three models drive the whole feature: PreparedSchedule, ScheduleLinkedTransaction, and ScheduleSourceLine. The data/ layer in avise-api wraps Prisma queries.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-accent); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="database" class="icon"></i>
+          </div>
+          <p class="pattern-title">PostgreSQL</p>
+          <p class="pattern-desc">All schedule data lives here. Journal entries are in the journal_entries table; the schedule models are in prepared_schedules, schedule_linked_transactions, and schedule_source_lines.</p>
+        </div>
+
+        <div class="pattern-card animate-in" style="border-left: 4px solid var(--color-actor-5); margin-bottom: 1rem;">
+          <div class="pattern-icon">
+            <i data-lucide="bell" class="icon"></i>
+          </div>
+          <p class="pattern-title">Knock (Notifications)</p>
+          <p class="pattern-desc">When schedule creation finishes (async or sync), a Knock workflow fires to notify the user. Two workflows: prepared-schedules-create (success/failure variants).</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="toggle-right"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title"><span class="term" data-definition="A feature flag is a switch engineers control server-side that enables or disables a feature for specific clients without a code deployment.">Feature flags</span> gate two major behaviors</span>
+          <p>The <code>async-argo-schedule-creation</code> flag makes creation run in the background via an Argo workflow (Kubernetes job). The <code>schedules-multi-line</code> flag enables the multi-line schedule editor. Both default to off &mdash; check with engineering whether they are on for a given client.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Mechanism: Group Chat
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">How the actors talk when you create a schedule</h2>
+
+      <div class="chat-window animate-in" id="chat-module2">
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-accent);">
+            <i data-lucide="monitor" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-accent);">Frontend</span>
+            <p>User clicked &lsquo;Save &amp; Post&rsquo;. Sending <code>POST /v1/companies/abc/schedules</code> with entries, name, termStart, termEnd, and source line IDs.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-2);">
+            <i data-lucide="zap" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-2);">Controller</span>
+            <p>Request received. Validating query schema with Joi. Passing to <code>crud.createPreparedScheduleAndAssociatedJournalEntries()</code>.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-3);">
+            <i data-lucide="layers" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-3);">Service</span>
+            <p>Validating that all accounts are Balance Sheet type. Calling <code>v2JournalEntriesService.createEntries</code> &mdash; status = <code>Scheduled</code> for each entry.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-4);">
+            <i data-lucide="database" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-4);">Database</span>
+            <p>Created 1 row in <code>prepared_schedules</code>. Created 12 rows in <code>schedule_linked_transactions</code> (one per monthly entry). Created source line links in <code>schedule_source_lines</code>.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: var(--color-actor-5);">
+            <i data-lucide="cpu" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: var(--color-actor-5);">Argo</span>
+            <p><em>(if <code>async-argo-schedule-creation</code> flag is ON)</em> Argo workflow kicked off in background. Controller already returned <code>201</code> to the frontend.</p>
+          </div>
+        </div>
+
+        <div class="chat-message">
+          <div class="chat-avatar" style="background: #8B847B;">
+            <i data-lucide="bell" class="icon-sm"></i>
+          </div>
+          <div class="chat-bubble">
+            <span class="chat-actor" style="color: #8B847B;">Knock</span>
+            <p>Schedule creation finished. Sending Knock notification to the user: &lsquo;Your schedule is ready!&rsquo;</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Application: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <div class="quiz-container animate-in" id="quiz-module2">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="The service layer (crud.ts + helpers.ts) does the heavy lifting &mdash; creating all journal entries one by one, linking source lines. A slow create is almost always a service or database bottleneck, not a frontend issue."
+             data-explanation-wrong="The frontend only sends the request and waits. The real work happens in the service layer, which creates all journal entries, runs validations, and writes to the database.">
+          <p class="quiz-question">A client says &ldquo;When I create a big schedule, the UI shows a spinner for ages.&rdquo; Which layer is likely responsible?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The React frontend (PreparedSchedulesPage.tsx)
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The service layer (crud.ts + helpers.ts) or the database
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The Knock notification system
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct &mdash; with async creation, the backend triggers an Argo Kubernetes job and immediately returns a 201. The user sees a toast &lsquo;We are working on creating your schedule in the background!&rsquo; and is redirected to the list, not the schedule detail page."
+             data-explanation-wrong="The flag routes creation through a background Argo workflow. The controller returns immediately, and the Knock notification fires when the async job finishes &mdash; the user is never stuck waiting on the page.">
+          <p class="quiz-question">The <span class="term" data-definition="A feature flag is a switch engineers control server-side that enables or disables a feature for specific clients without a code deployment.">feature flag</span> <code>async-argo-schedule-creation</code> is ON for a client. What changes about the create flow?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Journal entries get a different status than Scheduled
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The export XLSX format changes
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Schedule creation runs in a background Kubernetes job; the controller returns immediately while the job runs
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly those three. PreparedSchedule is the container, ScheduleLinkedTransaction links each journal entry to it, and ScheduleSourceLine links the originating source transactions."
+             data-explanation-wrong="PreparedSchedule is the main model, but it needs two join tables: ScheduleLinkedTransaction (one row per journal entry) and ScheduleSourceLine (one row per source transaction line).">
+          <p class="quiz-question">Which three <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) — a TypeScript library that lets you query the database using JavaScript objects instead of writing raw SQL.">Prisma</span> models store all schedule data?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              PreparedSchedule, ScheduleLinkedTransaction, ScheduleSourceLine
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              PreparedSchedule, JournalEntry, Account
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Workflow, JournalEntry, PreparedSchedule
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module2')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module2')">Reset</button>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-3">
+          Continue to Module 3: The Data Model
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-1">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to Module 1
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">03</div>
+      <h1 class="module-title">The Data Model</h1>
+      <p class="module-subtitle">Three tables. Everything else in Schedules is either querying them or joining to them.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Anchor: ER diagram (Mermaid)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Three tables, one schedule</h2>
+
+      <p class="animate-in">Before reading any query, look at the schema. Every confusion about how schedules work &mdash; especially Theme D&rsquo;s status mystery &mdash; makes sense once you see how the tables relate.</p>
+
+      <pre class="mermaid">
+erDiagram
+  PreparedSchedule {
+    string id PK
+    string name
+    date termStart
+    date termEnd
+    string dimensionValueId FK
+    string companyId FK
+    int totalAmount
+    string workflowId FK
+  }
+  ScheduleLinkedTransaction {
+    string id PK
+    string journalEntryId FK
+    string preparedScheduleId FK
+    string journalEntryVersionId FK
+  }
+  ScheduleSourceLine {
+    string journalLineId PK
+    string preparedScheduleId PK
+  }
+  JournalEntry {
+    string id PK
+    int displayId
+    string status
+    date transactionDate
+    string entryType
+  }
+  JournalLine {
+    string id PK
+    string journalEntryId FK
+    int amount
+  }
+  DimensionValue {
+    string id PK
+    string dimensionName
+    string value
+  }
+  PreparedSchedule ||--o{ ScheduleLinkedTransaction : "has many"
+  PreparedSchedule ||--o{ ScheduleSourceLine : "has many"
+  ScheduleLinkedTransaction }o--|| JournalEntry : "links to"
+  ScheduleSourceLine }o--|| JournalLine : "links to"
+  PreparedSchedule }o--|| DimensionValue : "tagged with"
+      </pre>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="info"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title"><span class="term" data-definition="A Foreign Key (FK) is a column that references the PK of another table — it creates a link between the two tables.">dimensionValueId</span> is the ONLY dimension on a schedule</span>
+          <p>A PreparedSchedule can only be tagged with one <span class="term" data-definition="A dimension in Avise is a custom tagging attribute — like Vendor, Department, or Class — that categorizes journal lines for reporting.">DimensionValue</span> &mdash; for example Vendor = &lsquo;Acme Corp&rsquo;. This single <span class="term" data-definition="A Foreign Key (FK) is a column that references the PK of another table — it creates a link between the two tables.">FK</span> is why Theme A&rsquo;s multi-dimension filter request is architecturally non-trivial: the schema itself only supports one dimension per schedule.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Mechanism: Code-walk
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">How the backend loads a schedule with its entries</h2>
+
+      <p class="animate-in">When you open a single schedule page, this function in <code>crud.ts</code> runs. It fetches the schedule, then queries all source lines separately.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <i data-lucide="file-code" class="icon-sm"></i>
+          <span>avise-api/src/preparedSchedules/crud.ts &mdash; retrievePreparedSchedule</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">1</span>
+            <span class="code-walk-step-label">Fetch the PreparedSchedule row</span>
+          </div>
+          <pre class="code-walk-code"><code>async function retrievePreparedSchedule(
+  companyId: string,
+  preparedScheduleId: string,
+) {
+  const preparedSchedule = await preparedSchedulesData
+    .getOrThrow(companyId, preparedScheduleId);</code></pre>
+          <p class="code-walk-explanation">The data layer fetches the PreparedSchedule row including its <code>scheduleLinkedTransactions</code> (with full JournalEntry includes) and <code>sourceLines</code> (with journalLine). If not found, it throws a 404-style error.</p>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">2</span>
+            <span class="code-walk-step-label">Load source lines in a separate query</span>
+          </div>
+          <pre class="code-walk-code"><code>  const trxQuery = await journalLines.queryJournalLines(
+    companyId,
+    {
+      ids: preparedSchedule.sourceLines.map(
+        (sl) => sl.journalLineId
+      ),
+      includeFileInfo: true,
+      order: "asc",
+    },
+  );</code></pre>
+          <p class="code-walk-explanation">Source transactions are loaded in a SEPARATE query. The IDs come from the ScheduleSourceLine join table. This two-step fetch (schedule first, then source lines) is the root of the &ldquo;bouncing&rdquo; bug (Theme E) &mdash; every time source IDs change in the form, this query refires.</p>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">3</span>
+            <span class="code-walk-step-label">Merge and return the combined shape</span>
+          </div>
+          <pre class="code-walk-code"><code>  return {
+    ...preparedSchedule,
+    sourceLines: trxQuery.results,
+    files: allFiles,
+  };
+}</code></pre>
+          <p class="code-walk-explanation">The final return merges the schedule data with the freshly-fetched source lines. The shape returned is <code>ScheduleWithJournalEntriesAndSourceTransactions</code>.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="git-fork"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Two separate queries, not one JOIN</span>
+          <p>The schedule and its source transactions are fetched in two round-trips to the database. This is a deliberate design choice (source lines need full journal line details including file info) but it means performance is O(schedule) + O(sourceLines) &mdash; relevant context for Theme E.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Mechanism: Entry status lifecycle
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">A journal entry&rsquo;s journey through a schedule</h2>
+
+      <div class="step-cards stagger-children">
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">1</div>
+          <div class="step-card-content">
+            <strong>Entry created as <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger. It is waiting for an admin to open the accounting period.">Scheduled</span></strong>
+            <p>The default status assigned in helpers.ts when a schedule is saved. The entry exists in the database but has NOT hit the general ledger yet.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">2</div>
+          <div class="step-card-content">
+            <strong>Period opens &rarr; entry becomes <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements and cannot be easily reversed.">Posted</span></strong>
+            <p>When an admin opens the period, all Scheduled entries for that period are bulk-accepted and become Posted. They are now in the general ledger.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">3</div>
+          <div class="step-card-content">
+            <strong>Period soft-closed or hard-closed</strong>
+            <p>No change to the entry status. Posted entries stay Posted.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">4</div>
+          <div class="step-card-content">
+            <strong>Admin archives an entry &rarr; status becomes Deleted</strong>
+            <p>The entry becomes Deleted in the database. But if it was already Posted in a previous period, archiving does not un-post it.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">5</div>
+          <div class="step-card-content">
+            <strong>(Theme D) Period becomes inactive after acceptance</strong>
+            <p>If the period is set to inactive AFTER entries were accepted, the entries remain Posted but the schedule view may still show them as &lsquo;pending&rsquo; because the UI filters by Scheduled status, not by period status.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="alert-circle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Scheduled &ne; Pending &mdash; but the UI conflates them</span>
+          <p>Users see a &lsquo;pending&rsquo; label on the schedule page for entries that haven&rsquo;t been accepted yet (status = Scheduled). If a period becomes inactive after acceptance, the entry is Posted &mdash; but users comparing the &lsquo;pending&rsquo; count to the schedule row get confused. This is Theme D.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Application: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <div class="quiz-container animate-in" id="quiz-module3">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly one &mdash; dimensionValueId is a single nullable FK on PreparedSchedule. This single-FK design is why the multi-dimension filter request (Theme A) would require a schema change, not just a UI change."
+             data-explanation-wrong="PreparedSchedule has only one dimensionValueId column &mdash; a single FK. Tagging with multiple dimensions would require a new join table (like a PreparedScheduleDimension table), which is a schema change.">
+          <p class="quiz-question">How many <span class="term" data-definition="A dimension in Avise is a custom tagging attribute — like Vendor, Department, or Class — that categorizes journal lines for reporting.">DimensionValues</span> can a single PreparedSchedule be tagged with?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              One &mdash; dimensionValueId is a single <span class="term" data-definition="A Foreign Key (FK) is a column that references the PK of another table — it creates a link between the two tables.">FK</span> on the PreparedSchedule table
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              As many as the user wants &mdash; stored in a JSON field
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Up to three &mdash; stored across dimensionValueId, dimensionValueId2, dimensionValueId3
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct &mdash; ScheduleSourceLine is a join table. Its composite <span class='term' data-definition='A Primary Key (PK) uniquely identifies each row in a table. No two rows can have the same PK value.'>primary key</span> is (journalLineId, preparedScheduleId), linking the originating journal line to the schedule. One schedule can have multiple source lines."
+             data-explanation-wrong="ScheduleSourceLine is a join table between JournalLine (the originating transaction) and PreparedSchedule. It does not store amounts &mdash; those live on JournalLine itself.">
+          <p class="quiz-question">What is ScheduleSourceLine?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A journal entry that is scheduled for future posting
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A join table linking a JournalLine (source transaction) to a PreparedSchedule
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A backup copy of a journal entry stored for audit purposes
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Posted &mdash; once an entry is accepted (period opened), its status becomes Posted. Making the period inactive afterwards does NOT change the entry&rsquo;s status. The confusion (Theme D) is that the schedule view may still show it as pending."
+             data-explanation-wrong="The entry is Posted. Opening the period changed its status from Scheduled to Posted. Deactivating the period afterwards is a period-level action &mdash; it does not roll back journal entry statuses.">
+          <p class="quiz-question">An entry was created as part of a schedule, the period was opened, then the period was made inactive. What is the entry&rsquo;s status in the database?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger.">Scheduled</span> &mdash; because the period is now inactive
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Deleted &mdash; because the period was archived
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements.">Posted</span> &mdash; accepting the entry made it Posted; period deactivation does not change entry status
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Reset</button>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-4">
+          Continue to Module 4: 6 User Feedback Themes
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-2">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to Module 2
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-4">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">04</div>
+      <h1 class="module-title">6 User Feedback Themes</h1>
+      <p class="module-subtitle">Real stories from real clients, normalized into six themes. Each theme tells you what kind of problem it is &mdash; and that changes who fixes it and how long it takes.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Overview: Pattern Cards grid (6 themes)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">At a glance: what clients are asking for</h2>
+
+      <div class="bento-grid stagger-children">
+
+        <!-- Card A -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-actor-2);">
+          <div class="pattern-icon">
+            <i data-lucide="layout-list" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            A &mdash; List View is Too Rigid
+            <span style="font-size:var(--text-xs);font-weight:700;color:var(--color-info);background:var(--color-info-light);padding:2px 8px;border-radius:var(--radius-full);margin-left:var(--space-2);vertical-align:middle;">LOW&ndash;MEDIUM</span>
+          </p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2);">4 stories &middot; Bleecker, Jones, Cellino, Newlab</p>
+          <p class="pattern-desc">No Vendor column, no Debit Account column, weak filter, no way to hide inactive schedules.</p>
+        </div>
+
+        <!-- Card B -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-actor-3);">
+          <div class="pattern-icon">
+            <i data-lucide="file-x" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            B &mdash; Export Omits Dimensions
+            <span style="font-size:var(--text-xs);font-weight:700;color:var(--color-info);background:var(--color-info-light);padding:2px 8px;border-radius:var(--radius-full);margin-left:var(--space-2);vertical-align:middle;">MEDIUM</span>
+          </p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2);">1 story &middot; 3 clients</p>
+          <p class="pattern-desc">When Vendor dimension is visible in the UI, the XLSX export doesn&rsquo;t include it.</p>
+        </div>
+
+        <!-- Card C -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-actor-4);">
+          <div class="pattern-icon">
+            <i data-lucide="list-ordered" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            C &mdash; Journal Numbering is Manual
+            <span style="font-size:var(--text-xs);font-weight:700;color:var(--color-info);background:var(--color-info-light);padding:2px 8px;border-radius:var(--radius-full);margin-left:var(--space-2);vertical-align:middle;">HIGH</span>
+          </p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2);">1 story &middot; Flueid (Peter)</p>
+          <p class="pattern-desc">Users want auto-incrementing JE names: Description 1 &rarr; Description 2 &rarr; Description 3.</p>
+        </div>
+
+        <!-- Card D -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-accent);">
+          <div class="pattern-icon">
+            <i data-lucide="help-circle" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            D &mdash; Entry Status is Confusing
+            <span style="font-size:var(--text-xs);font-weight:700;color:var(--color-info);background:var(--color-info-light);padding:2px 8px;border-radius:var(--radius-full);margin-left:var(--space-2);vertical-align:middle;">CHORE</span>
+          </p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2);">1 story &middot; J Cummins</p>
+          <p class="pattern-desc">Archived entries in inactive periods still show as pending &mdash; confusing state model.</p>
+        </div>
+
+        <!-- Card E -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-error);">
+          <div class="pattern-icon">
+            <i data-lucide="alert-triangle" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            E &mdash; Source Transaction Section Breaks
+            <span style="font-size:var(--text-xs);font-weight:700;color:var(--color-error);background:var(--color-error-light);padding:2px 8px;border-radius:var(--radius-full);margin-left:var(--space-2);vertical-align:middle;">HIGHEST</span>
+          </p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2);">2 stories &middot; Bleecker, Mission Driven</p>
+          <p class="pattern-desc">Loading spinner glitches and the section bounces up and down on larger clients.</p>
+        </div>
+
+        <!-- Card F -->
+        <div class="bento-2 pattern-card animate-in" style="border-top: 3px solid var(--color-error);">
+          <div class="pattern-icon">
+            <i data-lucide="copy-x" class="icon"></i>
+          </div>
+          <p class="pattern-title">
+            F &mdash; Duplicate Company Records
+            <span style="font-size:var(--text-xs);font-weight:700;color:var(--color-error);background:var(--color-error-light);padding:2px 8px;border-radius:var(--radius-full);margin-left:var(--space-2);vertical-align:middle;">HIGHEST</span>
+          </p>
+          <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2);">1 story &middot; Finstrat</p>
+          <p class="pattern-desc">Duplicate &lsquo;Rivet Industries&rsquo; company records found while browsing Leasehold schedules.</p>
+        </div>
+
+      </div>
+
+      <p class="animate-in">Themes A&ndash;D are usability and feature gaps. Themes E&ndash;F are active bugs affecting production clients right now. The next six screens go deep on each theme.</p>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Theme A deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme A &mdash; The list view doesn&rsquo;t behave like a real table</h2>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="message-square"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Bleecker reported (story #7410)</span>
+          <p>&ldquo;It would be helpful if there was a Vendor column visible in the Prepared Schedules List. We don&rsquo;t always want to put the vendor name in the schedule name itself.&rdquo; &mdash; Also independently raised by Jones. Cellino requested a Debit Account column (story #7396) and multi-dimension filtering (story #7397). Newlab wants to hide inactive schedules (story #7411).</p>
+        </div>
+      </div>
+
+      <div class="grid-2-cols animate-in">
+
+        <div class="pattern-card" style="border-top: 3px solid var(--color-error);">
+          <p class="pattern-title">
+            <i data-lucide="x-circle" class="icon icon-error"></i>
+            Today
+          </p>
+          <div class="badge-list">
+            <div class="badge-item">
+              <span class="badge-desc">Column: Schedule Name (only fixed identifier)</span>
+            </div>
+            <div class="badge-item">
+              <span class="badge-desc">Column: Dimension Value (only when a dimension filter is active)</span>
+            </div>
+            <div class="badge-item">
+              <span class="badge-desc">Column: Monthly balance data (Additions / Scheduled / Ending)</span>
+            </div>
+            <div class="badge-item">
+              <span class="badge-desc">Filter: One dimension at a time (<span class="term" data-definition="connectedSelectAndMulti is a filter control in Avise that lets you pick one primary dimension (e.g., Vendor) and then pick multiple values of that dimension. It does not support filtering by multiple different dimensions at once.">connectedSelectAndMulti</span>)</span>
+            </div>
+            <div class="badge-item">
+              <span class="badge-desc">No way to hide inactive schedules</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="pattern-card" style="border-top: 3px solid var(--color-success);">
+          <p class="pattern-title">
+            <i data-lucide="check-circle-2" class="icon icon-success"></i>
+            What users want
+          </p>
+          <div class="badge-list">
+            <div class="badge-item">
+              <span class="badge-desc">Fixed Vendor column (even with no filter applied)</span>
+            </div>
+            <div class="badge-item">
+              <span class="badge-desc">Fixed Debit Account column</span>
+            </div>
+            <div class="badge-item">
+              <span class="badge-desc">Filter by multiple dimensions simultaneously</span>
+            </div>
+            <div class="badge-item">
+              <span class="badge-desc">Toggle to hide schedules with no recent activity</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="git-branch"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Four clients, same root cause</span>
+          <p>These requests are independent but all point to the same gap: the <code>PreparedSchedulesTable.tsx</code> columns are static, and the filter (<code>usePreparedSchedulesPageFilterSet.ts</code>) only supports one dimension at a time via a single <span class="term" data-definition="connectedSelectAndMulti is a filter control in Avise that lets you pick one primary dimension (e.g., Vendor) and then pick multiple values of that dimension. It does not support filtering by multiple different dimensions at once.">connectedSelectAndMulti</span> control. This is a UI layer issue &mdash; the data is already available, it just isn&rsquo;t surfaced.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Theme B deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme B &mdash; The export and the UI tell different stories</h2>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="file-x"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Cellino reported (story #7398)</span>
+          <p>&ldquo;The Prepared Schedules Report export does not include dimension information even when the Vendor dimension is visible in the UI.&rdquo; &mdash; Also confirmed by Bleecker and Jones, making this a three-client parity gap.</p>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <i data-lucide="file-code" class="icon-sm"></i>
+          <span>preparedSchedulesReportService.ts &amp; services/reports/schedules/shared/utils.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">1</span>
+            <span class="code-walk-step-label">The flag is set from the query parameter</span>
+          </div>
+          <pre class="code-walk-code"><code>// preparedSchedulesReportService.ts
+return {
+  columnGroupLabels: ranges,
+  schedules,
+  total,
+  unscheduled,
+  includeDimensionValueColumn: Boolean(validQuery.dimensionName),
+};</code></pre>
+          <p class="code-walk-explanation"><code>includeDimensionValueColumn</code> is only <code>true</code> when a <code>dimensionName</code> filter is passed in the query. If you don&rsquo;t filter by a specific dimension, the flag stays <code>false</code> &mdash; even if the schedule has dimension data.</p>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">2</span>
+            <span class="code-walk-step-label">The XLSX formatter respects the flag literally</span>
+          </div>
+          <pre class="code-walk-code"><code>// services/reports/schedules/shared/utils.ts
+const dimensionCols =
+  reportIsPreparedSchedulesReport(report) &amp;&amp;
+  report.includeDimensionValueColumn
+    ? [{ key: "dimensionValues", header: "Dimension Value" }]
+    : [];</code></pre>
+          <p class="code-walk-explanation">The Dimension Value column is added to the <span class="term" data-definition="XLSX is the file format used by Microsoft Excel. An XLSX file is a spreadsheet that can be opened in Excel, Google Sheets, or similar tools.">XLSX</span> column definitions ONLY if <code>includeDimensionValueColumn</code> is true. When no filter is active, this array is empty &mdash; the column is simply missing from the file.</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="database"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">The data exists &mdash; the flag doesn&rsquo;t</span>
+          <p>Every <code>PreparedScheduleRow</code> already has a <code>dimensionValues: string[]</code> field populated from the SQL query. The dimension data is in the report. The XLSX formatter just doesn&rsquo;t write it because <code>includeDimensionValueColumn</code> is false when no filter is applied. The fix is small: always include the column when the schedule has dimension data, regardless of whether a filter was active.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Theme C deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme C &mdash; Every journal entry name is entered by hand</h2>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="pen-line"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Flueid reported (story #7742, HIGH priority)</span>
+          <p>&ldquo;When adding entries to a schedule, it would be great if the system auto-incremented the journal entry name. If entry 1 is named &lsquo;Description 1&rsquo;, the next entry should suggest &lsquo;Description 2&rsquo; automatically.&rdquo; &mdash; This is the only HIGH-priority item in the backlog.</p>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <i data-lucide="file-code" class="icon-sm"></i>
+          <span>avise-api/src/preparedSchedules/helpers.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">1</span>
+            <span class="code-walk-step-label">Every entry gets the same hardcoded description</span>
+          </div>
+          <pre class="code-walk-code"><code>// avise-api/src/preparedSchedules/helpers.ts
+export const HARDCODED_SCHEDULE_JE_DESCRIPTION =
+  "This entry is part of a Prepared Schedule...";
+
+return entries.map((entry) =&gt; ({
+  ...entry,
+  description: HARDCODED_SCHEDULE_JE_DESCRIPTION,
+  status: JournalEntryStatus.Scheduled,
+  entryType: JournalEntry.Data.KnownEntryType.JournalEntry,
+  platform: Platform.Avise,
+}));</code></pre>
+          <p class="code-walk-explanation">All schedule entries are given the exact same hardcoded description. There is no incremented name, no entry-specific title, no awareness of position in the schedule sequence. Every <span class="term" data-definition="A JE (Journal Entry) is a financial transaction record that debits one account and credits another. In Avise Schedules, one JE is created per period per schedule.">JE</span> for every schedule gets identical description text.</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="ticket"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">This is the only HIGH-priority feature &mdash; it deserves a dedicated ticket</span>
+          <p>Unlike the other themes, this is a pure missing feature with no workaround. The fix requires changes on both frontend (form UX &mdash; show suggested next name) and backend (remove or extend the hardcoded description, accept entry-specific names). Module 5 shows exactly where.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 5 — Theme D deep-dive with Conditional Flow Map
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme D &mdash; The status model leaks through the UI</h2>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="help-circle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">J Cummins reported (story #7763, CHORE)</span>
+          <p>&ldquo;I archived an entry that was previously accepted in an inactive period. The entry still shows as pending on the schedule. I assumed archiving would remove it.&rdquo;</p>
+        </div>
+      </div>
+
+      <div class="grid-2-cols animate-in">
+
+        <div class="pattern-card" style="border-top: 3px solid var(--color-success);">
+          <p class="pattern-title">
+            <i data-lucide="unlock" class="icon icon-success"></i>
+            Active period
+          </p>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-card-number">1</div>
+              <div class="step-card-content">User archives entry &rarr; status becomes Deleted</div>
+            </div>
+            <div class="step-card">
+              <div class="step-card-number">2</div>
+              <div class="step-card-content">Entry disappears from pending count on schedule</div>
+            </div>
+            <div class="step-card">
+              <div class="step-card-number">3</div>
+              <div class="step-card-content">User sees: no more pending entry &mdash; expected behavior</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pattern-card" style="border-top: 3px solid var(--color-error);">
+          <p class="pattern-title">
+            <i data-lucide="lock" class="icon icon-error"></i>
+            Inactive period <em style="font-weight:400;font-size:var(--text-sm);">(the confusing path)</em>
+          </p>
+          <div class="step-cards">
+            <div class="step-card">
+              <div class="step-card-number">1</div>
+              <div class="step-card-content">Entry was already accepted (<span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements and cannot be easily reversed.">Posted</span>) when period was open</div>
+            </div>
+            <div class="step-card">
+              <div class="step-card-number">2</div>
+              <div class="step-card-content">Period is later set to inactive</div>
+            </div>
+            <div class="step-card">
+              <div class="step-card-number">3</div>
+              <div class="step-card-content">User archives the entry &rarr; status becomes Deleted or <span class="term" data-definition="Quarantined is a journal entry status in Avise meaning the entry has been flagged and removed from normal processing, but its record is preserved for audit purposes.">Quarantined</span></div>
+            </div>
+            <div class="step-card">
+              <div class="step-card-number">4</div>
+              <div class="step-card-content">But <code>ScheduleLinkedTransaction</code> still exists &mdash; the link is not removed</div>
+            </div>
+            <div class="step-card">
+              <div class="step-card-number">5</div>
+              <div class="step-card-content">Schedule view queries by <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger.">Scheduled</span> status &mdash; doesn&rsquo;t see this entry</div>
+            </div>
+            <div class="step-card">
+              <div class="step-card-number">6</div>
+              <div class="step-card-content">User sees: entry still appears as &lsquo;pending&rsquo;. Root: UI conflates Scheduled with Pending</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="info"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">It is a CHORE, not a bug &mdash; but it still confuses real users</span>
+          <p>The data model is technically correct. The entry WAS posted. The period IS inactive. The problem is a presentation layer gap: the schedule view does not distinguish between &lsquo;this entry was accepted in a now-inactive period&rsquo; and &lsquo;this entry has never been accepted.&rsquo; A targeted UI label change could resolve the user confusion without touching the schema.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 6 — Theme E deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme E &mdash; The source transaction section keeps breaking</h2>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon">
+          <i data-lucide="alert-triangle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">HIGHEST priority &mdash; affects multiple clients in production</span>
+          <p>Two bugs. Story #7747 (internal): the &lsquo;Fetching your data&rsquo; message flashes on and off when adding a new schedule. Story #7769 (Bleecker + Mission Driven): the source transaction section keeps reloading and bouncing up and down when creating a schedule for a larger client. This is not an edge case &mdash; Mission Driven also reports it, making it multi-client.</p>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <i data-lucide="file-code" class="icon-sm"></i>
+          <span>EditPreparedScheduleDetailsPage.tsx &amp; SourceTransactionsTable.tsx</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">1</span>
+            <span class="code-walk-step-label">Every form change fires a new query</span>
+          </div>
+          <pre class="code-walk-code"><code>// EditPreparedScheduleDetailsPage.tsx
+const sourceIds = watch("sourceIds");
+
+const query = useJournalLinesByIdQuery(
+  {
+    companyId: company.id,
+    ids: sourceIds,
+    includeFileInfo: true,
+  },
+  { placeholderData: keepPreviousData }
+);</code></pre>
+          <p class="code-walk-explanation"><code>watch("sourceIds")</code> re-runs on every form change that touches source IDs. Each time it changes, <code>useJournalLinesByIdQuery</code> fires a new POST request. For clients with many transactions, this means frequent refetches &mdash; each one causes the <code>isFetching</code> state to flip, which triggers a loading spinner in the table.</p>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">2</span>
+            <span class="code-walk-step-label">The table shows a spinner on every refetch</span>
+          </div>
+          <pre class="code-walk-code"><code>// SourceTransactionsTable.tsx
+const { lines, company, onRemove, isFetching } = props;
+// ...
+isFetching,  // passed to ResourceTable — shows spinner</code></pre>
+          <p class="code-walk-explanation">The <code>isFetching</code> boolean from the query is passed down to the table, which shows a spinner every time it&rsquo;s true. On large clients, the query takes long enough that the spinner appears, the layout shifts, and the section &ldquo;bounces.&rdquo; The <code>keepPreviousData</code> option helps (it preserves the last data while refetching) but doesn&rsquo;t eliminate the layout shift.</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="zap"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Race condition amplified by client size</span>
+          <p>On small clients, the refetch completes fast enough that users don&rsquo;t notice. On larger clients (more source transactions), the POST to <code>/journal-lines/query</code> takes 500ms+, making the flicker visible. The fix likely involves <span class="term" data-definition="Debouncing means waiting for a user action to pause before reacting — for example, waiting 300ms after the last change before firing a query, so rapid edits don't trigger many redundant requests.">debouncing</span> the <code>sourceIds</code> watcher or moving the query trigger to an explicit user action (e.g., &lsquo;Load transactions&rsquo; button).</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 7 — Theme F deep-dive
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Theme F &mdash; Duplicate company records corrupt schedule views</h2>
+
+      <div class="callout callout-warning animate-in">
+        <div class="callout-icon">
+          <i data-lucide="alert-triangle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">HIGHEST priority &mdash; data integrity issue</span>
+          <p>Story #7358 (Finstrat): duplicate &lsquo;Rivet Industries&rsquo; company records were discovered while browsing Leasehold Improvement A/D schedules. The duplicates were resolved manually via SQL deletion, but the root cause was never identified. Because schedules are linked to companies (<code>PreparedSchedule.companyId</code>), duplicate companies can result in schedules appearing on the wrong entity or being invisible to the right one.</p>
+        </div>
+      </div>
+
+      <div class="icon-rows stagger-children animate-in">
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="--icon-color: var(--color-actor-2); background: var(--color-info-light);">
+            <i data-lucide="search" class="icon" style="color: var(--color-actor-2);"></i>
+          </div>
+          <div>
+            <strong>Where duplicates are detected</strong>
+            <p>A <code>supportUtils/preparedSchedules/archiveDuplicates.ts</code> utility exists for archiving duplicate schedule <em>entries</em>. But the duplicate <em>company</em> issue is upstream &mdash; it happens at company import or creation time.</p>
+          </div>
+        </div>
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-bg-code);">
+            <i data-lucide="database" class="icon" style="color: var(--color-actor-3);"></i>
+          </div>
+          <div>
+            <strong>Why it&rsquo;s hard to auto-detect</strong>
+            <p>The Company model has a <code>@@unique([organizationId, name])</code> constraint &mdash; it should prevent duplicates within one org. If duplicates exist, they came from a different organization context or the constraint was bypassed during <span class="term" data-definition="A database migration is a versioned script that changes the database schema — adding tables, columns, or constraints — without destroying existing data.">migration</span>.</p>
+          </div>
+        </div>
+
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-accent-light);">
+            <i data-lucide="wrench" class="icon" style="color: var(--color-actor-4);"></i>
+          </div>
+          <div>
+            <strong>Current remediation</strong>
+            <p>Manual SQL: <code>DELETE FROM companies WHERE id = '&lt;duplicate-id&gt;'</code>. The support team runs this when reported. A permanent fix requires identifying the import path that creates duplicates and adding a deduplication check there.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="layers"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">The support tooling hints at where to look</span>
+          <p>The existence of <code>archiveDuplicates.ts</code> (for schedule entries) and <code>findScheduleDuplicates.ts</code> shows the team has dealt with duplication problems before &mdash; at the entry level. The company-level duplicate likely shares the same root: a bulk import or sync operation that doesn&rsquo;t check for existing records before inserting.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 8 — Synthesis summary + CTA
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Six themes, two categories</h2>
+
+      <div class="grid-2-cols animate-in">
+
+        <div class="pattern-card" style="border-top: 4px solid var(--color-info);">
+          <i data-lucide="layers" class="icon-lg" style="color:var(--color-info);margin-bottom:var(--space-3);display:block;"></i>
+          <p class="pattern-title">Usability &amp; Feature Gaps (A, B, C, D)</p>
+          <p class="pattern-desc">These themes are missing features or UX improvements. No production data is at risk. They can be scoped and prioritized alongside other feature work. Theme C (journal numbering) is the only HIGH-priority item &mdash; it has no workaround.</p>
+        </div>
+
+        <div class="pattern-card" style="border-top: 4px solid var(--color-error);">
+          <i data-lucide="alert-triangle" class="icon-lg" style="color:var(--color-error);margin-bottom:var(--space-3);display:block;"></i>
+          <p class="pattern-title">Active Bugs (E, F)</p>
+          <p class="pattern-desc">These themes have production impact RIGHT NOW. Theme E affects multiple clients and worsens at scale. Theme F is a data integrity risk. Both are marked HIGHEST &mdash; they should be in the next sprint.</p>
+        </div>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-5">
+          Continue to Module 5: Where to Change the Code
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-3">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to Module 3
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+<section class="module" id="module-5">
+  <div class="module-content">
+    <div class="module-number">05</div>
+    <h2 class="module-title">Where to Change the Code</h2>
+    <p class="module-subtitle">For each of the six themes, here are the files that would change, the type of change, and an honest complexity estimate.</p>
+
+    <!-- SCREEN 1: Overview map -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Six themes mapped to the codebase</h2>
+      <p>Use this as a reference when triaging a support ticket or writing a Shortcut story. The change type tells you who owns it (frontend vs backend vs infra). The complexity tells you how to size the sprint task.</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info);">A — List View</code>
+          <span class="badge-desc">Frontend · <strong>Medium</strong> · usePreparedSchedulesPageFilterSet.ts + PreparedSchedulesTable.tsx + backend query schema</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info);">B — Export</code>
+          <span class="badge-desc">Backend · <strong>Small–Medium</strong> · preparedSchedulesReportService.ts + utils.ts + XLSX formatter</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 15%, transparent); color: var(--color-actor-4);">C — Auto-increment</code>
+          <span class="badge-desc">Full-stack · <strong>Medium</strong> · helpers.ts (backend) + CreateSchedulePageV2 form (frontend)</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted);">D — Status Confusion</code>
+          <span class="badge-desc">Frontend · <strong>Small</strong> · PreparedSchedulePage.tsx — add contextual messaging only</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">E — Reloading Bug</code>
+          <span class="badge-desc">Frontend · <strong>Small–Medium</strong> · EditPreparedScheduleDetailsPage.tsx — debounce or query stabilization</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">F — Duplicate Companies</code>
+          <span class="badge-desc">Backend + Data · <strong>Large</strong> · company import logic + deduplication guard — root cause investigation needed</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Themes A & B -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Themes A &amp; B — List view and export fixes</h2>
+
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">A — List view columns and multi-dimension filter</h3>
+      <p><strong>Change type: UI polish + minor backend</strong></p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>usePreparedSchedulesPageFilterSet.ts</strong>
+            <p>The <code>dimension</code> filter today is <code>connectedSelectAndMulti</code> — one dimension name at a time. Adding multi-dimension support requires changing this to a repeatable filter group. The backend query schema also only accepts a single <code>dimensionName</code> param.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>PreparedSchedulesTable.tsx</strong>
+            <p>Vendor and Debit Account columns don't exist. Adding them requires knowing the account linked to each schedule (not currently in the report row type). The <code>PreparedScheduleRow</code> type in <code>data/types/preparedScheduleReport.ts</code> needs new fields first.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>preparedSchedulesReportService.ts + SQL</strong>
+            <p>The "hide inactive schedules" toggle needs a backend filter. The SQL query in <code>preparedScheduleReportData.ts</code> would need a new optional <code>includeInactive</code> param and a corresponding WHERE clause.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: var(--space-8);"></div>
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">B — Export includes dimension column</h3>
+      <p><strong>Change type: Backend bug fix · Small</strong></p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/services/reports/schedules/shared/utils.ts — getFullColumnDefsFromReport()</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> dimensionCols =
+  reportIsPreparedSchedulesReport(report)
+  &amp;&amp; report.<span class="code-property">includeDimensionValueColumn</span>
+  ? [{ <span class="code-property">key</span>: <span class="code-string">"dimensionValues"</span>,
+       <span class="code-property">header</span>: <span class="code-string">"Dimension Value"</span> }]
+  : [];</code></pre>
+          <div class="code-walk-explanation">
+            <p>The dimension column is only added when <code>includeDimensionValueColumn</code> is true — which is only set when the caller passes a <code>dimensionName</code> query param. If the user exported without filtering by dimension, this is false.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// In preparedSchedulesReportService.ts:</span>
+<span class="code-property">includeDimensionValueColumn</span>:
+  <span class="code-function">Boolean</span>(validQuery.<span class="code-property">dimensionName</span>)</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>The fix:</strong> always include <code>dimensionValues</code> in the XLSX if the schedule has a dimensionValueId — not just when a filter was applied. The report service should set <code>includeDimensionValueColumn: true</code> when any schedule in the result set has dimension data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Theme C — the HIGH priority capstone -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Theme C — Auto-increment journal entry names (HIGH priority)</h2>
+      <p><strong>Change type: New feature · Full-stack · Medium complexity</strong></p>
+      <p>This is the only HIGH-priority feature in the Schedules backlog. Here is exactly where the logic would live.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/preparedSchedules/helpers.ts — transformEntriesForSchedule()</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// TODAY — every entry gets the same hardcoded text</span>
+<span class="code-keyword">return</span> entries.<span class="code-function">map</span>((entry) =&gt; ({
+  ...entry,
+  <span class="code-property">description</span>: <span class="code-string">HARDCODED_SCHEDULE_JE_DESCRIPTION</span>,
+}));</code></pre>
+          <div class="code-walk-explanation">
+            <p>Every entry in every schedule gets the exact same description: "This entry is part of a Prepared Schedule. If you want to edit…". The user's own description input is not used here.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// PROPOSED — use user-provided name, incrementing per entry</span>
+<span class="code-keyword">return</span> entries.<span class="code-function">map</span>((entry, index) =&gt; ({
+  ...entry,
+  <span class="code-property">description</span>: entry.<span class="code-property">name</span>
+    ? <span class="code-template">`${entry.name} ${index + 1}`</span>
+    : <span class="code-string">HARDCODED_SCHEDULE_JE_DESCRIPTION</span>,
+}));</code></pre>
+          <div class="code-walk-explanation">
+            <p>If the user provided a base name, append the 1-based index. Fallback to the hardcoded text if no name was given. The frontend form would need a new "Base Name" field, and the create/edit form payload would pass it through.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2-cols stagger-children" style="margin-top: var(--space-6);">
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-error);">
+          <i data-lucide="x-circle" class="icon-lg icon-error"></i>
+          <h4 class="pattern-title">Frontend changes needed</h4>
+          <p class="pattern-desc">Add a "Base Name" input to <code>CreateSchedulePageV2</code>. The form should show a preview: "Description 1, Description 2, Description 3…"</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-success);">
+          <i data-lucide="check-circle-2" class="icon-lg icon-success"></i>
+          <h4 class="pattern-title">Backend changes needed</h4>
+          <p class="pattern-desc">Update <code>transformEntriesForSchedule</code> in <code>helpers.ts</code> to accept and apply the base name with index. Update the <code>PreparedScheduleBody</code> type in <code>controllers/types/preparedSchedules.ts</code> to include the optional field.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Themes D, E, F -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Themes D, E, F — Status UX, the reloading bug, and duplicates</h2>
+
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">D — Entry status messaging (CHORE · Small · Frontend only)</h3>
+      <div class="badge-list" style="margin-bottom: var(--space-6);">
+        <div class="badge-item">
+          <code class="badge-code">PreparedSchedulePage.tsx</code>
+          <span class="badge-desc">Add a tooltip or contextual message on entries that are Posted-in-inactive-period. No data model changes needed — the entry status is already correct.</span>
+        </div>
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">E — Source transaction reloading (HIGHEST · Small–Medium · Frontend)</h3>
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-web/src/pages/CompanyApp/SchedulesPages/EditPreparedScheduleDetailsPage/EditPreparedScheduleDetailsPage.tsx</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Line 166 — sourceIds re-derived on every render</span>
+<span class="code-keyword">const</span> sourceIds = <span class="code-function">watch</span>(<span class="code-string">"sourceIds"</span>);
+
+<span class="code-comment">// Line 168 — query fires every time sourceIds changes</span>
+<span class="code-keyword">const</span> query = <span class="code-function">useJournalLinesByIdQuery</span>({
+  companyId: company.id,
+  ids: sourceIds,
+  includeFileInfo: <span class="code-keyword">true</span>,
+}, { placeholderData: keepPreviousData });</code></pre>
+          <div class="code-walk-explanation">
+            <p><code>watch("sourceIds")</code> re-runs on every form render. Adding IDs (or removing them) triggers a new network request. For large clients the request is slow and the <code>isFetching</code> state causes the section to bounce.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Proposed fix: debounce the IDs before passing to the query</span>
+<span class="code-keyword">const</span> sourceIds = <span class="code-function">watch</span>(<span class="code-string">"sourceIds"</span>);
+<span class="code-keyword">const</span> debouncedSourceIds = <span class="code-function">useDebounce</span>(sourceIds, <span class="code-number">300</span>);</code></pre>
+          <div class="code-walk-explanation">
+            <p>A 300ms debounce means the query only fires after the user stops interacting for 300ms — eliminating rapid-fire refetches. Alternatively, move to a <code>staleTime</code> strategy so the previous data stays until the new fetch completes without flashing.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: var(--space-8);">
+        <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">F — Duplicate companies (HIGHEST · Large · Needs investigation)</h3>
+        <div class="callout callout-warning animate-in">
+          <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Root cause unknown — investigation required before estimating</strong>
+            <p>The support tooling in <code>supportUtils/preparedSchedules/archiveDuplicates.ts</code> targets duplicate <em>schedule entries</em> — not duplicate companies. The company-level deduplication problem is separate and unresolved. An engineer needs to audit company creation/import to find where the duplicate originates before any fix can be sized.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Summary table + quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The full prioritization picture</h2>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">HIGHEST</code>
+          <span class="badge-desc"><strong>E</strong> — Fix source transaction reloading. Frontend debounce in EditPreparedScheduleDetailsPage.tsx. Ship fast — multi-client.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">HIGHEST</code>
+          <span class="badge-desc"><strong>F</strong> — Investigate duplicate company root cause. Large unknown — needs engineering spike.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4); font-weight: 700;">HIGH</code>
+          <span class="badge-desc"><strong>C</strong> — Auto-increment JE names. Medium full-stack change. helpers.ts + CreateSchedulePageV2 form.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info); font-weight: 700;">MEDIUM</code>
+          <span class="badge-desc"><strong>B</strong> — Fix export dimension column. Small backend change. preparedSchedulesReportService.ts + utils.ts.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info); font-weight: 700;">LOW–MED</code>
+          <span class="badge-desc"><strong>A</strong> — List view columns + multi-filter. Medium frontend + minor backend. Multiple files, multiple stories.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted); font-weight: 700;">CHORE</code>
+          <span class="badge-desc"><strong>D</strong> — Add status context message. Small frontend change. PreparedSchedulePage.tsx only.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in" style="margin-top: var(--space-8);">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Severity and complexity don&rsquo;t always align</strong>
+          <p>Theme E (HIGHEST severity, source transaction bouncing) is actually a small-to-medium frontend fix. Theme F (also HIGHEST) is potentially a large investigation. A fast win can fix a critical client issue — always check complexity before assuming a high-severity issue is expensive to fix.</p>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-6" class="btn module-continue-btn">
+          Continue to Module 6: Triage Quiz <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-4" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 4
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
+<section class="module" id="module-6">
+  <div class="module-content">
+    <div class="module-number">06</div>
+    <h2 class="module-title">Triage Quiz</h2>
+    <p class="module-subtitle">Six real-world scenarios — one per theme. Can you identify the theme, the file, and the change type without looking back?</p>
+
+    <!-- SCREEN 1: Quiz questions A-C -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Scenarios 1–3</h2>
+      <p>Read each scenario and select the best answer. Each question is worth one theme.</p>
+
+      <div class="quiz-container" id="quiz-module6-a">
+
+        <!-- Q1 — Theme A -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Theme A — List view too rigid. The dimension filter in usePreparedSchedulesPageFilterSet.ts is a connectedSelectAndMulti control that only supports one dimension name at a time. The client wants to combine Vendor + Class + Account, which requires restructuring the filter to accept multiple dimension name/value pairs, plus a backend schema change."
+             data-explanation-wrong="This is Theme A. Theme B is about the export file missing dimension data — that client can see the data in the UI but loses it on export. This client is asking for richer filtering in the list itself, which is the list-view rigidity problem.">
+          <h3 class="quiz-question">Scenario 1 — Cellino: &ldquo;I need to filter the Prepared Schedules list by Vendor AND by Class AND by expense account at the same time. Right now I can only filter by one dimension.&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme B — Export omits dimensions. File: preparedSchedulesReportService.ts</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — List view too rigid. File: usePreparedSchedulesPageFilterSet.ts + backend query schema</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Entry status confusion. File: PreparedSchedulePage.tsx</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 — Theme B -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Theme B — Export omits dimension data. The root cause: includeDimensionValueColumn in preparedSchedulesReportService.ts is only set to true when a dimensionName query param is passed. If the user exports without filtering by dimension, the flag is false and the column is absent. Fix: always include dimension data when schedules have dimensionValueId set."
+             data-explanation-wrong="This is Theme B, not Theme A. The client CAN see Vendor in the UI — so the list view is working. The problem is that the export file drops the dimension column. That lives in preparedSchedulesReportService.ts and utils.ts, not in the list-view filter components.">
+          <h3 class="quiz-question">Scenario 2 — Bleecker: &ldquo;In the app I can see which Vendor each schedule belongs to. But every time I export to Excel, the Vendor column isn&rsquo;t there. Our finance team works out of Excel so this is blocking us.&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme B — Export omits dimensions. File: preparedSchedulesReportService.ts + utils.ts. Change type: backend bug fix (small)</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — List view too rigid. File: PreparedSchedulesTable.tsx</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme F — Duplicate companies. File: company import logic</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 — Theme C -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Theme C — Journal numbering is manual (HIGH priority). The fix requires two changes: (1) the frontend form in CreateSchedulePageV2 needs a Base Name input, and (2) transformEntriesForSchedule in helpers.ts needs to append the 1-based index to the base name when building each entry."
+             data-explanation-wrong="This is Theme C — the only HIGH-priority feature in the backlog. It requires changes to both the frontend form (CreateSchedulePageV2) and the backend helper (transformEntriesForSchedule in helpers.ts). It is a new feature, not a bug fix — the system never had auto-increment.">
+          <h3 class="quiz-question">Scenario 3 — Flueid&rsquo;s Peter: &ldquo;Every month I add 12 entries to a schedule. I name them Amortization 1, Amortization 2 … Amortization 12. I type every single one. Can the system just count for me?&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — List view too rigid. No backend change needed.</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Entry status confusion. Change type: chore (small).</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme C — Journal numbering is manual (HIGH). Files: helpers.ts + CreateSchedulePageV2. Change type: new feature (medium)</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6-a')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6-a')">Try Again</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Quiz questions D-F -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Scenarios 4–6</h2>
+      <p>Three more scenarios — the trickier ones.</p>
+
+      <div class="quiz-container" id="quiz-module6-b">
+
+        <!-- Q4 — Theme D -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Theme D — Entry status confusion (CHORE). The entry was Posted when the period was opened, then the period was deactivated. The entry is correctly Posted in the database — the bug is that the schedule UI shows it as pending because it counts Scheduled entries, not Posted-in-inactive-period entries. Fix: add contextual messaging in PreparedSchedulePage.tsx. No data changes needed."
+             data-explanation-wrong="This is Theme D. The entry's status is correct in the database (Posted). The issue is that the UI counts Scheduled entries as 'pending' without explaining that this entry was already accepted. It's a UX/messaging fix in PreparedSchedulePage.tsx, not a data-layer bug.">
+          <h3 class="quiz-question">Scenario 4 — J Cummins: &ldquo;I archived an entry on a schedule, but the schedule still shows it as pending. I thought archiving would remove it.&rdquo; (The entry was posted when the period was open; the period is now inactive.)</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme F — Duplicate companies. Requires SQL investigation.</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Entry status confusion (CHORE). File: PreparedSchedulePage.tsx — add contextual messaging. The data is correct; the UX is misleading.</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme E — Source transaction reloading. File: EditPreparedScheduleDetailsPage.tsx</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q5 — Theme E -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Theme E — Source transactions broken (HIGHEST). The root cause is in EditPreparedScheduleDetailsPage.tsx: watch('sourceIds') triggers a re-render and fires useJournalLinesByIdQuery on every change. For large clients with many transactions, this query is slow and causes visible loading-state flashing. The fix is to debounce sourceIds before passing them to the query."
+             data-explanation-wrong="This is Theme E, not Theme C. Theme C is about auto-incrementing journal entry names. Theme E is the performance/UX bug where the source transaction section keeps reloading — caused by the watch('sourceIds') pattern in EditPreparedScheduleDetailsPage.tsx firing the journal lines query too frequently.">
+          <h3 class="quiz-question">Scenario 5 — Bleecker: &ldquo;When I&rsquo;m creating a schedule for a bigger client, the source transaction section keeps jumping up and down. It shows a loading spinner over and over even after I&rsquo;m done selecting transactions.&rdquo;</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme E — Source transactions broken (HIGHEST). File: EditPreparedScheduleDetailsPage.tsx. Fix: debounce sourceIds before passing to useJournalLinesByIdQuery</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme C — Journal numbering is manual. File: helpers.ts</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme B — Export omits dimensions. File: preparedSchedulesReportService.ts</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q6 — Theme F -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Theme F — Duplicate companies (HIGHEST). Finstrat discovered this via Leasehold Improvement A/D schedules. It was fixed by manual SQL deletion, but the root cause — probably in company import or company-creation guard logic — was never addressed. The support tooling (archiveDuplicates.ts) targets duplicate schedule entries, not duplicate companies."
+             data-explanation-wrong="This is Theme F — the duplicate company data integrity issue. It is not a list view or export problem. The fix requires an engineering investigation into how the duplicate company was created (likely during import), then adding a deduplication guard to company creation.">
+          <h3 class="quiz-question">Scenario 6 — Finstrat: &ldquo;We found two separate 'Rivet Industries' company records in our account. We discovered this while looking at our Leasehold Improvement A/D schedules.&rdquo; The team fixed it manually with SQL. What should happen next?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme A — Add a Vendor deduplication filter to the list view.</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme D — Add a contextual message on duplicate entries. CHORE-level fix.</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Theme F — Duplicate companies (HIGHEST). Next step: engineering spike to find root cause in company import/creation, then add a deduplication guard. The SQL fix was a band-aid.</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module6-b')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module6-b')">Try Again</button>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Finish / reference card -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Your Schedules triage reference card</h2>
+      <p>You&rsquo;ve completed the course. Use this cheat sheet next time a Schedules ticket lands in your queue.</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">A</code>
+          <span class="badge-desc">&ldquo;I need more columns / better filtering in the list&rdquo; → usePreparedSchedulesPageFilterSet.ts + PreparedSchedulesTable.tsx · LOW–MEDIUM</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">B</code>
+          <span class="badge-desc">&ldquo;The export is missing my dimension/vendor data&rdquo; → preparedSchedulesReportService.ts + utils.ts · MEDIUM</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">C</code>
+          <span class="badge-desc">&ldquo;I have to manually type Description 1, 2, 3…&rdquo; → helpers.ts + CreateSchedulePageV2 · HIGH</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">D</code>
+          <span class="badge-desc">&ldquo;Entry still shows pending after I archived it&rdquo; → PreparedSchedulePage.tsx (UX messaging) · CHORE</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">E</code>
+          <span class="badge-desc">&ldquo;Source transactions section keeps reloading / bouncing&rdquo; → EditPreparedScheduleDetailsPage.tsx (debounce sourceIds) · HIGHEST</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">F</code>
+          <span class="badge-desc">&ldquo;Duplicate company records in schedules&rdquo; → company import / creation logic · HIGHEST (spike needed)</span>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in" style="margin-top: var(--space-8);">
+        <div class="callout-icon"><i data-lucide="target" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">What to do with every new Schedules complaint</strong>
+          <p>1) Match it to a theme. 2) Find the file. 3) Label the change type (bug/feature/chore/architectural). 4) Estimate complexity (small/medium/large). That&rsquo;s everything engineering needs to triage and size the story.</p>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-0" class="btn module-continue-btn">
+          <i data-lucide="check-circle-2" class="icon"></i> Course Complete — Back to Overview
+        </a>
+        <a href="#module-5" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 5
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
+  </main>
+
+  <!-- Activate Lucide icons after the page is built -->
+  <script>
+    window.addEventListener('load', () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+
+  <!-- ADD TO HUB WIDGET -->
+  <div style="position:fixed;bottom:24px;right:24px;z-index:500">
+    <button id="hub-btn" style="display:flex;align-items:center;gap:7px;background:#1F1D1B;color:#FBF8F3;border:none;border-radius:99px;padding:9px 18px;font-family:'DM Sans',system-ui,sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.25)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Add to Hub
+    </button>
+  </div>
+  <div id="hub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;align-items:center;justify-content:center;padding:24px">
+    <div style="background:#fff;border-radius:20px;padding:32px;max-width:620px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.2)">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#9E9690;margin-bottom:6px">Register this page</div>
+          <h2 style="font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:1.2rem;font-weight:800">Add to Hub</h2>
+        </div>
+        <button id="hub-close" style="background:none;border:none;cursor:pointer;color:#9E9690;font-size:1.3rem;line-height:1;padding:4px">✕</button>
+      </div>
+      <p style="font-size:0.84rem;color:#6B6560;line-height:1.6;margin-bottom:16px">Copy this snippet into <code style="font-family:monospace;font-size:0.85em;background:#FDF0EB;color:#B85C38;padding:2px 6px;border-radius:4px">Documentation-/index.html</code> inside the <strong>Courses</strong> section.</p>
+      <div style="background:#1E1E2E;border-radius:10px;padding:16px;margin-bottom:16px;overflow-x:auto">
+        <pre id="hub-snippet" style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#CDD6F4;white-space:pre;line-height:1.65;margin:0"></pre>
+      </div>
+      <button id="hub-copy" style="display:inline-flex;align-items:center;gap:7px;background:#1F1D1B;color:#FBF8F3;border:none;border-radius:8px;padding:10px 20px;font-family:'DM Sans',system-ui,sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy snippet
+      </button>
+    </div>
+  </div>
+  <script>
+  (function() {
+    var snippet = '<a class="course-card card-schedules animate-in" href="courses/schedules-feedback/index.html">\n  <div class="card-body">\n    <span class="card-tag tag-schedules">\n      <i data-lucide="calendar"></i> Schedules\n    </span>\n    <h2 class="card-title">Schedules — Architecture &amp; Feedback Diagnostic</h2>\n    <p class="card-desc">By the end, you can triage any new client feedback about Schedules,\n    map it to the right code, and tell engineering exactly what kind of change it requires.</p>\n    <div class="card-meta">\n      <span class="meta-item"><i data-lucide="clock"></i> ~50 minutes</span>\n      <span class="meta-item"><i data-lucide="layers"></i> 6 modules</span>\n      <span class="meta-item"><i data-lucide="users"></i> Solutions consultants · junior engineers · new PMs</span>\n    </div>\n  </div>\n  <div class="card-cta">\n    <span class="btn-open btn-schedules">Open course <i data-lucide="arrow-right"></i></span>\n  </div>\n</a>';
+    document.getElementById('hub-snippet').textContent = snippet;
+    document.getElementById('hub-btn').addEventListener('click', function() { document.getElementById('hub-overlay').style.display = 'flex'; });
+    document.getElementById('hub-close').addEventListener('click', function() { document.getElementById('hub-overlay').style.display = 'none'; });
+    document.getElementById('hub-overlay').addEventListener('click', function(e) { if (e.target === this) this.style.display = 'none'; });
+    document.getElementById('hub-copy').addEventListener('click', function() {
+      navigator.clipboard.writeText(snippet).then(function() {
+        var btn = document.getElementById('hub-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = 'Copy snippet'; }, 2000);
+      });
+    });
+  })();
+  </script>
+
+</body>
+</html>

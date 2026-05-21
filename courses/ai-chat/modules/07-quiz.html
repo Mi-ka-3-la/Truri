@@ -1,0 +1,133 @@
+<section class="module" id="module-7">
+  <div class="module-content">
+    <div class="module-number">07</div>
+    <h2 class="module-title">Final Quiz</h2>
+    <p class="module-subtitle">Six scenarios — one per major topic. Can you diagnose any AI Chat issue, trace it to the right file, and propose the right fix?</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Scenarios 1–3</h2>
+
+      <div class="quiz-container" id="quiz-final-a">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="The stub pattern causes a second LLM round-trip. When the AI calls a stub, the loop detects it, swaps to the full tool, and re-runs — adding latency. The fix is intent classification upfront to load full tools immediately."
+             data-explanation-wrong="Users don't feel the stub swap — but they feel the latency it causes. The stub pattern requires a second LLM call just to confirm the tool selection, adding seconds to every tool-using response.">
+          <h3 class="quiz-question">Scenario 1 — An engineer notices that responses involving tools always take ~3 seconds longer than text-only answers. What is the most likely cause?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The database queries inside tool executors are slow</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The stub pattern causes an extra LLM round-trip per tool — one call to identify the stub, another to use the full tool</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>File uploads are being processed on every request even when no file is attached</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="All files are saved to the file library on upload. The CONTENT path also extracts text content. The PROVIDER path uploads to the LLM provider. Both paths always save to the file library first — the aviseFileId on the message context enables re-hydration on later turns."
+             data-explanation-wrong="All uploads go to the file library first — that is always true. The two paths (CONTENT vs PROVIDER) differ in how they process the file for the LLM, but the file library save happens regardless of path.">
+          <h3 class="quiz-question">Scenario 2 — A user uploads a PDF invoice and asks a question about it. Later in the same conversation, they ask a follow-up. Does the backend re-process the file?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Yes — the file is re-uploaded to the provider on every turn</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>No — the file content is embedded permanently in the first message and never touched again</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The providerFileId is stored on the message context. On follow-up turns, hydrateMessagesWithFileContent() re-fetches from S3 only if the content is missing from the stored context</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="OpenAI going down takes AI Chat completely down — there is no automatic failover. The multi-provider setup (OpenRouter) only activates via explicit override. This is the provider failover gap identified in Module 6."
+             data-explanation-wrong="There is no automatic failover between providers. OpenRouter is available but only via explicit override — not as a fallback. This is a P0 architectural gap.">
+          <h3 class="quiz-question">Scenario 3 — OpenAI has a 20-minute outage. What happens to Avise AI Chat during that window?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>All AI Chat requests fail — there is no automatic failover to OpenRouter or another provider</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Requests automatically route to OpenRouter until OpenAI recovers</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Requests queue in memory and are replayed when OpenAI comes back</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-final-a')">Check Answers (1–3)</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-final-a')">Try Again</button>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Scenarios 4–6</h2>
+
+      <div class="quiz-container" id="quiz-final-b">
+
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="proposeMultiLineSchedule requires the ai-complex-schedules feature flag to be ON. In ai/index.ts, if the flag is off, the tool is deleted from availableTools before the ToolRegistry is built. The LLM never sees it."
+             data-explanation-wrong="The ai-complex-schedules flag gates this specific tool. If off, the tool is deleted from the tool map before the conversation registry is built. The LLM cannot call what it doesn't know exists.">
+          <h3 class="quiz-question">Scenario 4 — A PM says: &ldquo;The AI can propose simple schedules but never suggests multi-line schedules even when the user asks for one.&rdquo; Why?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Multi-line schedules are only available for OpenAI provider, not OpenRouter</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The ai-complex-schedules feature flag is OFF — the tool is deleted from the registry before the conversation starts</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The system prompt restricts proposal tools to simple schedules only</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Context compression (conversation summarization) is the fix. Without it, cost and latency grow linearly with conversation length, and long conversations eventually hit the context window limit. This is a P1 gap in the current architecture."
+             data-explanation-wrong="The root cause is that all messages are sent every turn with no compression. Adding a summarization step before building the input message list would bound cost and prevent context overflow.">
+          <h3 class="quiz-question">Scenario 5 — A power user has a 50-message conversation. They notice each new response takes longer and costs more than the start of the chat. What is happening?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The tool registry grows with each message as new tools are registered</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The database query for loading conversation history slows down at 50+ messages</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>All 50 messages are sent to the LLM on every turn — no compression. Cost and latency grow linearly with conversation length.</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="The system prompt says the AI must use displayArtifactTable instead of Markdown tables. The AI is violating a hard rule in the system prompt. The fix is to strengthen the prompt wording or add a post-processing guard that detects Markdown tables in responses."
+             data-explanation-wrong="This is a system prompt violation. The AI must use displayArtifactTable — Markdown tables are explicitly forbidden. The fix is reinforcing the rule, possibly with a post-processing check.">
+          <h3 class="quiz-question">Scenario 6 — Users report that sometimes the AI outputs a raw Markdown table instead of a formatted artifact card. Which rule is being violated and where?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The system prompt rule forbidding Markdown tables — the AI must call displayArtifactTable. Fix: strengthen the prompt or add a post-processing guard in the controller.</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>An artifact rendering bug in AiChatItem.tsx that converts artifact cards to Markdown</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The displayArtifactTable tool executor is returning an error, causing the AI to fall back to text</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-final-b')">Check Answers (4–6)</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-final-b')">Try Again</button>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Your AI Chat cheat sheet</h2>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in"><code class="badge-code">Add a tool</code><span class="badge-desc">Create a file in <code>ai/tools/</code>, add it to <code>ai/tools/index.ts</code>. Implement executor with authorization check. Add as stub if it has many params.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">Change the system prompt</code><span class="badge-desc">Edit <code>ai/prompts.ts</code>. Test that linking rules, table rules, and topic restrictions still hold. Changes affect all future conversations immediately.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">Debug slow responses</code><span class="badge-desc">Check: (1) is it a stub round-trip? (2) is it a slow tool query? (3) is the conversation too long? Each has a different fix.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">Add a new artifact type</code><span class="badge-desc">Add an artifact renderer in <code>AiChatItem/artifacts/</code>. Add the action handler in <code>useArtifactActionsMutation</code>. Create a tool that calls <code>createArtifact()</code> with the new type.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">Switch provider for testing</code><span class="badge-desc">Pass <code>{ overrides: { model: &apos;openrouter/...&apos; } }</code> in the request body. sanitizeOverrides() must allow the model name — check the allowlist.</span></div>
+        <div class="badge-item animate-in"><code class="badge-code">Gate a tool behind a flag</code><span class="badge-desc">Follow the <code>proposeMultiLineSchedule</code> pattern in <code>ai/index.ts</code>: <code>if (!flagEnabled(&apos;your-flag&apos;)) { delete availableTools.yourTool; }</code></span></div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="target" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Every AI Chat issue maps to one of seven layers</strong>
+          <p>Frontend rendering → Controller → Conversation loop → Provider → Tool registry → Tool executor → Database. Once you know which layer owns the problem, you know which file to open.</p>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-0" class="btn module-continue-btn">
+          <i data-lucide="check-circle-2" class="icon"></i> Course Complete — Back to Overview
+        </a>
+        <a href="#module-6" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 6</a>
+      </div>
+    </section>
+  </div>
+</section>

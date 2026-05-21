@@ -1,0 +1,158 @@
+<section class="module" id="module-5">
+  <div class="module-content">
+    <div class="module-number">05</div>
+    <h2 class="module-title">Observability &amp; External Services</h2>
+    <p class="module-subtitle">DataDog for traces and RUM, Knock for notifications, QBO Sync for accounting data, Redis for job queues, SpiceDB for authorization, and MCP servers for AI tooling.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">DataDog — traces, RUM, and source maps</h2>
+
+      <div class="grid-3-cols stagger-children">
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-2);">
+          <i data-lucide="activity" class="icon-xl" style="color: var(--color-actor-2);"></i>
+          <h4 class="pattern-title">APM Traces</h4>
+          <p class="pattern-desc">The backend initializes <code>dd-trace</code> at startup (before any imports). Every HTTP request, database query, and external API call is traced automatically. Logs use <code>facet</code> tags to distinguish REST API, BullMQ, and workflow roles.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-actor-3);">
+          <i data-lucide="eye" class="icon-xl" style="color: var(--color-actor-3);"></i>
+          <h4 class="pattern-title">RUM</h4>
+          <p class="pattern-desc"><span class="term" data-definition="RUM (Real User Monitoring) captures real browser-side performance metrics — page load times, JavaScript errors, user interactions — and sends them to DataDog.">RUM</span> is initialized in the React frontend using <code>REACT_APP_DATADOG_RUM_APP_ID</code> and <code>REACT_APP_DATADOG_RUM_CLIENT_TOKEN</code>. Frontend errors and performance data are correlated with backend traces.</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 4px solid var(--color-accent);">
+          <i data-lucide="map" class="icon-xl" style="color: var(--color-accent);"></i>
+          <h4 class="pattern-title">Source Maps</h4>
+          <p class="pattern-desc">The Amplify build uploads source maps to DataDog using <code>DATADOG_SOURCE_MAP_UPLOAD_API_KEY</code>. This lets DataDog translate minified production JavaScript errors back to the original TypeScript source code in error reports.</p>
+        </div>
+      </div>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header"><span class="code-walk-file">avise-shared-utils/src/logger/index.ts — Winston + DataDog JSON format</span></div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> logFormat =
+  process.env[<span class="code-string">"NODE_ENV"</span>] === <span class="code-string">"production"</span>
+    ? winston.format.<span class="code-function">json</span>()
+    : winston.format.<span class="code-function">combine</span>(
+        winston.format.<span class="code-function">simple</span>(),
+        colorWinstonWithChalk,
+      );</code></pre>
+          <div class="code-walk-explanation"><p>In production, logs output as <span class="term" data-definition="JSON log format means each log line is a structured JSON object with fields like message, level, timestamp, and custom data. DataDog can parse and index these fields for filtering and alerting.">JSON</span> — DataDog can parse and index each field. In local dev, logs are colored terminal-friendly text. Same log calls, different output format.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> logger = winston.<span class="code-function">createLogger</span>({
+  level: process.env[<span class="code-string">"LOG_LEVEL"</span>] || <span class="code-string">"info"</span>,
+  defaultMeta: process.env[<span class="code-string">"AVISE_FACET"</span>]
+    ? { facet: process.env[<span class="code-string">"AVISE_FACET"</span>] }
+    : <span class="code-keyword">undefined</span>,
+});</code></pre>
+          <div class="code-walk-explanation"><p>Every log line automatically includes a <code>facet</code> field from the environment. In DataDog, you can filter to <code>facet:bullmq</code> to see only background job logs, or <code>facet:main</code> for API logs. The log format follows <code>[module:subModule] message [companyId:entityId]</code>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">External services map</h2>
+
+      <div class="icon-rows stagger-children">
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-2);"><i data-lucide="bell" class="icon"></i></div>
+          <div>
+            <strong>Knock — in-app and email notifications</strong>
+            <p>Knock handles all user-facing notifications: period status updates, AI chat summary, task review alerts, scheduled entry failures. Workflow templates live in the <code>knock/</code> workspace (YAML definitions). The backend calls <code>triggerNotification(workflowId, { recipients, data })</code> from <code>avise-api/src/notifications/</code>.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-3);"><i data-lucide="refresh-cw" class="icon"></i></div>
+          <div>
+            <strong>QBO Sync — QuickBooks Online integration</strong>
+            <p>A separate workspace (<code>qbo-sync</code>) with its own Dockerfile and release pipeline. Runs as a separate Kubernetes service. Syncs journal entries, accounts, dimensions, and vendors from QuickBooks to Avise. Triggered by webhooks from QuickBooks or by periodic polling.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-4);"><i data-lucide="layers" class="icon"></i></div>
+          <div>
+            <strong>Redis + BullMQ — background job queues</strong>
+            <p><span class="term" data-definition="BullMQ is a Node.js job queue library built on Redis. Jobs are added to a Redis queue and processed by one or more worker processes.">BullMQ</span> queues are used for email sending, task auto-review, and other async work. The <code>bullmq</code> facet of avise-api connects to Redis and processes these queues. Redis connection is configured via <code>REDIS_URL</code>.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-accent);"><i data-lucide="shield" class="icon"></i></div>
+          <div>
+            <strong>SpiceDB (Authzed) — fine-grained authorization</strong>
+            <p>All authorization checks go through <span class="term" data-definition="SpiceDB (from Authzed) is a database for storing and evaluating permission relationships — like 'user X can view company Y's data.' It implements Google's Zanzibar authorization model.">SpiceDB</span>. The schema is defined in <code>avise-api/authorization-schema-test.yaml</code> and validated in CI via <code>authzed/action-spicedb-validate</code>. API endpoints call <code>companyAuthorization.checkAnyCompanyPermission()</code> before processing requests.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-5);"><i data-lucide="workflow" class="icon"></i></div>
+          <div>
+            <strong>Argo Workflows — long-running async jobs</strong>
+            <p>Complex multi-step processes (bulk period open, schedule creation) are submitted as Argo Workflow jobs. The REST API triggers an Argo job and returns immediately. The workflow facet of avise-api executes the actual work steps as Kubernetes pods, tracked via the <code>operation-tracking</code> workspace.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-2);"><i data-lucide="hard-drive" class="icon"></i></div>
+          <div>
+            <strong>AWS S3 — file storage</strong>
+            <p>All user-uploaded files and AI-processed documents are stored in S3. Presigned URLs give the frontend temporary direct-upload access. File metadata (key, filename, content type) is stored in the PostgreSQL <code>files</code> table. The <code>avise-file-indexing</code> workspace processes files from S3 for semantic search.</p>
+          </div>
+        </div>
+        <div class="icon-row animate-in">
+          <div class="icon-circle" style="background: var(--color-actor-3);"><i data-lucide="plug" class="icon"></i></div>
+          <div>
+            <strong>MCP Servers — AI tool extension</strong>
+            <p>External tools for the AI Chat are connected via the Model Context Protocol. MCP servers are configured via <code>MCP_SERVERS</code> env var (JSON). At startup, <code>McpServerAdapter.initializeMcpServers()</code> connects to each server and registers its tools. Supports stdio, SSE, streamable-HTTP, and WebSocket transports.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module5">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct — dd-trace is initialized before any other imports in app.ts. This ensures that even the first database query and HTTP request are traced. Late initialization would miss the startup span."
+             data-explanation-wrong="DataDog tracing (dd-trace) must be initialized before any other code loads — even before importing Express or Prisma. This is why import 'avise-shared-utils/datadog' is the very first line in app.ts.">
+          <h3 class="quiz-question">Why is DataDog tracing initialized before any other imports in <code>app.ts</code>?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>To ensure DataDog connects to the server before handling any requests</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>dd-trace patches Node.js modules automatically — it must run before any modules are imported to instrument them</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Datadog needs to validate the API key before the app can receive any traffic</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Right — BullMQ jobs are processed by the bullmq facet of avise-api — a separate Kubernetes pod running the same Docker image with AVISE_FACET=bullmq. Email sending, task auto-review, and similar async tasks are queued here."
+             data-explanation-wrong="BullMQ is processed by the bullmq facet — a dedicated Kubernetes pod running the same avise-api image with AVISE_FACET=bullmq. It connects to Redis and dequeues jobs added by the main API facet.">
+          <h3 class="quiz-question">How are BullMQ background jobs (like email sending) processed?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>A separate Kubernetes pod running avise-api with AVISE_FACET=bullmq connects to Redis and processes queued jobs</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The main API pod handles jobs synchronously as part of the request lifecycle</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>A Lambda function is triggered by Redis Streams events</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Correct — Knock workflow templates live in the knock/ workspace as YAML/JSON definition files. The backend calls triggerNotification() with the workflow ID. Knock handles the delivery (in-app feed or email) based on user preferences."
+             data-explanation-wrong="Knock notification templates are defined in the knock/ workspace (YAML definitions). The backend just calls triggerNotification(workflowId, {recipients, data}) — Knock handles all delivery logic and formatting.">
+          <h3 class="quiz-question">Where do Knock notification templates (email formatting, in-app content) live?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>In Handlebars template files inside avise-api/src/jobs/email/</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Hardcoded in the Knock SDK calls inside avise-api</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>In the knock/ workspace as YAML/JSON workflow definitions deployed to Knock&rsquo;s platform</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+      </div>
+      <div class="module-nav-end animate-in">
+        <a href="#module-6" class="btn module-continue-btn">Continue to Module 6: Gaps &amp; Improvements <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-4" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 4</a>
+      </div>
+    </section>
+  </div>
+</section>

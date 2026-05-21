@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GH-500 Cert Prep — All Five Domains</title>
+
+  <!-- Google Fonts: Bricolage Grotesque · DM Sans · JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-polish.css">
+  <link rel="stylesheet" href="styles-cert.css">
+
+  <!-- Lucide icons (SVG icon library — replaces emoji throughout the course). -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+
+  <!-- Mermaid.js for diagrams -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#FBF8F3',
+        primaryTextColor: '#1F1D1B',
+        primaryBorderColor: '#D94F30',
+        lineColor: '#5C5751',
+        secondaryColor: '#F4EFE6',
+        tertiaryColor: '#FFFFFF',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        fontSize: '15px'
+      },
+      flowchart: { curve: 'basis', padding: 20 },
+      er: { layoutDirection: 'LR', minEntityWidth: 120, entityPadding: 16 }
+    });
+  </script>
+
+  <!-- Accent: vermillion — fits the security/alert subject matter -->
+  <style>
+    :root {
+      --color-accent:       #D94F30;
+      --color-accent-hover: #C4432A;
+      --color-accent-light: #FDEEE9;
+      --color-accent-muted: #E8836C;
+    }
+  </style>
+
+  <script src="main.js" defer></script>
+  <script src="main-cert.js" defer></script>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div class="nav-inner">
+      <a href="../../index.html" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;font-weight:600;color:var(--color-accent-muted,#E8836C);text-decoration:none;opacity:0.8;transition:opacity 0.15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">← Hub</a>
+      <span class="nav-title">GH-500 · All Five Domains</span>
+      <div class="nav-dots" id="nav-dots" role="tablist">
+        <button class="nav-dot" data-target="module-0" data-tooltip="Overview" role="tab" aria-label="Module 0: Overview"></button>
+        <button class="nav-dot" data-target="module-1" data-tooltip="What is GHAS?" role="tab" aria-label="Module 1: What is GHAS"></button>
+        <button class="nav-dot" data-target="module-2" data-tooltip="Public vs private vs GHAS" role="tab" aria-label="Module 2: Availability and scope"></button>
+        <button class="nav-dot" data-target="module-3" data-tooltip="How the three features connect" role="tab" aria-label="Module 3: Integration and practice"></button>
+        <button class="nav-dot" data-target="module-4" data-tooltip="Configure secret scanning (Domain 2)" role="tab" aria-label="Module 4: Configure secret scanning"></button>
+        <button class="nav-dot" data-target="module-5" data-tooltip="Dependabot &amp; Dependency Review (Domain 3)" role="tab" aria-label="Module 5: Dependabot and Dependency Review"></button>
+        <button class="nav-dot" data-target="module-6" data-tooltip="Code Scanning with CodeQL (Domain 4)" role="tab" aria-label="Module 6: Code Scanning with CodeQL"></button>
+        <button class="nav-dot" data-target="module-7" data-tooltip="Best practices &amp; corrective measures (Domain 5)" role="tab" aria-label="Module 7: Best practices and corrective measures"></button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <!-- modules/*.html content is assembled here by build.sh -->

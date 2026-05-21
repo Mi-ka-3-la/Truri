@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git Versioning — Cheat Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── Untitled UI tokens ─────────────────────────── */
+  :root {
+    /* Gray */
+    --gray-25:  #FCFCFD; --gray-50:  #F9FAFB; --gray-100: #F2F4F7;
+    --gray-200: #EAECF0; --gray-300: #D0D5DD; --gray-400: #98A2B3;
+    --gray-500: #667085; --gray-600: #475467; --gray-700: #344054;
+    --gray-800: #1D2939; --gray-900: #101828;
+    /* Brand Blue */
+    --blue-25:  #F5FAFF; --blue-50:  #EFF8FF; --blue-100: #D1E9FF;
+    --blue-200: #B2DDFF; --blue-300: #84CAFF; --blue-500: #2E90FA;
+    --blue-600: #1570EF; --blue-700: #175CD3; --blue-800: #1849A9;
+    --blue-900: #194185;
+    /* Success Green */
+    --success-25:  #F6FEF9; --success-50:  #ECFDF3; --success-100: #DCFAE6;
+    --success-300: #75E0A7; --success-500: #17B26A; --success-600: #079455;
+    --success-700: #067647; --success-800: #085D3A;
+    /* Warning */
+    --warning-25:  #FFFCF5; --warning-50:  #FFFAEB; --warning-100: #FEF0C7;
+    --warning-300: #FEC84B; --warning-500: #F79009; --warning-600: #DC6803;
+    --warning-700: #B54708; --warning-800: #93370D;
+    /* Error */
+    --error-25:  #FFFBFA; --error-50:  #FEF3F2; --error-100: #FEE4E2;
+    --error-300: #FDA29B; --error-500: #F04438; --error-600: #D92D20;
+    --error-700: #B42318;
+    /* Purple */
+    --purple-50:  #F4F3FF; --purple-100: #EBE9FE; --purple-200: #D9D6FE;
+    --purple-500: #7A5AF8; --purple-600: #6938EF; --purple-700: #5925DC;
+    --purple-800: #4A1FB8;
+    /* Typography */
+    --font: 'Inter', sans-serif;
+    /* Shadows */
+    --shadow-xs: 0 1px 2px rgba(16,24,40,0.05);
+    --shadow-sm: 0 1px 3px rgba(16,24,40,0.1), 0 1px 2px rgba(16,24,40,0.06);
+    --shadow-md: 0 4px 8px -2px rgba(16,24,40,0.1), 0 2px 4px -2px rgba(16,24,40,0.06);
+    /* Radius */
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--gray-700);
+    background: var(--gray-50);
+    padding: 32px;
+  }
+
+  /* ── Print ──────────────────────────────────────── */
+  @media print {
+    body { background: white; padding: 0; font-size: 11.5px; }
+    .page { box-shadow: none; max-width: none; padding: 24px 28px; }
+    @page { size: A4; margin: 0; }
+  }
+
+  /* ── Page container ─────────────────────────────── */
+  .page {
+    background: white;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 36px 40px;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-xl);
+  }
+
+  /* ── Header ─────────────────────────────────────── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 24px;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-icon {
+    width: 40px; height: 40px;
+    background: var(--blue-600);
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .header-icon svg { width: 22px; height: 22px; }
+  .header-title { font-size: 20px; font-weight: 600; color: var(--gray-900); line-height: 1.2; }
+  .header-subtitle { font-size: 12px; color: var(--gray-500); margin-top: 1px; }
+  .header-badge {
+    background: var(--blue-50); color: var(--blue-700);
+    border: 1px solid var(--blue-200);
+    font-size: 11px; font-weight: 500;
+    padding: 4px 10px; border-radius: 99px;
+  }
+
+  /* ── Section headers ────────────────────────────── */
+  .section-label {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .section-num {
+    width: 20px; height: 20px; border-radius: 99px;
+    background: var(--gray-900); color: white;
+    font-size: 10px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+
+  /* ── Grid layouts ───────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+
+  /* ── Divider ────────────────────────────────────── */
+  .divider { border: none; border-top: 1px solid var(--gray-200); margin: 20px 0; }
+
+  /* ── Badge ──────────────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 500;
+    padding: 2px 8px; border-radius: 99px;
+    border: 1px solid transparent;
+  }
+  .badge-blue   { background: var(--blue-50);    color: var(--blue-700);    border-color: var(--blue-200); }
+  .badge-green  { background: var(--success-50); color: var(--success-700); border-color: var(--success-100); }
+  .badge-amber  { background: var(--warning-50); color: var(--warning-700); border-color: var(--warning-100); }
+  .badge-red    { background: var(--error-50);   color: var(--error-700);   border-color: var(--error-100); }
+  .badge-purple { background: var(--purple-50);  color: var(--purple-700);  border-color: var(--purple-200); }
+  .badge-gray   { background: var(--gray-100);   color: var(--gray-700);    border-color: var(--gray-200); }
+
+  /* ── Feature card (concept card) ───────────────── */
+  .concept-card {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    background: white;
+    box-shadow: var(--shadow-xs);
+  }
+  .concept-card .icon-row {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+  }
+  .concept-icon {
+    width: 28px; height: 28px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .concept-name { font-size: 12px; font-weight: 600; color: var(--gray-900); }
+  .concept-desc { font-size: 11.5px; color: var(--gray-500); line-height: 1.55; }
+
+  /* ── Flow step ──────────────────────────────────── */
+  .flow-steps { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-dot {
+    width: 28px; height: 28px; border-radius: 99px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; flex-shrink: 0; margin-top: 1px;
+  }
+  .flow-step-title { font-size: 12px; font-weight: 600; color: var(--gray-900); margin-bottom: 1px; }
+  .flow-step-desc  { font-size: 11.5px; color: var(--gray-500); }
+
+  /* ── Semver card ─────────────────────────────────── */
+  .semver-card {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-xs);
+  }
+  .semver-card .sv-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .sv-num {
+    font-size: 26px; font-weight: 700; line-height: 1;
+  }
+  .sv-label { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  .sv-title { font-size: 12px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; }
+  .sv-desc  { font-size: 11.5px; color: var(--gray-500); margin-bottom: 8px; line-height: 1.55; }
+  .sv-example {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    line-height: 1.8;
+    color: var(--gray-700);
+  }
+  .sv-rule {
+    font-size: 10.5px; color: var(--gray-400);
+    margin-top: 6px; font-style: italic;
+  }
+
+  /* ── Code block ─────────────────────────────────── */
+  .code {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    line-height: 1.8;
+    color: var(--gray-700);
+  }
+  .code .kw  { color: var(--blue-600); font-weight: 600; }
+  .code .cm  { color: var(--gray-400); }
+  .code .str { color: var(--success-600); }
+
+  /* ── Tag anatomy ─────────────────────────────────── */
+  .tag-anatomy {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; margin: 10px 0;
+    background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md); padding: 12px;
+  }
+  .ta-seg {
+    text-align: center;
+    padding: 0 6px;
+  }
+  .ta-seg .ta-val {
+    font-family: 'Courier New', monospace;
+    font-size: 18px; font-weight: 700; line-height: 1.2;
+    display: block;
+  }
+  .ta-seg .ta-lbl {
+    font-size: 9px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .05em; display: block; margin-top: 3px;
+  }
+  .ta-dot { font-size: 22px; font-weight: 300; color: var(--gray-300); align-self: flex-start; margin-top: 2px; }
+  .ta-sep { font-size: 18px; color: var(--gray-300); padding: 0 2px; align-self: flex-start; margin-top: 3px; }
+
+  /* ── Pre-release timeline ─────────────────────────── */
+  .prerelease-row {
+    display: flex; align-items: center; gap: 0;
+    margin: 8px 0;
+  }
+  .pr-stage {
+    flex: 1; text-align: center;
+    padding: 6px 4px;
+    border-radius: var(--radius-sm);
+    font-size: 10.5px; font-weight: 500;
+  }
+  .pr-arrow { color: var(--gray-300); font-size: 14px; padding: 0 2px; }
+
+  /* ── Breaking change table ───────────────────────── */
+  .bc-table { width: 100%; border-collapse: collapse; }
+  .bc-table th {
+    font-size: 11px; font-weight: 600; text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .bc-table td {
+    font-size: 11.5px; padding: 7px 10px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: top;
+  }
+  .bc-table tr:last-child td { border-bottom: none; }
+  .bc-table .bc-yes { color: var(--error-600); font-weight: 500; }
+  .bc-table .bc-no  { color: var(--success-600); font-weight: 500; }
+
+  /* ── Changelog format ────────────────────────────── */
+  .cl-section { margin-bottom: 6px; }
+  .cl-label {
+    display: inline-block;
+    font-size: 10px; font-weight: 600;
+    padding: 1px 7px; border-radius: 99px;
+    margin-bottom: 2px;
+  }
+  .cl-items { list-style: none; padding-left: 4px; }
+  .cl-items li { font-size: 11.5px; color: var(--gray-500); padding: 1px 0; }
+  .cl-items li::before { content: "·"; margin-right: 6px; color: var(--gray-300); }
+
+  /* ── Footer rule ─────────────────────────────────── */
+  .footer-rule {
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: var(--gray-900);
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: 12px;
+    line-height: 1.6;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .footer-rule .fr-icon { font-size: 18px; flex-shrink: 0; }
+  .footer-rule strong { color: white; }
+  .footer-rule .sep { color: var(--gray-500); margin: 0 4px; }
+
+  /* ── Hotfix vs patch ─────────────────────────────── */
+  .hf-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 8px; }
+  .hf-card {
+    flex: 1; border-radius: var(--radius-md);
+    border: 1px solid var(--gray-200);
+    padding: 10px 12px;
+    box-shadow: var(--shadow-xs);
+  }
+  .hf-title { font-size: 11.5px; font-weight: 600; margin-bottom: 3px; }
+  .hf-desc  { font-size: 11px; color: var(--gray-500); line-height: 1.55; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/>
+          <path d="M8 6h4M16 6h-2M18 8v4M18 16v-2M14 18H8"/>
+          <path d="M6 8v8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title">Git Versioning</div>
+        <div class="header-subtitle">Cheat sheet complet — commit · branch · PR · semver · tags · changelog</div>
+      </div>
+    </div>
+    <span class="badge badge-blue">Printabil · A4</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 1 — Concepte de bază                  -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="section-label">
+    <div class="section-num">1</div>
+    <div class="section-title">Concepte de bază</div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:12px">
+    <!-- Commit -->
+    <div class="concept-card">
+      <div class="icon-row">
+        <div class="concept-icon" style="background:var(--blue-50)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue-600)" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <span class="concept-name">Commit</span>
+        <span class="badge badge-blue" style="margin-left:auto">salvare</span>
+      </div>
+      <div class="concept-desc">O salvare cu mesaj. Înregistrează ce s-a schimbat, cine și când. Nu se șterge niciodată din istoricul proiectului.</div>
+    </div>
+    <!-- Branch -->
+    <div class="concept-card">
+      <div class="icon-row">
+        <div class="concept-icon" style="background:var(--purple-50)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--purple-600)" stroke-width="2" stroke-linecap="round">
+            <line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+            <path d="M18 9a9 9 0 0 1-9 9"/>
+          </svg>
+        </div>
+        <span class="concept-name">Branch</span>
+        <span class="badge badge-purple" style="margin-left:auto">copie</span>
+      </div>
+      <div class="concept-desc">O linie paralelă de dezvoltare. Lucrezi în siguranță fără să atingi codul stabil. Se șterge după merge.</div>
+    </div>
+    <!-- Tag -->
+    <div class="concept-card">
+      <div class="icon-row">
+        <div class="concept-icon" style="background:var(--success-50)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success-600)" stroke-width="2" stroke-linecap="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+        </div>
+        <span class="concept-name">Tag</span>
+        <span class="badge badge-green" style="margin-left:auto">bookmark</span>
+      </div>
+      <div class="concept-desc">Un bookmark permanent pe un commit. Marchează o versiune. Nu se mișcă niciodată după creare.</div>
+    </div>
+    <!-- Main -->
+    <div class="concept-card">
+      <div class="icon-row">
+        <div class="concept-icon" style="background:var(--gray-100)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gray-600)" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="2" x2="12" y2="22"/><circle cx="12" cy="5" r="3"/><circle cx="12" cy="19" r="3"/>
+          </svg>
+        </div>
+        <span class="concept-name">Main</span>
+        <span class="badge badge-gray" style="margin-left:auto">producție</span>
+      </div>
+      <div class="concept-desc">Branch-ul principal. Codul care merge în producție. Mereu stabil, mereu testat, protejat de PR-uri.</div>
+    </div>
+    <!-- Pull Request -->
+    <div class="concept-card">
+      <div class="icon-row">
+        <div class="concept-icon" style="background:var(--warning-50)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warning-600)" stroke-width="2" stroke-linecap="round">
+            <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/>
+          </svg>
+        </div>
+        <span class="concept-name">Pull Request</span>
+        <span class="badge badge-amber" style="margin-left:auto">review</span>
+      </div>
+      <div class="concept-desc">Cererea oficială de a merge branch-ul tău în main. Colegii văd exact ce ai schimbat și aprobă sau cer modificări.</div>
+    </div>
+    <!-- Merge -->
+    <div class="concept-card">
+      <div class="icon-row">
+        <div class="concept-icon" style="background:var(--success-50)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success-600)" stroke-width="2" stroke-linecap="round">
+            <circle cx="18" cy="6" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+            <path d="M6 9v4a2 2 0 0 0 2 2h4"/><line x1="18" y1="9" x2="18" y2="18"/>
+          </svg>
+        </div>
+        <span class="concept-name">Merge</span>
+        <span class="badge badge-green" style="margin-left:auto">combinare</span>
+      </div>
+      <div class="concept-desc">Combinarea unui branch aprobat în main. Codul intră în producție. Branch-ul se șterge după.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 2 — Flux + Semver  (2 cols)           -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="grid-2" style="gap:24px; margin-bottom: 0">
+
+    <!-- LEFT — Flux de lucru -->
+    <div>
+      <div class="section-label">
+        <div class="section-num">2</div>
+        <div class="section-title">Fluxul de lucru</div>
+      </div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-dot" style="background:var(--blue-50);color:var(--blue-700)">1</div>
+          <div><div class="flow-step-title">Ticket</div><div class="flow-step-desc">PO creează task: "adaugă export CSV"</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot" style="background:var(--purple-50);color:var(--purple-700)">2</div>
+          <div><div class="flow-step-title">Branch</div><div class="flow-step-desc">Developer face <code style="font-size:10.5px;background:var(--gray-100);padding:1px 5px;border-radius:4px">feature/csv-export</code> din main</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot" style="background:var(--purple-50);color:var(--purple-700)">3</div>
+          <div><div class="flow-step-title">Commits</div><div class="flow-step-desc">Lucrează, salvează progresul cu commits</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot" style="background:var(--warning-50);color:var(--warning-700)">4</div>
+          <div><div class="flow-step-title">Pull Request</div><div class="flow-step-desc">Deschide PR, descrie ce a făcut, leagă ticket-ul</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot" style="background:var(--warning-50);color:var(--warning-700)">5</div>
+          <div><div class="flow-step-title">Code Review</div><div class="flow-step-desc">Colegi verifică, PO confirmă că e ce s-a cerut</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot" style="background:var(--success-50);color:var(--success-700)">6</div>
+          <div><div class="flow-step-title">Merge</div><div class="flow-step-desc">Aprobat → intră în main, branch-ul se șterge</div></div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-dot" style="background:var(--success-50);color:var(--success-700)">7</div>
+          <div><div class="flow-step-title">Tag + Release</div><div class="flow-step-desc">După mai multe features → tag <code style="font-size:10.5px;background:var(--gray-100);padding:1px 5px;border-radius:4px">v1.3.0</code> → release</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT — Semver -->
+    <div>
+      <div class="section-label">
+        <div class="section-num">3</div>
+        <div class="section-title">Semantic Versioning</div>
+      </div>
+
+      <!-- Tag anatomy -->
+      <div class="tag-anatomy" style="margin-bottom:12px">
+        <div class="ta-seg">
+          <span class="ta-val" style="color:var(--gray-400)">v</span>
+          <span class="ta-lbl" style="color:var(--gray-400)">prefix</span>
+        </div>
+        <div class="ta-seg">
+          <span class="ta-val" style="color:var(--blue-600)">2</span>
+          <span class="ta-lbl" style="color:var(--blue-600)">major</span>
+        </div>
+        <div class="ta-dot">.</div>
+        <div class="ta-seg">
+          <span class="ta-val" style="color:var(--success-600)">4</span>
+          <span class="ta-lbl" style="color:var(--success-600)">minor</span>
+        </div>
+        <div class="ta-dot">.</div>
+        <div class="ta-seg">
+          <span class="ta-val" style="color:var(--warning-600)">1</span>
+          <span class="ta-lbl" style="color:var(--warning-600)">patch</span>
+        </div>
+        <div class="ta-sep" style="margin:0 4px 0 8px">-</div>
+        <div class="ta-seg">
+          <span class="ta-val" style="color:var(--error-500);font-size:14px">beta.2</span>
+          <span class="ta-lbl" style="color:var(--error-500)">pre-release</span>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <!-- MAJOR -->
+        <div class="semver-card" style="border-left:3px solid var(--blue-500)">
+          <div class="sv-header">
+            <span class="sv-num" style="color:var(--blue-600)">X</span>
+            <div>
+              <div class="sv-label" style="color:var(--blue-500)">Major</div>
+              <div class="sv-title">Ceva se strică pentru utilizatorii existenți</div>
+            </div>
+          </div>
+          <div class="sv-desc">Codul lor nu mai funcționează după update fără modificări de pe partea lor.</div>
+          <div class="code">1.4.2 → <strong style="color:var(--blue-600)">2.0.0</strong> &nbsp;<span class="cm"># ai redenumit getUser() → fetchUser()</span></div>
+          <div class="sv-rule">Regula reset: 1.4.2 → 2.0.0, nu 2.4.2</div>
+        </div>
+        <!-- MINOR -->
+        <div class="semver-card" style="border-left:3px solid var(--success-500)">
+          <div class="sv-header">
+            <span class="sv-num" style="color:var(--success-600)">X</span>
+            <div>
+              <div class="sv-label" style="color:var(--success-500)">Minor</div>
+              <div class="sv-title">Funcționalitate nouă, nimic nu se strică</div>
+            </div>
+          </div>
+          <div class="sv-desc">Poți upgrada fără să schimbi nimic în codul tău.</div>
+          <div class="code">1.4.2 → <strong style="color:var(--success-600)">1.5.0</strong> &nbsp;<span class="cm"># ai adăugat export CSV</span></div>
+          <div class="sv-rule">Regula reset: 1.4.2 → 1.5.0, nu 1.5.2</div>
+        </div>
+        <!-- PATCH -->
+        <div class="semver-card" style="border-left:3px solid var(--warning-500)">
+          <div class="sv-header">
+            <span class="sv-num" style="color:var(--warning-600)">X</span>
+            <div>
+              <div class="sv-label" style="color:var(--warning-500)">Patch</div>
+              <div class="sv-title">Bug fix, nimic nou, complet sigur</div>
+            </div>
+          </div>
+          <div class="sv-desc">Repari ceva stricat. Safe de auto-updatat. Hotfix-ul produce aproape mereu un patch.</div>
+          <div class="code">1.4.2 → <strong style="color:var(--warning-600)">1.4.3</strong> &nbsp;<span class="cm"># ai reparat crash la login</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ══════════════════════════════════════════════ -->
+  <!-- SECTION 4+5 — Tags & Changelog  (2 cols)      -->
+  <!-- ══════════════════════════════════════════════ -->
+  <div class="grid-2" style="gap:24px">
+
+    <!-- LEFT — Tags + Hotfix -->
+    <div>
+      <div class="section-label">
+        <div class="section-num">4</div>
+        <div class="section-title">Taguri și Hotfix</div>
+      </div>
+
+      <!-- lightweight vs annotated -->
+      <div class="hf-row">
+        <div class="hf-card" style="background:var(--gray-50)">
+          <div class="hf-title" style="color:var(--gray-600)">Lightweight tag</div>
+          <div class="hf-desc">Simplu bookmark. Fără mesaj sau autor.</div>
+          <div class="code" style="margin-top:6px">git tag v1.0.0</div>
+        </div>
+        <div class="hf-card" style="background:var(--success-25);border-color:var(--success-100)">
+          <div class="hf-title" style="color:var(--success-700)">Annotated tag ✓</div>
+          <div class="hf-desc">Are mesaj, autor, dată. Recomandat pentru release-uri.</div>
+          <div class="code" style="margin-top:6px">git tag -a v1.0.0 -m <span class="str">"Release"</span></div>
+        </div>
+      </div>
+
+      <!-- push reminder -->
+      <div style="background:var(--warning-50);border:1px solid var(--warning-100);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:10px;font-size:11.5px;color:var(--warning-700)">
+        <strong>⚠ Tagurile nu se push automat!</strong> Trebuie explicit:<br>
+        <code style="font-family:'Courier New';font-size:10.5px">git push origin v1.0.0 &nbsp;&nbsp;# un tag</code><br>
+        <code style="font-family:'Courier New';font-size:10.5px">git push origin --tags &nbsp;&nbsp;# toate</code>
+      </div>
+
+      <!-- Pre-release -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:6px">Pre-release stages — ordine strictă:</div>
+        <div class="prerelease-row">
+          <div class="pr-stage" style="background:var(--gray-100);color:var(--gray-600)">alpha<br><span style="font-size:9.5px;color:var(--gray-400)">intern</span></div>
+          <div class="pr-arrow">→</div>
+          <div class="pr-stage" style="background:var(--warning-50);color:var(--warning-700)">beta.1<br><span style="font-size:9.5px;color:var(--warning-500)">testeri</span></div>
+          <div class="pr-arrow">→</div>
+          <div class="pr-stage" style="background:var(--blue-50);color:var(--blue-700)">rc.1<br><span style="font-size:9.5px;color:var(--blue-500)">candidat</span></div>
+          <div class="pr-arrow">→</div>
+          <div class="pr-stage" style="background:var(--success-50);color:var(--success-700);font-weight:600">1.0.0<br><span style="font-size:9.5px;color:var(--success-500)">stabil</span></div>
+        </div>
+      </div>
+
+      <!-- Hotfix -->
+      <div style="font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:6px">Hotfix vs patch:</div>
+      <div class="hf-row">
+        <div class="hf-card" style="background:var(--error-50);border-color:var(--error-100)">
+          <div class="hf-title" style="color:var(--error-700)">Hotfix = urgență</div>
+          <div class="hf-desc">Branchez din tag-ul live, nu din main. Main are work in progress.</div>
+        </div>
+        <div class="hf-card" style="background:var(--gray-50)">
+          <div class="hf-title" style="color:var(--gray-700)">Patch = tipul schimbării</div>
+          <div class="hf-desc">Aproape orice hotfix produce un patch bump: 1.2.9 → 1.2.10</div>
+        </div>
+      </div>
+
+      <!-- 0.x.x note -->
+      <div style="background:var(--purple-50);border:1px solid var(--purple-200);border-radius:var(--radius-md);padding:10px 12px;margin-top:10px;font-size:11.5px;color:var(--purple-700)">
+        <strong>0.x.x</strong> = încă figuring it out. Orice poate schimba oricând.<br>
+        <strong>1.0.0</strong> = prima versiune stabilă cu promisiuni.<br>
+        <span style="color:var(--purple-500)">Nu există limită: 1.30.1 este complet valid.</span>
+      </div>
+    </div>
+
+    <!-- RIGHT — Breaking changes + Changelog -->
+    <div>
+      <div class="section-label">
+        <div class="section-num">5</div>
+        <div class="section-title">Breaking changes și Changelog</div>
+      </div>
+
+      <table class="bc-table" style="margin-bottom:14px">
+        <thead>
+          <tr style="background:var(--gray-50)">
+            <th style="color:var(--gray-600)">Schimbare</th>
+            <th style="color:var(--gray-600)">Breaking?</th>
+            <th style="color:var(--gray-600)">Bump</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Redenumești / ștergi o funcție</td>
+            <td class="bc-yes">Da ✕</td>
+            <td><span class="badge badge-blue">major</span></td>
+          </tr>
+          <tr>
+            <td>Schimbi ce returnează un endpoint</td>
+            <td class="bc-yes">Da ✕</td>
+            <td><span class="badge badge-blue">major</span></td>
+          </tr>
+          <tr>
+            <td>Schimbi URL-ul unui endpoint</td>
+            <td class="bc-yes">Da ✕</td>
+            <td><span class="badge badge-blue">major</span></td>
+          </tr>
+          <tr>
+            <td>Adaugi câmp nou în response</td>
+            <td class="bc-no">Nu ✓</td>
+            <td><span class="badge badge-green">minor</span></td>
+          </tr>
+          <tr>
+            <td>Adaugi endpoint nou</td>
+            <td class="bc-no">Nu ✓</td>
+            <td><span class="badge badge-green">minor</span></td>
+          </tr>
+          <tr>
+            <td>Faci un parametru opțional</td>
+            <td class="bc-no">Nu ✓</td>
+            <td><span class="badge badge-green">minor</span></td>
+          </tr>
+          <tr>
+            <td>Repari un bug fără schimbări API</td>
+            <td class="bc-no">Nu ✓</td>
+            <td><span class="badge badge-amber">patch</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Changelog -->
+      <div style="font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:6px">Format changelog (keepachangelog.com):</div>
+      <div class="code" style="margin-bottom:10px">
+        <span style="color:var(--blue-600);font-weight:600">## [1.3.0]</span> - 2024-03-13<br>
+        <span style="color:var(--success-600)">### Added</span><br>
+        &nbsp;- Export CSV pentru rapoarte<br>
+        <span style="color:var(--warning-600)">### Changed</span><br>
+        &nbsp;- Buton logout mutat în meniu profil<br>
+        <span style="color:var(--error-600)">### Fixed</span><br>
+        &nbsp;- Crash la login pe iOS 16<br>
+        <span style="color:var(--error-700);font-weight:600">### Removed</span><br>
+        &nbsp;- Suport Internet Explorer 11
+      </div>
+
+      <!-- Rules -->
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:flex-start;gap:7px;font-size:11.5px;color:var(--gray-500)">
+          <span style="color:var(--success-500);font-weight:700;flex-shrink:0">✓</span>
+          Scris pentru utilizator, nu pentru developer — fără detalii interne de cod
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:7px;font-size:11.5px;color:var(--gray-500)">
+          <span style="color:var(--success-500);font-weight:700;flex-shrink:0">✓</span>
+          O linie per schimbare, clară și simplă
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:7px;font-size:11.5px;color:var(--gray-500)">
+          <span style="color:var(--success-500);font-weight:700;flex-shrink:0">✓</span>
+          Breaking changes — mereu separate și cu instrucțiuni clare
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:7px;font-size:11.5px;color:var(--gray-500)">
+          <span style="color:var(--success-500);font-weight:700;flex-shrink:0">✓</span>
+          Updatat la fiecare release, nu retroactiv
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:7px;font-size:11.5px;color:var(--gray-500)">
+          <span style="color:var(--error-400);font-weight:700;flex-shrink:0">✕</span>
+          Nu copia commit messages direct — sunt pentru developeri, nu utilizatori
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER RULE ── -->
+  <div class="footer-rule">
+    <span class="fr-icon">⚡</span>
+    <div>
+      <strong>Regula de aur:</strong> Dacă cineva updatează fără să citească nimic și codul lor se strică
+      <span class="sep">→</span> <strong>MAJOR</strong>
+      <span class="sep">·</span> Dacă adaugi ceva nou fără să strici nimic
+      <span class="sep">→</span> <strong>MINOR</strong>
+      <span class="sep">·</span> Dacă repari ceva
+      <span class="sep">→</span> <strong>PATCH</strong>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

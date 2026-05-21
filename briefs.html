@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Briefs · Avise Learning Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/hub.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="assets/hub-state.js" defer></script>
+</head>
+<body class="hub-catalog">
+
+  <nav>
+    <a href="index.html" class="nav-brand">
+      Avise<span class="dot">.</span>Learn
+    </a>
+    <div class="nav-links">
+      <a href="avise.html" class="nav-link">Avise</a>
+      <a href="knowledge.html" class="nav-link">Knowledge</a>
+      <a href="briefs.html" class="nav-link active">Briefs</a>
+      <span class="nav-pill">Hub</span>
+    </div>
+  </nav>
+
+  <div class="breadcrumb animate-in">
+    <a href="index.html">Hub</a><span class="sep">/</span><span>Planning briefs</span>
+  </div>
+
+  <section class="hero" style="padding-top: 32px;">
+    <p class="hero-eyebrow animate-in">In-flight planning artifacts</p>
+    <h1 class="hero-title animate-in delay-1">
+      Decisions, <em>scoped &amp; dated</em>
+    </h1>
+    <p class="hero-subtitle animate-in delay-2">
+      Smaller than a course, bigger than a ticket. Each brief captures the scope, options, trade-offs, and the chosen path for a piece of work currently in motion. New briefs will be added here as planning happens.
+    </p>
+  </section>
+
+  <div class="section-heading animate-in delay-3">
+    <h2>Briefs</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
+
+    <a class="course-card card-brief animate-in delay-3" href="briefs/planning-prepared-schedules/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-brief"><i data-lucide="clipboard-list"></i> Planning Brief</span>
+        <h2 class="card-title">Prepared Schedules — Planning Brief</h2>
+        <p class="card-desc">Scope, current state, proposed approach, and open questions for the Prepared Schedules workstream. Read this before the next planning meeting on the topic.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~15 min read</span>
+          <span class="meta-item"><i data-lucide="users"></i> Eng leads · PMs</span>
+          <span class="meta-item"><i data-lucide="layers"></i> Schedules</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-brief">Open brief <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <div class="course-card-placeholder animate-in delay-4">
+      <div class="placeholder-icon"><i data-lucide="plus"></i></div>
+      <span class="placeholder-text">New briefs land here as planning happens.</span>
+    </div>
+
+  </div>
+
+  <footer>
+    Avise Learning Hub · <a href="index.html" style="color:inherit;">Back to hub</a>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+    window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
+  </script>
+</body>
+</html>

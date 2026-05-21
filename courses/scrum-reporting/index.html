@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The BA Mastery Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c1: #0d0d0d;
+    --c2: #f5f0e8;
+    --c3: #e8dcc8;
+    --accent1: #c8502a;
+    --accent2: #2a6b8a;
+    --accent3: #4a7c59;
+    --text: #1a1a1a;
+    --muted: #6b6660;
+    --card-bg: #ffffff;
+    --border: #e0d8cc;
+    --tag-bg: #f0ebe2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--c2);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--c1);
+    color: var(--c2);
+    padding: 80px 60px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,80,42,0.15) 0%, transparent 70%);
+  }
+
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent1);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 span { color: var(--accent1); }
+
+  .hero-sub {
+    font-size: 17px;
+    color: #b0a898;
+    max-width: 540px;
+    font-weight: 300;
+    margin-bottom: 40px;
+  }
+
+  .hero-tracks {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .track-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid rgba(245,240,232,0.2);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--c2);
+  }
+
+  .track-pill:hover { background: rgba(245,240,232,0.1); }
+  .track-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-red { background: var(--accent1); }
+  .dot-blue { background: var(--accent2); }
+  .dot-green { background: var(--accent3); }
+
+  /* NAV TABS */
+  .course-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--c1);
+    border-bottom: 1px solid rgba(245,240,232,0.1);
+    display: flex;
+    gap: 0;
+    padding: 0 60px;
+  }
+
+  .nav-tab {
+    padding: 16px 24px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #7a7068;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .nav-tab:hover { color: var(--c2); }
+  .nav-tab.active { color: var(--c2); border-bottom-color: var(--accent1); }
+
+  /* SECTIONS */
+  .course-section {
+    display: none;
+    padding: 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .course-section.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 80px;
+    font-weight: 900;
+    line-height: 0.85;
+    opacity: 0.08;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .section-meta {}
+
+  .section-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .s1 .section-tag { color: var(--accent1); }
+  .s2 .section-tag { color: var(--accent2); }
+  .s3 .section-tag { color: var(--accent3); }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .section-desc {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 580px;
+    font-weight: 300;
+  }
+
+  /* OVERVIEW BOX */
+  .overview-box {
+    background: var(--c1);
+    color: var(--c2);
+    border-radius: 16px;
+    padding: 36px;
+    margin-bottom: 40px;
+  }
+
+  .overview-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin-bottom: 16px;
+    color: var(--c3);
+  }
+
+  .overview-box p {
+    font-size: 15px;
+    color: #b0a898;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  .overview-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(245,240,232,0.1);
+  }
+
+  .stat { }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--c2);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: #7a7068;
+    margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* OBJECTIVES */
+  .objectives-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+
+  .objective-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 16px 20px;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .obj-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    margin-top: 1px;
+    color: white;
+    font-weight: 600;
+  }
+
+  .s1 .obj-check { background: var(--accent1); }
+  .s2 .obj-check { background: var(--accent2); }
+  .s3 .obj-check { background: var(--accent3); }
+
+  /* BLOCK LABELS */
+  .block-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .block-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* MODULES */
+  .modules-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .module-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+
+  .module-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+
+  .module-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  .module-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .module-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: var(--tag-bg);
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .module-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .module-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+
+  .module-concepts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .concept-tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--tag-bg);
+    color: #5a5550;
+    border: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* EXERCISES */
+  .exercises-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .exercise-card {
+    border-radius: 14px;
+    padding: 28px;
+    border-left: 4px solid;
+    background: var(--card-bg);
+    border-color: var(--border);
+  }
+
+  .s1 .exercise-card { border-left-color: var(--accent1); }
+  .s2 .exercise-card { border-left-color: var(--accent2); }
+  .s3 .exercise-card { border-left-color: var(--accent3); }
+
+  .exercise-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .exercise-icon {
+    font-size: 18px;
+  }
+
+  .exercise-title {
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .exercise-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* KEY CONCEPTS */
+  .concepts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .concept-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .concept-card-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .concept-card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* RESOURCES */
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 48px;
+  }
+
+  .resource-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .resource-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .s1 .resource-type { color: var(--accent1); }
+  .s2 .resource-type { color: var(--accent2); }
+  .s3 .resource-type { color: var(--accent3); }
+
+  .resource-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.4;
+  }
+
+  .resource-by {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* KEY CONCEPTS CALLOUT */
+  .key-concept-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: baseline;
+  }
+
+  .key-concept-row:last-child { border-bottom: none; }
+
+  .key-concept-term {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .key-concept-def {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* PROGRESS INDICATOR */
+  .progress-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 48px;
+  }
+
+  .progress-step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+  }
+
+  .s1 .progress-step.done { background: var(--accent1); }
+  .s2 .progress-step.done { background: var(--accent2); }
+  .s3 .progress-step.done { background: var(--accent3); }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    font-size: 14px;
+    line-height: 1.7;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .callout-info {
+    background: #eef5f9;
+    border: 1px solid #c8dde8;
+    color: #2a5a70;
+  }
+
+  .callout-tip {
+    background: #f2f7f3;
+    border: 1px solid #c8ddc8;
+    color: #3a6a44;
+  }
+
+  .callout-warn {
+    background: #fdf4f1;
+    border: 1px solid #e8ccc0;
+    color: #7a3520;
+  }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .hero, .course-nav, .course-section { padding-left: 24px; padding-right: 24px; }
+    .objectives-grid, .concepts-grid, .resources-grid { grid-template-columns: 1fr; }
+    .overview-stats { grid-template-columns: repeat(3, 1fr); }
+    .section-number { display: none; }
+    .key-concept-row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">BA Mastery · Beginner to Confident</div>
+  <h1>The Three Pillars<br>of Modern <span>BA Work</span></h1>
+  <p class="hero-sub">A self-paced curriculum covering Scrum, Reporting, and Human Technologies. Practical, actionable, built for people who learn by doing.</p>
+  <div class="hero-tracks">
+    <a class="track-pill" onclick="switchTab('s1')"><span class="dot dot-red"></span> Track 1 · Scrum</a>
+    <a class="track-pill" onclick="switchTab('s2')"><span class="dot dot-blue"></span> Track 2 · Reporting</a>
+    <a class="track-pill" onclick="switchTab('s3')"><span class="dot dot-green"></span> Track 3 · Human Tech</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="course-nav">
+  <div class="nav-tab active" onclick="switchTab('s1')">01 · Scrum</div>
+  <div class="nav-tab" onclick="switchTab('s2')">02 · Reporting</div>
+  <div class="nav-tab" onclick="switchTab('s3')">03 · Human Technologies</div>
+</div>
+
+<!-- ======= SECTION 1: SCRUM ======= -->
+<div id="s1" class="course-section s1 active">
+
+  <div class="section-header">
+    <div class="section-number">01</div>
+    <div class="section-meta">
+      <div class="section-tag">Track One</div>
+      <div class="section-title">Scrum &amp; Agile<br>Fundamentals</div>
+      <div class="section-desc">Learn how modern software teams organize, plan, and deliver work in short cycles — and how to operate effectively within that rhythm.</div>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <div class="overview-box">
+    <h3>Course Overview</h3>
+    <p>Scrum is the most widely used Agile framework in the world. It organizes work into short, focused cycles called Sprints, with clear roles, rituals, and artifacts designed to keep teams aligned and moving. This course teaches you the full Scrum playbook — not just the theory, but what it looks like in practice and how to participate in it effectively as a BA or PM.</p>
+    <div class="overview-stats">
+      <div class="stat"><div class="stat-value">5</div><div class="stat-label">Modules</div></div>
+      <div class="stat"><div class="stat-value">~12h</div><div class="stat-label">Study time</div></div>
+      <div class="stat"><div class="stat-value">6</div><div class="stat-label">Exercises</div></div>
+    </div>
+  </div>
+
+  <!-- Objectives -->
+  <div class="block-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="obj-check">✓</div> Explain the Scrum framework to someone who has never heard of it</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Identify the 3 Scrum roles and what each one is responsible for</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Run or participate in all 5 Scrum ceremonies with confidence</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Understand and contribute to the 3 core Scrum artifacts</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Write a well-formed user story with acceptance criteria</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Facilitate a productive Sprint Retrospective</div>
+  </div>
+
+  <!-- Modules -->
+  <div class="block-label">Modules</div>
+  <div class="modules-list">
+
+    <div class="module-card">
+      <div class="module-top">
+        <div class="module-number">MODULE 01</div>
+        <div class="module-badge">⏱ 2h</div>
+      </div>
+      <div class="module-title">The Scrum Mindset</div>
+      <div class="module-desc">Before roles and ceremonies, there's a way of thinking. This module covers why Scrum exists, what problem it solves (predictability in complex work), and how the Agile Manifesto translates into daily team behavior. You'll learn why Scrum is not a process — it's a framework for continuous learning.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Agile Manifesto</span>
+        <span class="concept-tag">Empiricism</span>
+        <span class="concept-tag">Inspect &amp; Adapt</span>
+        <span class="concept-tag">Scrum Values</span>
+        <span class="concept-tag">Waterfall vs Agile</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top">
+        <div class="module-number">MODULE 02</div>
+        <div class="module-badge">⏱ 2h</div>
+      </div>
+      <div class="module-title">Roles: Who Does What</div>
+      <div class="module-desc">Scrum has exactly three roles — no more, no less. This module covers the Product Owner (accountable for value), the Scrum Master (accountable for process), and the Developers (accountable for delivery). You'll learn where a BA typically sits and how to navigate between these roles in practice.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Product Owner</span>
+        <span class="concept-tag">Scrum Master</span>
+        <span class="concept-tag">Development Team</span>
+        <span class="concept-tag">Self-organization</span>
+        <span class="concept-tag">BA in Scrum</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top">
+        <div class="module-number">MODULE 03</div>
+        <div class="module-badge">⏱ 2.5h</div>
+      </div>
+      <div class="module-title">Ceremonies: The Team Rhythm</div>
+      <div class="module-desc">Five ceremonies, one Sprint. You'll learn the purpose, structure, and common failure modes of Sprint Planning, Daily Standup, Sprint Review, Sprint Retrospective, and Backlog Refinement. Each ceremony has a specific goal — this module teaches you to run them with intention, not as box-ticking.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Sprint Planning</span>
+        <span class="concept-tag">Daily Standup</span>
+        <span class="concept-tag">Sprint Review</span>
+        <span class="concept-tag">Retrospective</span>
+        <span class="concept-tag">Refinement</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top">
+        <div class="module-number">MODULE 04</div>
+        <div class="module-badge">⏱ 2.5h</div>
+      </div>
+      <div class="module-title">Artifacts: What Gets Written Down</div>
+      <div class="module-desc">Scrum artifacts are the team's shared sources of truth. This module covers the Product Backlog (the prioritized list of everything), the Sprint Backlog (what the team commits to this Sprint), and the Increment (the working output). You'll also learn how to write user stories, define DoD, and estimate with story points.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Product Backlog</span>
+        <span class="concept-tag">Sprint Backlog</span>
+        <span class="concept-tag">Increment</span>
+        <span class="concept-tag">User Stories</span>
+        <span class="concept-tag">Definition of Done</span>
+        <span class="concept-tag">Story Points</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top">
+        <div class="module-number">MODULE 05</div>
+        <div class="module-badge">⏱ 2h</div>
+      </div>
+      <div class="module-title">Scrum in Practice: Best Practices &amp; Anti-Patterns</div>
+      <div class="module-desc">Real teams break Scrum in predictable ways. This module catalogs the most common anti-patterns (zombie standups, no real Definition of Done, PO as order-taker) and the practices that make high-performing Scrum teams different. Includes velocity tracking, sprint health signals, and how to handle blockers.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Velocity</span>
+        <span class="concept-tag">Anti-patterns</span>
+        <span class="concept-tag">Sprint Health</span>
+        <span class="concept-tag">Blocker management</span>
+        <span class="concept-tag">Team maturity</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Key Concepts -->
+  <div class="block-label">Key Concepts Glossary</div>
+  <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 4px 28px; margin-bottom: 48px;">
+    <div class="key-concept-row"><div class="key-concept-term">Sprint</div><div class="key-concept-def">A fixed time-box (usually 1–4 weeks) during which the team creates a usable Increment. Sprints never extend — unfinished work goes back to the backlog.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Velocity</div><div class="key-concept-def">How many story points a team completes per Sprint on average. Used for forecasting, not measuring individual performance.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">User Story</div><div class="key-concept-def">A short, human-centered requirement format: "As a [user], I want [action] so that [outcome]." It forces you to anchor features in real user needs.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Definition of Done</div><div class="key-concept-def">A shared checklist that every story must meet before it's considered complete. Prevents "done but not really done" situations.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Backlog Refinement</div><div class="key-concept-def">An ongoing process where the team breaks down, estimates, and clarifies upcoming backlog items. Not a ceremony — a habit.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Empiricism</div><div class="key-concept-def">Scrum's philosophical foundation: make decisions based on what you've actually observed, not on predictions or assumptions.</div></div>
+  </div>
+
+  <!-- Exercises -->
+  <div class="block-label">Practical Exercises</div>
+  <div class="exercises-list">
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">✍️</span><span class="exercise-title">Write 5 User Stories for a product you know</span></div>
+      <div class="exercise-desc">Pick any product (an app, a tool you use at work). Write 5 user stories using the "As a / I want / So that" format. Then add 2–3 acceptance criteria per story. Share with a colleague and see if they understand the intent without explanation.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🗓️</span><span class="exercise-title">Simulate a Sprint Planning session</span></div>
+      <div class="exercise-desc">Take 10 backlog items and "plan" a 2-week Sprint. Decide what fits, what doesn't, and articulate the Sprint Goal. Write it in one sentence that a stakeholder could understand. Notice how hard it is to define a goal that's specific but not just a task list.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🔁</span><span class="exercise-title">Run a personal retrospective</span></div>
+      <div class="exercise-desc">Apply the Retrospective format to a recent project or Sprint at work. Use the "What went well / What didn't / What to change" structure. Write at least one concrete action item with an owner and a deadline — even if both are you.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🎤</span><span class="exercise-title">Practice a Daily Standup — alone</span></div>
+      <div class="exercise-desc">For 5 days in a row, write your standup answers: What did I complete yesterday? What will I do today? What's blocking me? Notice how quickly you identify blockers when you're forced to name them explicitly every day.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">📊</span><span class="exercise-title">Build a Product Backlog for a side project</span></div>
+      <div class="exercise-desc">Take a personal or work project idea. Write at least 15 backlog items, then prioritize them using MoSCoW (Must / Should / Could / Won't). Practice grouping them into a logical first Sprint.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🔍</span><span class="exercise-title">Anti-pattern audit</span></div>
+      <div class="exercise-desc">Look at your current team's Scrum practice. Identify 2–3 anti-patterns from Module 5. Write one paragraph on why each happens (the root cause, not the symptom) and what a realistic fix would look like.</div>
+    </div>
+  </div>
+
+  <!-- Resources -->
+  <div class="block-label">Recommended Resources</div>
+  <div class="resources-grid">
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">Scrum: The Art of Doing Twice the Work in Half the Time</div><div class="resource-by">Jeff Sutherland — the co-creator of Scrum</div></div>
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">User Story Mapping</div><div class="resource-by">Jeff Patton — essential for backlog structuring</div></div>
+    <div class="resource-card"><div class="resource-type">📄 Guide</div><div class="resource-title">The Scrum Guide (official)</div><div class="resource-by">scrumguides.org — 13 pages, read it twice</div></div>
+    <div class="resource-card"><div class="resource-type">🎓 Course</div><div class="resource-title">Professional Scrum Master I prep</div><div class="resource-by">Scrum.org — free learning paths + practice tests</div></div>
+    <div class="resource-card"><div class="resource-type">🎧 Podcast</div><div class="resource-title">Agile for Humans</div><div class="resource-by">Real practitioners, real stories, no fluff</div></div>
+    <div class="resource-card"><div class="resource-type">🛠 Tool</div><div class="resource-title">Jira / Linear / Notion</div><div class="resource-by">Practice building a backlog in a real tool</div></div>
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-icon">💡</span>
+    <div><strong>Beginner tip:</strong> The biggest mistake beginners make is treating Scrum ceremonies as meetings rather than tools. Each ceremony has a specific output. If you leave a ceremony without that output, the ceremony failed — not the team.</div>
+  </div>
+
+</div>
+
+<!-- ======= SECTION 2: REPORTING ======= -->
+<div id="s2" class="course-section s2">
+
+  <div class="section-header">
+    <div class="section-number">02</div>
+    <div class="section-meta">
+      <div class="section-tag">Track Two</div>
+      <div class="section-title">Reporting &amp;<br>Data Communication</div>
+      <div class="section-desc">Learn to turn raw information into clear, decision-driving communication — whether it's a weekly status update, a dashboard, or a stakeholder report.</div>
+    </div>
+  </div>
+
+  <div class="overview-box">
+    <h3>Course Overview</h3>
+    <p>Most reports fail before they're read. They bury the key insight in paragraph three, use charts that require a legend to decode, and leave the reader unsure what to do with the information. This course teaches you to design reporting that communicates with intent — the right information, to the right person, in the right format, at the right time.</p>
+    <div class="overview-stats">
+      <div class="stat"><div class="stat-value">5</div><div class="stat-label">Modules</div></div>
+      <div class="stat"><div class="stat-value">~10h</div><div class="stat-label">Study time</div></div>
+      <div class="stat"><div class="stat-value">5</div><div class="stat-label">Exercises</div></div>
+    </div>
+  </div>
+
+  <div class="block-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="obj-check">✓</div> Design a status report that a busy executive reads in 90 seconds</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Choose the right chart type for each type of data story</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Build a simple dashboard that tracks the metrics that matter</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Write a progress update that signals health without burying problems</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Identify the 5 most common reporting mistakes and how to fix them</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Apply data visualization principles to make charts that don't lie</div>
+  </div>
+
+  <div class="block-label">Modules</div>
+  <div class="modules-list">
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 01</div><div class="module-badge">⏱ 2h</div></div>
+      <div class="module-title">Reporting Fundamentals: Why Most Reports Fail</div>
+      <div class="module-desc">Reporting fails when it's designed for the writer, not the reader. This module teaches you to start with the audience question: Who reads this? What decision do they need to make? What's the minimum information required? You'll learn the Pyramid Principle — leading with the conclusion, then the support.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Pyramid Principle</span>
+        <span class="concept-tag">Audience mapping</span>
+        <span class="concept-tag">Signal vs noise</span>
+        <span class="concept-tag">Report anatomy</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 02</div><div class="module-badge">⏱ 2h</div></div>
+      <div class="module-title">Status Updates &amp; Progress Tracking</div>
+      <div class="module-desc">Status updates are the most common and most abused reporting format. This module covers the RAG status (Red/Amber/Green), how to write updates that surface problems early (without panicking anyone), and how to track progress against milestones without over-engineering the system.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">RAG Status</span>
+        <span class="concept-tag">Milestone tracking</span>
+        <span class="concept-tag">RAID log</span>
+        <span class="concept-tag">Executive summary</span>
+        <span class="concept-tag">Weekly cadence</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 03</div><div class="module-badge">⏱ 2h</div></div>
+      <div class="module-title">Data Visualization Basics</div>
+      <div class="module-desc">The wrong chart destroys the insight. This module teaches the core chart types (bar, line, pie, scatter, table) and when to use each. You'll learn Edward Tufte's principle of data-ink ratio, how to avoid chartjunk, and why your pie chart probably shouldn't exist.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Chart selection</span>
+        <span class="concept-tag">Data-ink ratio</span>
+        <span class="concept-tag">Chartjunk</span>
+        <span class="concept-tag">Color in data</span>
+        <span class="concept-tag">Visual hierarchy</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 04</div><div class="module-badge">⏱ 2h</div></div>
+      <div class="module-title">Building Dashboards That Work</div>
+      <div class="module-desc">A dashboard is not a collection of charts — it's an argument. This module covers dashboard design principles: what metrics belong on a dashboard, how to design for a specific use case (operational vs strategic), and how to avoid the "graveyard of KPIs" (12 charts, no story). Includes a walkthrough of Notion, Google Sheets, and basic Power BI/Looker concepts.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">KPI selection</span>
+        <span class="concept-tag">Dashboard layout</span>
+        <span class="concept-tag">Leading vs lagging indicators</span>
+        <span class="concept-tag">Operational dashboards</span>
+        <span class="concept-tag">Drill-down design</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 05</div><div class="module-badge">⏱ 2h</div></div>
+      <div class="module-title">Effective Reports for Different Audiences</div>
+      <div class="module-desc">A report for the CEO looks nothing like a report for the dev team. This module covers audience segmentation, adjusting depth and format by seniority and role, and how to present data that supports a decision rather than just describing reality. Includes templates for: sprint report, stakeholder update, and post-launch summary.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Audience segmentation</span>
+        <span class="concept-tag">Report templates</span>
+        <span class="concept-tag">Stakeholder management</span>
+        <span class="concept-tag">Decision support</span>
+        <span class="concept-tag">Executive framing</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="block-label">Key Concepts Glossary</div>
+  <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 4px 28px; margin-bottom: 48px;">
+    <div class="key-concept-row"><div class="key-concept-term">Pyramid Principle</div><div class="key-concept-def">Lead with your conclusion, then support it with evidence. Never bury the key point. Originally from McKinsey, universally applicable.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">RAG Status</div><div class="key-concept-def">Red / Amber / Green — a universal health indicator for projects. Red = at risk, Amber = watch this, Green = on track. Simple and powerful.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">RAID Log</div><div class="key-concept-def">Risks, Assumptions, Issues, Dependencies — a structured tracker that captures everything that could derail the project.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Leading Indicator</div><div class="key-concept-def">A metric that predicts future performance (e.g., number of demos booked → likely future sales). Contrast with lagging indicators that measure past results.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Data-Ink Ratio</div><div class="key-concept-def">Tufte's principle: every pixel in a chart should carry information. Remove gridlines, decorations, and noise. What's left is your insight.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Chartjunk</div><div class="key-concept-def">Visual elements that add complexity without adding information — 3D effects, gradients, excessive labels, decorative images in charts.</div></div>
+  </div>
+
+  <div class="block-label">Practical Exercises</div>
+  <div class="exercises-list">
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">📝</span><span class="exercise-title">Rewrite a bad status update</span></div>
+      <div class="exercise-desc">Find a status update you've sent or received that didn't clearly communicate project health. Rewrite it using the Pyramid Principle: one-line summary of status, 3 bullets of key info, one clear ask or decision needed. Compare before and after.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">📊</span><span class="exercise-title">Chart autopsy</span></div>
+      <div class="exercise-desc">Find 3 charts from reports or presentations you've seen. For each: identify what story it's trying to tell, what chart type was used, and whether it was the right choice. Redraw at least one of them with a different chart type and compare which communicates more clearly.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🗂️</span><span class="exercise-title">Build a mini dashboard</span></div>
+      <div class="exercise-desc">Pick any project or area you track. Define 4–5 metrics that matter. Build a simple dashboard in Google Sheets or Notion. For each metric, write a one-sentence interpretation: "This number is telling us that..." — if you can't write that sentence, the metric doesn't belong there.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🎯</span><span class="exercise-title">Write a sprint report for two different audiences</span></div>
+      <div class="exercise-desc">Take the same set of sprint data. Write a 3-paragraph report for a technical lead. Then write one for a business stakeholder who doesn't know what a sprint is. Notice what you remove, what you add, and how the framing shifts.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🔴</span><span class="exercise-title">Practice the difficult RAG update</span></div>
+      <div class="exercise-desc">Write a status update for a project that's in Amber or Red. Practice being honest without being catastrophic. The goal: the reader understands the risk, trusts you have it in hand, and knows exactly what you need from them.</div>
+    </div>
+  </div>
+
+  <div class="block-label">Recommended Resources</div>
+  <div class="resources-grid">
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">The Pyramid Principle</div><div class="resource-by">Barbara Minto — foundational for structured communication</div></div>
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">Storytelling with Data</div><div class="resource-by">Cole Nussbaumer Knaflic — essential data viz primer</div></div>
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">The Visual Display of Quantitative Information</div><div class="resource-by">Edward Tufte — the classic on chart design</div></div>
+    <div class="resource-card"><div class="resource-type">🎓 Course</div><div class="resource-title">Storytelling with Data (online)</div><div class="resource-by">storytellingwithdata.com — free exercises + blog</div></div>
+    <div class="resource-card"><div class="resource-type">🛠 Tool</div><div class="resource-title">Looker Studio (free)</div><div class="resource-by">Google's free dashboard builder — excellent for practice</div></div>
+    <div class="resource-card"><div class="resource-type">🛠 Tool</div><div class="resource-title">Datawrapper</div><div class="resource-by">Free chart builder — great for learning chart selection</div></div>
+  </div>
+
+  <div class="callout callout-warn">
+    <span class="callout-icon">⚠️</span>
+    <div><strong>The most common mistake:</strong> Reporting what happened instead of what it means. A status update that says "we completed 14 stories" tells a manager nothing. "We're 80% through the sprint with the highest-risk items complete" tells them everything.</div>
+  </div>
+
+</div>
+
+<!-- ======= SECTION 3: HUMAN TECH ======= -->
+<div id="s3" class="course-section s3">
+
+  <div class="section-header">
+    <div class="section-number">03</div>
+    <div class="section-meta">
+      <div class="section-tag">Track Three</div>
+      <div class="section-title">Human<br>Technologies</div>
+      <div class="section-desc">The skills that make everything else work: how to design for people, communicate with intent, collaborate under pressure, and lead without a title.</div>
+    </div>
+  </div>
+
+  <div class="overview-box">
+    <h3>Course Overview</h3>
+    <p>"Human Technologies" is an umbrella for the skills that determine whether smart people in teams actually produce great outcomes — or just a lot of meetings. This course covers human-centered design thinking, emotional intelligence in professional settings, high-quality communication, collaboration tool fluency, and the basics of people management. These are the skills that separate good analysts from great ones.</p>
+    <div class="overview-stats">
+      <div class="stat"><div class="stat-value">5</div><div class="stat-label">Modules</div></div>
+      <div class="stat"><div class="stat-value">~14h</div><div class="stat-label">Study time</div></div>
+      <div class="stat"><div class="stat-value">6</div><div class="stat-label">Exercises</div></div>
+    </div>
+  </div>
+
+  <div class="block-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="objective-item"><div class="obj-check">✓</div> Apply the design thinking process to a real problem</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Recognize emotional dynamics in team situations and respond effectively</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Communicate a difficult message without damaging the relationship</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Choose the right collaboration tool for each type of team need</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Give feedback that actually changes behavior</div>
+    <div class="objective-item"><div class="obj-check">✓</div> Navigate conflict without avoiding it or escalating it</div>
+  </div>
+
+  <div class="block-label">Modules</div>
+  <div class="modules-list">
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 01</div><div class="module-badge">⏱ 3h</div></div>
+      <div class="module-title">Human-Centered Design Thinking</div>
+      <div class="module-desc">Design thinking is a structured approach to solving problems by starting with the human experience, not the solution. This module covers the 5-stage process: Empathize → Define → Ideate → Prototype → Test. You'll learn to run user interviews, synthesize insights into a problem statement, and prototype ideas without building anything.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Empathy mapping</span>
+        <span class="concept-tag">User interviews</span>
+        <span class="concept-tag">Problem statement</span>
+        <span class="concept-tag">How Might We</span>
+        <span class="concept-tag">Prototyping</span>
+        <span class="concept-tag">Jobs to Be Done</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 02</div><div class="module-badge">⏱ 3h</div></div>
+      <div class="module-title">Emotional Intelligence at Work</div>
+      <div class="module-desc">EQ is not about being nice — it's about self-awareness, impulse control, and reading other people accurately enough to respond effectively. This module covers Goleman's four EQ domains (self-awareness, self-management, social awareness, relationship management) and how they play out in meetings, feedback conversations, and under deadline pressure.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Self-awareness</span>
+        <span class="concept-tag">Emotional regulation</span>
+        <span class="concept-tag">Empathy</span>
+        <span class="concept-tag">Psychological safety</span>
+        <span class="concept-tag">Amygdala hijack</span>
+        <span class="concept-tag">Active listening</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 03</div><div class="module-badge">⏱ 3h</div></div>
+      <div class="module-title">Communication Skills: Saying Hard Things Well</div>
+      <div class="module-desc">Most communication problems are not about what was said — they're about what the other person heard. This module covers non-violent communication (NVC), feedback frameworks (SBI, COIN), how to disagree without creating enemies, how to say no without burning bridges, and how to write messages that land the way you intend them to.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">NVC Framework</span>
+        <span class="concept-tag">SBI Feedback</span>
+        <span class="concept-tag">Radical Candor</span>
+        <span class="concept-tag">Saying no</span>
+        <span class="concept-tag">Assertiveness</span>
+        <span class="concept-tag">Written communication</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 04</div><div class="module-badge">⏱ 2.5h</div></div>
+      <div class="module-title">Collaboration Tools &amp; Team Workflows</div>
+      <div class="module-desc">Tools don't create collaboration — but the wrong tools destroy it. This module maps the collaboration landscape: synchronous vs asynchronous communication, documentation tools (Notion, Confluence), project management (Jira, Linear, Asana), and communication (Slack, Teams). You'll learn how to design a team workflow that fits how your team actually works.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Async vs sync</span>
+        <span class="concept-tag">Documentation culture</span>
+        <span class="concept-tag">Single source of truth</span>
+        <span class="concept-tag">Meeting hygiene</span>
+        <span class="concept-tag">Remote collaboration</span>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-top"><div class="module-number">MODULE 05</div><div class="module-badge">⏱ 2.5h</div></div>
+      <div class="module-title">People Management Without the Title</div>
+      <div class="module-desc">You don't need to be a manager to manage people dynamics. This module covers influence without authority, how to motivate people who don't report to you, how to handle underperformance diplomatically, and the basics of 1:1 conversations. Essential for BAs and PMs who lead cross-functional teams without formal authority.</div>
+      <div class="module-concepts">
+        <span class="concept-tag">Influence without authority</span>
+        <span class="concept-tag">Motivation models</span>
+        <span class="concept-tag">1:1 structure</span>
+        <span class="concept-tag">Conflict resolution</span>
+        <span class="concept-tag">Stakeholder trust</span>
+        <span class="concept-tag">Delegation</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="block-label">Key Concepts Glossary</div>
+  <div style="background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 4px 28px; margin-bottom: 48px;">
+    <div class="key-concept-row"><div class="key-concept-term">Design Thinking</div><div class="key-concept-def">A human-centered problem-solving methodology. The insight: most failed products solved the wrong problem. Design thinking forces you to validate the problem before solving it.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Psychological Safety</div><div class="key-concept-def">Amy Edmondson's research finding: the #1 predictor of high-performing teams is whether members feel safe to speak up without fear of punishment. It's not niceness — it's candor without consequence.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">SBI Feedback</div><div class="key-concept-def">Situation → Behavior → Impact. A structured feedback model: describe the specific situation, the observable behavior (not character), and the concrete impact it had. Keeps feedback factual and discussable.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">NVC</div><div class="key-concept-def">Non-Violent Communication (Marshall Rosenberg). Observations → Feelings → Needs → Requests. Separates what happened from how you interpret it, and connects the behavior to an underlying need.</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Radical Candor</div><div class="key-concept-def">Kim Scott's framework: challenge people directly while caring about them personally. The opposite of ruinous empathy (nice but ineffective) and obnoxious aggression (honest but unkind).</div></div>
+    <div class="key-concept-row"><div class="key-concept-term">Jobs to Be Done</div><div class="key-concept-def">A framing for user needs: people don't want a drill — they want a hole. Understanding what "job" a user is "hiring" your product to do leads to better solutions than feature lists.</div></div>
+  </div>
+
+  <div class="block-label">Practical Exercises</div>
+  <div class="exercises-list">
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🧠</span><span class="exercise-title">Run a 20-minute design thinking sprint</span></div>
+      <div class="exercise-desc">Pick a small problem someone in your life has (a colleague's frustration, your own workflow inefficiency). Do: 5 min empathy mapping (what do they think/feel/do/say?), 5 min problem statement ("How might we..."), 5 min ideation (at least 6 ideas, no judgment), 5 min picking the strongest idea. Notice how different the solution is when you start from empathy.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🪞</span><span class="exercise-title">EQ self-assessment</span></div>
+      <div class="exercise-desc">Think of 3 recent situations where you reacted in a way you later questioned (got defensive, shut down, overreacted). For each: what triggered you? What did you feel? What did you actually need in that moment? Write the response you wish you'd given. This is the core self-awareness practice.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">💬</span><span class="exercise-title">Write the message you've been avoiding</span></div>
+      <div class="exercise-desc">Identify one message you've been putting off sending (a difficult feedback, a boundary-setting email, a "no" you need to give). Write it using the NVC or SBI framework. You don't have to send it. But write it as if you will. Notice where you soften, vague-out, or over-explain — those are the places where you're protecting yourself at the expense of clarity.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🗺️</span><span class="exercise-title">Map your team's collaboration stack</span></div>
+      <div class="exercise-desc">Draw a map of every tool your team uses to communicate, document, and track work. For each tool, write: what it's used for, whether it's the right tool for that job, and whether anyone actually uses it. Identify one tool that's creating noise rather than clarity — and propose what you'd replace it with.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">👂</span><span class="exercise-title">Practice active listening in your next meeting</span></div>
+      <div class="exercise-desc">In your next meeting, give yourself one rule: ask twice as many questions as you make statements. After each thing someone says, your only job is to understand — not respond, not solve. Notice what you learn that you would have missed if you'd talked more.</div>
+    </div>
+    <div class="exercise-card">
+      <div class="exercise-header"><span class="exercise-icon">🤝</span><span class="exercise-title">Influence without authority experiment</span></div>
+      <div class="exercise-desc">Identify something you need from a colleague or stakeholder who doesn't report to you. Map: What do they care about? What do they fear? What's in it for them if they help you? Write your ask framed entirely in terms of their interests, not yours. Then send it and observe what happens.</div>
+    </div>
+  </div>
+
+  <div class="block-label">Recommended Resources</div>
+  <div class="resources-grid">
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">Emotional Intelligence</div><div class="resource-by">Daniel Goleman — the foundational text on EQ at work</div></div>
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">Radical Candor</div><div class="resource-by">Kim Scott — honest feedback + caring relationships</div></div>
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">Nonviolent Communication</div><div class="resource-by">Marshall Rosenberg — communication as a practice</div></div>
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">The Design Thinking Playbook</div><div class="resource-by">Lewrick, Link &amp; Leifer — practical and visual</div></div>
+    <div class="resource-card"><div class="resource-type">🎓 Course</div><div class="resource-title">Design Thinking for Innovation</div><div class="resource-by">Coursera / U.Virginia — free audit, strong curriculum</div></div>
+    <div class="resource-card"><div class="resource-type">📖 Book</div><div class="resource-title">The Fearless Organization</div><div class="resource-by">Amy Edmondson — psychological safety in practice</div></div>
+  </div>
+
+  <div class="callout callout-info">
+    <span class="callout-icon">ℹ️</span>
+    <div><strong>The paradox of human technologies:</strong> These skills feel "soft" but they are the hardest to build and the hardest to fake. Technical skills get you hired. Human technologies determine how far you go. A BA who communicates well, reads the room, and earns trust without authority is ten times more effective than one who just writes great requirements.</div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(id) {
+    // Hide all sections
+    document.querySelectorAll('.course-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+    // Show selected
+    document.getElementById(id).classList.add('active');
+
+    // Highlight corresponding tab
+    const tabs = document.querySelectorAll('.nav-tab');
+    const map = { s1: 0, s2: 1, s3: 2 };
+    tabs[map[id]].classList.add('active');
+
+    // Scroll to nav
+    document.querySelector('.course-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+
+</body>
+</html>

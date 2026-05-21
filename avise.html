@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avise Track · Avise Learning Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/hub.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="assets/hub-state.js" defer></script>
+</head>
+<body class="hub-catalog">
+
+  <nav>
+    <a href="index.html" class="nav-brand">
+      Avise<span class="dot">.</span>Learn
+    </a>
+    <div class="nav-links">
+      <a href="avise.html" class="nav-link active">Avise</a>
+      <a href="knowledge.html" class="nav-link">Knowledge</a>
+      <a href="briefs.html" class="nav-link">Briefs</a>
+      <span class="nav-pill">Hub</span>
+    </div>
+  </nav>
+
+  <div class="breadcrumb animate-in">
+    <a href="index.html">Hub</a><span class="sep">/</span><span>Avise track</span>
+  </div>
+
+  <section class="hero" style="padding-top: 32px;">
+    <p class="hero-eyebrow animate-in">Product-specific deep dives</p>
+    <h1 class="hero-title animate-in delay-1">
+      How <em>Avise</em> actually works
+    </h1>
+    <p class="hero-subtitle animate-in delay-2">
+      Architecture, data models, business rules, the design system, and the gaps in between. Each course is self-contained — pick the one closest to what you're building or debugging today.
+    </p>
+  </section>
+
+  <div class="section-heading animate-in delay-3">
+    <h2>Architecture &amp; Platform</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
+
+    <a class="course-card card-arch animate-in delay-3" href="courses/avise-architecture/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-arch"><i data-lucide="layers-3"></i> Architecture</span>
+        <h2 class="card-title">Avise — Architecture Deep Dive</h2>
+        <p class="card-desc">The full Avise stack: monorepo layout, services, data flow, integrations, and how the major subsystems hand work off to each other. The map you wish you had on day one.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~60 minutes</span>
+          <span class="meta-item"><i data-lucide="layers"></i> Multi-module</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers · PMs</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-arch">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <a class="course-card card-devops animate-in delay-3" href="courses/devops/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-devops"><i data-lucide="git-branch"></i> DevOps</span>
+        <h2 class="card-title">Avise DevOps — From git push to running pod</h2>
+        <p class="card-desc">From a single <code style="font-family:var(--font-mono);font-size:0.9em;background:var(--c-devops-bg);padding:1px 5px;border-radius:4px;color:var(--c-devops)">git push</code> to a running container — pnpm workspaces, Turborepo, GitHub Actions, AWS, Argo CD, every external along the way.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~50 minutes</span>
+          <span class="meta-item"><i data-lucide="layers"></i> 6 modules</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers new to Avise</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-devops">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <a class="course-card card-design animate-in delay-4" href="courses/design-system/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-design"><i data-lucide="palette"></i> Design System</span>
+        <h2 class="card-title">Avise Design System — v1.0</h2>
+        <p class="card-desc">Tokens, components, patterns, and the why behind every choice. The reference for shipping UI that feels like Avise without re-deriving it from screenshots.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~40 minutes</span>
+          <span class="meta-item"><i data-lucide="users"></i> Designers · FE engineers · PMs</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-design">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+  </div>
+
+  <div class="section-heading animate-in delay-4" style="margin-top:24px">
+    <h2>Surfaces &amp; Workflows</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
+
+    <a class="course-card card-schedules animate-in delay-4" href="courses/schedules-feedback/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-schedules"><i data-lucide="calendar"></i> Schedules · Feedback</span>
+        <h2 class="card-title">Schedules — Architecture &amp; Feedback Diagnostic</h2>
+        <p class="card-desc">By the end, you can triage any new client feedback about Schedules, map it to the right code, and tell engineering exactly what kind of change it requires.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~50 minutes</span>
+          <span class="meta-item"><i data-lucide="layers"></i> 6 modules</span>
+          <span class="meta-item"><i data-lucide="users"></i> Solutions · juniors · new PMs</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-schedules">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <a class="course-card card-aschedules animate-in delay-4" href="courses/avise-schedules/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-aschedules"><i data-lucide="calendar-clock"></i> Schedules · Internals</span>
+        <h2 class="card-title">Avise Schedules — Under the Hood</h2>
+        <p class="card-desc">The engine room of Schedules: data model, generation, recurrence, materialization, and the lifecycle from definition to a row a user actually sees.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~50 minutes</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers · PMs</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-aschedules">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <a class="course-card card-tasks animate-in delay-5" href="courses/avise-tasks/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-tasks"><i data-lucide="check-square"></i> Tasks · Close</span>
+        <h2 class="card-title">Avise Tasks — How the Close Process Works</h2>
+        <p class="card-desc">The month-end close from the inside: how Tasks are generated, assigned, sequenced, and tracked. Where automation ends and accountants take over.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~45 minutes</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers · PMs · Solutions</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-tasks">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <a class="course-card card-flux animate-in delay-5" href="courses/flux-analysis/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-flux"><i data-lucide="trending-up"></i> Flux Analysis</span>
+        <h2 class="card-title">Flux Analysis — Comparing Financial Periods</h2>
+        <p class="card-desc">How Avise compares periods, computes variances, picks the right denominator, and explains a flux to a human. Everything that hides behind that one big number.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~35 minutes</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers · accountants · PMs</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-flux">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+  </div>
+
+  <div class="section-heading animate-in delay-5" style="margin-top:24px">
+    <h2>AI &amp; Intelligence</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
+
+    <a class="course-card card-ai animate-in delay-5" href="courses/ai-chat/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-ai"><i data-lucide="message-square"></i> AI Chat</span>
+        <h2 class="card-title">Avise AI Chat — Architecture Deep Dive</h2>
+        <p class="card-desc">How 20+ tools, a multi-provider LLM loop, an artifact engine, and strict accounting guardrails combine into the chat panel your users type into.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~55 minutes</span>
+          <span class="meta-item"><i data-lucide="layers"></i> 7 modules</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers · PMs</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-ai">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <a class="course-card card-evals animate-in delay-5" href="courses/avise-evals/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-evals"><i data-lucide="flask-conical"></i> AI Evals</span>
+        <h2 class="card-title">Avise AI Evals — Testing an AI Accountant</h2>
+        <p class="card-desc">How we prove the AI is doing the right thing: test sets, graders, regression suites, and the loop that turns a bad answer into a fixed prompt.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~40 minutes</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers · QA · PMs</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-evals">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <a class="course-card card-trace animate-in delay-6" href="courses/ai-trace-viewer/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-trace"><i data-lucide="activity"></i> AI Trace Viewer</span>
+        <h2 class="card-title">AI Trace Viewer — Under the Hood</h2>
+        <p class="card-desc">The debug surface for every AI run: spans, tool calls, prompts, costs, and how to read a trace to figure out what the model actually did.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~30 minutes</span>
+          <span class="meta-item"><i data-lucide="users"></i> Engineers · QA</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-trace">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+  </div>
+
+  <div class="section-heading animate-in delay-6" style="margin-top:24px">
+    <h2>Thinking Frameworks</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
+
+    <a class="course-card card-scenarii animate-in delay-6" href="courses/scenarii-complete/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-scenarii"><i data-lucide="git-fork"></i> Scenarii</span>
+        <h2 class="card-title">Gândirea în Scenarii Complete</h2>
+        <p class="card-desc">Mental model pentru identificarea regulilor de business, a punctelor de eșec și a căilor lipsă într-o feature. Aplicat pe regulile de validare ale journal entry-urilor din Avise.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~30 minutes</span>
+          <span class="meta-item"><i data-lucide="brain"></i> Thinking framework</span>
+          <span class="meta-item"><i data-lucide="users"></i> PMs · QA · engineers</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-scenarii">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+  </div>
+
+  <div class="section-heading animate-in delay-6" style="margin-top:24px">
+    <h2>Patterns &amp; Gaps</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
+
+    <a class="course-card card-patterns animate-in delay-6" href="patterns/avise-monorepo/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-patterns"><i data-lucide="puzzle"></i> Patterns Catalog</span>
+        <h2 class="card-title">Avise Monorepo — Patterns &amp; Gaps</h2>
+        <p class="card-desc">8 reusable patterns, 3 innovations, and 9 gaps extracted from the Avise monorepo. Filterable by category with live search — a living reference for cross-project reuse.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="puzzle"></i> 8 patterns</span>
+          <span class="meta-item"><i data-lucide="zap"></i> 3 innovations</span>
+          <span class="meta-item"><i data-lucide="alert-triangle"></i> 9 gaps</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-patterns">Open catalog <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+    <div class="course-card-placeholder animate-in delay-6">
+      <div class="placeholder-icon"><i data-lucide="plus"></i></div>
+      <span class="placeholder-text">More Avise deep-dives coming — new surfaces, new business rules.</span>
+    </div>
+
+  </div>
+
+  <footer>
+    Avise Learning Hub · <a href="index.html" style="color:inherit;">Back to hub</a>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+    window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
+  </script>
+</body>
+</html>

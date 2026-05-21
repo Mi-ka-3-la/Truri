@@ -1,0 +1,304 @@
+<section class="module" id="module-3">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <div class="module-number">03</div>
+      <h1 class="module-title">The Data Model</h1>
+      <p class="module-subtitle">Three tables. Everything else in Schedules is either querying them or joining to them.</p>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 1 — Anchor: ER diagram (Mermaid)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Three tables, one schedule</h2>
+
+      <p class="animate-in">Before reading any query, look at the schema. Every confusion about how schedules work &mdash; especially Theme D&rsquo;s status mystery &mdash; makes sense once you see how the tables relate.</p>
+
+      <pre class="mermaid">
+erDiagram
+  PreparedSchedule {
+    string id PK
+    string name
+    date termStart
+    date termEnd
+    string dimensionValueId FK
+    string companyId FK
+    int totalAmount
+    string workflowId FK
+  }
+  ScheduleLinkedTransaction {
+    string id PK
+    string journalEntryId FK
+    string preparedScheduleId FK
+    string journalEntryVersionId FK
+  }
+  ScheduleSourceLine {
+    string journalLineId PK
+    string preparedScheduleId PK
+  }
+  JournalEntry {
+    string id PK
+    int displayId
+    string status
+    date transactionDate
+    string entryType
+  }
+  JournalLine {
+    string id PK
+    string journalEntryId FK
+    int amount
+  }
+  DimensionValue {
+    string id PK
+    string dimensionName
+    string value
+  }
+  PreparedSchedule ||--o{ ScheduleLinkedTransaction : "has many"
+  PreparedSchedule ||--o{ ScheduleSourceLine : "has many"
+  ScheduleLinkedTransaction }o--|| JournalEntry : "links to"
+  ScheduleSourceLine }o--|| JournalLine : "links to"
+  PreparedSchedule }o--|| DimensionValue : "tagged with"
+      </pre>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="info"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title"><span class="term" data-definition="A Foreign Key (FK) is a column that references the PK of another table — it creates a link between the two tables.">dimensionValueId</span> is the ONLY dimension on a schedule</span>
+          <p>A PreparedSchedule can only be tagged with one <span class="term" data-definition="A dimension in Avise is a custom tagging attribute — like Vendor, Department, or Class — that categorizes journal lines for reporting.">DimensionValue</span> &mdash; for example Vendor = &lsquo;Acme Corp&rsquo;. This single <span class="term" data-definition="A Foreign Key (FK) is a column that references the PK of another table — it creates a link between the two tables.">FK</span> is why Theme A&rsquo;s multi-dimension filter request is architecturally non-trivial: the schema itself only supports one dimension per schedule.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 2 — Mechanism: Code-walk
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">How the backend loads a schedule with its entries</h2>
+
+      <p class="animate-in">When you open a single schedule page, this function in <code>crud.ts</code> runs. It fetches the schedule, then queries all source lines separately.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <i data-lucide="file-code" class="icon-sm"></i>
+          <span>avise-api/src/preparedSchedules/crud.ts &mdash; retrievePreparedSchedule</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">1</span>
+            <span class="code-walk-step-label">Fetch the PreparedSchedule row</span>
+          </div>
+          <pre class="code-walk-code"><code>async function retrievePreparedSchedule(
+  companyId: string,
+  preparedScheduleId: string,
+) {
+  const preparedSchedule = await preparedSchedulesData
+    .getOrThrow(companyId, preparedScheduleId);</code></pre>
+          <p class="code-walk-explanation">The data layer fetches the PreparedSchedule row including its <code>scheduleLinkedTransactions</code> (with full JournalEntry includes) and <code>sourceLines</code> (with journalLine). If not found, it throws a 404-style error.</p>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">2</span>
+            <span class="code-walk-step-label">Load source lines in a separate query</span>
+          </div>
+          <pre class="code-walk-code"><code>  const trxQuery = await journalLines.queryJournalLines(
+    companyId,
+    {
+      ids: preparedSchedule.sourceLines.map(
+        (sl) => sl.journalLineId
+      ),
+      includeFileInfo: true,
+      order: "asc",
+    },
+  );</code></pre>
+          <p class="code-walk-explanation">Source transactions are loaded in a SEPARATE query. The IDs come from the ScheduleSourceLine join table. This two-step fetch (schedule first, then source lines) is the root of the &ldquo;bouncing&rdquo; bug (Theme E) &mdash; every time source IDs change in the form, this query refires.</p>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-header">
+            <span class="code-walk-step-number">3</span>
+            <span class="code-walk-step-label">Merge and return the combined shape</span>
+          </div>
+          <pre class="code-walk-code"><code>  return {
+    ...preparedSchedule,
+    sourceLines: trxQuery.results,
+    files: allFiles,
+  };
+}</code></pre>
+          <p class="code-walk-explanation">The final return merges the schedule data with the freshly-fetched source lines. The shape returned is <code>ScheduleWithJournalEntriesAndSourceTransactions</code>.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon">
+          <i data-lucide="git-fork"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Two separate queries, not one JOIN</span>
+          <p>The schedule and its source transactions are fetched in two round-trips to the database. This is a deliberate design choice (source lines need full journal line details including file info) but it means performance is O(schedule) + O(sourceLines) &mdash; relevant context for Theme E.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 3 — Mechanism: Entry status lifecycle
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">A journal entry&rsquo;s journey through a schedule</h2>
+
+      <div class="step-cards stagger-children">
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">1</div>
+          <div class="step-card-content">
+            <strong>Entry created as <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger. It is waiting for an admin to open the accounting period.">Scheduled</span></strong>
+            <p>The default status assigned in helpers.ts when a schedule is saved. The entry exists in the database but has NOT hit the general ledger yet.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">2</div>
+          <div class="step-card-content">
+            <strong>Period opens &rarr; entry becomes <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements and cannot be easily reversed.">Posted</span></strong>
+            <p>When an admin opens the period, all Scheduled entries for that period are bulk-accepted and become Posted. They are now in the general ledger.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">3</div>
+          <div class="step-card-content">
+            <strong>Period soft-closed or hard-closed</strong>
+            <p>No change to the entry status. Posted entries stay Posted.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">4</div>
+          <div class="step-card-content">
+            <strong>Admin archives an entry &rarr; status becomes Deleted</strong>
+            <p>The entry becomes Deleted in the database. But if it was already Posted in a previous period, archiving does not un-post it.</p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-card-number">5</div>
+          <div class="step-card-content">
+            <strong>(Theme D) Period becomes inactive after acceptance</strong>
+            <p>If the period is set to inactive AFTER entries were accepted, the entries remain Posted but the schedule view may still show them as &lsquo;pending&rsquo; because the UI filters by Scheduled status, not by period status.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon">
+          <i data-lucide="alert-circle"></i>
+        </div>
+        <div class="callout-content">
+          <span class="callout-title">Scheduled &ne; Pending &mdash; but the UI conflates them</span>
+          <p>Users see a &lsquo;pending&rsquo; label on the schedule page for entries that haven&rsquo;t been accepted yet (status = Scheduled). If a period becomes inactive after acceptance, the entry is Posted &mdash; but users comparing the &lsquo;pending&rsquo; count to the schedule row get confused. This is Theme D.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         SCREEN 4 — Application: Quiz
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <div class="quiz-container animate-in" id="quiz-module3">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="Exactly one &mdash; dimensionValueId is a single nullable FK on PreparedSchedule. This single-FK design is why the multi-dimension filter request (Theme A) would require a schema change, not just a UI change."
+             data-explanation-wrong="PreparedSchedule has only one dimensionValueId column &mdash; a single FK. Tagging with multiple dimensions would require a new join table (like a PreparedScheduleDimension table), which is a schema change.">
+          <p class="quiz-question">How many <span class="term" data-definition="A dimension in Avise is a custom tagging attribute — like Vendor, Department, or Class — that categorizes journal lines for reporting.">DimensionValues</span> can a single PreparedSchedule be tagged with?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              One &mdash; dimensionValueId is a single <span class="term" data-definition="A Foreign Key (FK) is a column that references the PK of another table — it creates a link between the two tables.">FK</span> on the PreparedSchedule table
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              As many as the user wants &mdash; stored in a JSON field
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Up to three &mdash; stored across dimensionValueId, dimensionValueId2, dimensionValueId3
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct &mdash; ScheduleSourceLine is a join table. Its composite <span class='term' data-definition='A Primary Key (PK) uniquely identifies each row in a table. No two rows can have the same PK value.'>primary key</span> is (journalLineId, preparedScheduleId), linking the originating journal line to the schedule. One schedule can have multiple source lines."
+             data-explanation-wrong="ScheduleSourceLine is a join table between JournalLine (the originating transaction) and PreparedSchedule. It does not store amounts &mdash; those live on JournalLine itself.">
+          <p class="quiz-question">What is ScheduleSourceLine?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A journal entry that is scheduled for future posting
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A join table linking a JournalLine (source transaction) to a PreparedSchedule
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              A backup copy of a journal entry stored for audit purposes
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="Posted &mdash; once an entry is accepted (period opened), its status becomes Posted. Making the period inactive afterwards does NOT change the entry&rsquo;s status. The confusion (Theme D) is that the schedule view may still show it as pending."
+             data-explanation-wrong="The entry is Posted. Opening the period changed its status from Scheduled to Posted. Deactivating the period afterwards is a period-level action &mdash; it does not roll back journal entry statuses.">
+          <p class="quiz-question">An entry was created as part of a schedule, the period was opened, then the period was made inactive. What is the entry&rsquo;s status in the database?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="Scheduled status means the journal entry has been created in the database but has not yet been accepted (posted) to the general ledger.">Scheduled</span> &mdash; because the period is now inactive
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              Deleted &mdash; because the period was archived
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              <span class="term" data-definition="Posted status means the journal entry has been accepted into the general ledger. It affects the company's financial statements.">Posted</span> &mdash; accepting the entry made it Posted; period deactivation does not change entry status
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Reset</button>
+
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a class="module-continue-btn" href="#module-4">
+          Continue to Module 4: 6 User Feedback Themes
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a class="module-back-link" href="#module-2">
+          <i data-lucide="arrow-left" class="icon-sm"></i>
+          Back to Module 2
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,401 @@
+<section class="module" id="module-1" style="min-height: 100dvh; min-height: 100vh;">
+  <div class="module-content">
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 1 — ANCHOR: Hero flow animation
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">One click. Seven layers. One round trip.</h2>
+
+      <p>Imagine you fill in a journal entry in Avise and click Save. That single click travels through 7 distinct layers before anything is written to the database &mdash; and the response has to travel all 7 layers back. Think of it like a letter passing through a postal sorting system: every station has a job, and every station has to hand it off correctly for it to arrive.</p>
+
+      <div class="flow-animation" data-steps='[
+        {"highlight":"flow-actor-2","label":"User clicks Save &mdash; React captures the form data","payload":"{ companyId: &quot;abc&quot;, date: &quot;2024-01-15&quot;, lines: [...] }"},
+        {"highlight":"flow-actor-3","label":"Axios wraps it in an HTTP POST to /v1/companies/:id/journal-entries","packet":true,"from":"actor-2","to":"actor-3","payload":"POST /v1/companies/abc/journal-entries"},
+        {"highlight":"flow-actor-4","label":"Express Router receives the request, validates JWT token","packet":true,"from":"actor-3","to":"actor-4","payload":"Authorization: Bearer eyJ..."},
+        {"highlight":"flow-actor-4","label":"Middleware stack runs: authenticate &rarr; identify user &rarr; set company context","payload":"jwtAuthentication() &rarr; userIdentityMiddleware() &rarr; companyContextMiddleware()"},
+        {"highlight":"flow-actor-5","label":"Controller delegates to Service &mdash; business rules execute","packet":true,"from":"actor-4","to":"actor-5","payload":"journalEntryService.create({ companyId, lines, ... })"},
+        {"highlight":"flow-actor-6","label":"Prisma translates to SQL: INSERT INTO journal_entries...","packet":true,"from":"actor-5","to":"actor-6","payload":"prisma.journalEntry.create({ data: { ... } })"},
+        {"highlight":"flow-actor-7","label":"PostgreSQL writes the row, returns the new record ID","packet":true,"from":"actor-6","to":"actor-7","payload":"INSERT INTO journal_entries ... RETURNING id"},
+        {"highlight":"flow-actor-2","label":"Response travels back: 201 Created &mdash; UI updates with the new entry","packet":true,"from":"actor-4","to":"actor-2","payload":"201 Created { id: &quot;je-xyz-789&quot;, status: &quot;draft&quot; }"}
+      ]'>
+
+        <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin the journey</div>
+        <div class="flow-payload" id="flow-payload"></div>
+
+        <div class="flow-actors">
+          <div class="flow-actor" id="flow-actor-1">
+            <div class="flow-actor-icon"><i data-lucide="mouse-pointer-click" class="icon"></i></div>
+            <span>Browser</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-2">
+            <div class="flow-actor-icon"><i data-lucide="layout-dashboard" class="icon"></i></div>
+            <span>avise-web</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-3">
+            <div class="flow-actor-icon"><i data-lucide="send" class="icon"></i></div>
+            <span>Axios</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-4">
+            <div class="flow-actor-icon"><i data-lucide="git-branch" class="icon"></i></div>
+            <span>Express Router</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-5">
+            <div class="flow-actor-icon"><i data-lucide="cpu" class="icon"></i></div>
+            <span>Service</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-6">
+            <div class="flow-actor-icon"><i data-lucide="refresh-cw" class="icon"></i></div>
+            <span>Prisma</span>
+          </div>
+          <div class="flow-actor" id="flow-actor-7">
+            <div class="flow-actor-icon"><i data-lucide="database" class="icon"></i></div>
+            <span>PostgreSQL</span>
+          </div>
+        </div>
+
+        <div class="flow-packet"></div>
+
+        <div class="flow-controls">
+          <button class="btn flow-prev-btn">&larr; Previous</button>
+          <button class="btn flow-next-btn">Next Step &rarr;</button>
+          <button class="btn flow-reset-btn">Restart</button>
+          <span class="flow-progress"></span>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 2 — MECHANISM: Axios Code-Walk
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Layer 2: Axios wraps every request in a typed envelope</h2>
+
+      <p>Before any data leaves the browser, it passes through a thin wrapper called <span class="term" data-definition="Axios is a JavaScript library that makes HTTP requests (the &quot;language&quot; browsers and servers use to talk) much easier to write. It handles the low-level details of sending and receiving data over the network.">Axios</span>. Here is the actual wrapper from <code>avise-web/src/api/apiClient.ts</code>:</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-web/src/api/apiClient.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> aviseApiConfig: <span class="code-function">AxiosRequestConfig</span> = {
+  <span class="code-property">baseURL</span>: <span class="code-function">import.meta.env</span>.<span class="code-property">REACT_APP_API_URL</span> || <span class="code-string">""</span>,
+};</code></pre>
+          <div class="code-walk-explanation">
+            <p>Create a config object with one setting: <strong>baseURL</strong>. This is the root address every request will be sent to. <span class="term" data-definition="import.meta.env gives your code access to environment variables &mdash; settings that can be different on each machine or deployment, like &quot;use localhost in dev, use api.avise.com in production&quot; &mdash; without hardcoding those values into the code itself."><code>import.meta.env</code></span> reads from an environment variable so the same code works in dev (<code>localhost:3001</code>) and in production (<code>api.avise.com</code>) without any changes.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> axiosInstance = axios.<span class="code-function">create</span>(aviseApiConfig);</code></pre>
+          <div class="code-walk-explanation">
+            <p>Create a single, pre-configured Axios instance. Think of this as a stamped envelope: every request that goes through <code>axiosInstance</code> already knows where it is going. You never have to repeat the base URL.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">export const</span> api = {
+  post: &lt;T&gt;(url: <span class="code-keyword">string</span>, data?: <span class="code-keyword">any</span>, config?: <span class="code-function">AxiosRequestConfig</span>&lt;T&gt;) =&gt; {
+    <span class="code-keyword">return</span> axiosInstance.<span class="code-function">post</span>&lt;T&gt;(url, data, config);
+  },
+  get: &lt;T&gt;(url: <span class="code-keyword">string</span>, config?: <span class="code-function">AxiosRequestConfig</span>&lt;T&gt;) =&gt; {
+    <span class="code-keyword">return</span> axiosInstance.<span class="code-function">get</span>&lt;T&gt;(url, config);
+  },
+};</code></pre>
+          <div class="code-walk-explanation">
+            <p>Export an <code>api</code> object with typed <code>post</code> and <code>get</code> methods. The <code>&lt;T&gt;</code> is <span class="term" data-definition="TypeScript generics let you write code that works with any type while still being type-safe. The &lt;T&gt; is a placeholder: when you call api.get&lt;User&gt;(...), TypeScript knows the result will be a User object, not just &quot;some data.&quot;">TypeScript generics</span> &mdash; it lets the rest of avise-web call <code>api.post&lt;JournalEntry&gt;(...)</code> and get back a properly typed response. The whole codebase calls <code>api.post</code> instead of Axios directly, so if the underlying HTTP library ever changes, there is only ONE place to update it.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="layers" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Wrapping a dependency is the single best architectural habit.</strong>
+          <p>By never calling Axios directly &mdash; always via <code>api.post</code> &mdash; the codebase stays decoupled from any one library. This is called the <em>Adapter pattern</em>. You will see it in every mature codebase you encounter, under many different names.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 3 — MECHANISM: Express Router Code-Walk
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Layers 3 &amp; 4: The Express Router &mdash; every request passes through security first</h2>
+
+      <p>When an HTTP request arrives at <span class="term" data-definition="avise-api is the backend Node.js application in the Avise monorepo. It is a REST API built with Express that the frontend calls whenever it needs to read or write data.">avise-api</span>, it is routed through a chain of <span class="term" data-definition="Middleware is code that runs between a request arriving and the final handler responding. Think of it as a conveyor belt with inspection stations: each station can check, modify, or reject the request before passing it to the next.">middleware</span> functions before any business logic runs. Here is the router that defines that chain:</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/apiRouter.ts</span>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">function</span> <span class="code-function">apiRouter</span>(): <span class="code-function">Router</span> {
+  <span class="code-keyword">const</span> r = <span class="code-function">Router</span>();</code></pre>
+          <div class="code-walk-explanation">
+            <p>Create a new <span class="term" data-definition="An Express Router is a mini-application that can have its own routes and middleware. Think of it as a department inside a building: the building (Express app) handles getting people in the door; the Router handles directing them once they are inside.">Express Router</span>. This object will collect all the routing rules and middleware we attach to it.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code>  r.<span class="code-function">use</span>(<span class="code-function">jwtAuthentication</span>());
+  r.<span class="code-function">use</span>(<span class="code-function">userIdentityMiddleware</span>());</code></pre>
+          <div class="code-walk-explanation">
+            <p>Every single request that reaches this router hits these two layers first &mdash; no exceptions. <code>jwtAuthentication()</code> validates the <span class="term" data-definition="A JWT (JSON Web Token) is a digitally signed string the browser sends with every request to prove who the user is. It is like a signed ticket: anyone can read the contents, but only the issuer can create a valid signature.">JWT</span> token attached to the request &mdash; is the caller who they say they are? <code>userIdentityMiddleware()</code> then looks up the actual user record in the database, so the rest of the code knows the full user object, not just their ID from the token.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code>  r.<span class="code-function">use</span>(<span class="code-string">"/organizations/:organizationId"</span>, <span class="code-function">organizationRouter</span>());
+  r.<span class="code-function">use</span>(<span class="code-string">"/companies/:companyId"</span>, <span class="code-function">companyContextMiddleware</span>(), <span class="code-function">companyRouter</span>());
+  r.<span class="code-function">use</span>(<span class="code-string">"/notifications"</span>, notificationsRouter);</code></pre>
+          <div class="code-walk-explanation">
+            <p>Once identity is established, requests are routed by URL path. Company-specific routes get one more middleware layer: <code>companyContextMiddleware()</code> verifies the user actually has access to the specific company in the URL before the request goes any further. Only then does <code>companyRouter()</code> handle it.</p>
+          </div>
+        </div>
+
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">4</div>
+          <pre class="code-walk-code"><code>  <span class="code-keyword">return</span> r;
+}</code></pre>
+          <div class="code-walk-explanation">
+            <p>Return the configured router so the main Express app can mount it. Every rule registered here applies to any request that hits this router.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <div class="callout-icon"><i data-lucide="shield-check" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Middleware is airport security &mdash; everyone passes through, and the order is law.</strong>
+          <p>You prove who you are (JWT check), then the system looks you up in its records (userIdentity), then you proceed to your destination (your route). No gate-jumping. If <code>jwtAuthentication</code> rejects a request, it never reaches <code>companyContextMiddleware</code> or the actual handler. Order is architecture.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 4 — MECHANISM: Group Chat
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Watch the save request travel &mdash; every handoff, in real time</h2>
+
+      <p>See each layer in the chain pass the request forward. The layers talk to each other so the database only ever sees a clean, validated, authorized instruction.</p>
+
+      <div class="chat-window" id="chat-save-journey">
+        <div class="chat-messages">
+
+          <div class="chat-message" data-msg="0" data-sender="browser" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-1)">B</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-1)">Browser</span>
+              <p>User filled in the form and clicked Save</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="1" data-sender="avise-web" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">W</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">avise-web</span>
+              <p><code>POST /v1/companies/abc/journal-entries</code><br>(JWT: eyJ...)</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="2" data-sender="avise-api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api</span>
+              <p>JWT valid &nbsp;&middot;&nbsp; User found &nbsp;&middot;&nbsp; Company context set.</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="3" data-sender="avise-api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api</span>
+              <p>Running business rules: entry is valid, status = draft</p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="4" data-sender="avise-api" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api &rarr; PostgreSQL</span>
+              <p><code>INSERT INTO journal_entries (company_id, status, ...) VALUES (...)</code></p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="5" data-sender="postgresql" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-4)">P</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-4)">PostgreSQL</span>
+              <p>Row created: <code>id = je-xyz-789</code></p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="6" data-sender="avise-api-reply" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-3)">A</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-3)">avise-api &rarr; avise-web</span>
+              <p><code>201 Created { id: &quot;je-xyz-789&quot;, status: &quot;draft&quot; }</code></p>
+            </div>
+          </div>
+
+          <div class="chat-message" data-msg="7" data-sender="avise-web-reply" style="display:none">
+            <div class="chat-avatar" style="background: var(--color-actor-2)">W</div>
+            <div class="chat-bubble">
+              <span class="chat-sender" style="color: var(--color-actor-2)">avise-web &rarr; Browser</span>
+              <p>Updating UI: new entry appears in the list</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="chat-typing" id="chat-save-journey-typing" style="display:none">
+          <div class="chat-avatar" id="chat-save-journey-typing-avatar">?</div>
+          <div class="chat-typing-dots">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+          </div>
+        </div>
+
+        <div class="chat-controls">
+          <button class="btn chat-next-btn">Next Message</button>
+          <button class="btn chat-all-btn">Play All</button>
+          <button class="btn chat-reset-btn">Replay</button>
+          <span class="chat-progress"></span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         SCREEN 5 — APPLICATION: Quiz
+         ═══════════════════════════════════════════════════ -->
+    <section class="screen animate-in">
+
+      <h2 class="screen-heading">Check your understanding</h2>
+
+      <p>Three scenarios. Each one tests whether you can apply what you just traced &mdash; not recall a definition.</p>
+
+      <div class="quiz-container" id="quiz-m1">
+
+        <!-- Q1 -->
+        <div class="quiz-question-block"
+             data-correct="option-d"
+             data-explanation-right="Exactly. No network error means the request IS leaving the browser and reaching the server. The problem is somewhere in the API or database layer &mdash; probably the Express router, service logic, or Prisma query."
+             data-explanation-wrong="If there were a network problem, the browser would show a connection error before the request reached the server. Since the spinner keeps going with no network error, the request arrived &mdash; the problem is server-side. Look at the API or database layer.">
+          <h3 class="quiz-question">A user reports the Save button spins forever and nothing saves. You check the browser &mdash; no network errors visible. Where is the problem most likely <em>not</em> located?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web frontend code</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api Express router</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL database</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The user&rsquo;s internet connection</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Correct. A 403 Forbidden is thrown during the auth and permission check phase &mdash; before the database is ever touched. That phase lives entirely in the middleware stack: jwtAuthentication and companyContextMiddleware."
+             data-explanation-wrong="A 403 comes before the database is ever reached &mdash; it is thrown during the auth and permission check phase, which is in the middleware stack. Prisma and PostgreSQL only run after a request has already been authorized.">
+          <h3 class="quiz-question">The API returns 403 Forbidden when a user tries to create a journal entry. Which part of the Express router is most likely responsible?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The <span class="term" data-definition="Prisma is an ORM (Object-Relational Mapper) &mdash; a tool that translates TypeScript function calls like prisma.user.findMany() into SQL queries that the database understands. You write TypeScript; Prisma writes SQL.">Prisma</span> ORM query</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The JWT authentication middleware</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The PostgreSQL database</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>The Axios configuration in avise-web</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="Right. The Express Router is where new API endpoints are registered first. Once the route exists and the controller logic is built, you wire up the frontend to call it. The database might need a new query, but the entry point is always the router."
+             data-explanation-wrong="The Express Router is where new API endpoints live. You define the route (avise-api), then build the controller and service logic, then update the frontend to call the new endpoint. Adding a button in avise-web with no corresponding route will fail with a 404.">
+          <h3 class="quiz-question">You need to add a new API endpoint that lets users export entries as CSV. Which layer do you add it to first?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-web &mdash; add a button</span>
+            </button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>avise-api Express Router &mdash; add the route</span>
+            </button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>PostgreSQL &mdash; add a table</span>
+            </button>
+            <button class="quiz-option" data-value="option-d" onclick="selectOption(this)">
+              <div class="quiz-option-radio"></div>
+              <span>Axios apiClient &mdash; add a method</span>
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-m1')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-m1')">Try Again</button>
+
+      </div>
+
+      <!-- Inter-module navigation -->
+      <div class="module-nav-end animate-in">
+        <a href="#module-2" class="btn module-continue-btn">
+          Continue to Module 2: The Cast of Characters
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-0" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Overview
+        </a>
+      </div>
+
+    </section>
+
+  </div>
+</section>

@@ -1,0 +1,165 @@
+<section class="module" id="module-5">
+  <div class="module-content">
+    <div class="module-number">05</div>
+    <h2 class="module-title">Rules &amp; Guardrails</h2>
+    <p class="module-subtitle">The system prompt is the AI&rsquo;s constitution — it defines what it can talk about, how it must format responses, which links it can generate, and what happens when users try to probe its internals.</p>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The system prompt in plain English</h2>
+      <p>Every conversation starts with a system prompt built by <code>chatSystemPrompt()</code> in <code>ai/prompts.ts</code>. Here is what it says, rule by rule:</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code">Topic restriction</code>
+          <span class="badge-desc">Only accounting and finance. Programming, politics, entertainment, art, music, humor, creative writing — all off-limits. Politely declined.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">GAAP compliance</code>
+          <span class="badge-desc">All answers must follow Generally Accepted Accounting Principles. The AI represents itself as an accounting expert — it must behave like one.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">No Markdown tables</code>
+          <span class="badge-desc">The AI MUST use <code>displayArtifactTable</code> instead. No exceptions. Markdown tables render poorly in the chat UI and bypass the artifact system.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Max tool calls</code>
+          <span class="badge-desc">The prompt tells the AI its tool call budget: &ldquo;You are limited to a maximum of N function calls per user request.&rdquo; Once hit, no more tools are passed.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Period resolution rule</code>
+          <span class="badge-desc">When the user explicitly mentions a period, ALWAYS call findPeriods. Do NOT use the period ID from the page URL context. Explicit user request &gt; page context.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Internals privacy</code>
+          <span class="badge-desc">If a user asks about training data, capabilities, knowledge cutoff, or tool technical details — politely decline to answer.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code">Internal reasoning pattern</code>
+          <span class="badge-desc">The AI internally follows THOUGHT → ACTION → OBSERVATION → VERIFICATION. But these labels must never appear in responses to users.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Linking rules — four supported paths only</h2>
+      <p>The system prompt specifies EXACTLY which links the AI may generate. Generating any other URL is forbidden. The four allowed paths:</p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Journal Entry: <code>/AVISECOMPANY/journal-entry/:displayId</code></strong>
+            <p>Use the numeric <code>displayId</code>, NOT the internal UUID. Must be included whenever referencing a specific journal entry.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>General Ledger: <code>/AVISECOMPANY/reports/general-ledger?...</code></strong>
+            <p>Required whenever mentioning an account balance, even in passing. The <code>accountId</code> param must use the UUID, not the account name.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Balance Sheet: <code>/AVISECOMPANY/reports/balance-sheet?...</code></strong>
+            <p>Optional params: hideNoActivity, showBy, compareTo, comparisonMethods. Only with actual date parameters — never a bare link.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Income Statement: <code>/AVISECOMPANY/reports/income-statement?...</code></strong>
+            <p>Same params as balance sheet. The AI must use <code>AVISECOMPANY</code> as a placeholder in the path — the frontend resolves it to the real company ID.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <div class="callout-icon"><i data-lucide="link-2-off" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Making up URLs is forbidden</strong>
+          <p>The system prompt explicitly lists forbidden patterns: vague anchors (&ldquo;see more&rdquo;, &ldquo;click here&rdquo;), settings pages, admin pages, user profiles, and any URL not on the four-path allowlist. If the AI cannot link to something, it describes it in text.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">How context is injected per message</h2>
+      <p>Every user message is wrapped by <code>formatUserMessageWithContext()</code> in <code>baseProvider.ts</code> before being sent to the LLM:</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header"><span class="code-walk-file">avise-api/src/ai/providers/baseProvider.ts — formatUserMessageWithContext()</span></div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">return</span> <span class="code-template">`&lt;user_message&gt;
+${userMessage}
+&lt;/user_message&gt;</span></code></pre>
+          <div class="code-walk-explanation"><p>The actual text the user typed. Wrapped in XML tags so the LLM can cleanly separate it from the injected context below.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-template">&lt;current_date&gt;
+  ${getCurrentSystemJsDateTime().toISOString()}
+&lt;/current_date&gt;</span></code></pre>
+          <div class="code-walk-explanation"><p>Current timestamp. Critical for the AI to correctly interpret &ldquo;this month&rdquo;, &ldquo;last quarter&rdquo;, &ldquo;yesterday&rdquo; — without it the LLM has no sense of when &ldquo;now&rdquo; is.</p></div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">3</div>
+          <pre class="code-walk-code"><code><span class="code-template">&lt;request_context&gt;
+  ${JSON.stringify(context || "")}
+&lt;/request_context&gt;`</span></code></pre>
+          <div class="code-walk-explanation"><p>A JSON blob containing page context — the current URL (which may include a periodId), and any other context the frontend sent. The system prompt instructs the AI to use the pageUrl only as a fallback for period detection.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Check your understanding</h2>
+      <div class="quiz-container" id="quiz-module5">
+        <div class="quiz-question-block"
+             data-correct="option-b"
+             data-explanation-right="The system prompt explicitly says to call findPeriods when the user explicitly mentions a period. The pageUrl context is a fallback only — user intent always wins."
+             data-explanation-wrong="Explicit user mention of a period always takes precedence. The AI must call findPeriods to resolve it, not use the pageUrl.">
+          <h3 class="quiz-question">A user is viewing the December 2024 period page and asks about &ldquo;November 2024.&rdquo; Which period does the AI use?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>December 2024 — from the pageUrl context</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>November 2024 — explicit user mention always takes precedence; the AI must call findPeriods to resolve it</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Both — the AI returns data for both periods side by side</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-c"
+             data-explanation-right="The system prompt explicitly says to decline questions about training data, capabilities, knowledge cutoff, or tool technical details. The AI politely explains it cannot answer."
+             data-explanation-wrong="Questions about the AI's own technical internals are declined — the system prompt specifically calls this out as a forbidden topic.">
+          <h3 class="quiz-question">A user asks: &ldquo;What model are you running on?&rdquo; What does the AI do?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Answers with the model name from the overrides config</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Calls a tool to look up its own configuration</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>Politely declines — technical details about the AI are off-limits per the system prompt</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-question-block"
+             data-correct="option-a"
+             data-explanation-right="The general-ledger link requires the UUID in accountId (for the URL param), but the account NAME in user-facing text. Two ID types, two different uses — the system prompt is explicit about this."
+             data-explanation-wrong="Two ID types: the UUID goes in the URL param (accountId=...), the account name goes in the link text and user-facing prose. The system prompt labels these CRITICAL distinctions.">
+          <h3 class="quiz-question">The AI wants to link to the Cash account&rsquo;s general ledger. Which ID goes in the URL?</h3>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="option-a" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The UUID (e.g. <code>cm6ia2ss4...</code>) goes in the accountId URL param; the name &ldquo;Cash&rdquo; goes in the link text</span></button>
+            <button class="quiz-option" data-value="option-b" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The account name (&ldquo;Cash&rdquo;) goes in the URL; the UUID goes in the link text</span></button>
+            <button class="quiz-option" data-value="option-c" onclick="selectOption(this)"><div class="quiz-option-radio"></div><span>The displayId (numeric) goes in the URL — same as journal entries</span></button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+        <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Try Again</button>
+      </div>
+      <div class="module-nav-end animate-in">
+        <a href="#module-6" class="btn module-continue-btn">Continue to Module 6: Gaps &amp; Improvements <i data-lucide="arrow-right" class="icon"></i></a>
+        <a href="#module-4" class="module-back-link"><i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 4</a>
+      </div>
+    </section>
+  </div>
+</section>

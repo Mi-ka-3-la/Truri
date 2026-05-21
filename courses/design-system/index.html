@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avise Design System — v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: #F6F8FA; color: #101828; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.5; }
+
+/* ── Shell ── */
+.shell { display: flex; min-height: 100vh; }
+.sidenav { width: 224px; background: #01253D; position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100; display: flex; flex-direction: column; scrollbar-width: none; }
+.sidenav::-webkit-scrollbar { display: none; }
+.main { margin-left: 224px; flex: 1; min-width: 0; }
+.content { max-width: 960px; padding: 52px 56px 96px; }
+
+/* ── Sidenav ── */
+.sn-logo { padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; gap: 10px; }
+.sn-logo img { height: 20px; filter: brightness(0) invert(1); opacity: .9; }
+.sn-badge { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.4); border: 1px solid rgba(255,255,255,.15); border-radius: 4px; padding: 1px 5px; letter-spacing: .04em; }
+.sn-group { padding: 14px 8px 6px; }
+.sn-group + .sn-group { border-top: 1px solid rgba(255,255,255,.06); }
+.sn-label { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.28); text-transform: uppercase; letter-spacing: .1em; padding: 0 8px; margin-bottom: 6px; }
+.sn-link { display: flex; align-items: center; gap: 7px; padding: 6px 8px; border-radius: 5px; font-size: 12px; font-weight: 500; color: rgba(255,255,255,.52); text-decoration: none; transition: all 120ms; }
+.sn-link:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.88); }
+.sn-link.active { background: rgba(255,255,255,.12); color: #fff; }
+.sn-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.sn-footer { margin-top: auto; padding: 12px 16px 14px; }
+.sn-version { font-size: 10px; color: rgba(255,255,255,.22); }
+
+/* ── Page header ── */
+.page-header { margin-bottom: 56px; padding-bottom: 32px; border-bottom: 1px solid #EAECF0; }
+.page-header h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 700; letter-spacing: -.03em; color: #101828; margin-bottom: 8px; }
+.page-header p { font-size: 15px; color: #667085; line-height: 1.7; max-width: 580px; }
+.pill-row { display: flex; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 9999px; }
+
+/* ── Sections ── */
+.section { margin-bottom: 72px; scroll-margin-top: 40px; }
+.section-header { margin-bottom: 24px; }
+.section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: #101828; letter-spacing: -.02em; margin-bottom: 4px; }
+.section-desc { font-size: 13px; color: #667085; line-height: 1.65; max-width: 640px; }
+.sub { margin-bottom: 32px; }
+.sub-title { font-size: 11px; font-weight: 700; color: #8A94A4; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; }
+
+/* ── Code ── */
+code { font-family: 'JetBrains Mono', monospace; font-size: .85em; background: #F6F8FA; border: 1px solid #EAECF0; padding: 1px 5px; border-radius: 4px; color: #025B8F; }
+.code-block { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: #0C111D; color: #e2e8f0; padding: 16px 20px; border-radius: 8px; line-height: 1.7; overflow-x: auto; white-space: pre; }
+.code-block .c-key   { color: #7dd3fc; }
+.code-block .c-str   { color: #86efac; }
+.code-block .c-num   { color: #fda4af; }
+.code-block .c-com   { color: #475569; }
+
+/* ── Token table ── */
+.token-table { width: 100%; border-collapse: collapse; }
+.token-table thead th { font-size: 10px; font-weight: 700; color: #8A94A4; text-transform: uppercase; letter-spacing: .05em; padding: 7px 12px; text-align: left; background: #F6F8FA; border-bottom: 1px solid #EAECF0; }
+.token-table tbody td { padding: 8px 12px; border-bottom: 1px solid #F6F8FA; font-size: 12.5px; vertical-align: middle; }
+.token-table tbody tr:hover td { background: #FAFBFC; }
+.t-token { font-family: 'JetBrains Mono', monospace; color: #025B8F; }
+.t-value { font-family: 'JetBrains Mono', monospace; color: #344054; }
+.t-label { color: #101828; font-weight: 500; }
+.t-note  { color: #667085; font-size: 12px; }
+.t-swatch { width: 20px; height: 20px; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 6px; border: 1px solid rgba(0,0,0,.06); }
+
+/* ── Color swatches ── */
+.swatch-strip { display: flex; border-radius: 8px; overflow: hidden; height: 44px; margin-bottom: 10px; border: 1px solid #EAECF0; }
+.sw { flex: 1; }
+.semantic-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.sem-card { border-radius: 8px; overflow: hidden; border: 1px solid #EAECF0; }
+.sem-top  { height: 52px; display: flex; align-items: flex-end; padding: 8px; }
+.sem-info { padding: 10px 12px; background: #fff; }
+.sem-name { font-size: 12px; font-weight: 600; color: #101828; }
+.sem-vals { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #667085; margin-top: 3px; }
+
+/* ── Type ramp ── */
+.type-row { display: flex; align-items: baseline; gap: 20px; padding: 11px 0; border-bottom: 1px solid #F0F2F5; }
+.type-row:last-child { border-bottom: none; }
+.type-meta { width: 160px; flex-shrink: 0; }
+.type-token { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #025B8F; text-transform: uppercase; letter-spacing: .04em; }
+.type-spec  { font-size: 10px; color: #B0B8C4; font-family: 'JetBrains Mono', monospace; margin-top: 2px; line-height: 1.4; }
+.type-sample { flex: 1; min-width: 0; }
+
+/* ── Spacing ── */
+.sp-row { display: flex; align-items: center; gap: 14px; padding: 4px 0; }
+.sp-bar { background: #025B8F; border-radius: 3px; height: 10px; min-width: 2px; flex-shrink: 0; }
+.sp-token { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #025B8F; width: 76px; flex-shrink: 0; }
+.sp-px    { font-size: 11px; color: #667085; width: 36px; flex-shrink: 0; }
+.sp-use   { font-size: 11px; color: #B0B8C4; }
+
+/* ── Components frame ── */
+.frame { background: #fff; border: 1px solid #EAECF0; border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+.frame-label { font-size: 10px; font-weight: 700; color: #B0B8C4; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 14px; }
+.comp-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.comp-row:last-child { margin-bottom: 0; }
+.row-label { font-size: 10px; font-weight: 600; color: #B0B8C4; text-transform: uppercase; letter-spacing: .06em; width: 76px; flex-shrink: 0; }
+
+/* ── Buttons ── */
+.btn { display: inline-flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif; font-weight: 500; border-radius: 6px; border: 1.5px solid transparent; cursor: pointer; line-height: 1; transition: all 150ms; }
+.btn-sm { font-size: 12px; padding: 5px 11px; }
+.btn-md { font-size: 13px; padding: 7px 14px; }
+.btn-lg { font-size: 14px; padding: 9px 18px; }
+.btn-primary   { background: #025B8F; color: #fff; border-color: #025B8F; }
+.btn-secondary { background: #fff; color: #344054; border-color: #D0D5DD; }
+.btn-ghost     { background: transparent; color: #025B8F; border-color: transparent; }
+.btn-subtle    { background: #EFF7FD; color: #025B8F; border-color: #EFF7FD; }
+.btn-danger    { background: #DC2626; color: #fff; border-color: #DC2626; }
+.btn-danger-out{ background: #fff; color: #DC2626; border-color: #FECDD3; }
+.btn-disabled  { background: #F6F8FA !important; color: #B0B8C4 !important; border-color: #EAECF0 !important; cursor: not-allowed !important; }
+.btn-hover-demo { background: #024A75; color: #fff; border-color: #024A75; }
+.btn-focus-demo { background: #025B8F; color: #fff; border-color: #025B8F; outline: 2px solid #83C4EA; outline-offset: 2px; }
+
+/* ── Inputs ── */
+.input { font-family: 'Inter', sans-serif; font-size: 13px; color: #101828; background: #fff; border: 1.5px solid #D0D5DD; border-radius: 6px; padding: 7px 11px; outline: none; box-shadow: 0 1px 2px rgba(16,24,40,.05); width: 100%; }
+.input::placeholder { color: #B0B8C4; }
+.input-focused  { border-color: #025B8F !important; box-shadow: 0 0 0 3px rgba(2,91,143,.12), 0 1px 2px rgba(16,24,40,.05) !important; }
+.input-error    { border-color: #DC2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,.10) !important; }
+.input-disabled { background: #F6F8FA !important; color: #B0B8C4 !important; cursor: not-allowed; }
+.field-label    { font-size: 12px; font-weight: 500; color: #344054; display: block; margin-bottom: 5px; }
+.field-helper   { font-size: 11px; color: #667085; margin-top: 4px; }
+.field-error    { font-size: 11px; color: #DC2626; margin-top: 4px; }
+.input-wrap     { position: relative; }
+.input-icon-l   { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: #8A94A4; pointer-events: none; }
+.input-icon-r   { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); color: #8A94A4; pointer-events: none; }
+.has-l { padding-left: 32px !important; }
+.has-r { padding-right: 32px !important; }
+.input-addon { display: flex; }
+.addon-prefix { display: flex; align-items: center; padding: 0 11px; background: #F6F8FA; border: 1.5px solid #D0D5DD; border-right: none; border-radius: 6px 0 0 6px; font-size: 13px; color: #475467; white-space: nowrap; box-shadow: 0 1px 2px rgba(16,24,40,.05); }
+.input-addon .input { border-radius: 0 6px 6px 0; }
+
+/* ── Controls ── */
+.cb { width: 15px; height: 15px; border: 1.5px solid #D0D5DD; border-radius: 4px; background: #fff; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 1px 2px rgba(16,24,40,.05); }
+.cb.on { background: #025B8F; border-color: #025B8F; }
+.cb.ind { background: #025B8F; border-color: #025B8F; }
+.cb.off-dis { background: #F6F8FA; border-color: #EAECF0; }
+.rd { width: 15px; height: 15px; border: 1.5px solid #D0D5DD; border-radius: 50%; background: #fff; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rd.on { border-color: #025B8F; border-width: 2px; position: relative; }
+.rd.on::after { content: ''; width: 5px; height: 5px; background: #025B8F; border-radius: 50%; }
+.toggle { width: 34px; height: 18px; border-radius: 9999px; background: #D0D5DD; position: relative; display: inline-block; flex-shrink: 0; cursor: pointer; }
+.toggle::after { content: ''; width: 14px; height: 14px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; box-shadow: 0 1px 2px rgba(16,24,40,.15); }
+.toggle.on { background: #025B8F; }
+.toggle.on::after { left: 18px; }
+.ctrl-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #344054; margin-bottom: 7px; }
+
+/* ── Badges ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; font-family: 'Inter', sans-serif; font-weight: 500; border-radius: 9999px; white-space: nowrap; }
+.badge-sm { font-size: 10px; padding: 2px 7px; }
+.badge-md { font-size: 11px; padding: 3px 8px; }
+.badge-lg { font-size: 13px; padding: 5px 11px; }
+.b-success { background: #F0FDF4; color: #15803D; }
+.b-warning { background: #FFFBEB; color: #B45309; }
+.b-error   { background: #FFF1F2; color: #B91C1C; }
+.b-info    { background: #EFF7FD; color: #025B8F; }
+.b-neutral { background: #F6F8FA; color: #475467; }
+.b-primary { background: #025B8F; color: #fff; }
+.b-dark    { background: #344054; color: #fff; }
+.b-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: 4px; background: #EFF7FD; color: #025B8F; border: 1px solid #B6DCF4; }
+
+/* ── Type badge (CoA) ── */
+.type-badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 4px; border: 1px solid; white-space: nowrap; }
+
+/* ── Alerts ── */
+.alert { border-radius: 8px; padding: 12px 14px; display: flex; gap: 10px; margin-bottom: 8px; }
+.alert:last-child { margin-bottom: 0; }
+.a-info    { background: #EFF7FD; border: 1px solid #B6DCF4; }
+.a-warning { background: #FFFBEB; border: 1px solid #FDE68A; }
+.a-error   { background: #FFF1F2; border: 1px solid #FECDD3; }
+.a-success { background: #F0FDF4; border: 1px solid #BBF7D0; }
+.a-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.a-body  { font-size: 12px; line-height: 1.5; }
+.a-info .a-title    { color: #025B8F; } .a-info .a-body { color: #1171AB; }
+.a-warning .a-title { color: #B45309; } .a-warning .a-body { color: #D97706; }
+.a-error .a-title   { color: #B91C1C; } .a-error .a-body { color: #DC2626; }
+.a-success .a-title { color: #15803D; } .a-success .a-body { color: #16A34A; }
+
+/* ── Table ── */
+.ds-table { width: 100%; border-collapse: collapse; font-family: 'Inter', sans-serif; }
+.ds-table thead tr { background: #F6F8FA; }
+.ds-table th { padding: 8px 13px; font-size: 10px; font-weight: 700; color: #475467; text-align: left; border-bottom: 1px solid #EAECF0; text-transform: uppercase; letter-spacing: .04em; }
+.ds-table td { padding: 9px 13px; border-bottom: 1px solid #EAECF0; font-size: 13px; color: #344054; }
+.ds-table tr:last-child td { border-bottom: none; }
+.ds-table tbody tr:hover td { background: #F6F8FA; }
+.mono  { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+.pos   { color: #025B8F; }
+.neg   { color: #DC2626; }
+.zero  { color: #B0B8C4; }
+.acct-name { font-weight: 500; color: #101828; }
+
+/* ── Cards ── */
+.stat-card { background: #fff; border: 1px solid #EAECF0; border-radius: 8px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(16,24,40,.05); }
+.stat-lbl  { font-size: 11px; font-weight: 500; color: #667085; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+.stat-val  { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 600; color: #101828; letter-spacing: -.02em; }
+.prog-bg   { height: 5px; background: #EAECF0; border-radius: 9999px; margin-top: 10px; }
+.prog-fill { height: 5px; background: #025B8F; border-radius: 9999px; }
+
+/* ── Radius / shadow preview ── */
+.radius-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end; }
+.radius-card { text-align: center; }
+.radius-box  { background: #EFF7FD; border: 2px solid #025B8F; width: 38px; height: 38px; margin: 0 auto 6px; }
+.radius-lbl  { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #667085; }
+.shadow-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end; }
+.shadow-card { text-align: center; }
+.shadow-box  { background: #fff; border-radius: 8px; width: 60px; height: 44px; margin: 0 auto 8px; }
+.shadow-lbl  { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #667085; }
+
+/* ── Modal preview ── */
+.modal-preview { background: rgba(16,24,40,.45); border-radius: 10px; padding: 24px; display: flex; align-items: center; justify-content: center; }
+.modal-card { background: #fff; border-radius: 10px; box-shadow: 0 20px 24px -4px rgba(16,24,40,.18); width: 100%; max-width: 440px; overflow: hidden; }
+.modal-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 18px 20px 14px; border-bottom: 1px solid #EAECF0; }
+.modal-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: #101828; }
+.modal-sub   { font-size: 12px; color: #667085; margin-top: 2px; }
+.modal-body  { padding: 18px 20px; display: flex; flex-direction: column; gap: 13px; }
+.modal-foot  { display: flex; justify-content: flex-end; gap: 7px; padding: 12px 20px; border-top: 1px solid #EAECF0; background: #FAFBFC; }
+
+/* ── Sidebar preview ── */
+.sb-preview { background: #01253D; border-radius: 8px; width: 196px; padding: 12px 8px; flex-shrink: 0; }
+.sb-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 5px; font-size: 12px; font-weight: 500; color: rgba(255,255,255,.58); margin-bottom: 1px; }
+.sb-item.act { background: rgba(255,255,255,.12); color: #fff; }
+.sb-entity { display: flex; align-items: center; gap: 7px; padding: 7px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,.1); margin-bottom: 10px; }
+
+/* ── Do/Don't ── */
+.dnd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dnd-do   { border: 1.5px solid #BBF7D0; border-radius: 8px; padding: 14px 16px; background: #F0FDF4; }
+.dnd-dont { border: 1.5px solid #FECDD3; border-radius: 8px; padding: 14px 16px; background: #FFF1F2; }
+.dnd-tag  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+.dnd-do .dnd-tag   { color: #15803D; }
+.dnd-dont .dnd-tag { color: #B91C1C; }
+.dnd-content { font-size: 13px; }
+
+/* ── Misc ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.divider-line { height: 1px; background: #EAECF0; margin: 0 0 28px; }
+
+/* ── Tabs ── */
+.tab-bar { display: flex; gap: 0; border-bottom: 2px solid #EAECF0; }
+.tab-item { display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; font-size: 13px; font-weight: 500; color: #667085; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 150ms; white-space: nowrap; }
+.tab-item:hover { color: #344054; }
+.tab-item.active { color: #025B8F; border-bottom-color: #025B8F; }
+.tab-item.disabled { color: #B0B8C4; cursor: not-allowed; }
+.tab-count { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 9999px; }
+.tab-item.active .tab-count { background: #025B8F; color: #fff; }
+.tab-item:not(.active) .tab-count { background: #EAECF0; color: #667085; }
+/* Pill tabs */
+.tab-pill-bar { display: inline-flex; background: #F6F8FA; border-radius: 8px; padding: 3px; gap: 2px; }
+.tab-pill { font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 6px; cursor: pointer; color: #667085; transition: all 150ms; white-space: nowrap; }
+.tab-pill.active { background: #fff; color: #101828; box-shadow: 0 1px 3px rgba(16,24,40,.10), 0 1px 2px rgba(16,24,40,.06); }
+/* Vertical tabs */
+.tab-v-bar { display: flex; flex-direction: column; gap: 2px; }
+.tab-v-item { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #667085; cursor: pointer; border-left: 2px solid transparent; transition: all 150ms; }
+.tab-v-item:hover { background: #F6F8FA; color: #344054; }
+.tab-v-item.active { background: #EFF7FD; color: #025B8F; border-left-color: #025B8F; }
+
+/* ── Dropdown menu ── */
+.dropdown-menu { background: #fff; border: 1px solid #EAECF0; border-radius: 8px; box-shadow: 0 8px 16px rgba(16,24,40,.12); min-width: 180px; overflow: hidden; }
+.dd-header { padding: 6px 12px 4px; font-size: 10px; font-weight: 700; color: #8A94A4; text-transform: uppercase; letter-spacing: .06em; }
+.dd-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 13px; color: #344054; cursor: pointer; transition: background 100ms; }
+.dd-item:hover { background: #F6F8FA; }
+.dd-item.active { background: #EFF7FD; color: #025B8F; }
+.dd-item.danger { color: #DC2626; }
+.dd-item.danger:hover { background: #FFF1F2; }
+.dd-item.disabled { color: #B0B8C4; cursor: not-allowed; }
+.dd-divider { height: 1px; background: #EAECF0; margin: 4px 0; }
+.dd-shortcut { margin-left: auto; font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #B0B8C4; }
+
+/* ── Avatars ── */
+.av { border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-weight: 600; color: #fff; flex-shrink: 0; background: #025B8F; }
+.av-xs { width: 20px; height: 20px; font-size: 8px; }
+.av-sm { width: 24px; height: 24px; font-size: 9px; }
+.av-md { width: 32px; height: 32px; font-size: 12px; }
+.av-lg { width: 40px; height: 40px; font-size: 14px; }
+.av-xl { width: 48px; height: 48px; font-size: 16px; }
+.av-wrap { position: relative; display: inline-flex; }
+.av-status { position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #fff; }
+.av-group { display: flex; }
+.av-group .av { border: 2px solid #fff; margin-left: -8px; }
+.av-group .av:first-child { margin-left: 0; }
+.av-group .av-more { background: #F6F8FA; color: #475467; border: 2px solid #fff; margin-left: -8px; }
+
+/* ── Tooltip ── */
+.tooltip-demo { position: relative; display: inline-flex; align-items: center; }
+.tooltip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #101828; color: #fff; font-size: 11px; font-weight: 500; padding: 5px 10px; border-radius: 6px; white-space: nowrap; box-shadow: 0 4px 8px rgba(16,24,40,.2); pointer-events: none; }
+.tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #101828; }
+.tooltip-bottom { top: calc(100% + 6px); bottom: auto; }
+.tooltip-bottom::after { bottom: 100%; top: auto; border-top-color: transparent; border-bottom-color: #101828; }
+.tooltip-right { left: calc(100% + 6px); bottom: auto; top: 50%; transform: translateY(-50%); }
+.tooltip-right::after { right: 100%; left: auto; top: 50%; transform: translateY(-50%); border-right-color: #101828; border-top-color: transparent; }
+.tooltip-left { right: calc(100% + 6px); left: auto; bottom: auto; top: 50%; transform: translateY(-50%); }
+.tooltip-left::after { left: 100%; right: auto; top: 50%; transform: translateY(-50%); border-left-color: #101828; border-top-color: transparent; }
+
+/* ── Breadcrumbs ── */
+.breadcrumb { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.bc-item { font-size: 13px; color: #667085; text-decoration: none; }
+.bc-item:hover { color: #025B8F; }
+.bc-item.active { color: #101828; font-weight: 500; }
+.bc-sep { color: #D0D5DD; font-size: 12px; }
+
+/* ── Progress ── */
+.prog-track { background: #EAECF0; border-radius: 9999px; overflow: hidden; }
+.prog-bar { height: 100%; border-radius: 9999px; background: #025B8F; transition: width 300ms ease; }
+.prog-bar.success { background: #16A34A; }
+.prog-bar.warning { background: #D97706; }
+.prog-bar.error   { background: #DC2626; }
+/* Step indicator */
+.steps { display: flex; align-items: center; }
+.step-item { display: flex; align-items: center; gap: 8px; flex: 1; }
+.step-item:last-child { flex: 0; }
+.step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+.step-circle.done { background: #025B8F; color: #fff; }
+.step-circle.active { background: #EFF7FD; color: #025B8F; border: 2px solid #025B8F; }
+.step-circle.todo { background: #F6F8FA; color: #8A94A4; border: 2px solid #EAECF0; }
+.step-line { flex: 1; height: 2px; background: #EAECF0; margin: 0 4px; }
+.step-line.done { background: #025B8F; }
+.step-label { font-size: 11px; font-weight: 500; }
+.step-label.done { color: #025B8F; }
+.step-label.active { color: #101828; }
+.step-label.todo { color: #8A94A4; }
+.step-sub { font-size: 10px; color: #B0B8C4; }
+
+/* ── Pagination ── */
+.pag { display: flex; align-items: center; gap: 4px; }
+.pag-btn { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500; color: #344054; background: #fff; border: 1.5px solid #D0D5DD; border-radius: 6px; padding: 5px 10px; cursor: pointer; line-height: 1; min-width: 32px; text-align: center; }
+.pag-btn:hover { background: #F6F8FA; }
+.pag-btn.active { background: #EFF7FD; border-color: #B6DCF4; color: #025B8F; }
+.pag-btn.nav { padding: 5px 8px; }
+.pag-btn:disabled { color: #B0B8C4; cursor: not-allowed; }
+.pag-dots { color: #8A94A4; font-size: 12px; padding: 0 4px; }
+
+/* ── Empty state ── */
+.empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px 24px; text-align: center; }
+.empty-icon { width: 44px; height: 44px; border-radius: 12px; background: #F6F8FA; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.empty-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; color: #344054; margin-bottom: 6px; }
+.empty-body { font-size: 13px; color: #8A94A4; line-height: 1.6; max-width: 280px; margin-bottom: 18px; }
+
+/* ── Skeleton ── */
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+.skel { background: linear-gradient(90deg, #F6F8FA 25%, #EAECF0 50%, #F6F8FA 75%); background-size: 800px 100%; animation: shimmer 1.4s infinite; border-radius: 4px; }
+.skel-text { height: 12px; border-radius: 4px; }
+.skel-circle { border-radius: 50%; }
+.skel-card { background: #fff; border: 1px solid #EAECF0; border-radius: 8px; padding: 16px; }
+
+/* ── Toast ── */
+.toast { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; border-radius: 8px; box-shadow: 0 8px 16px rgba(16,24,40,.12); min-width: 300px; max-width: 380px; }
+.toast-success { background: #fff; border-left: 3px solid #16A34A; }
+.toast-warning { background: #fff; border-left: 3px solid #D97706; }
+.toast-error   { background: #fff; border-left: 3px solid #DC2626; }
+.toast-info    { background: #fff; border-left: 3px solid #025B8F; }
+.toast-title { font-size: 13px; font-weight: 600; color: #101828; margin-bottom: 2px; }
+.toast-body  { font-size: 12px; color: #667085; line-height: 1.5; }
+.toast-close { margin-left: auto; background: none; border: none; cursor: pointer; color: #8A94A4; padding: 0; display: flex; align-items: center; flex-shrink: 0; }
+
+/* ── Filter bar ── */
+.filter-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 6px; border: 1.5px solid; cursor: pointer; white-space: nowrap; transition: all 120ms; }
+.fc-active { background: #EFF7FD; color: #025B8F; border-color: #B6DCF4; }
+.fc-default { background: #fff; color: #475467; border-color: #D0D5DD; }
+.fc-active:hover { background: #DAEEF9; }
+.fc-default:hover { background: #F6F8FA; }
+
+/* ── Page header component ── */
+.ph-wrap { background: #fff; border-bottom: 1px solid #EAECF0; padding: 20px 24px; }
+.ph-breadcrumb { margin-bottom: 8px; }
+.ph-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 600; letter-spacing: -.02em; color: #101828; }
+.ph-sub { font-size: 13px; color: #667085; margin-top: 3px; }
+.ph-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── Divider ── */
+.divider { display: flex; align-items: center; gap: 12px; }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #EAECF0; }
+.divider-label { font-size: 11px; font-weight: 500; color: #8A94A4; white-space: nowrap; }
+
+/* ── Side drawer preview ── */
+.drawer-preview { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid #EAECF0; height: 340px; }
+.drawer-backdrop { flex: 1; background: rgba(16,24,40,.35); }
+.drawer-panel { width: 340px; background: #fff; flex-shrink: 0; display: flex; flex-direction: column; }
+.drawer-head { padding: 16px 20px; border-bottom: 1px solid #EAECF0; display: flex; align-items: flex-start; justify-content: space-between; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.drawer-foot { padding: 12px 20px; border-top: 1px solid #EAECF0; background: #FAFBFC; display: flex; justify-content: flex-end; gap: 8px; }
+
+@media (max-width: 800px) { .sidenav { display: none; } .main { margin-left: 0; } .content { padding: 28px 20px 60px; } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── Sidebar ── -->
+<nav class="sidenav">
+  <div class="sn-logo">
+    <img src="assets/logo.png" alt="Avise">
+    <span class="sn-badge">DS v1.0</span>
+  </div>
+  <div class="sn-group">
+    <div class="sn-label">Brand</div>
+    <a class="sn-link active" href="#brand"><span class="sn-dot" style="background:#025B8F"></span>Brand & Principles</a>
+  </div>
+  <div class="sn-group">
+    <div class="sn-label">Foundation</div>
+    <a class="sn-link" href="#colors"><span class="sn-dot" style="background:#4AA5DA"></span>Colors</a>
+    <a class="sn-link" href="#typography"><span class="sn-dot" style="background:#8A94A4"></span>Typography</a>
+    <a class="sn-link" href="#spacing"><span class="sn-dot" style="background:#B0B8C4"></span>Spacing</a>
+    <a class="sn-link" href="#elevation"><span class="sn-dot" style="background:#D0D5DD"></span>Shadows & Radius</a>
+  </div>
+  <div class="sn-group">
+    <div class="sn-label">Components</div>
+    <a class="sn-link" href="#buttons">Buttons</a>
+    <a class="sn-link" href="#inputs">Form Inputs</a>
+    <a class="sn-link" href="#controls">Checkboxes & Toggles</a>
+    <a class="sn-link" href="#badges">Badges & Tags</a>
+    <a class="sn-link" href="#alerts">Alerts</a>
+    <a class="sn-link" href="#table">Table</a>
+    <a class="sn-link" href="#cards">Cards</a>
+    <a class="sn-link" href="#modal">Modal & Drawer</a>
+    <a class="sn-link" href="#navigation">Navigation</a>
+    <a class="sn-link" href="#tabs">Tabs</a>
+    <a class="sn-link" href="#dropdown">Dropdown Menu</a>
+    <a class="sn-link" href="#avatars">Avatars</a>
+    <a class="sn-link" href="#tooltips">Tooltips</a>
+    <a class="sn-link" href="#breadcrumbs">Breadcrumbs</a>
+    <a class="sn-link" href="#progress">Progress & Steps</a>
+    <a class="sn-link" href="#pagination">Pagination</a>
+    <a class="sn-link" href="#empty">Empty States</a>
+    <a class="sn-link" href="#skeleton">Skeleton Loaders</a>
+    <a class="sn-link" href="#toast">Toast Notifications</a>
+    <a class="sn-link" href="#filterbar">Filter Bar</a>
+    <a class="sn-link" href="#pageheader">Page Headers</a>
+    <a class="sn-link" href="#dividers">Dividers</a>
+  </div>
+  <div class="sn-group">
+    <div class="sn-label">Guidelines</div>
+    <a class="sn-link" href="#data-format">Data Formatting</a>
+    <a class="sn-link" href="#tailwind">Tailwind Config</a>
+  </div>
+  <div class="sn-footer">
+    <div class="sn-version">Avise Inc. · Design System v1.0 · May 2026</div>
+  </div>
+</nav>
+
+<!-- ── Main ── -->
+<main class="main">
+<div class="content">
+
+<!-- Page header -->
+<div class="page-header" id="brand">
+  <img src="assets/logo.png" alt="Avise" style="height:28px;margin-bottom:20px">
+  <h1>Design System</h1>
+  <p>The single source of truth for Avise's visual language, component library, and implementation guidelines. Built for accounting and close management software — precise, trustworthy, and clean.</p>
+  <div class="pill-row">
+    <span class="pill b-info">v1.0</span>
+    <span class="pill b-neutral">Light mode</span>
+    <span class="pill b-neutral">Tailwind CSS</span>
+    <span class="pill b-neutral">Inter + Plus Jakarta Sans</span>
+  </div>
+</div>
+
+<!-- Principles -->
+<section class="section">
+  <div class="section-header">
+    <div class="section-title">Brand Principles</div>
+    <div class="section-desc">These principles guide every design decision — from a button label to an entire screen layout.</div>
+  </div>
+  <div class="three-col">
+    <div class="frame" style="padding:20px">
+      <div style="width:32px;height:32px;background:#EFF7FD;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#025B8F" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:#101828;margin-bottom:6px">Precise</div>
+      <div style="font-size:12px;color:#667085;line-height:1.6">Every number matters. Financial data is displayed with full fidelity — monospace type, parentheses for negatives, no rounding.</div>
+    </div>
+    <div class="frame" style="padding:20px">
+      <div style="width:32px;height:32px;background:#EFF7FD;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#025B8F" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:#101828;margin-bottom:6px">Clear</div>
+      <div style="font-size:12px;color:#667085;line-height:1.6">Hierarchy is never ambiguous. Color, weight, and size work together to direct attention to what matters most on every screen.</div>
+    </div>
+    <div class="frame" style="padding:20px">
+      <div style="width:32px;height:32px;background:#EFF7FD;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#025B8F" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:600;color:#101828;margin-bottom:6px">Trustworthy</div>
+      <div style="font-size:12px;color:#667085;line-height:1.6">CFOs and controllers trust Avise with sensitive data. The design must feel serious, stable, and reliable — not flashy.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── COLORS ─────────── -->
+<section class="section" id="colors">
+  <div class="section-header">
+    <div class="section-title">Colors</div>
+    <div class="section-desc">All colors are derived from the brand primary <code>#025B8F</code>. Always use semantic tokens in code — never raw hex values.</div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Primary — Blue</div>
+    <div class="swatch-strip">
+      <div class="sw" style="background:#EFF7FD" title="50"></div>
+      <div class="sw" style="background:#DAEEF9" title="100"></div>
+      <div class="sw" style="background:#B6DCF4" title="200"></div>
+      <div class="sw" style="background:#83C4EA" title="300"></div>
+      <div class="sw" style="background:#4AA5DA" title="400"></div>
+      <div class="sw" style="background:#2389C4" title="500"></div>
+      <div class="sw" style="background:#1171AB" title="600"></div>
+      <div class="sw" style="background:#025B8F;outline:3px solid #025B8F;outline-offset:-3px;position:relative" title="700 ★"></div>
+      <div class="sw" style="background:#024A75" title="800"></div>
+      <div class="sw" style="background:#023A5C" title="900"></div>
+      <div class="sw" style="background:#01253D" title="950"></div>
+    </div>
+    <table class="token-table">
+      <thead><tr><th></th><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><span class="t-swatch" style="background:#EFF7FD"></span></td><td class="t-token">primary-50</td><td class="t-value">#EFF7FD</td><td class="t-note">Subtle bg, hover fills, badge bg</td></tr>
+        <tr><td><span class="t-swatch" style="background:#B6DCF4"></span></td><td class="t-token">primary-200</td><td class="t-value">#B6DCF4</td><td class="t-note">Borders on info surfaces, active tab border</td></tr>
+        <tr><td><span class="t-swatch" style="background:#025B8F;border-color:#025B8F"></span></td><td class="t-token">primary-700 ★</td><td class="t-value">#025B8F</td><td class="t-note"><strong>Brand color.</strong> Primary buttons, CTAs, links, active states</td></tr>
+        <tr><td><span class="t-swatch" style="background:#024A75;border-color:#024A75"></span></td><td class="t-token">primary-800</td><td class="t-value">#024A75</td><td class="t-note">Button hover, darker accents</td></tr>
+        <tr><td><span class="t-swatch" style="background:#01253D;border-color:#01253D"></span></td><td class="t-token">primary-950</td><td class="t-value">#01253D</td><td class="t-note">Sidebar background</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Neutral — Slate</div>
+    <div class="swatch-strip">
+      <div class="sw" style="background:#FFFFFF;border-right:1px solid #eee"></div>
+      <div class="sw" style="background:#FAFBFC"></div>
+      <div class="sw" style="background:#F6F8FA"></div>
+      <div class="sw" style="background:#EAECF0"></div>
+      <div class="sw" style="background:#D0D5DD"></div>
+      <div class="sw" style="background:#B0B8C4"></div>
+      <div class="sw" style="background:#8A94A4"></div>
+      <div class="sw" style="background:#667085"></div>
+      <div class="sw" style="background:#475467"></div>
+      <div class="sw" style="background:#344054"></div>
+      <div class="sw" style="background:#1D2939"></div>
+      <div class="sw" style="background:#101828"></div>
+      <div class="sw" style="background:#0C111D"></div>
+    </div>
+    <table class="token-table">
+      <thead><tr><th></th><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><span class="t-swatch" style="background:#FFFFFF"></span></td><td class="t-token">neutral-0</td><td class="t-value">#FFFFFF</td><td class="t-note">Card/surface background</td></tr>
+        <tr><td><span class="t-swatch" style="background:#F6F8FA"></span></td><td class="t-token">neutral-50</td><td class="t-value">#F6F8FA</td><td class="t-note">App canvas, table header bg, row hover</td></tr>
+        <tr><td><span class="t-swatch" style="background:#EAECF0"></span></td><td class="t-token">neutral-100</td><td class="t-value">#EAECF0</td><td class="t-note">Default borders, dividers</td></tr>
+        <tr><td><span class="t-swatch" style="background:#D0D5DD"></span></td><td class="t-token">neutral-200</td><td class="t-value">#D0D5DD</td><td class="t-note">Input borders, strong dividers</td></tr>
+        <tr><td><span class="t-swatch" style="background:#8A94A4;border-color:#8A94A4"></span></td><td class="t-token">neutral-400</td><td class="t-value">#8A94A4</td><td class="t-note">Icons, placeholders, tertiary text</td></tr>
+        <tr><td><span class="t-swatch" style="background:#475467;border-color:#475467"></span></td><td class="t-token">neutral-600</td><td class="t-value">#475467</td><td class="t-note">Secondary body text, table cell text</td></tr>
+        <tr><td><span class="t-swatch" style="background:#344054;border-color:#344054"></span></td><td class="t-token">neutral-700</td><td class="t-value">#344054</td><td class="t-note">Primary UI text</td></tr>
+        <tr><td><span class="t-swatch" style="background:#101828;border-color:#101828"></span></td><td class="t-token">neutral-900</td><td class="t-value">#101828</td><td class="t-note">Headings, high-emphasis text</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Semantic</div>
+    <div class="semantic-grid">
+      <div class="sem-card">
+        <div class="sem-top" style="background:#F0FDF4;border-bottom:3px solid #22C55E"></div>
+        <div class="sem-info"><div class="sem-name">Success</div><div class="sem-vals">bg #F0FDF4 · text #15803D · border #BBF7D0</div></div>
+      </div>
+      <div class="sem-card">
+        <div class="sem-top" style="background:#FFFBEB;border-bottom:3px solid #F59E0B"></div>
+        <div class="sem-info"><div class="sem-name">Warning</div><div class="sem-vals">bg #FFFBEB · text #B45309 · border #FDE68A</div></div>
+      </div>
+      <div class="sem-card">
+        <div class="sem-top" style="background:#FFF1F2;border-bottom:3px solid #EF4444"></div>
+        <div class="sem-info"><div class="sem-name">Error</div><div class="sem-vals">bg #FFF1F2 · text #B91C1C · border #FECDD3</div></div>
+      </div>
+      <div class="sem-card">
+        <div class="sem-top" style="background:#EFF7FD;border-bottom:3px solid #2389C4"></div>
+        <div class="sem-info"><div class="sem-name">Info</div><div class="sem-vals">bg #EFF7FD · text #025B8F · border #B6DCF4</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TYPOGRAPHY ─────────── -->
+<section class="section" id="typography">
+  <div class="section-header">
+    <div class="section-title">Typography</div>
+    <div class="section-desc">Three typefaces, each with a distinct role. Never swap them.</div>
+  </div>
+  <div class="three-col" style="margin-bottom:28px">
+    <div class="frame" style="padding:18px">
+      <div class="sub-title" style="margin-bottom:8px">Display</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.02em;color:#101828;margin-bottom:4px">Plus Jakarta Sans</div>
+      <div style="font-size:11px;color:#667085">Page titles, section headings, card headers, KPI values</div>
+    </div>
+    <div class="frame" style="padding:18px">
+      <div class="sub-title" style="margin-bottom:8px">Body</div>
+      <div style="font-family:'Inter',sans-serif;font-size:20px;font-weight:400;color:#101828;margin-bottom:4px">Inter</div>
+      <div style="font-size:11px;color:#667085">All UI text — labels, descriptions, nav items, table cells</div>
+    </div>
+    <div class="frame" style="padding:18px">
+      <div class="sub-title" style="margin-bottom:8px">Mono</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:18px;color:#101828;margin-bottom:4px">JetBrains Mono</div>
+      <div style="font-size:11px;color:#667085">Financial values, account numbers, token names in code</div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Scale</div>
+    <div class="frame" style="padding:20px 24px">
+      <div class="type-row"><div class="type-meta"><div class="type-token">h1</div><div class="type-spec">Jakarta Sans · 30px · 600 · -0.02em</div></div><div class="type-sample" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:30px;font-weight:600;letter-spacing:-.02em;color:#101828">Month-End Close</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">h2</div><div class="type-spec">Jakarta Sans · 24px · 600 · -0.02em</div></div><div class="type-sample" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:600;letter-spacing:-.02em;color:#101828">Reconciliations</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">h3</div><div class="type-spec">Jakarta Sans · 18px · 600</div></div><div class="type-sample" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:600;color:#101828">Balance Sheet</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">h4</div><div class="type-spec">Jakarta Sans · 16px · 600</div></div><div class="type-sample" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:600;color:#101828">Accounts Receivable</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">body-lg</div><div class="type-spec">Inter · 16px · 400</div></div><div class="type-sample" style="font-family:'Inter',sans-serif;font-size:16px;color:#475467">Track progress, assign responsibilities, create audit-ready records.</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">body-md</div><div class="type-spec">Inter · 14px · 400</div></div><div class="type-sample" style="font-family:'Inter',sans-serif;font-size:14px;color:#475467">Eliminates manual spreadsheets for amortization and depreciation.</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">body-sm</div><div class="type-spec">Inter · 13px · 400</div></div><div class="type-sample" style="font-family:'Inter',sans-serif;font-size:13px;color:#475467">Offers a single dashboard for real-time analytics across all entities.</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">label</div><div class="type-spec">Inter · 12px · 500 · +0.02em · uppercase</div></div><div class="type-sample" style="font-family:'Inter',sans-serif;font-size:12px;font-weight:500;letter-spacing:.02em;color:#344054;text-transform:uppercase">Classification</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">caption</div><div class="type-spec">Inter · 11px · 400</div></div><div class="type-sample" style="font-family:'Inter',sans-serif;font-size:11px;color:#8A94A4">Last synced 2 minutes ago</div></div>
+      <div class="type-row"><div class="type-meta"><div class="type-token">mono / financial</div><div class="type-spec">JetBrains Mono · 14px · 400</div></div><div class="type-sample" style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#101828">£4,786,334.58 &nbsp;&nbsp; (£13,149.46) &nbsp;&nbsp; £0.00</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── SPACING ─────────── -->
+<section class="section" id="spacing">
+  <div class="section-header">
+    <div class="section-title">Spacing</div>
+    <div class="section-desc">4px base unit. All values are multiples of 4. Use <code>--space-N</code> tokens in CSS or <code>p-N</code> / <code>gap-N</code> Tailwind utilities.</div>
+  </div>
+  <div class="frame">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 40px">
+      <div class="sp-row"><div class="sp-token">space-1</div><div class="sp-bar" style="width:4px"></div><div class="sp-px">4px</div><div class="sp-use">Icon gaps, badge padding</div></div>
+      <div class="sp-row"><div class="sp-token">space-2</div><div class="sp-bar" style="width:8px"></div><div class="sp-px">8px</div><div class="sp-use">Nav item padding, row gaps</div></div>
+      <div class="sp-row"><div class="sp-token">space-3</div><div class="sp-bar" style="width:12px"></div><div class="sp-px">12px</div><div class="sp-use">Button padding (sm)</div></div>
+      <div class="sp-row"><div class="sp-token">space-4</div><div class="sp-bar" style="width:16px"></div><div class="sp-px">16px</div><div class="sp-use">Card padding, input padding</div></div>
+      <div class="sp-row"><div class="sp-token">space-5</div><div class="sp-bar" style="width:20px"></div><div class="sp-px">20px</div><div class="sp-use">Component gaps</div></div>
+      <div class="sp-row"><div class="sp-token">space-6</div><div class="sp-bar" style="width:24px"></div><div class="sp-px">24px</div><div class="sp-use">Page padding top/bottom</div></div>
+      <div class="sp-row"><div class="sp-token">space-8</div><div class="sp-bar" style="width:32px"></div><div class="sp-px">32px</div><div class="sp-use">Page padding horizontal</div></div>
+      <div class="sp-row"><div class="sp-token">space-12</div><div class="sp-bar" style="width:48px"></div><div class="sp-px">48px</div><div class="sp-use">Section gaps</div></div>
+      <div class="sp-row"><div class="sp-token">space-16</div><div class="sp-bar" style="width:64px"></div><div class="sp-px">64px</div><div class="sp-use">Major section separators</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── SHADOWS & RADIUS ─────────── -->
+<section class="section" id="elevation">
+  <div class="section-header">
+    <div class="section-title">Shadows & Radius</div>
+    <div class="section-desc">Shadows convey elevation. Radius signals component type — inputs/buttons use 6px, cards use 8px, modals use 12px, pills use full.</div>
+  </div>
+  <div class="two-col">
+    <div class="sub">
+      <div class="sub-title">Border Radius</div>
+      <div class="radius-row" style="margin-bottom:14px">
+        <div class="radius-card"><div class="radius-box" style="border-radius:2px"></div><div class="radius-lbl">xs · 2px</div></div>
+        <div class="radius-card"><div class="radius-box" style="border-radius:4px"></div><div class="radius-lbl">sm · 4px</div></div>
+        <div class="radius-card"><div class="radius-box" style="border-radius:6px"></div><div class="radius-lbl">md · 6px</div></div>
+        <div class="radius-card"><div class="radius-box" style="border-radius:8px"></div><div class="radius-lbl">lg · 8px</div></div>
+        <div class="radius-card"><div class="radius-box" style="border-radius:12px"></div><div class="radius-lbl">xl · 12px</div></div>
+        <div class="radius-card"><div class="radius-box" style="border-radius:9999px"></div><div class="radius-lbl">full</div></div>
+      </div>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Value</th><th>Used on</th></tr></thead>
+        <tbody>
+          <tr><td class="t-token">radius-md</td><td class="t-value">6px</td><td class="t-note">Buttons, inputs, select, nav items</td></tr>
+          <tr><td class="t-token">radius-lg</td><td class="t-value">8px</td><td class="t-note">Cards, table containers, dropdowns</td></tr>
+          <tr><td class="t-token">radius-xl</td><td class="t-value">12px</td><td class="t-note">Modals, drawers, large panels</td></tr>
+          <tr><td class="t-token">radius-full</td><td class="t-value">9999px</td><td class="t-note">Badges, status pills, toggles</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="sub">
+      <div class="sub-title">Shadow Elevation</div>
+      <div class="shadow-row" style="margin-bottom:14px">
+        <div class="shadow-card"><div class="shadow-box" style="box-shadow:0 1px 2px rgba(16,24,40,.05);border:1px solid #EAECF0"></div><div class="shadow-lbl">xs</div></div>
+        <div class="shadow-card"><div class="shadow-box" style="box-shadow:0 1px 3px rgba(16,24,40,.10),0 1px 2px rgba(16,24,40,.06)"></div><div class="shadow-lbl">sm</div></div>
+        <div class="shadow-card"><div class="shadow-box" style="box-shadow:0 4px 8px -2px rgba(16,24,40,.10),0 2px 4px -2px rgba(16,24,40,.06)"></div><div class="shadow-lbl">md</div></div>
+        <div class="shadow-card"><div class="shadow-box" style="box-shadow:0 12px 16px -4px rgba(16,24,40,.08),0 4px 6px -2px rgba(16,24,40,.03)"></div><div class="shadow-lbl">lg</div></div>
+        <div class="shadow-card"><div class="shadow-box" style="box-shadow:0 20px 24px -4px rgba(16,24,40,.08),0 8px 8px -4px rgba(16,24,40,.03)"></div><div class="shadow-lbl">xl</div></div>
+      </div>
+      <table class="token-table">
+        <thead><tr><th>Token</th><th>Used on</th></tr></thead>
+        <tbody>
+          <tr><td class="t-token">shadow-xs</td><td class="t-note">Inputs, form controls</td></tr>
+          <tr><td class="t-token">shadow-sm</td><td class="t-note">Cards, table containers</td></tr>
+          <tr><td class="t-token">shadow-md</td><td class="t-note">Dropdowns, entity selector popup</td></tr>
+          <tr><td class="t-token">shadow-lg</td><td class="t-note">Modals, side drawers</td></tr>
+          <tr><td class="t-token">shadow-xl</td><td class="t-note">Popovers, tooltips, command palette</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── BUTTONS ─────────── -->
+<section class="section" id="buttons">
+  <div class="section-header">
+    <div class="section-title">Buttons</div>
+    <div class="section-desc">Six variants, three sizes. Use exactly one <strong>Primary</strong> button per view — it marks the most important action. Use Secondary for alternative actions, Ghost for inline/tertiary.</div>
+  </div>
+  <div class="frame">
+    <div class="frame-label">Variants</div>
+    <div class="comp-row">
+      <div class="row-label">All variants</div>
+      <button class="btn btn-md btn-primary">Primary</button>
+      <button class="btn btn-md btn-secondary">Secondary</button>
+      <button class="btn btn-md btn-ghost">Ghost</button>
+      <button class="btn btn-md btn-subtle">Subtle</button>
+      <button class="btn btn-md btn-danger">Danger</button>
+      <button class="btn btn-md btn-danger-out">Danger outline</button>
+    </div>
+  </div>
+  <div class="frame">
+    <div class="frame-label">Sizes</div>
+    <div class="comp-row">
+      <div class="row-label">Small</div>
+      <button class="btn btn-sm btn-primary">Add Task</button>
+      <button class="btn btn-sm btn-secondary">Export</button>
+      <button class="btn btn-sm btn-ghost">View all</button>
+    </div>
+    <div class="comp-row">
+      <div class="row-label">Medium</div>
+      <button class="btn btn-md btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Account</button>
+      <button class="btn btn-md btn-secondary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
+      <button class="btn btn-md btn-ghost">View details</button>
+    </div>
+    <div class="comp-row">
+      <div class="row-label">Large</div>
+      <button class="btn btn-lg btn-primary">Start Close</button>
+      <button class="btn btn-lg btn-secondary">Cancel</button>
+    </div>
+  </div>
+  <div class="frame">
+    <div class="frame-label">States</div>
+    <div class="comp-row">
+      <div class="row-label">Primary</div>
+      <button class="btn btn-md btn-primary">Default</button>
+      <button class="btn btn-md btn-hover-demo">Hover</button>
+      <button class="btn btn-md btn-focus-demo">Focused</button>
+      <button class="btn btn-md btn-primary" style="transform:scale(.97)">Pressed</button>
+      <button class="btn btn-md btn-disabled" disabled>Disabled</button>
+    </div>
+    <div class="comp-row">
+      <div class="row-label">Icon only</div>
+      <button class="btn btn-md btn-secondary" style="width:32px;height:32px;padding:0;justify-content:center;border-radius:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="btn btn-md btn-secondary" style="width:32px;height:32px;padding:0;justify-content:center;border-radius:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></svg></button>
+      <span style="font-size:11px;color:#8A94A4">Icon-only buttons must have a tooltip aria-label</span>
+    </div>
+  </div>
+  <div class="dnd-grid">
+    <div class="dnd-do"><div class="dnd-tag">✓ Do</div><div class="dnd-content"><button class="btn btn-md btn-primary" style="margin-bottom:6px">Start Close</button><br><span style="font-size:12px;color:#15803D">One Primary per view — the clear main action</span></div></div>
+    <div class="dnd-dont"><div class="dnd-tag">✗ Don't</div><div class="dnd-content" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"><button class="btn btn-md btn-primary">Export</button><button class="btn btn-md btn-primary">Import</button><button class="btn btn-md btn-primary">Add</button></div><span style="font-size:12px;color:#B91C1C">Multiple Primary buttons dilute hierarchy</span></div>
+  </div>
+</section>
+
+<!-- ─────────── INPUTS ─────────── -->
+<section class="section" id="inputs">
+  <div class="section-header">
+    <div class="section-title">Form Inputs</div>
+    <div class="section-desc">1.5px border, 6px radius, xs shadow. Labels always visible above — never placeholder-only. Helper text uses caption style below.</div>
+  </div>
+  <div class="frame">
+    <div class="two-col">
+      <div>
+        <div style="margin-bottom:12px"><label class="field-label">Account Name <span style="color:#DC2626">*</span></label><input class="input" placeholder="e.g. Accounts Receivable"></div>
+        <div style="margin-bottom:12px">
+          <label class="field-label">Search</label>
+          <div class="input-wrap"><svg class="input-icon-l" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="input has-l" placeholder="Search accounts…"></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <label class="field-label">Amount</label>
+          <div class="input-addon"><div class="addon-prefix">£</div><input class="input" value="4,786,334.58" style="font-family:'JetBrains Mono',monospace"></div>
+        </div>
+        <div>
+          <label class="field-label">Focused state</label>
+          <input class="input input-focused" value="Accounts Receivable">
+          <div class="field-helper">Used in reconciliation reports</div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:12px">
+          <label class="field-label">Classification</label>
+          <select class="input" style="appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2711%27 height=%2711%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%238A94A4%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;padding-right:30px">
+            <option>Asset</option><option>Liability</option><option>Equity</option>
+          </select>
+        </div>
+        <div style="margin-bottom:12px">
+          <label class="field-label">Error state</label>
+          <input class="input input-error" value="(£13,149.46)">
+          <div class="field-error">Value must be reconciled before close</div>
+        </div>
+        <div style="margin-bottom:12px">
+          <label class="field-label">Disabled</label>
+          <input class="input input-disabled" value="Flow 48" disabled>
+        </div>
+        <div>
+          <label class="field-label">Notes</label>
+          <textarea class="input" rows="2" placeholder="Add reconciliation notes…" style="resize:none"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── CONTROLS ─────────── -->
+<section class="section" id="controls">
+  <div class="section-header">
+    <div class="section-title">Checkboxes, Radios & Toggles</div>
+    <div class="section-desc">Active state always uses <code>primary-700</code>. Disabled uses <code>neutral-50</code> background + <code>neutral-300</code> border. Labels sit to the right with 8px gap.</div>
+  </div>
+  <div class="frame">
+    <div class="three-col">
+      <div>
+        <div class="sub-title" style="margin-bottom:10px">Checkboxes</div>
+        <div class="ctrl-row"><div class="cb"></div> Unchecked</div>
+        <div class="ctrl-row"><div class="cb on"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><path d="M2 6l3 3 5-5"/></svg></div> Checked</div>
+        <div class="ctrl-row"><div class="cb ind"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><path d="M2 6h8"/></svg></div> Indeterminate</div>
+        <div class="ctrl-row"><div class="cb off-dis"></div> <span style="color:#B0B8C4">Disabled</span></div>
+        <div class="ctrl-row"><div class="cb on" style="background:#B0B8C4;border-color:#B0B8C4"><svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><path d="M2 6l3 3 5-5"/></svg></div> <span style="color:#B0B8C4">Disabled checked</span></div>
+      </div>
+      <div>
+        <div class="sub-title" style="margin-bottom:10px">Radio Buttons</div>
+        <div class="ctrl-row"><div class="rd"></div> Unselected</div>
+        <div class="ctrl-row"><div class="rd on"></div> Asset</div>
+        <div class="ctrl-row"><div class="rd"></div> Liability</div>
+        <div class="ctrl-row"><div class="rd"></div> Equity</div>
+      </div>
+      <div>
+        <div class="sub-title" style="margin-bottom:10px">Toggles</div>
+        <div class="ctrl-row"><div class="toggle"></div> Off</div>
+        <div class="ctrl-row"><div class="toggle on"></div> On</div>
+        <div style="margin-top:12px;background:#F6F8FA;padding:10px 12px;border-radius:7px;display:flex;align-items:center;gap:8px">
+          <div class="toggle on"></div>
+          <span style="font-size:13px;font-weight:500;color:#101828">NetSuite Sync active</span>
+        </div>
+        <div style="margin-top:8px;background:#F6F8FA;padding:10px 12px;border-radius:7px;display:flex;align-items:center;gap:8px">
+          <div class="toggle"></div>
+          <span style="font-size:13px;font-weight:500;color:#101828">Auto-assign tasks</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── BADGES ─────────── -->
+<section class="section" id="badges">
+  <div class="section-header">
+    <div class="section-title">Badges & Tags</div>
+    <div class="section-desc">Status badges use a 5px dot + label. Account type badges use a 4px radius (rectangular feel). Tags are dismissible. Never use a badge where a plain label would do.</div>
+  </div>
+  <div class="frame">
+    <div class="comp-row"><div class="row-label">Status</div>
+      <span class="badge badge-md b-success"><span class="b-dot" style="background:#22C55E"></span>Reconciled</span>
+      <span class="badge badge-md b-warning"><span class="b-dot" style="background:#F59E0B"></span>In Review</span>
+      <span class="badge badge-md b-error"><span class="b-dot" style="background:#EF4444"></span>Reopened</span>
+      <span class="badge badge-md b-info"><span class="b-dot" style="background:#2389C4"></span>Assigned</span>
+      <span class="badge badge-md b-neutral"><span class="b-dot" style="background:#8A94A4"></span>Not Started</span>
+    </div>
+    <div class="comp-row"><div class="row-label">Label</div>
+      <span class="badge badge-md b-primary">Flow 48</span>
+      <span class="badge badge-md b-info">Asset</span>
+      <span class="badge badge-md b-neutral">Mar 2026</span>
+      <span class="badge badge-md b-dark">Closed</span>
+    </div>
+    <div class="comp-row"><div class="row-label">Sizes</div>
+      <span class="badge badge-sm b-success"><span class="b-dot" style="background:#22C55E"></span>Small</span>
+      <span class="badge badge-md b-success"><span class="b-dot" style="background:#22C55E"></span>Medium</span>
+      <span class="badge badge-lg b-success"><span class="b-dot" style="background:#22C55E"></span>Large</span>
+    </div>
+    <div class="comp-row"><div class="row-label">Tags</div>
+      <span class="tag">Asset <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#4AA5DA" stroke-width="2.5" style="flex-shrink:0"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+      <span class="tag">Mar 2026 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#4AA5DA" stroke-width="2.5" style="flex-shrink:0"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+      <span class="tag">Assigned to Me <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#4AA5DA" stroke-width="2.5" style="flex-shrink:0"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+    </div>
+    <div class="comp-row" style="align-items:flex-start"><div class="row-label">Account type</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="type-badge" style="background:#EFF7FD;color:#025B8F;border-color:#B6DCF4">Bank</span>
+        <span class="type-badge" style="background:#EFF7FD;color:#025B8F;border-color:#B6DCF4">Accounts Receivable</span>
+        <span class="type-badge" style="background:#F6F8FA;color:#475467;border-color:#D0D5DD">Other Current Asset</span>
+        <span class="type-badge" style="background:#F6F8FA;color:#344054;border-color:#D0D5DD">Fixed Asset</span>
+        <span class="type-badge" style="background:#FFFBEB;color:#B45309;border-color:#FDE68A">Accounts Payable</span>
+        <span class="type-badge" style="background:#FFFBEB;color:#B45309;border-color:#FDE68A">Other Current Liability</span>
+        <span class="type-badge" style="background:#F0FDF4;color:#15803D;border-color:#BBF7D0">Equity</span>
+        <span class="type-badge" style="background:#FFF1F2;color:#B91C1C;border-color:#FECDD3">Operating Expense</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── ALERTS ─────────── -->
+<section class="section" id="alerts">
+  <div class="section-header">
+    <div class="section-title">Alerts</div>
+    <div class="section-desc">System messages for sync status, validation feedback, and period-level notifications. Always include an icon, bold title, and concise body. Use the semantic color for the alert type.</div>
+  </div>
+  <div class="frame">
+    <div class="alert a-info"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#025B8F" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><div><div class="a-title">NetSuite sync running</div><div class="a-body">Last synced 2 minutes ago. Next sync in 58 minutes.</div></div></div>
+    <div class="alert a-warning"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><div><div class="a-title">2 accounts overdue</div><div class="a-body">Payroll Account and Certificate Deposit passed their due date.</div></div></div>
+    <div class="alert a-error"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><div><div class="a-title">Reconciliation mismatch</div><div class="a-body">Certificate Deposit Account has an unresolved difference of (£13,149.46).</div></div></div>
+    <div class="alert a-success"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg><div><div class="a-title">Close complete</div><div class="a-body">All 168 accounts reconciled. Feb 2026 close certified.</div></div></div>
+  </div>
+</section>
+
+<!-- ─────────── TABLE ─────────── -->
+<section class="section" id="table">
+  <div class="section-header">
+    <div class="section-title">Table</div>
+    <div class="section-desc">Dense data tables are the core of Avise. Key rules: monospace for all financial values, negative amounts in red wrapped in parentheses, 44px min row height, neutral-50 row hover.</div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Anatomy</div>
+    <div class="frame" style="padding:0;overflow:hidden">
+      <table class="ds-table">
+        <thead><tr>
+          <th style="width:36px;padding-right:0"><div style="width:14px;height:14px;border-radius:4px;border:1.5px solid #D0D5DD;background:#fff"></div></th>
+          <th>Account</th><th>Classification</th>
+          <th style="text-align:right">G/L Balance</th>
+          <th style="text-align:right">Difference</th>
+          <th>Status</th><th>Assignee</th><th></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td style="padding-right:0"><div style="width:14px;height:14px;border-radius:4px;background:#025B8F;border:none;display:flex;align-items:center;justify-content:center"><svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5"><path d="M2 6l3 3 5-5"/></svg></div></td>
+            <td class="acct-name">Accounts Receivable</td>
+            <td style="font-size:12px;color:#667085">Asset</td>
+            <td class="mono pos" style="text-align:right">£4,786,334.58</td>
+            <td class="mono zero" style="text-align:right">£0.00</td>
+            <td><span class="badge badge-md b-warning"><span class="b-dot" style="background:#F59E0B"></span>In Review</span></td>
+            <td style="font-size:12px;color:#667085">G. Stanton</td>
+            <td><button style="background:none;border:none;cursor:pointer;color:#8A94A4;padding:3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+          </tr>
+          <tr>
+            <td style="padding-right:0"><div style="width:14px;height:14px;border-radius:4px;border:1.5px solid #D0D5DD;background:#fff"></div></td>
+            <td class="acct-name">Certificate Deposit Account</td>
+            <td style="font-size:12px;color:#667085">Asset</td>
+            <td class="mono neg" style="text-align:right">(£13,149.46)</td>
+            <td class="mono neg" style="text-align:right">(£13,149.46)</td>
+            <td><span class="badge badge-md b-neutral"><span class="b-dot" style="background:#8A94A4"></span>Not Started</span></td>
+            <td style="font-size:12px;color:#667085">—</td>
+            <td><button style="background:none;border:none;cursor:pointer;color:#8A94A4;padding:3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+          </tr>
+          <tr>
+            <td style="padding-right:0"><div style="width:14px;height:14px;border-radius:4px;border:1.5px solid #D0D5DD;background:#fff"></div></td>
+            <td class="acct-name">Payroll Account</td>
+            <td style="font-size:12px;color:#667085">Asset</td>
+            <td class="mono neg" style="text-align:right">(£168.97)</td>
+            <td class="mono neg" style="text-align:right">(£168.97)</td>
+            <td><span class="badge badge-md b-error"><span class="b-dot" style="background:#EF4444"></span>Reopened</span></td>
+            <td style="font-size:12px;color:#DC2626;font-weight:500">Overdue</td>
+            <td><button style="background:none;border:none;cursor:pointer;color:#8A94A4;padding:3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Column conventions</div>
+    <table class="token-table">
+      <thead><tr><th>Column type</th><th>Alignment</th><th>Font</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td class="t-label">Account name</td><td class="t-value">Left</td><td class="t-note">Inter 13px / 500</td><td class="t-note">Color #101828</td></tr>
+        <tr><td class="t-label">Classification / type</td><td class="t-value">Left</td><td class="t-note">Inter 12px / 400</td><td class="t-note">Color neutral-500</td></tr>
+        <tr><td class="t-label">Financial amount</td><td class="t-value">Right</td><td class="t-note">JetBrains Mono 12.5px</td><td class="t-note">Positive → primary-700, Negative → error-600, Zero → neutral-300</td></tr>
+        <tr><td class="t-label">Date</td><td class="t-value">Left</td><td class="t-note">Inter 12px / 400</td><td class="t-note">Overdue dates use error-600 + 500 weight</td></tr>
+        <tr><td class="t-label">Status</td><td class="t-value">Left</td><td class="t-note">Badge component</td><td class="t-note">Always dot + label</td></tr>
+        <tr><td class="t-label">Actions</td><td class="t-value">Right</td><td class="t-note">Icon buttons</td><td class="t-note">28×28px, visible on row hover only (opacity transition)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─────────── CARDS ─────────── -->
+<section class="section" id="cards">
+  <div class="section-header">
+    <div class="section-title">Cards</div>
+    <div class="section-desc">Cards group related content. 8px radius, sm shadow, neutral-100 border. Stat cards live in the top bar. Detail cards show account summaries in side panels.</div>
+  </div>
+  <div class="three-col" style="margin-bottom:16px">
+    <div class="stat-card">
+      <div class="stat-lbl">Period Status</div>
+      <div class="stat-val">Mar 2026</div>
+      <div style="margin-top:8px"><span class="badge badge-md b-neutral">Open</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Total Reviewed</div>
+      <div class="stat-val" style="color:#025B8F">4,001,906</div>
+      <div style="margin-top:8px"><span class="badge badge-md b-success">↑ 12% vs last</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-lbl">Days Remaining</div>
+      <div class="stat-val">9</div>
+      <div class="prog-bg"><div class="prog-fill" style="width:68%"></div></div>
+    </div>
+  </div>
+  <div class="frame" style="padding:0;overflow:hidden">
+    <div style="padding:14px 16px;border-bottom:1px solid #EAECF0;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;color:#101828">Accounts Receivable</span>
+      <span class="badge badge-md b-warning"><span class="b-dot" style="background:#F59E0B"></span>In Review</span>
+    </div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#667085">G/L Balance</span><span class="mono pos">£4,786,334.58</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#667085">Rec Balance</span><span class="mono pos">£4,786,334.58</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#667085">Difference</span><span class="mono zero">£0.00</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#667085">Due date</span><span style="font-size:12px;color:#344054">Apr 30, 2026</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:#667085">Assignee</span><span style="font-size:12px;color:#344054">G. Stanton</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── MODAL ─────────── -->
+<section class="section" id="modal">
+  <div class="section-header">
+    <div class="section-title">Modal / Dialog</div>
+    <div class="section-desc">Centered overlay for focused tasks — adding an account, confirming a destructive action, editing a single record. Max width 520px. Backdrop uses <code>rgba(16,24,40,.45)</code> with 2px blur. Animated entrance: scale from 0.97 + fade, 180ms ease-out.</div>
+  </div>
+  <div class="modal-preview">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title">Add Account</div>
+          <div class="modal-sub">Create a new account in your Chart of Accounts.</div>
+        </div>
+        <button style="background:none;border:none;cursor:pointer;color:#8A94A4;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display:grid;grid-template-columns:1fr 110px;gap:10px">
+          <div><label class="field-label">Account Name <span style="color:#DC2626">*</span></label><input class="input" placeholder="e.g. Accounts Receivable"></div>
+          <div><label class="field-label">Account #</label><input class="input" placeholder="1000" style="font-family:'JetBrains Mono',monospace"></div>
+        </div>
+        <div>
+          <label class="field-label">Classification</label>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <div style="padding:5px 11px;border-radius:5px;font-size:12px;font-weight:500;background:#025B8F;color:#fff;border:1.5px solid #025B8F;cursor:pointer">Asset</div>
+            <div style="padding:5px 11px;border-radius:5px;font-size:12px;font-weight:500;background:#fff;color:#475467;border:1.5px solid #D0D5DD;cursor:pointer">Liability</div>
+            <div style="padding:5px 11px;border-radius:5px;font-size:12px;font-weight:500;background:#fff;color:#475467;border:1.5px solid #D0D5DD;cursor:pointer">Equity</div>
+            <div style="padding:5px 11px;border-radius:5px;font-size:12px;font-weight:500;background:#fff;color:#475467;border:1.5px solid #D0D5DD;cursor:pointer">Revenue</div>
+            <div style="padding:5px 11px;border-radius:5px;font-size:12px;font-weight:500;background:#fff;color:#475467;border:1.5px solid #D0D5DD;cursor:pointer">Expense</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label class="field-label">Account Type</label><select class="input" style="appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2711%27 height=%2711%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%238A94A4%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 10px center;padding-right:28px"><option>Select type…</option><option>Bank</option><option>Accounts Receivable</option></select></div>
+          <div><label class="field-label">Sub-Type</label><input class="input" placeholder="e.g. Checking"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-md btn-secondary">Cancel</button>
+        <button class="btn btn-md btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add Account</button>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:12px">
+    <table class="token-table">
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td class="t-label">Max width</td><td class="t-note">520px</td></tr>
+        <tr><td class="t-label">Border radius</td><td class="t-value">radius-xl (12px)</td></tr>
+        <tr><td class="t-label">Backdrop</td><td class="t-value">rgba(16,24,40,.45) + blur(2px)</td></tr>
+        <tr><td class="t-label">Entrance animation</td><td class="t-note">scale(0.97) → scale(1) + fade, 180ms ease-out</td></tr>
+        <tr><td class="t-label">Close triggers</td><td class="t-note">× button, Escape key, backdrop click</td></tr>
+        <tr><td class="t-label">Footer background</td><td class="t-value">neutral-25 (#FAFBFC)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ─────────── NAVIGATION ─────────── -->
+<section class="section" id="navigation">
+  <div class="section-header">
+    <div class="section-title">Navigation</div>
+    <div class="section-desc">Fixed 224px dark sidebar with entity selector at the top. Top bar at 52px height showing period context. Both persist across all screens — never re-render on navigation.</div>
+  </div>
+  <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:16px">
+    <div class="sb-preview">
+      <div style="padding:0 0 10px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <img src="assets/logo.png" alt="Avise" style="height:18px;filter:brightness(0) invert(1);opacity:.88">
+      </div>
+      <div class="sb-entity">
+        <div style="width:20px;height:20px;border-radius:5px;background:rgba(2,91,143,.55);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#60BDEF" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <span style="font-size:11px;font-weight:600;color:rgba(255,255,255,.9);flex:1">Flow 48</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="sb-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Balance Sheet</div>
+      <div class="sb-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks</div>
+      <div class="sb-item act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Reconciliations</div>
+      <div class="sb-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M8 6h13|M8 12h13|M8 18h13"/></svg>Transactions</div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+      <table class="token-table">
+        <thead><tr><th>Property</th><th>Value</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="t-label">Sidebar width</td><td class="t-value">224px fixed</td><td class="t-note">Never collapses on desktop</td></tr>
+          <tr><td class="t-label">Sidebar bg</td><td class="t-value">#01253D (primary-950)</td><td class="t-note">Dark navy — brand color</td></tr>
+          <tr><td class="t-label">Nav item active bg</td><td class="t-value">rgba(255,255,255,.12)</td><td class="t-note">White at 12% opacity</td></tr>
+          <tr><td class="t-label">Nav item font</td><td class="t-value">Inter 12px / 500</td><td class="t-note">Inactive: rgba(255,255,255,.55)</td></tr>
+          <tr><td class="t-label">Top bar height</td><td class="t-value">52px</td><td class="t-note">White bg, neutral-100 bottom border</td></tr>
+          <tr><td class="t-label">Entity selector</td><td class="t-value">Below logo, above nav</td><td class="t-note">Shared across all screens — never in page content</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── DATA FORMATTING ─────────── -->
+<section class="section" id="data-format">
+  <div class="section-header">
+    <div class="section-title">Data Formatting</div>
+    <div class="section-desc">Financial data has strict formatting rules. These are non-negotiable — they make Avise feel trustworthy and professional.</div>
+  </div>
+  <table class="token-table" style="margin-bottom:16px">
+    <thead><tr><th>Type</th><th>Format</th><th>Example</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td class="t-label">Positive amount</td><td class="t-value">£N,NNN.NN</td><td><span class="mono pos">£4,786,334.58</span></td><td class="t-note">Primary blue, JetBrains Mono</td></tr>
+      <tr><td class="t-label">Negative amount</td><td class="t-value">(£N,NNN.NN)</td><td><span class="mono neg">(£13,149.46)</span></td><td class="t-note">Error red, parentheses — never minus sign</td></tr>
+      <tr><td class="t-label">Zero amount</td><td class="t-value">£0.00</td><td><span class="mono zero">£0.00</span></td><td class="t-note">Neutral 300 — de-emphasized</td></tr>
+      <tr><td class="t-label">Account number</td><td class="t-value">NNNN</td><td><span class="mono" style="color:#344054">1100</span></td><td class="t-note">Monospace, neutral-700, no prefix</td></tr>
+      <tr><td class="t-label">Date — normal</td><td class="t-value">MMM DD, YYYY</td><td style="font-size:12px;color:#344054">Apr 30, 2026</td><td class="t-note">Inter 12px, neutral-600</td></tr>
+      <tr><td class="t-label">Date — overdue</td><td class="t-value">MMM DD, YYYY</td><td style="font-size:12px;color:#DC2626;font-weight:500">Apr 18, 2026</td><td class="t-note">Error-600 + 500 weight</td></tr>
+      <tr><td class="t-label">Period label</td><td class="t-value">MMM YYYY</td><td style="font-size:13px;font-weight:600;color:#101828">Mar 2026</td><td class="t-note">Jakarta Sans, h4 style</td></tr>
+    </tbody>
+  </table>
+  <div class="dnd-grid">
+    <div class="dnd-do"><div class="dnd-tag">✓ Do</div><div class="dnd-content"><span class="mono neg">(£13,149.46)</span><br><span style="font-size:12px;color:#15803D;margin-top:4px;display:block">Parentheses for negatives — accounting convention</span></div></div>
+    <div class="dnd-dont"><div class="dnd-tag">✗ Don't</div><div class="dnd-content"><span class="mono" style="color:#DC2626">-£13,149.46</span><br><span style="font-size:12px;color:#B91C1C;margin-top:4px;display:block">Minus sign is engineering notation, not finance</span></div></div>
+  </div>
+</section>
+
+<!-- ─────────── TABS ─────────── -->
+<section class="section" id="tabs">
+  <div class="section-header">
+    <div class="section-title">Tabs</div>
+    <div class="section-desc">Three variants: line tabs for primary page-level navigation, pill tabs for compact toggles, vertical tabs for side panels. Always show the active state clearly.</div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Line Tabs — with counts</div>
+    <div class="frame" style="padding:0 0 0 0;overflow:hidden">
+      <div class="tab-bar" style="padding:0 16px">
+        <div class="tab-item active">All Accounts <span class="tab-count">168</span></div>
+        <div class="tab-item">Accounts with Task <span class="tab-count">4</span></div>
+        <div class="tab-item">Ready for Review <span class="tab-count">12</span></div>
+        <div class="tab-item">Reopened <span class="tab-count">2</span></div>
+        <div class="tab-item disabled">Archived</div>
+      </div>
+      <div style="padding:16px;font-size:12px;color:#8A94A4">Tab content area</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Line Tabs — icon + label</div>
+    <div class="frame" style="padding:0;overflow:hidden">
+      <div class="tab-bar" style="padding:0 16px">
+        <div class="tab-item active">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Reconciliations
+        </div>
+        <div class="tab-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+          Documents
+        </div>
+        <div class="tab-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Tasks
+        </div>
+        <div class="tab-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Activity
+        </div>
+      </div>
+      <div style="padding:16px;font-size:12px;color:#8A94A4">Tab content area</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Pill / Segment Tabs</div>
+    <div class="frame" style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <div style="font-size:11px;color:#8A94A4;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Period</div>
+        <div class="tab-pill-bar">
+          <div class="tab-pill">Day</div>
+          <div class="tab-pill active">Month</div>
+          <div class="tab-pill">Quarter</div>
+          <div class="tab-pill">Year</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#8A94A4;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">View</div>
+        <div class="tab-pill-bar">
+          <div class="tab-pill active">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:4px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            List
+          </div>
+          <div class="tab-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:4px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Grid
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#8A94A4;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">2 options</div>
+        <div class="tab-pill-bar">
+          <div class="tab-pill active">Assets</div>
+          <div class="tab-pill">Liabilities</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Vertical Tabs</div>
+    <div class="frame" style="display:grid;grid-template-columns:160px 1fr;gap:0;padding:0;overflow:hidden">
+      <div style="padding:8px;border-right:1px solid #EAECF0;background:#FAFBFC">
+        <div class="tab-v-item active">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          General
+        </div>
+        <div class="tab-v-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>
+          Permissions
+        </div>
+        <div class="tab-v-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Settings
+        </div>
+        <div class="tab-v-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          Files
+        </div>
+      </div>
+      <div style="padding:16px;font-size:12px;color:#8A94A4">General settings content</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── DROPDOWN MENU ─────────── -->
+<section class="section" id="dropdown">
+  <div class="section-header">
+    <div class="section-title">Dropdown Menu</div>
+    <div class="section-desc">Used for contextual actions (row "⋯" button), navigation overflows, and multi-option selectors. Max width 240px. Opens below trigger with md shadow.</div>
+  </div>
+  <div class="frame" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+    <!-- Action menu -->
+    <div>
+      <div class="sub-title" style="margin-bottom:8px">Action Menu</div>
+      <div class="dropdown-menu" style="width:200px">
+        <div class="dd-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Account</div>
+        <div class="dd-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicate</div>
+        <div class="dd-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>Mark as Reviewed<span class="dd-shortcut">⌘R</span></div>
+        <div class="dd-item disabled"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>Export<span class="dd-shortcut">Pro</span></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></svg>Delete Account</div>
+      </div>
+    </div>
+
+    <!-- With section headers -->
+    <div>
+      <div class="sub-title" style="margin-bottom:8px">With Section Headers</div>
+      <div class="dropdown-menu" style="width:200px">
+        <div class="dd-header">Period</div>
+        <div class="dd-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>Mar 2026</div>
+        <div class="dd-item">Feb 2026</div>
+        <div class="dd-item">Jan 2026</div>
+        <div class="dd-divider"></div>
+        <div class="dd-header">Quick Jump</div>
+        <div class="dd-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Q1 2026</div>
+        <div class="dd-item">FY 2025</div>
+      </div>
+    </div>
+
+    <!-- Select dropdown -->
+    <div>
+      <div class="sub-title" style="margin-bottom:8px">Select Dropdown</div>
+      <div style="position:relative;margin-bottom:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 11px;background:#fff;border:1.5px solid #025B8F;border-radius:6px;cursor:pointer;box-shadow:0 0 0 3px rgba(2,91,143,.12);font-size:13px;color:#101828;gap:8px">
+          <span>Asset</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8A94A4" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="dropdown-menu" style="width:180px">
+        <div class="dd-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Asset</div>
+        <div class="dd-item">Liability</div>
+        <div class="dd-item">Equity</div>
+        <div class="dd-item">Revenue</div>
+        <div class="dd-item">Expense</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── AVATARS ─────────── -->
+<section class="section" id="avatars">
+  <div class="section-header">
+    <div class="section-title">Avatars</div>
+    <div class="section-desc">Initials-based avatars using the user's name. Color assignment is consistent per user. Status dot indicates availability. Avatar groups stack with 8px overlap.</div>
+  </div>
+  <div class="frame">
+    <div class="comp-row">
+      <div class="row-label">Sizes</div>
+      <div class="av av-xs" style="background:#025B8F">MN</div>
+      <div class="av av-sm" style="background:#025B8F">MN</div>
+      <div class="av av-md" style="background:#025B8F">MN</div>
+      <div class="av av-lg" style="background:#025B8F">MN</div>
+      <div class="av av-xl" style="background:#025B8F">MN</div>
+      <div style="font-size:11px;color:#8A94A4;margin-left:8px">20 · 24 · 32 · 40 · 48px</div>
+    </div>
+    <div class="comp-row">
+      <div class="row-label">Colors</div>
+      <div class="av av-lg" style="background:#025B8F">MN</div>
+      <div class="av av-lg" style="background:#15803D">GS</div>
+      <div class="av av-lg" style="background:#B45309">ET</div>
+      <div class="av av-lg" style="background:#7C3AED">AR</div>
+      <div class="av av-lg" style="background:#B91C1C">JD</div>
+      <div class="av av-lg" style="background:#0369A1">KP</div>
+      <div style="font-size:11px;color:#8A94A4;margin-left:8px">Consistent per user — hash name to color</div>
+    </div>
+    <div class="comp-row">
+      <div class="row-label">With status</div>
+      <div class="av-wrap"><div class="av av-lg" style="background:#025B8F">MN</div><div class="av-status" style="background:#22C55E"></div></div>
+      <div class="av-wrap"><div class="av av-lg" style="background:#15803D">GS</div><div class="av-status" style="background:#F59E0B"></div></div>
+      <div class="av-wrap"><div class="av av-lg" style="background:#B45309">ET</div><div class="av-status" style="background:#D0D5DD"></div></div>
+      <div style="font-size:11px;color:#8A94A4;margin-left:8px">Green = online · Amber = away · Grey = offline</div>
+    </div>
+    <div class="comp-row">
+      <div class="row-label">Group</div>
+      <div class="av-group" style="margin-left:8px">
+        <div class="av av-md" style="background:#025B8F">MN</div>
+        <div class="av av-md" style="background:#15803D">GS</div>
+        <div class="av av-md" style="background:#B45309">ET</div>
+        <div class="av av-md av-more" style="font-size:10px;color:#475467">+4</div>
+      </div>
+      <div class="av-group" style="margin-left:16px">
+        <div class="av av-sm" style="background:#025B8F">MN</div>
+        <div class="av av-sm" style="background:#15803D">GS</div>
+        <div class="av av-sm av-more" style="font-size:9px;color:#475467">+2</div>
+      </div>
+      <div style="font-size:11px;color:#8A94A4;margin-left:8px">8px overlap · white 2px border</div>
+    </div>
+    <div class="comp-row">
+      <div class="row-label">With name</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="av av-md" style="background:#025B8F">MN</div>
+        <div><div style="font-size:13px;font-weight:500;color:#101828">Mihaela Nic</div><div style="font-size:11px;color:#667085"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="81ece8e9e0e4ede0c1e0f7e8f2e4afe2eeec">[email&#160;protected]</a></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TOOLTIPS ─────────── -->
+<section class="section" id="tooltips">
+  <div class="section-header">
+    <div class="section-title">Tooltips</div>
+    <div class="section-desc">Dark background (#101828), white text, 6px radius. 150ms delay on show, instant on hide. Use for icon-only buttons, truncated text, and supplementary info. Never put critical info in tooltips only.</div>
+  </div>
+  <div class="frame" style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;padding:36px 24px">
+    <div style="text-align:center">
+      <div class="tooltip-demo">
+        <button class="btn btn-md btn-secondary">Top</button>
+        <div class="tooltip">Add new account</div>
+      </div>
+      <div style="font-size:10px;color:#8A94A4;margin-top:8px">top (default)</div>
+    </div>
+    <div style="text-align:center">
+      <div class="tooltip-demo">
+        <button class="btn btn-md btn-secondary">Bottom</button>
+        <div class="tooltip tooltip-bottom">Export to CSV</div>
+      </div>
+      <div style="font-size:10px;color:#8A94A4;margin-top:32px">bottom</div>
+    </div>
+    <div style="text-align:center">
+      <div class="tooltip-demo">
+        <button class="btn btn-md btn-secondary" style="margin-left:100px">Right</button>
+        <div class="tooltip tooltip-right">Opens in new tab</div>
+      </div>
+      <div style="font-size:10px;color:#8A94A4;margin-top:8px">right</div>
+    </div>
+    <div style="text-align:center">
+      <div class="tooltip-demo">
+        <button class="btn btn-md btn-secondary" style="margin-left:100px">Left</button>
+        <div class="tooltip tooltip-left">Keyboard: ⌘K</div>
+      </div>
+      <div style="font-size:10px;color:#8A94A4;margin-top:8px">left</div>
+    </div>
+  </div>
+  <table class="token-table" style="margin-top:12px">
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="t-label">Background</td><td class="t-value">neutral-900 (#101828)</td></tr>
+      <tr><td class="t-label">Text</td><td class="t-value">white · Inter 11px / 500</td></tr>
+      <tr><td class="t-label">Padding</td><td class="t-value">5px 10px</td></tr>
+      <tr><td class="t-label">Delay</td><td class="t-value">150ms show · 0ms hide</td></tr>
+      <tr><td class="t-label">Max width</td><td class="t-value">200px</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─────────── BREADCRUMBS ─────────── -->
+<section class="section" id="breadcrumbs">
+  <div class="section-header">
+    <div class="section-title">Breadcrumbs</div>
+    <div class="section-desc">Used for deep navigation paths. The last item is always the current page (non-clickable). Max 3–4 items visible; collapse to "…" beyond that.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Simple</div>
+      <nav class="breadcrumb">
+        <a class="bc-item" href="#">Home</a>
+        <span class="bc-sep">/</span>
+        <a class="bc-item" href="#">Reconciliations</a>
+        <span class="bc-sep">/</span>
+        <span class="bc-item active">Accounts Receivable</span>
+      </nav>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">With chevron separator</div>
+      <nav class="breadcrumb">
+        <a class="bc-item" href="#">Flow 48</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <a class="bc-item" href="#">Chart of Accounts</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <span class="bc-item active">Fixed Assets</span>
+      </nav>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Collapsed (truncated)</div>
+      <nav class="breadcrumb">
+        <a class="bc-item" href="#">Home</a>
+        <span class="bc-sep">/</span>
+        <a class="bc-item" href="#" style="padding:1px 6px;background:#F6F8FA;border-radius:4px;color:#475467">…</a>
+        <span class="bc-sep">/</span>
+        <a class="bc-item" href="#">Mar 2026</a>
+        <span class="bc-sep">/</span>
+        <span class="bc-item active">Petty Cash</span>
+      </nav>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">With icon</div>
+      <nav class="breadcrumb">
+        <a class="bc-item" href="#" style="display:flex;align-items:center;gap:4px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          Home
+        </a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <a class="bc-item" href="#">Reconciliations</a>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        <span class="bc-item active">Certificate Deposit Account</span>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PROGRESS & STEPS ─────────── -->
+<section class="section" id="progress">
+  <div class="section-header">
+    <div class="section-title">Progress & Steps</div>
+    <div class="section-desc">Progress bars for task completion and loading. Step indicators for multi-step workflows like account setup or close management.</div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Progress Bars</div>
+    <div class="frame" style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;font-weight:500;color:#344054">Close Progress</span>
+          <span style="font-size:12px;color:#667085">68%</span>
+        </div>
+        <div class="prog-track" style="height:8px"><div class="prog-bar" style="width:68%"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;font-weight:500;color:#344054">Tasks Complete</span>
+          <span style="font-size:12px;color:#15803D">100%</span>
+        </div>
+        <div class="prog-track" style="height:8px"><div class="prog-bar success" style="width:100%"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;font-weight:500;color:#344054">Risk — Unreconciled</span>
+          <span style="font-size:12px;color:#B45309">42%</span>
+        </div>
+        <div class="prog-track" style="height:8px"><div class="prog-bar warning" style="width:42%"></div></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:12px;font-weight:500;color:#344054">Errors Remaining</span>
+          <span style="font-size:12px;color:#B91C1C">15%</span>
+        </div>
+        <div class="prog-track" style="height:8px"><div class="prog-bar error" style="width:15%"></div></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:4px">
+        <div style="flex:1">
+          <div style="font-size:11px;color:#8A94A4;margin-bottom:4px">xs (4px)</div>
+          <div class="prog-track" style="height:4px"><div class="prog-bar" style="width:55%"></div></div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:#8A94A4;margin-bottom:4px">sm (6px)</div>
+          <div class="prog-track" style="height:6px"><div class="prog-bar" style="width:55%"></div></div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:#8A94A4;margin-bottom:4px">md (8px)</div>
+          <div class="prog-track" style="height:8px"><div class="prog-bar" style="width:55%"></div></div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:#8A94A4;margin-bottom:4px">lg (12px)</div>
+          <div class="prog-track" style="height:12px"><div class="prog-bar" style="width:55%;border-radius:9999px"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Step Indicator — horizontal</div>
+    <div class="frame" style="display:flex;flex-direction:column;gap:20px">
+      <!-- 4-step -->
+      <div class="steps">
+        <div class="step-item">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="step-circle done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="step-label done" style="white-space:nowrap">Account Setup</div>
+            <div class="step-sub">Complete</div>
+          </div>
+          <div class="step-line done"></div>
+        </div>
+        <div class="step-item">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="step-circle done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="step-label done" style="white-space:nowrap">Classifications</div>
+            <div class="step-sub">Complete</div>
+          </div>
+          <div class="step-line done"></div>
+        </div>
+        <div class="step-item">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="step-circle active">3</div>
+            <div class="step-label active" style="white-space:nowrap">Reconciliations</div>
+            <div class="step-sub">In progress</div>
+          </div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-item" style="flex:0">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div class="step-circle todo">4</div>
+            <div class="step-label todo" style="white-space:nowrap">Review & Close</div>
+            <div class="step-sub">Not started</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PAGINATION ─────────── -->
+<section class="section" id="pagination">
+  <div class="section-header">
+    <div class="section-title">Pagination</div>
+    <div class="section-desc">Used below all data tables. Show "Showing X–Y of Z" on the left. Numbered pages on the right. Simple prev/next for lightweight contexts.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Full numbered</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+        <span style="font-size:12px;color:#667085">Showing 1–10 of 168 accounts</span>
+        <div class="pag">
+          <button class="pag-btn nav" disabled>←</button>
+          <button class="pag-btn active">1</button>
+          <button class="pag-btn">2</button>
+          <button class="pag-btn">3</button>
+          <span class="pag-dots">…</span>
+          <button class="pag-btn">17</button>
+          <button class="pag-btn nav">→</button>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #F6F8FA;padding-top:16px">
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Simple prev/next</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;color:#667085">Page 3 of 17</span>
+        <div style="display:flex;gap:8px">
+          <button class="pag-btn" style="display:flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>Previous</button>
+          <button class="pag-btn" style="display:flex;align-items:center;gap:5px">Next <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #F6F8FA;padding-top:16px">
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">With rows-per-page</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:#667085">Rows per page</span>
+          <select style="font-family:'Inter',sans-serif;font-size:12px;color:#344054;background:#fff;border:1.5px solid #D0D5DD;border-radius:6px;padding:4px 24px 4px 8px;outline:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2710%27 height=%2710%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%238A94A4%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 6px center"><option>10</option><option>25</option><option>50</option></select>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:12px;color:#667085">Showing 1–10 of 168</span>
+          <div class="pag">
+            <button class="pag-btn nav" disabled>←</button>
+            <button class="pag-btn active">1</button>
+            <button class="pag-btn">2</button>
+            <button class="pag-btn">3</button>
+            <span class="pag-dots">…</span>
+            <button class="pag-btn">17</button>
+            <button class="pag-btn nav">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── EMPTY STATES ─────────── -->
+<section class="section" id="empty">
+  <div class="section-header">
+    <div class="section-title">Empty States</div>
+    <div class="section-desc">Three types: first-time empty (no data yet), search empty (no results), and filtered empty (filter too restrictive). Always include a clear action or next step.</div>
+  </div>
+  <div class="three-col">
+    <div class="frame" style="padding:0;overflow:hidden">
+      <div class="empty">
+        <div class="empty-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B0B8C4" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="empty-title">No reconciliations yet</div>
+        <div class="empty-body">Connect your accounting system to start tracking reconciliations for this period.</div>
+        <button class="btn btn-md btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Connect source</button>
+      </div>
+    </div>
+    <div class="frame" style="padding:0;overflow:hidden">
+      <div class="empty">
+        <div class="empty-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B0B8C4" stroke-width="1.75"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <div class="empty-title">No accounts found</div>
+        <div class="empty-body">Try a different search term or adjust your filters.</div>
+        <button class="btn btn-md btn-secondary">Clear filters</button>
+      </div>
+    </div>
+    <div class="frame" style="padding:0;overflow:hidden">
+      <div class="empty">
+        <div class="empty-icon" style="background:#F0FDF4">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+        </div>
+        <div class="empty-title">All accounts reconciled</div>
+        <div class="empty-body">Every account for Mar 2026 has been reviewed and signed off.</div>
+        <button class="btn btn-md btn-ghost">View close report</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── SKELETON LOADERS ─────────── -->
+<section class="section" id="skeleton">
+  <div class="section-header">
+    <div class="section-title">Skeleton Loaders</div>
+    <div class="section-desc">Used while data is loading. Match the shape of the content it replaces. Use a subtle shimmer animation (1.4s). Never show more than 3–5 skeleton rows.</div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="sub-title">Text skeleton</div>
+      <div class="frame" style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="skel skel-circle" style="width:32px;height:32px;flex-shrink:0"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+            <div class="skel skel-text" style="width:60%"></div>
+            <div class="skel skel-text" style="width:40%"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">
+          <div class="skel skel-text" style="width:100%"></div>
+          <div class="skel skel-text" style="width:85%"></div>
+          <div class="skel skel-text" style="width:70%"></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sub-title">Card skeleton</div>
+      <div class="skel-card" style="display:flex;flex-direction:column;gap:10px">
+        <div class="skel skel-text" style="width:40%;height:10px"></div>
+        <div class="skel" style="width:70%;height:24px;border-radius:4px"></div>
+        <div class="skel skel-text" style="width:55%"></div>
+        <div class="skel" style="width:100%;height:5px;border-radius:9999px"></div>
+      </div>
+    </div>
+    <div style="grid-column:1/-1">
+      <div class="sub-title">Table skeleton</div>
+      <div class="frame" style="padding:0;overflow:hidden">
+        <div style="background:#F6F8FA;padding:9px 14px;border-bottom:1px solid #EAECF0;display:flex;gap:12px">
+          <div class="skel skel-text" style="width:15%"></div>
+          <div class="skel skel-text" style="width:30%"></div>
+          <div class="skel skel-text" style="width:15%;margin-left:auto"></div>
+          <div class="skel skel-text" style="width:10%"></div>
+          <div class="skel skel-text" style="width:12%"></div>
+        </div>
+        ${[1,2,3].map(() => `<div style="padding:11px 14px;border-bottom:1px solid #EAECF0;display:flex;gap:12px;align-items:center"><div class="skel" style="width:14px;height:14px;border-radius:4px;flex-shrink:0"></div><div class="skel skel-text" style="width:25%"></div><div class="skel skel-text" style="width:10%"></div><div class="skel skel-text" style="width:18%;margin-left:auto"></div><div class="skel" style="width:60px;height:18px;border-radius:9999px"></div></div>`).join('')}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TOAST NOTIFICATIONS ─────────── -->
+<section class="section" id="toast">
+  <div class="section-header">
+    <div class="section-title">Toast Notifications</div>
+    <div class="section-desc">Transient feedback for completed actions. Auto-dismiss after 4s. Position: bottom-right. Stack up to 3. Left border uses semantic color for instant recognition.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:8px;background:#F6F8FA;padding:16px">
+    <div class="toast toast-success">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+      <div style="flex:1"><div class="toast-title">Account saved</div><div class="toast-body">1000 Cash and Cash Equivalents was created successfully.</div></div>
+      <button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="toast toast-error">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+      <div style="flex:1"><div class="toast-title">Sync failed</div><div class="toast-body">NetSuite connection timed out. <span style="color:#025B8F;cursor:pointer;font-weight:500">Retry</span></div></div>
+      <button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="toast toast-warning">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+      <div style="flex:1"><div class="toast-title">2 accounts overdue</div><div class="toast-body">Due dates passed for Payroll and Certificate Deposit. <span style="color:#025B8F;cursor:pointer;font-weight:500">View</span></div></div>
+      <button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="toast toast-info">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#025B8F" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div style="flex:1"><div class="toast-title">NetSuite synced</div><div class="toast-body">168 accounts updated from NetSuite.</div></div>
+      <button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── FILTER BAR ─────────── -->
+<section class="section" id="filterbar">
+  <div class="section-header">
+    <div class="section-title">Filter Bar</div>
+    <div class="section-desc">Combines search, category filters, and active filter chips in one horizontal row. Active chips show the applied filter and can be dismissed individually. "Clear all" removes every filter.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:16px">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Default — no filters active</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="position:relative">
+          <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#8A94A4" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input placeholder="Search accounts…" style="font-family:'Inter',sans-serif;font-size:13px;color:#344054;background:#fff;border:1.5px solid #D0D5DD;border-radius:6px;padding:7px 10px 7px 30px;outline:none;width:200px;box-shadow:0 1px 2px rgba(16,24,40,.05)">
+        </div>
+        <div class="filter-chip fc-default">Status <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        <div class="filter-chip fc-default">Assignee <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        <div class="filter-chip fc-default">Classification <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        <div class="filter-chip fc-default">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+          More filters
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #F6F8FA;padding-top:16px">
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Active — filters applied</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="position:relative">
+          <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#8A94A4" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input value="payroll" style="font-family:'Inter',sans-serif;font-size:13px;color:#344054;background:#fff;border:1.5px solid #025B8F;border-radius:6px;padding:7px 10px 7px 30px;outline:none;width:200px;box-shadow:0 0 0 3px rgba(2,91,143,.12)">
+        </div>
+        <div class="filter-chip fc-active">Status: In Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        <div class="filter-chip fc-active">Assignee: M. Nic <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        <div class="filter-chip fc-active">Classification: Asset <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        <span style="font-size:12px;color:#025B8F;font-weight:500;cursor:pointer;padding:5px 4px">Clear all</span>
+        <span style="font-size:12px;color:#8A94A4;margin-left:4px">3 filters · 4 results</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PAGE HEADERS ─────────── -->
+<section class="section" id="pageheader">
+  <div class="section-header">
+    <div class="section-title">Page Headers</div>
+    <div class="section-desc">Consistent page-level header with title, optional subtitle, optional breadcrumb, and primary/secondary actions. Always flush to the content area with 24px padding.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden">
+    <!-- Simple -->
+    <div style="border-bottom:1px solid #EAECF0">
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 0">Simple</div>
+      <div style="padding:12px 16px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;color:#101828">Reconciliations</div>
+          <div style="font-size:13px;color:#667085;margin-top:3px">168 accounts · Mar 2026</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-md btn-secondary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
+          <button class="btn btn-md btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add New Task</button>
+        </div>
+      </div>
+    </div>
+    <!-- With breadcrumb -->
+    <div style="border-bottom:1px solid #EAECF0">
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 0">With Breadcrumb</div>
+      <div style="padding:8px 16px 16px">
+        <nav class="breadcrumb" style="margin-bottom:8px">
+          <a class="bc-item" href="#">Flow 48</a>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          <a class="bc-item" href="#">Chart of Accounts</a>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          <span class="bc-item active">Fixed Assets</span>
+        </nav>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;color:#101828">Fixed Assets</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-md btn-secondary">Edit</button>
+            <button class="btn btn-md btn-primary">Add Account</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- With status -->
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 0">With Status Badge</div>
+      <div style="padding:12px 16px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;color:#101828">Balance Sheet</div>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 8px;border-radius:9999px;background:#FFFBEB;color:#B45309"><span style="width:5px;height:5px;border-radius:50%;background:#F59E0B"></span>In Review</span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-md btn-ghost">Open Report</button>
+          <button class="btn btn-md btn-primary">Start Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── DIVIDERS ─────────── -->
+<section class="section" id="dividers">
+  <div class="section-header">
+    <div class="section-title">Dividers</div>
+    <div class="section-desc">Used to separate sections of content. Default is 1px neutral-100. Labeled dividers use the text as a break point in forms or long lists.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:20px">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Default</div>
+      <hr style="border:none;border-top:1px solid #EAECF0">
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Strong</div>
+      <hr style="border:none;border-top:1px solid #D0D5DD">
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Labeled</div>
+      <div class="divider"><span class="divider-label">Current Assets</span></div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Labeled with count</div>
+      <div class="divider"><span class="divider-label">12 accounts</span></div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Vertical (inline)</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:13px;color:#344054">Mar 2026</span>
+        <div style="width:1px;height:16px;background:#D0D5DD"></div>
+        <span style="font-size:13px;color:#344054">Open</span>
+        <div style="width:1px;height:16px;background:#D0D5DD"></div>
+        <span style="font-size:13px;color:#025B8F">4,001,906</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TABS ─────────── -->
+<section class="section" id="tabs">
+  <div class="section-header">
+    <div class="section-title">Tabs</div>
+    <div class="section-desc">Three variants: line tabs for primary page-level navigation, pill tabs for compact toggles, vertical tabs for side panels. Always show the active state clearly.</div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Line Tabs — with counts</div>
+    <div class="frame" style="padding:0;overflow:hidden">
+      <div class="tab-bar" style="padding:0 16px">
+        <div class="tab-item active">All Accounts <span class="tab-count">168</span></div>
+        <div class="tab-item">Accounts with Task <span class="tab-count">4</span></div>
+        <div class="tab-item">Ready for Review <span class="tab-count">12</span></div>
+        <div class="tab-item">Reopened <span class="tab-count">2</span></div>
+        <div class="tab-item disabled">Archived</div>
+      </div>
+      <div style="padding:16px;font-size:12px;color:#8A94A4">Tab content area</div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Line Tabs — icon + label</div>
+    <div class="frame" style="padding:0;overflow:hidden">
+      <div class="tab-bar" style="padding:0 16px">
+        <div class="tab-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Reconciliations</div>
+        <div class="tab-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Documents</div>
+        <div class="tab-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Tasks</div>
+        <div class="tab-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Activity</div>
+      </div>
+      <div style="padding:16px;font-size:12px;color:#8A94A4">Tab content area</div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Pill / Segment Tabs</div>
+    <div class="frame" style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <div style="font-size:11px;color:#8A94A4;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Period</div>
+        <div class="tab-pill-bar"><div class="tab-pill">Day</div><div class="tab-pill active">Month</div><div class="tab-pill">Quarter</div><div class="tab-pill">Year</div></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#8A94A4;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">View</div>
+        <div class="tab-pill-bar"><div class="tab-pill active">List</div><div class="tab-pill">Grid</div></div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#8A94A4;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">2 options</div>
+        <div class="tab-pill-bar"><div class="tab-pill active">Assets</div><div class="tab-pill">Liabilities</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Vertical Tabs</div>
+    <div class="frame" style="display:grid;grid-template-columns:160px 1fr;gap:0;padding:0;overflow:hidden">
+      <div style="padding:8px;border-right:1px solid #EAECF0;background:#FAFBFC">
+        <div class="tab-v-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>General</div>
+        <div class="tab-v-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>Permissions</div>
+        <div class="tab-v-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 012.83 0l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4"/></svg>Settings</div>
+        <div class="tab-v-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Files</div>
+      </div>
+      <div style="padding:16px;font-size:12px;color:#8A94A4">General settings content</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── DROPDOWN MENU ─────────── -->
+<section class="section" id="dropdown">
+  <div class="section-header">
+    <div class="section-title">Dropdown Menu</div>
+    <div class="section-desc">Used for contextual actions, navigation overflows, and multi-option selectors. Max width 240px. Opens below trigger with md shadow. Supports icons, keyboard shortcuts, dividers, and disabled states.</div>
+  </div>
+  <div class="frame" style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">
+    <div>
+      <div class="sub-title" style="margin-bottom:8px">Action Menu</div>
+      <div class="dropdown-menu" style="width:200px">
+        <div class="dd-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit Account</div>
+        <div class="dd-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Duplicate</div>
+        <div class="dd-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg>Mark as Reviewed<span class="dd-shortcut">⌘R</span></div>
+        <div class="dd-item disabled"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>Export<span class="dd-shortcut">Pro</span></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item danger"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></svg>Delete Account</div>
+      </div>
+    </div>
+    <div>
+      <div class="sub-title" style="margin-bottom:8px">With Section Headers</div>
+      <div class="dropdown-menu" style="width:190px">
+        <div class="dd-header">Period</div>
+        <div class="dd-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>Mar 2026</div>
+        <div class="dd-item">Feb 2026</div>
+        <div class="dd-item">Jan 2026</div>
+        <div class="dd-divider"></div>
+        <div class="dd-header">Quick Jump</div>
+        <div class="dd-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Q1 2026</div>
+        <div class="dd-item">FY 2025</div>
+      </div>
+    </div>
+    <div>
+      <div class="sub-title" style="margin-bottom:8px">Select Dropdown (open)</div>
+      <div class="dropdown-menu" style="width:180px">
+        <div class="dd-item active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>Asset</div>
+        <div class="dd-item">Liability</div>
+        <div class="dd-item">Equity</div>
+        <div class="dd-item">Revenue</div>
+        <div class="dd-item">Expense</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── AVATARS ─────────── -->
+<section class="section" id="avatars">
+  <div class="section-header">
+    <div class="section-title">Avatars</div>
+    <div class="section-desc">Initials-based avatars using the user's name. Color is consistent per user (hash name to color). Status dot indicates availability. Groups stack with 8px overlap.</div>
+  </div>
+  <div class="frame">
+    <div class="comp-row"><div class="row-label">Sizes</div>
+      <div class="av av-xs" style="background:#025B8F">MN</div>
+      <div class="av av-sm" style="background:#025B8F">MN</div>
+      <div class="av av-md" style="background:#025B8F">MN</div>
+      <div class="av av-lg" style="background:#025B8F">MN</div>
+      <div class="av av-xl" style="background:#025B8F">MN</div>
+      <span style="font-size:11px;color:#8A94A4">20 · 24 · 32 · 40 · 48px</span>
+    </div>
+    <div class="comp-row"><div class="row-label">Colors</div>
+      <div class="av av-lg" style="background:#025B8F">MN</div>
+      <div class="av av-lg" style="background:#15803D">GS</div>
+      <div class="av av-lg" style="background:#B45309">ET</div>
+      <div class="av av-lg" style="background:#7C3AED">AR</div>
+      <div class="av av-lg" style="background:#B91C1C">JD</div>
+      <div class="av av-lg" style="background:#0369A1">KP</div>
+    </div>
+    <div class="comp-row"><div class="row-label">With status</div>
+      <div class="av-wrap"><div class="av av-lg" style="background:#025B8F">MN</div><div class="av-status" style="background:#22C55E"></div></div>
+      <div class="av-wrap"><div class="av av-lg" style="background:#15803D">GS</div><div class="av-status" style="background:#F59E0B"></div></div>
+      <div class="av-wrap"><div class="av av-lg" style="background:#B45309">ET</div><div class="av-status" style="background:#D0D5DD"></div></div>
+      <span style="font-size:11px;color:#8A94A4">Green = online · Amber = away · Grey = offline</span>
+    </div>
+    <div class="comp-row"><div class="row-label">Group</div>
+      <div class="av-group" style="margin-left:8px">
+        <div class="av av-md" style="background:#025B8F">MN</div>
+        <div class="av av-md" style="background:#15803D">GS</div>
+        <div class="av av-md" style="background:#B45309">ET</div>
+        <div class="av av-md av-more">+4</div>
+      </div>
+      <div class="av-group" style="margin-left:16px">
+        <div class="av av-sm" style="background:#025B8F">MN</div>
+        <div class="av av-sm" style="background:#15803D">GS</div>
+        <div class="av av-sm av-more">+2</div>
+      </div>
+    </div>
+    <div class="comp-row"><div class="row-label">With name</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="av av-md" style="background:#025B8F">MN</div>
+        <div><div style="font-size:13px;font-weight:500;color:#101828">Mihaela Nic</div><div style="font-size:11px;color:#667085"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a0cdc9c8c1c5ccc1e0c1d6c9d3c58ec3cfcd">[email&#160;protected]</a></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TOOLTIPS ─────────── -->
+<section class="section" id="tooltips">
+  <div class="section-header">
+    <div class="section-title">Tooltips</div>
+    <div class="section-desc">Dark background (#101828), white text, 6px radius. 150ms delay on show, instant on hide. Use for icon-only buttons and supplementary info. Never put critical info in tooltips only.</div>
+  </div>
+  <div class="frame" style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;padding:36px 24px">
+    <div style="text-align:center"><div class="tooltip-demo"><button class="btn btn-md btn-secondary">Top</button><div class="tooltip">Add new account</div></div><div style="font-size:10px;color:#8A94A4;margin-top:8px">top (default)</div></div>
+    <div style="text-align:center"><div class="tooltip-demo"><button class="btn btn-md btn-secondary">Bottom</button><div class="tooltip tooltip-bottom">Export to CSV</div></div><div style="font-size:10px;color:#8A94A4;margin-top:32px">bottom</div></div>
+    <div style="text-align:center"><div class="tooltip-demo"><button class="btn btn-md btn-secondary" style="margin-left:100px">Right</button><div class="tooltip tooltip-right">Opens in new tab</div></div><div style="font-size:10px;color:#8A94A4;margin-top:8px">right</div></div>
+    <div style="text-align:center"><div class="tooltip-demo"><button class="btn btn-md btn-secondary" style="margin-left:100px">Left</button><div class="tooltip tooltip-left">Keyboard: &#8984;K</div></div><div style="font-size:10px;color:#8A94A4;margin-top:8px">left</div></div>
+  </div>
+  <table class="token-table" style="margin-top:12px">
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="t-label">Background</td><td class="t-value">neutral-900 (#101828)</td></tr>
+      <tr><td class="t-label">Text</td><td class="t-value">white · Inter 11px / 500</td></tr>
+      <tr><td class="t-label">Padding</td><td class="t-value">5px 10px</td></tr>
+      <tr><td class="t-label">Delay</td><td class="t-value">150ms show · 0ms hide</td></tr>
+      <tr><td class="t-label">Max width</td><td class="t-value">200px</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─────────── BREADCRUMBS ─────────── -->
+<section class="section" id="breadcrumbs">
+  <div class="section-header">
+    <div class="section-title">Breadcrumbs</div>
+    <div class="section-desc">Used for deep navigation paths. The last item is always the current page (non-clickable, bold). Max 3-4 items visible; collapse beyond that to "...".</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:16px">
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Slash separator</div>
+      <nav class="breadcrumb"><a class="bc-item" href="#">Home</a><span class="bc-sep">/</span><a class="bc-item" href="#">Reconciliations</a><span class="bc-sep">/</span><span class="bc-item active">Accounts Receivable</span></nav>
+    </div>
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Chevron separator</div>
+      <nav class="breadcrumb"><a class="bc-item" href="#">Flow 48</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><a class="bc-item" href="#">Chart of Accounts</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><span class="bc-item active">Fixed Assets</span></nav>
+    </div>
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Collapsed</div>
+      <nav class="breadcrumb"><a class="bc-item" href="#">Home</a><span class="bc-sep">/</span><a class="bc-item" href="#" style="padding:1px 6px;background:#F6F8FA;border-radius:4px;color:#475467">&#8230;</a><span class="bc-sep">/</span><a class="bc-item" href="#">Mar 2026</a><span class="bc-sep">/</span><span class="bc-item active">Petty Cash</span></nav>
+    </div>
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">With icon</div>
+      <nav class="breadcrumb"><a class="bc-item" href="#" style="display:flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Home</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><a class="bc-item" href="#">Reconciliations</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><span class="bc-item active">Certificate Deposit Account</span></nav>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PROGRESS & STEPS ─────────── -->
+<section class="section" id="progress">
+  <div class="section-header">
+    <div class="section-title">Progress &amp; Steps</div>
+    <div class="section-desc">Progress bars for task completion and loading. Step indicators for multi-step workflows like account setup or close management.</div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Progress Bars</div>
+    <div class="frame" style="display:flex;flex-direction:column;gap:14px">
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:500;color:#344054">Close Progress</span><span style="font-size:12px;color:#667085">68%</span></div><div class="prog-track" style="height:8px"><div class="prog-bar" style="width:68%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:500;color:#344054">Tasks Complete</span><span style="font-size:12px;color:#15803D">100%</span></div><div class="prog-track" style="height:8px"><div class="prog-bar success" style="width:100%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:500;color:#344054">Risk — Unreconciled</span><span style="font-size:12px;color:#B45309">42%</span></div><div class="prog-track" style="height:8px"><div class="prog-bar warning" style="width:42%"></div></div></div>
+      <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:500;color:#344054">Errors Remaining</span><span style="font-size:12px;color:#B91C1C">15%</span></div><div class="prog-track" style="height:8px"><div class="prog-bar error" style="width:15%"></div></div></div>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:4px">
+        <div style="flex:1"><div style="font-size:11px;color:#8A94A4;margin-bottom:4px">4px</div><div class="prog-track" style="height:4px"><div class="prog-bar" style="width:55%"></div></div></div>
+        <div style="flex:1"><div style="font-size:11px;color:#8A94A4;margin-bottom:4px">6px</div><div class="prog-track" style="height:6px"><div class="prog-bar" style="width:55%"></div></div></div>
+        <div style="flex:1"><div style="font-size:11px;color:#8A94A4;margin-bottom:4px">8px</div><div class="prog-track" style="height:8px"><div class="prog-bar" style="width:55%"></div></div></div>
+        <div style="flex:1"><div style="font-size:11px;color:#8A94A4;margin-bottom:4px">12px</div><div class="prog-track" style="height:12px"><div class="prog-bar" style="width:55%;border-radius:9999px"></div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title">Step Indicator</div>
+    <div class="frame">
+      <div class="steps">
+        <div class="step-item"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="step-circle done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div><div class="step-label done" style="white-space:nowrap;font-size:11px">Account Setup</div><div class="step-sub">Complete</div></div><div class="step-line done"></div></div>
+        <div class="step-item"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="step-circle done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div><div class="step-label done" style="white-space:nowrap;font-size:11px">Classifications</div><div class="step-sub">Complete</div></div><div class="step-line done"></div></div>
+        <div class="step-item"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="step-circle active">3</div><div class="step-label active" style="white-space:nowrap;font-size:11px">Reconciliations</div><div class="step-sub">In progress</div></div><div class="step-line"></div></div>
+        <div class="step-item" style="flex:0"><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="step-circle todo">4</div><div class="step-label todo" style="white-space:nowrap;font-size:11px">Review &amp; Close</div><div class="step-sub">Not started</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PAGINATION ─────────── -->
+<section class="section" id="pagination">
+  <div class="section-header">
+    <div class="section-title">Pagination</div>
+    <div class="section-desc">Used below all data tables. Show "Showing X–Y of Z" on the left, numbered pages on the right. Simple prev/next for lightweight contexts.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:16px">
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Full numbered</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0"><span style="font-size:12px;color:#667085">Showing 1–10 of 168 accounts</span><div class="pag"><button class="pag-btn nav" disabled>&#8592;</button><button class="pag-btn active">1</button><button class="pag-btn">2</button><button class="pag-btn">3</button><span class="pag-dots">&#8230;</span><button class="pag-btn">17</button><button class="pag-btn nav">&#8594;</button></div></div>
+    </div>
+    <div style="border-top:1px solid #F6F8FA;padding-top:16px"><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Simple prev/next</div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:12px;color:#667085">Page 3 of 17</span><div style="display:flex;gap:8px"><button class="pag-btn" style="display:flex;align-items:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>Previous</button><button class="pag-btn" style="display:flex;align-items:center;gap:5px">Next <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button></div></div>
+    </div>
+    <div style="border-top:1px solid #F6F8FA;padding-top:16px"><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">With rows-per-page</div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:#667085">Rows per page</span><select style="font-family:'Inter',sans-serif;font-size:12px;color:#344054;background:#fff;border:1.5px solid #D0D5DD;border-radius:6px;padding:4px 24px 4px 8px;outline:none;appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2710%27 height=%2710%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%238A94A4%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 6px center"><option>10</option><option>25</option><option>50</option></select></div><div style="display:flex;align-items:center;gap:12px"><span style="font-size:12px;color:#667085">Showing 1–10 of 168</span><div class="pag"><button class="pag-btn nav" disabled>&#8592;</button><button class="pag-btn active">1</button><button class="pag-btn">2</button><button class="pag-btn">3</button><span class="pag-dots">&#8230;</span><button class="pag-btn">17</button><button class="pag-btn nav">&#8594;</button></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── EMPTY STATES ─────────── -->
+<section class="section" id="empty">
+  <div class="section-header">
+    <div class="section-title">Empty States</div>
+    <div class="section-desc">Three types: first-time empty (no data yet), search empty (no results), success empty (all done). Always include a clear action or next step.</div>
+  </div>
+  <div class="three-col">
+    <div class="frame" style="padding:0;overflow:hidden"><div class="empty"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B0B8C4" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="empty-title">No reconciliations yet</div><div class="empty-body">Connect your accounting system to start tracking reconciliations for this period.</div><button class="btn btn-md btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Connect source</button></div></div>
+    <div class="frame" style="padding:0;overflow:hidden"><div class="empty"><div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B0B8C4" stroke-width="1.75"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><div class="empty-title">No accounts found</div><div class="empty-body">Try a different search term or adjust your filters.</div><button class="btn btn-md btn-secondary">Clear filters</button></div></div>
+    <div class="frame" style="padding:0;overflow:hidden"><div class="empty"><div class="empty-icon" style="background:#F0FDF4"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="1.75"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div><div class="empty-title">All accounts reconciled</div><div class="empty-body">Every account for Mar 2026 has been reviewed and signed off.</div><button class="btn btn-md btn-ghost">View close report</button></div></div>
+  </div>
+</section>
+
+<!-- ─────────── SKELETON LOADERS ─────────── -->
+<section class="section" id="skeleton">
+  <div class="section-header">
+    <div class="section-title">Skeleton Loaders</div>
+    <div class="section-desc">Used while data is loading. Match the shape of the content it replaces. Subtle shimmer animation at 1.4s. Never show more than 3–5 skeleton rows.</div>
+  </div>
+  <div class="two-col">
+    <div><div class="sub-title">Text &amp; avatar skeleton</div>
+      <div class="frame" style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px"><div class="skel skel-circle" style="width:32px;height:32px;flex-shrink:0"></div><div style="flex:1;display:flex;flex-direction:column;gap:5px"><div class="skel skel-text" style="width:60%"></div><div class="skel skel-text" style="width:40%"></div></div></div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px"><div class="skel skel-text" style="width:100%"></div><div class="skel skel-text" style="width:85%"></div><div class="skel skel-text" style="width:70%"></div></div>
+      </div>
+    </div>
+    <div><div class="sub-title">Stat card skeleton</div>
+      <div class="skel-card" style="display:flex;flex-direction:column;gap:10px"><div class="skel skel-text" style="width:40%;height:10px"></div><div class="skel" style="width:70%;height:24px;border-radius:4px"></div><div class="skel skel-text" style="width:55%"></div><div class="skel" style="width:100%;height:5px;border-radius:9999px"></div></div>
+    </div>
+    <div style="grid-column:1/-1"><div class="sub-title">Table skeleton</div>
+      <div class="frame" style="padding:0;overflow:hidden">
+        <div style="background:#F6F8FA;padding:9px 14px;border-bottom:1px solid #EAECF0;display:flex;gap:12px"><div class="skel skel-text" style="width:15%"></div><div class="skel skel-text" style="width:30%"></div><div class="skel skel-text" style="width:15%;margin-left:auto"></div><div class="skel skel-text" style="width:10%"></div></div>
+        <div style="padding:11px 14px;border-bottom:1px solid #EAECF0;display:flex;gap:12px;align-items:center"><div class="skel" style="width:14px;height:14px;border-radius:4px;flex-shrink:0"></div><div class="skel skel-text" style="width:25%"></div><div class="skel skel-text" style="width:10%"></div><div class="skel skel-text" style="width:18%;margin-left:auto"></div><div class="skel" style="width:60px;height:18px;border-radius:9999px"></div></div>
+        <div style="padding:11px 14px;border-bottom:1px solid #EAECF0;display:flex;gap:12px;align-items:center"><div class="skel" style="width:14px;height:14px;border-radius:4px;flex-shrink:0"></div><div class="skel skel-text" style="width:35%"></div><div class="skel skel-text" style="width:8%"></div><div class="skel skel-text" style="width:22%;margin-left:auto"></div><div class="skel" style="width:72px;height:18px;border-radius:9999px"></div></div>
+        <div style="padding:11px 14px;display:flex;gap:12px;align-items:center"><div class="skel" style="width:14px;height:14px;border-radius:4px;flex-shrink:0"></div><div class="skel skel-text" style="width:28%"></div><div class="skel skel-text" style="width:12%"></div><div class="skel skel-text" style="width:16%;margin-left:auto"></div><div class="skel" style="width:64px;height:18px;border-radius:9999px"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TOAST NOTIFICATIONS ─────────── -->
+<section class="section" id="toast">
+  <div class="section-header">
+    <div class="section-title">Toast Notifications</div>
+    <div class="section-desc">Transient feedback for completed actions. Auto-dismiss after 4s. Position: bottom-right, stacking up to 3. Left border uses semantic color for instant recognition.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:8px;background:#F6F8FA;padding:16px">
+    <div class="toast toast-success"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg><div style="flex:1"><div class="toast-title">Account saved</div><div class="toast-body">1000 Cash and Cash Equivalents was created successfully.</div></div><button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="toast toast-error"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg><div style="flex:1"><div class="toast-title">Sync failed</div><div class="toast-body">NetSuite connection timed out. <span style="color:#025B8F;cursor:pointer;font-weight:500">Retry</span></div></div><button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="toast toast-warning"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" style="flex-shrink:0;margin-top:1px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><div style="flex:1"><div class="toast-title">2 accounts overdue</div><div class="toast-body">Due dates passed for Payroll and Certificate Deposit.</div></div><button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+    <div class="toast toast-info"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#025B8F" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><div style="flex:1"><div class="toast-title">NetSuite synced</div><div class="toast-body">168 accounts updated from NetSuite.</div></div><button class="toast-close"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+  </div>
+</section>
+
+<!-- ─────────── FILTER BAR ─────────── -->
+<section class="section" id="filterbar">
+  <div class="section-header">
+    <div class="section-title">Filter Bar</div>
+    <div class="section-desc">Combines search, category filters, and active filter chips in one horizontal row. Active chips show the applied filter and can be dismissed individually.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:16px">
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Default — no filters active</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="position:relative"><svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#8A94A4" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input placeholder="Search accounts&#8230;" style="font-family:'Inter',sans-serif;font-size:13px;color:#344054;background:#fff;border:1.5px solid #D0D5DD;border-radius:6px;padding:7px 10px 7px 30px;outline:none;width:200px;box-shadow:0 1px 2px rgba(16,24,40,.05)"></div>
+        <div class="filter-chip fc-default">Status <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        <div class="filter-chip fc-default">Assignee <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        <div class="filter-chip fc-default">Classification <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      </div>
+    </div>
+    <div style="border-top:1px solid #F6F8FA;padding-top:16px"><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Active — filters applied</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="position:relative"><svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#8A94A4" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input value="payroll" style="font-family:'Inter',sans-serif;font-size:13px;color:#344054;background:#fff;border:1.5px solid #025B8F;border-radius:6px;padding:7px 10px 7px 30px;outline:none;width:200px;box-shadow:0 0 0 3px rgba(2,91,143,.12)"></div>
+        <div class="filter-chip fc-active">Status: In Review <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        <div class="filter-chip fc-active">Assignee: M. Nic <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        <div class="filter-chip fc-active">Classification: Asset <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+        <span style="font-size:12px;color:#025B8F;font-weight:500;cursor:pointer;padding:5px 4px">Clear all</span>
+        <span style="font-size:12px;color:#8A94A4;margin-left:4px">3 filters &middot; 4 results</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── PAGE HEADERS ─────────── -->
+<section class="section" id="pageheader">
+  <div class="section-header">
+    <div class="section-title">Page Headers</div>
+    <div class="section-desc">Consistent page-level header with title, optional subtitle, optional breadcrumb, and primary/secondary actions. 24px padding, white background, bordered bottom.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:0;padding:0;overflow:hidden">
+    <div style="border-bottom:1px solid #EAECF0">
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 0">Simple</div>
+      <div style="padding:10px 16px 16px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;color:#101828">Reconciliations</div><div style="font-size:13px;color:#667085;margin-top:3px">168 accounts &middot; Mar 2026</div></div><div style="display:flex;gap:8px"><button class="btn btn-md btn-secondary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button><button class="btn btn-md btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add New Task</button></div></div>
+    </div>
+    <div style="border-bottom:1px solid #EAECF0">
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 0">With Breadcrumb</div>
+      <div style="padding:6px 16px 16px"><nav class="breadcrumb" style="margin-bottom:8px"><a class="bc-item" href="#">Flow 48</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><a class="bc-item" href="#">Chart of Accounts</a><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D0D5DD" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg><span class="bc-item active">Fixed Assets</span></nav><div style="display:flex;align-items:center;justify-content:space-between"><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;color:#101828">Fixed Assets</div><div style="display:flex;gap:8px"><button class="btn btn-md btn-secondary">Edit</button><button class="btn btn-md btn-primary">Add Account</button></div></div></div>
+    </div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 0">With Status Badge</div>
+      <div style="padding:10px 16px 16px;display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:10px"><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;color:#101828">Balance Sheet</div><span class="badge badge-md b-warning"><span class="b-dot" style="background:#F59E0B"></span>In Review</span></div><div style="display:flex;gap:8px"><button class="btn btn-md btn-ghost">Open Report</button><button class="btn btn-md btn-primary">Start Close</button></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── DIVIDERS ─────────── -->
+<section class="section" id="dividers">
+  <div class="section-header">
+    <div class="section-title">Dividers</div>
+    <div class="section-desc">Used to separate sections of content. Default is 1px neutral-100. Labeled dividers break up long forms. Vertical dividers separate inline metadata.</div>
+  </div>
+  <div class="frame" style="display:flex;flex-direction:column;gap:20px">
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Default (1px neutral-100)</div><hr style="border:none;border-top:1px solid #EAECF0"></div>
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Strong (1px neutral-200)</div><hr style="border:none;border-top:1px solid #D0D5DD"></div>
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Labeled</div><div class="divider"><span class="divider-label">Current Assets</span></div></div>
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Labeled with count</div><div class="divider"><span class="divider-label">12 accounts</span></div></div>
+    <div><div style="font-size:10px;font-weight:700;color:#B0B8C4;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Vertical (inline)</div>
+      <div style="display:flex;align-items:center;gap:12px"><span style="font-size:13px;color:#344054">Mar 2026</span><div style="width:1px;height:16px;background:#D0D5DD"></div><span style="font-size:13px;color:#344054">Open</span><div style="width:1px;height:16px;background:#D0D5DD"></div><span style="font-size:13px;color:#025B8F">4,001,906</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── TAILWIND CONFIG ─────────── -->
+<section class="section" id="tailwind">
+  <div class="section-header">
+    <div class="section-title">Tailwind Config</div>
+    <div class="section-desc">Drop this into <code>tailwind.config.js</code> to map all design system tokens to Tailwind utilities. Use <code>primary-700</code>, <code>neutral-100</code>, etc. in your classes.</div>
+  </div>
+  <pre class="code-block"><span class="c-com">// tailwind.config.js</span>
+<span class="c-key">module</span>.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          <span class="c-num">50</span>:  <span class="c-str">'#EFF7FD'</span>,
+          <span class="c-num">100</span>: <span class="c-str">'#DAEEF9'</span>,
+          <span class="c-num">200</span>: <span class="c-str">'#B6DCF4'</span>,
+          <span class="c-num">300</span>: <span class="c-str">'#83C4EA'</span>,
+          <span class="c-num">400</span>: <span class="c-str">'#4AA5DA'</span>,
+          <span class="c-num">500</span>: <span class="c-str">'#2389C4'</span>,
+          <span class="c-num">600</span>: <span class="c-str">'#1171AB'</span>,
+          <span class="c-num">700</span>: <span class="c-str">'#025B8F'</span>, <span class="c-com">// ← brand color</span>
+          <span class="c-num">800</span>: <span class="c-str">'#024A75'</span>,
+          <span class="c-num">900</span>: <span class="c-str">'#023A5C'</span>,
+          <span class="c-num">950</span>: <span class="c-str">'#01253D'</span>,
+        },
+        neutral: {
+          <span class="c-num">0</span>:   <span class="c-str">'#FFFFFF'</span>,
+          <span class="c-num">25</span>:  <span class="c-str">'#FAFBFC'</span>,
+          <span class="c-num">50</span>:  <span class="c-str">'#F6F8FA'</span>,
+          <span class="c-num">100</span>: <span class="c-str">'#EAECF0'</span>,
+          <span class="c-num">200</span>: <span class="c-str">'#D0D5DD'</span>,
+          <span class="c-num">300</span>: <span class="c-str">'#B0B8C4'</span>,
+          <span class="c-num">400</span>: <span class="c-str">'#8A94A4'</span>,
+          <span class="c-num">500</span>: <span class="c-str">'#667085'</span>,
+          <span class="c-num">600</span>: <span class="c-str">'#475467'</span>,
+          <span class="c-num">700</span>: <span class="c-str">'#344054'</span>,
+          <span class="c-num">800</span>: <span class="c-str">'#1D2939'</span>,
+          <span class="c-num">900</span>: <span class="c-str">'#101828'</span>,
+          <span class="c-num">950</span>: <span class="c-str">'#0C111D'</span>,
+        },
+        success: { <span class="c-num">50</span>:<span class="c-str">'#F0FDF4'</span>, <span class="c-num">600</span>:<span class="c-str">'#16A34A'</span>, <span class="c-num">700</span>:<span class="c-str">'#15803D'</span> },
+        warning: { <span class="c-num">50</span>:<span class="c-str">'#FFFBEB'</span>, <span class="c-num">600</span>:<span class="c-str">'#D97706'</span>, <span class="c-num">700</span>:<span class="c-str">'#B45309'</span> },
+        error:   { <span class="c-num">50</span>:<span class="c-str">'#FFF1F2'</span>, <span class="c-num">600</span>:<span class="c-str">'#DC2626'</span>, <span class="c-num">700</span>:<span class="c-str">'#B91C1C'</span> },
+      },
+      fontFamily: {
+        sans:    [<span class="c-str">'Inter'</span>, <span class="c-str">'system-ui'</span>, <span class="c-str">'sans-serif'</span>],
+        display: [<span class="c-str">'Plus Jakarta Sans'</span>, <span class="c-str">'system-ui'</span>, <span class="c-str">'sans-serif'</span>],
+        mono:    [<span class="c-str">'JetBrains Mono'</span>, <span class="c-str">'monospace'</span>],
+      },
+      borderRadius: {
+        <span class="c-str">'xs'</span>:   <span class="c-str">'2px'</span>,
+        <span class="c-str">'sm'</span>:   <span class="c-str">'4px'</span>,
+        <span class="c-str">'DEFAULT'</span>: <span class="c-str">'6px'</span>,
+        <span class="c-str">'lg'</span>:   <span class="c-str">'8px'</span>,
+        <span class="c-str">'xl'</span>:   <span class="c-str">'12px'</span>,
+        <span class="c-str">'2xl'</span>:  <span class="c-str">'16px'</span>,
+        <span class="c-str">'full'</span>: <span class="c-str">'9999px'</span>,
+      },
+      boxShadow: {
+        <span class="c-str">'xs'</span>: <span class="c-str">'0 1px 2px rgba(16,24,40,.05)'</span>,
+        <span class="c-str">'sm'</span>: <span class="c-str">'0 1px 3px rgba(16,24,40,.10), 0 1px 2px rgba(16,24,40,.06)'</span>,
+        <span class="c-str">'DEFAULT'</span>: <span class="c-str">'0 4px 8px -2px rgba(16,24,40,.10), 0 2px 4px -2px rgba(16,24,40,.06)'</span>,
+        <span class="c-str">'lg'</span>: <span class="c-str">'0 12px 16px -4px rgba(16,24,40,.08), 0 4px 6px -2px rgba(16,24,40,.03)'</span>,
+        <span class="c-str">'xl'</span>: <span class="c-str">'0 20px 24px -4px rgba(16,24,40,.08), 0 8px 8px -4px rgba(16,24,40,.03)'</span>,
+      },
+      fontSize: {
+        <span class="c-str">'xs'</span>:  [<span class="c-str">'11px'</span>, { lineHeight: <span class="c-str">'16px'</span> }],
+        <span class="c-str">'sm'</span>:  [<span class="c-str">'12px'</span>, { lineHeight: <span class="c-str">'18px'</span> }],
+        <span class="c-str">'base'</span>:[<span class="c-str">'13px'</span>, { lineHeight: <span class="c-str">'20px'</span> }],
+        <span class="c-str">'md'</span>:  [<span class="c-str">'14px'</span>, { lineHeight: <span class="c-str">'20px'</span> }],
+        <span class="c-str">'lg'</span>:  [<span class="c-str">'16px'</span>, { lineHeight: <span class="c-str">'24px'</span> }],
+        <span class="c-str">'xl'</span>:  [<span class="c-str">'18px'</span>, { lineHeight: <span class="c-str">'28px'</span> }],
+        <span class="c-str">'2xl'</span>: [<span class="c-str">'20px'</span>, { lineHeight: <span class="c-str">'30px'</span> }],
+        <span class="c-str">'3xl'</span>: [<span class="c-str">'24px'</span>, { lineHeight: <span class="c-str">'32px'</span> }],
+        <span class="c-str">'4xl'</span>: [<span class="c-str">'30px'</span>, { lineHeight: <span class="c-str">'38px'</span> }],
+      },
+    },
+  },
+  plugins: [],
+};</pre>
+</section>
+
+</div><!-- /content -->
+</main>
+</div><!-- /shell -->
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// Active nav link on scroll
+const links = document.querySelectorAll('.sn-link[href^="#"]');
+const sectionEls = document.querySelectorAll('.section[id]');
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.sn-link[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sectionEls.forEach(s => io.observe(s));
+
+// Also handle brand section (page header)
+const header = document.querySelector('.page-header');
+if (header) {
+  const brandIo = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector('.sn-link[href="#brand"]');
+      if (a) a.classList.add('active');
+    }
+  }, { rootMargin: '0px 0px -80% 0px' });
+  brandIo.observe(header);
+}
+</script>
+</body>
+</html>

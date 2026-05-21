@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avise Learning Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/hub.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="assets/hub-state.js" defer></script>
+</head>
+<body class="hub-landing">
+
+  <nav>
+    <a href="index.html" class="nav-brand">
+      Avise<span class="dot">.</span>Learn
+    </a>
+    <div class="nav-links">
+      <a href="avise.html" class="nav-link">Avise</a>
+      <a href="knowledge.html" class="nav-link">Knowledge</a>
+      <a href="briefs.html" class="nav-link">Briefs</a>
+      <span class="nav-pill">Hub</span>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <p class="hero-eyebrow animate-in">Engineering knowledge, organized</p>
+    <h1 class="hero-title animate-in delay-1">
+      Pick your<br><em>learning path</em>
+    </h1>
+    <p class="hero-subtitle animate-in delay-2">
+      Three sections. The first goes deep into how Avise actually works. The second covers general engineering knowledge — the foundations you bring with you to any product. The third holds planning briefs for in-flight work.
+    </p>
+    <div class="hero-stats animate-in delay-3">
+      <div class="stat">
+        <span class="stat-num">3</span>
+        <span class="stat-label">Sections</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">19</span>
+        <span class="stat-label">Courses</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">1</span>
+        <span class="stat-label">Catalog</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat">
+        <span class="stat-num">1</span>
+        <span class="stat-label">Brief</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-heading animate-in delay-3">
+    <h2>Choose a section</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="categories">
+
+    <!-- Avise track -->
+    <a class="category-card cat-avise animate-in delay-4" href="avise.html">
+      <div class="category-icon">
+        <i data-lucide="layers"></i>
+      </div>
+      <h2 class="category-title">Avise courses</h2>
+      <p class="category-desc">
+        Product-specific deep dives. Architecture, Schedules, Tasks, Flux, AI Chat, Evals, Trace Viewer, the Design System and the patterns catalog — written for engineers, PMs, and solutions consultants on the Avise team.
+      </p>
+      <div class="category-meta">
+        <span class="meta-item"><i data-lucide="book-open"></i> 11 courses</span>
+        <span class="meta-item"><i data-lucide="puzzle"></i> 1 patterns catalog</span>
+      </div>
+      <span class="category-cta">Open Avise track <i data-lucide="arrow-right"></i></span>
+    </a>
+
+    <!-- Knowledge track -->
+    <a class="category-card cat-knowledge animate-in delay-5" href="knowledge.html">
+      <div class="category-icon">
+        <i data-lucide="graduation-cap"></i>
+      </div>
+      <h2 class="category-title">General knowledge</h2>
+      <p class="category-desc">
+        Cross-cutting engineering knowledge that isn't tied to Avise. Authentication, GitHub security (GH-500), API design for BAs, Scrum reporting, GitHub for POs, and the login flow — foundations you can apply on any project, in any company.
+      </p>
+      <div class="category-meta">
+        <span class="meta-item"><i data-lucide="book-open"></i> 8 courses</span>
+        <span class="meta-item"><i data-lucide="globe"></i> Portable skills</span>
+      </div>
+      <span class="category-cta">Open Knowledge track <i data-lucide="arrow-right"></i></span>
+    </a>
+
+    <!-- Briefs -->
+    <a class="category-card cat-briefs animate-in delay-6" href="briefs.html">
+      <div class="category-icon">
+        <i data-lucide="clipboard-list"></i>
+      </div>
+      <h2 class="category-title">Planning briefs</h2>
+      <p class="category-desc">
+        Decision documents for in-flight work — scoped, opinionated, time-stamped. Smaller than a course, bigger than a ticket. New briefs added as planning happens.
+      </p>
+      <div class="category-meta">
+        <span class="meta-item"><i data-lucide="file-text"></i> 1 brief</span>
+        <span class="meta-item"><i data-lucide="zap"></i> Growing</span>
+      </div>
+      <span class="category-cta">Open Briefs <i data-lucide="arrow-right"></i></span>
+    </a>
+
+  </div>
+
+  <footer>
+    Avise Learning Hub · Built with Claude Code
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });
+    window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
+  </script>
+</body>
+</html>

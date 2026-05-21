@@ -1,0 +1,531 @@
+<section class="module" id="module-5" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">05</span>
+      <h2 class="module-title">Linked Modules</h2>
+      <p class="module-subtitle">Schedules do not live alone. They connect to AI parsing, source transactions, reporting, and workflows — here is why each link exists.</p>
+    </header>
+
+    <!-- ── SCREEN 1: HERO — INTERACTIVE ARCHITECTURE DIAGRAM ─── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">The full schedule ecosystem — click any component</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4); line-height: var(--leading-snug);">
+        A schedule is the hub of a larger system. Six zones surround it — each one connected for a specific reason.
+        Click any component below to learn what it does and why it is linked.
+      </p>
+
+      <div class="arch-diagram" style="padding: var(--space-6);">
+
+        <!-- Zone 1: The Schedule (centre) -->
+        <div class="arch-zone" style="border-color: var(--color-accent); background: rgba(212,168,67,0.04); text-align: center;">
+          <div class="arch-zone-label" style="color: var(--color-accent);">Zone 1 — The Schedule</div>
+          <div style="display: flex; justify-content: center;">
+            <div class="arch-component"
+                 data-desc="The PreparedSchedule record is the heart of this system. It stores the term dates, total amount, accounts, calculation method, and dimension. Every other zone either feeds data in, reads data out, or generates entries from it."
+                 style="border-color: var(--color-accent); background: var(--color-accent-light); font-weight: 700; font-size: var(--text-base);">
+              <span class="arch-icon">📋</span>
+              PreparedSchedule
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone 2: AI Layer -->
+        <div class="arch-zone" style="border-color: var(--color-info);">
+          <div class="arch-zone-label" style="color: var(--color-info);">Zone 2 — AI Layer</div>
+          <div style="display: flex; flex-wrap: wrap;">
+            <div class="arch-component"
+                 data-desc="proposeSchedule — the AI tool that creates a schedule proposal for simple (2-account) schedules. The accountant describes what they need in plain English; the AI calls this tool to generate a structured preview. Nothing is saved to the books until the accountant accepts.">
+              <span class="arch-icon">🤖</span>
+              proposeSchedule
+            </div>
+            <div class="arch-component"
+                 data-desc="proposeMultiLineSchedule — the AI tool for complex schedules where each entry has many lines (multiple debits and credits). Used when a single payment must be split across several accounts or departments simultaneously each period.">
+              <span class="arch-icon">🤖</span>
+              proposeMultiLineSchedule
+            </div>
+            <div class="arch-component"
+                 data-desc="PDF Date Extractor — when an accountant uploads an invoice PDF, this function extracts all text, sends it to Claude with a terse system prompt, and parses back the term start and end dates. This saves the accountant from manually reading and typing the dates. If the PDF has no numbers, or Claude returns an unexpected format, the function fails gracefully and the accountant enters dates manually.">
+              <span class="arch-icon">📄</span>
+              PDF Date Extractor
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone 3: Journal Entries -->
+        <div class="arch-zone" style="border-color: var(--color-success);">
+          <div class="arch-zone-label" style="color: var(--color-success);">Zone 3 — Journal Entries</div>
+          <div style="display: flex; flex-wrap: wrap;">
+            <div class="arch-component"
+                 data-desc="ScheduleLinkedTransaction — the join record connecting a PreparedSchedule to a JournalEntry. Each period's amortization entry gets one of these records. This is what lets the system know which entries belong to which schedule, and lets the Roll-Forward Report aggregate them correctly.">
+              <span class="arch-icon">🔗</span>
+              ScheduleLinkedTransaction
+            </div>
+            <div class="arch-component"
+                 data-desc="JournalEntry (Scheduled) — an entry that has been created by the schedule but not yet posted to the general ledger. It exists so accountants can review upcoming entries before the period closes.">
+              <span class="arch-icon">📝</span>
+              JournalEntry (Scheduled)
+            </div>
+            <div class="arch-component"
+                 data-desc="JournalEntry (Posted) — an entry that has been accepted and written permanently to the general ledger. Once posted, this entry moves the account balances and appears in financial statements. This is the final, irreversible result of a schedule period.">
+              <span class="arch-icon">✅</span>
+              JournalEntry (Posted)
+            </div>
+            <div class="arch-component"
+                 data-desc="JournalEntry (Deleted) — an entry that was created but then removed before posting. The schedule tracks deleted entries so the system can detect gaps or out-of-sequence posting. A deleted entry does not affect account balances.">
+              <span class="arch-icon">🗑️</span>
+              JournalEntry (Deleted)
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone 4: Supporting Data -->
+        <div class="arch-zone" style="border-color: var(--color-actor-3);">
+          <div class="arch-zone-label" style="color: var(--color-actor-3);">Zone 4 — Supporting Data</div>
+          <div style="display: flex; flex-wrap: wrap;">
+            <div class="arch-component"
+                 data-desc="Source Lines — specific lines within the original journal entry that created the liability or asset. Linking a schedule to source lines proves it is backed by a real transaction (e.g. an Accounts Payable entry from an invoice). This is the paper trail that auditors want to see.">
+              <span class="arch-icon">🧾</span>
+              Source Lines
+            </div>
+            <div class="arch-component"
+                 data-desc="Files (PDF Invoices) — the uploaded invoice documents attached to a schedule. The PDF date extractor reads these to suggest term start and end dates automatically. Files also serve as supporting documentation — the evidence that a liability was actually incurred.">
+              <span class="arch-icon">📎</span>
+              Files (PDF Invoices)
+            </div>
+            <div class="arch-component"
+                 data-desc="Dimensions — cost centres, departments, or project codes assigned to a schedule. A dimension (stored as dimensionValueId) ensures every entry posted by the schedule is tagged correctly for departmental reporting. Without a dimension a schedule still works, but entries have no departmental attribution.">
+              <span class="arch-icon">🏷️</span>
+              Dimensions
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone 5: Reporting -->
+        <div class="arch-zone" style="border-color: var(--color-actor-5);">
+          <div class="arch-zone-label" style="color: var(--color-actor-5);">Zone 5 — Reporting</div>
+          <div style="display: flex; flex-wrap: wrap;">
+            <div class="arch-component"
+                 data-desc="Roll-Forward Report (RollforwardReportPage) — aggregates all journal entries across schedules filtered by account, dimension, and date range. Groups entries by period (month, quarter, or year) and shows three numbers for each: beginning balance, entries posted, and ending balance. This is the primary audit deliverable for schedule-managed accounts.">
+              <span class="arch-icon">📊</span>
+              Roll-Forward Report
+            </div>
+            <div class="arch-component"
+                 data-desc="Schedule Page — the individual schedule view showing the schedule's details, its linked entries (scheduled, posted, deleted), its source lines, attached files, and its progression toward zero. This is the day-to-day management view for a single schedule.">
+              <span class="arch-icon">🔍</span>
+              Schedule Page
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone 6: Workflows -->
+        <div class="arch-zone" style="border-color: var(--color-actor-4);">
+          <div class="arch-zone-label" style="color: var(--color-actor-4);">Zone 6 — Workflows</div>
+          <div style="display: flex; flex-wrap: wrap;">
+            <div class="arch-component"
+                 data-desc="Revenue Contract Workflow — a revenue contract workflow that is optionally linked to a schedule via workflowDimensionId. When a revenue contract has associated recognition schedules, connecting them here creates a traceable path from contract terms all the way through to periodic revenue journal entries. This is especially important for ASC 606 / IFRS 15 compliance.">
+              <span class="arch-icon">📑</span>
+              Revenue Contract Workflow
+            </div>
+          </div>
+        </div>
+
+        <div class="arch-description" id="arch-desc-m5">Click any component to learn its role.</div>
+
+      </div>
+
+    </div>
+
+    <!-- ── SCREEN 2: PDF DATE EXTRACTION — CODE TRANSLATION ─── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">AI PDF parsing — how dates appear automatically</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-4);">
+        When an accountant uploads an invoice PDF, Avise does not make them read it and type the dates manually.
+        The function below extracts the text from the PDF and asks Claude to find the term dates.
+        Here is exactly what the code does, line by line.
+      </p>
+
+      <div class="translation-block animate-in">
+        <div class="translation-code">
+          <span class="translation-label">CODE</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">askGptToReadFileAndReturnTermMeta</span>(</span>
+<span class="code-line">  companyId: <span class="code-keyword">string</span>,</span>
+<span class="code-line">  fileBuffer: <span class="code-keyword">ArrayBufferLike</span>,</span>
+<span class="code-line">): <span class="code-keyword">Promise</span>&lt;PreparedScheduleTermMeta&gt; {</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> allTextJoined =</span>
+<span class="code-line">    <span class="code-keyword">await</span> pdfParsing.<span class="code-function">getTextFromFileBuffer</span>(</span>
+<span class="code-line">      fileBuffer</span>
+<span class="code-line">    );</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">if</span> (!allTextJoined.<span class="code-function">match</span>(<span class="code-string">/.*[0-9]+.*/</span>)) {</span>
+<span class="code-line">    <span class="code-keyword">return</span> <span class="code-function">logAndHandleExpectedError</span>(</span>
+<span class="code-line">      <span class="code-string">"PDF did not include any numbers."</span></span>
+<span class="code-line">    );</span>
+<span class="code-line">  }</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">const</span> gptResponse =</span>
+<span class="code-line">    <span class="code-keyword">await</span> <span class="code-function">sendConversationMessagesToProvider</span>({</span>
+<span class="code-line">      companyId,</span>
+<span class="code-line">      singleMessageString: allTextJoined,</span>
+<span class="code-line">      systemPrompt: <span class="code-string">`</span></span>
+<span class="code-line"><span class="code-string">        You are a CPA aiding entry to an ERP system.</span></span>
+<span class="code-line"><span class="code-string">        You will be provided the text of an invoice,</span></span>
+<span class="code-line"><span class="code-string">        and you will respond with the term start and</span></span>
+<span class="code-line"><span class="code-string">        end dates in MM/DD/YYYY format. Provide the</span></span>
+<span class="code-line"><span class="code-string">        dates delimited by a comma with the term start</span></span>
+<span class="code-line"><span class="code-string">        date first. Include no labels or other</span></span>
+<span class="code-line"><span class="code-string">        formatting.</span></span>
+<span class="code-line"><span class="code-string">      `</span>,</span>
+<span class="code-line">      context: { action: <span class="code-string">"generateScheduleDates"</span> },</span>
+<span class="code-line">    });</span>
+<span class="code-line"></span>
+<span class="code-line">  <span class="code-keyword">return</span> <span class="code-function">getDatesFromGptString</span>(</span>
+<span class="code-line">    gptResponse.<span class="code-property">content</span></span>
+<span class="code-line">  );</span>
+<span class="code-line">}</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">This function takes two inputs: the company ID (for routing the AI call to the right provider config) and the raw bytes of the uploaded PDF file.</p>
+            <p class="tl">Extract all the readable text from the
+              <span class="term" data-definition="PDF parsing: the process of reading a PDF file and extracting its text content. This only works for text-based PDFs — documents where the text was typed and saved as characters. Scanned images embedded in PDFs are pictures, not text, so a parser returns nothing useful from them.">PDF parsing</span>
+              library. The result is a single long string — all the words and numbers from every page joined together.</p>
+            <p class="tl">Safety check: if the extracted text contains zero numbers, it cannot possibly contain a date. Return a
+              <span class="term" data-definition="Graceful fallback: a design pattern where a function encounters an expected failure condition and handles it cleanly — returning a useful error rather than crashing or throwing an unhandled exception. The accountant is informed they must enter dates manually; the system keeps working.">graceful fallback</span>
+              error rather than sending useless text to the AI. The accountant will need to enter dates manually.</p>
+            <p class="tl">Send the entire PDF text to Claude (referred to as "gpt" in the variable name — a legacy of the codebase). The text is the user message; the system prompt tells Claude exactly what to do with it.</p>
+            <p class="tl">The
+              <span class="term" data-definition="System prompt: a set of instructions sent to an LLM before the user's message. It defines the model's role, output format, and constraints. Unlike the user message, the system prompt is not visible to the end user — it is written by the developer to control the model's behaviour.">system prompt</span>
+              is intentionally terse: act as a CPA, return only two dates in MM/DD/YYYY format separated by a comma, no labels, no other text.</p>
+            <p class="tl">Parse the response from the
+              <span class="term" data-definition="LLM: Large Language Model — an AI model (such as Claude or GPT) trained on vast amounts of text that can understand and generate human language. Here it is used as an intelligent text extractor: given unstructured invoice text, it locates and returns specific date values.">LLM</span>
+              using getDatesFromGptString. This parser checks for exactly one comma and exactly two date values. If Claude did not follow the format instructions, this returns an expected error and the accountant enters dates manually.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in">
+        <span class="callout-icon">💡</span>
+        <div class="callout-content">
+          <span class="callout-title">Why such a terse system prompt?</span>
+          <p>
+            The system prompt says "Include no labels or other formatting." This is intentional. Getting structured output from an
+            <span class="term" data-definition="LLM: Large Language Model — an AI trained on text that generates natural language. Without precise format instructions, LLMs tend to add helpful-sounding labels, explanations, or punctuation that break machine-parseable output.">LLM</span>
+            requires being extremely prescriptive. The parsing code (getDatesFromGptString) checks for exactly one comma and exactly two date values. If Claude deviates — even with a helpful "Start date: " prefix — the parse fails and the function returns a graceful failure. This is production-grade LLM usage: assume the model can get it wrong, and build a clean fallback for when it does.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SCREEN 3: SOURCE LINES — THE FINANCIAL PAPER TRAIL ── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">Source lines — the financial paper trail</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        A
+        <span class="term" data-definition="Source line: a specific line (debit or credit row) within an existing journal entry that represents the original liability or asset. Attaching a source line to a schedule proves the schedule is backed by a real transaction — not created arbitrarily.">source line</span>
+        answers the question: "where did this balance come from?" Follow the chain from invoice to zero.
+      </p>
+
+      <div class="step-cards stagger-children">
+
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Invoice arrives — accountant posts a journal entry to Accounts Payable</strong>
+            <p>
+              DR Prepaid Expense $12,000 / CR Accounts Payable $12,000. The credit line in this entry is a
+              <span class="term" data-definition="Source line: a specific row in a journal entry — one debit or one credit. When this line is attached to a schedule, it proves the schedule amount came from a real, auditable transaction rather than being entered freehand.">source line</span>.
+              It represents a real obligation the company has — they owe the vendor $12,000.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Accountant creates a schedule and links it to that source line</strong>
+            <p>
+              The schedule stores the source line's ID in its <code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">sourceLines</code> array.
+              This proves the schedule is backed by a real transaction. It is not a number entered out of thin air — it traces directly to the original invoice entry in the
+              <span class="term" data-definition="General ledger: the master record of all financial transactions for a company. Every journal entry that is posted appears here. Source lines trace the schedule back to a specific line in the general ledger.">general ledger</span>.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Each month, the schedule posts an entry that draws down the balance</strong>
+            <p>
+              DR Insurance Expense $1,000 / CR Prepaid Expense $1,000. This entry is recorded as a ScheduleLinkedTransaction. The Prepaid Expense balance falls from $12,000 toward zero over 12 months.
+            </p>
+          </div>
+        </div>
+
+        <div class="step-card animate-in">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>The Roll-Forward Report traces the full journey</strong>
+            <p>
+              Opening balance → monthly entries → closing balance. At the end of the term the balance reaches zero and every entry links back through the schedule to the original source line. An auditor can trace from the final $0 balance all the way back to the original invoice.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="translation-block animate-in" style="margin-top: var(--space-8);">
+        <div class="translation-code">
+          <span class="translation-label">TYPE</span>
+          <pre><code>
+<span class="code-line"><span class="code-keyword">type</span> <span class="code-function">ScheduleWithJournalEntriesAndFullSourceLines</span> = {</span>
+<span class="code-line">  id: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  name: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  termStart: <span class="code-keyword">Date</span> | <span class="code-keyword">null</span>;</span>
+<span class="code-line">  termEnd: <span class="code-keyword">Date</span> | <span class="code-keyword">null</span>;</span>
+<span class="code-line">  dimensionValueId: <span class="code-keyword">string</span> | <span class="code-keyword">null</span>;</span>
+<span class="code-line">  companyId: <span class="code-keyword">string</span>;</span>
+<span class="code-line">  scheduleLinkedTransactions:</span>
+<span class="code-line">    <span class="code-function">ScheduleLinkedTransaction</span>[];</span>
+<span class="code-line">  sourceLines: <span class="code-function">FullSourceLine</span>[];</span>
+<span class="code-line">  totalAmount: <span class="code-keyword">number</span> | <span class="code-keyword">null</span>;</span>
+<span class="code-line">};</span>
+          </code></pre>
+        </div>
+        <div class="translation-english">
+          <span class="translation-label">PLAIN ENGLISH</span>
+          <div class="translation-lines">
+            <p class="tl">This TypeScript type describes the full schedule object that the system loads when you open a schedule detail view. It combines the schedule record itself with all its linked data in one shape.</p>
+            <p class="tl"><code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">termStart</code> and <code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">termEnd</code> are nullable — they can be null if the accountant has not entered dates yet (or if PDF date extraction was needed but failed).</p>
+            <p class="tl"><code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">dimensionValueId</code> is nullable — a schedule can exist without a dimension (no cost-centre tag), though that is uncommon in practice.</p>
+            <p class="tl"><code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">scheduleLinkedTransactions</code> — the list of all journal entries this schedule has generated. Each element is a join record pointing to an actual JournalEntry (which may be scheduled, posted, or deleted).</p>
+            <p class="tl"><code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">sourceLines</code> — the source lines attached to this schedule. Each is a ScheduleSourceLine joined with its journalLine — the raw accounting line from the original transaction.</p>
+            <p class="tl"><code style="font-family:var(--font-mono); background:var(--color-bg-code); color:#CBA6F7; padding:1px 5px; border-radius:3px;">totalAmount</code> is the controlling total — the sum of all posted entries must eventually equal this number. It is nullable only while the schedule is still being set up.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SCREEN 4: THE ROLL-FORWARD REPORT ─────────────────── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">The Roll-Forward Report — balance movement over time</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        The
+        <span class="term" data-definition="Roll-forward report: an accounting report that shows how a balance sheet account balance changed over a period, entry by entry. It starts with the opening balance, lists every transaction that affected it, and ends with the closing balance. Standard audit deliverable for prepaid assets, deferred revenue, and similar accounts.">Roll-Forward Report</span>
+        takes all journal entries generated by schedules, groups them by period, and shows three numbers for each period.
+        Here is what it looks like for a $12,000 prepaid insurance schedule.
+      </p>
+
+      <div class="animate-in" style="margin: var(--space-8) 0; overflow-x: auto;">
+        <table style="
+          width: 100%;
+          border-collapse: collapse;
+          font-family: var(--font-mono);
+          font-size: var(--text-sm);
+          border-radius: var(--radius-md);
+          overflow: hidden;
+          box-shadow: var(--shadow-md);
+        ">
+          <thead>
+            <tr style="background: var(--color-bg-code); color: #CDD6F4;">
+              <th style="padding: var(--space-3) var(--space-4); text-align: left; font-weight: 600;">Period</th>
+              <th style="padding: var(--space-3) var(--space-4); text-align: right; font-weight: 600;">Opening Balance</th>
+              <th style="padding: var(--space-3) var(--space-4); text-align: right; font-weight: 600;">Entries Posted</th>
+              <th style="padding: var(--space-3) var(--space-4); text-align: right; font-weight: 600;">Closing Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: rgba(212,168,67,0.04);">
+              <td style="padding: var(--space-3) var(--space-4); color: var(--color-text);">Jan 2024</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-accent); font-weight: 600;">$12,000</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: #F38BA8;">($1,000)</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-text);">$11,000</td>
+            </tr>
+            <tr>
+              <td style="padding: var(--space-3) var(--space-4); color: var(--color-text);">Feb 2024</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-text-secondary);">$11,000</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: #F38BA8;">($1,000)</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-text);">$10,000</td>
+            </tr>
+            <tr style="background: rgba(212,168,67,0.04);">
+              <td style="padding: var(--space-3) var(--space-4); color: var(--color-text);">Mar 2024</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-text-secondary);">$10,000</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: #F38BA8;">($1,000)</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-text);">$9,000</td>
+            </tr>
+            <tr>
+              <td style="padding: var(--space-3) var(--space-4); color: var(--color-text-muted); font-style: italic;" colspan="4">… Apr – Nov follow the same pattern, $1,000 each month …</td>
+            </tr>
+            <tr style="background: rgba(45,139,85,0.06);">
+              <td style="padding: var(--space-3) var(--space-4); color: var(--color-success); font-weight: 600;">Dec 2024</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-text-secondary);">$1,000</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: #F38BA8;">($1,000)</td>
+              <td style="padding: var(--space-3) var(--space-4); text-align: right; color: var(--color-success); font-weight: 600;">$0 ✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4); margin: var(--space-6) 0;" class="stagger-children">
+
+        <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-top: 3px solid var(--color-accent);">
+          <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Opening Balance</div>
+          <div style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: var(--color-text);">What was on the books</div>
+          <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2);">The balance in the account at the start of the period — i.e. what the previous period's closing balance was.</p>
+        </div>
+
+        <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-top: 3px solid #F38BA8;">
+          <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Entries Posted</div>
+          <div style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: var(--color-text);">What changed</div>
+          <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2);">The net total of all journal entries posted by schedules in this period. Shown in parentheses to indicate a reduction of the asset balance.</p>
+        </div>
+
+        <div class="animate-in" style="background: var(--color-surface); border-radius: var(--radius-md); padding: var(--space-5); box-shadow: var(--shadow-sm); border-top: 3px solid var(--color-success);">
+          <div style="font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: var(--space-2);">Closing Balance</div>
+          <div style="font-family: var(--font-display); font-size: var(--text-lg); font-weight: 700; color: var(--color-text);">What remains</div>
+          <p style="font-size: var(--text-sm); color: var(--color-text-secondary); margin-top: var(--space-2);">Opening balance plus entries posted. When this reaches $0 the schedule has fully amortised — no balance remains on the books.</p>
+        </div>
+
+      </div>
+
+      <div class="callout callout-info animate-in">
+        <span class="callout-icon">📌</span>
+        <div class="callout-content">
+          <span class="callout-title">Why auditors love this report</span>
+          <p>
+            <span class="term" data-definition="Roll-forward report: an audit-standard report showing how a balance sheet account moved from its opening balance to its closing balance, period by period, with every transaction itemised. It proves the balance did not change in an unexplained way.">Roll-forward reports</span>
+            are a standard accounting deliverable. They prove that a balance sheet account moved in the way it should have, entry by entry. This report is what turns a pile of journal entries into a coherent story about how a
+            <span class="term" data-definition="Prepaid: an asset on the balance sheet representing a payment made in advance for a service not yet received. Insurance paid upfront for a year is a typical prepaid asset. The schedule systematically transfers it from the balance sheet to the expense account each period.">prepaid</span>
+            asset or
+            <span class="term" data-definition="Deferred revenue: a liability on the balance sheet representing cash received from a customer for services not yet delivered. The schedule systematically recognises it as earned revenue each period, reducing the liability until it reaches zero.">deferred revenue</span>
+            balance changed over time. Without the Roll-Forward Report, you have journal entries — but no story.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SCREEN 5: QUIZ ─────────────────────────────────────── -->
+    <div class="screen animate-in">
+      <h3 class="screen-heading">Check your understanding</h3>
+
+      <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
+        Three scenarios that require you to reason about what you have just learned — not recall facts.
+      </p>
+
+      <div class="quiz-container" id="quiz-module5">
+
+        <!-- Question 1 -->
+        <div class="quiz-question-block"
+             data-correct="graceful-fail"
+             data-explanation-right="Correct. The PDF parser extracts text characters — but a scanned image has no text characters, only pixels. So allTextJoined will be empty or contain no numbers. The regex check (!allTextJoined.match(/.*[0-9]+.*/)) catches this case immediately and calls logAndHandleExpectedError. The accountant receives a clear message that dates could not be read and must be entered manually. The system keeps working — it just requires a little more manual input."
+             data-explanation-wrong="The function does not crash, and it does not try to send image data to Claude. The PDF parser only returns extractable text. A scanned image has none. The safety check — if no numbers are found — catches this immediately and returns a graceful failure. The accountant enters the dates manually. This is intentional design: handle the expected failure case cleanly.">
+          <div class="scenario-block">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              An accountant scans a paper invoice with a flatbed scanner and uploads the resulting image-only PDF (no text layer). They expect the system to read the term dates automatically.
+            </div>
+            <p class="quiz-question">What happens inside askGptToReadFileAndReturnTermMeta?</p>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="graceful-fail" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The PDF parser extracts no text (no numbers found), the safety check triggers, and the function returns a graceful failure — the accountant must enter dates manually
+            </button>
+            <button class="quiz-option" data-value="send-anyway" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The function sends the image bytes directly to Claude and hopes the AI can read them
+            </button>
+            <button class="quiz-option" data-value="crash" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The function throws an unhandled exception and crashes the upload flow
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="quiz-question-block"
+             data-correct="paper-trail"
+             data-explanation-right="Exactly right. Source lines link the schedule to the original transaction that created the liability or asset. Without this link, a schedule amount is just a number — there is no proof it corresponds to a real invoice. The link enables the Roll-Forward Report to trace from the original source transaction all the way through to the final $0 balance, which is what auditors need to verify the account.">
+          <p class="quiz-question">Why do source lines exist on a schedule? What accounting purpose do they serve?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="paper-trail" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              They link the schedule to the original transaction that created the liability or asset — proving the schedule is backed by a real invoice or journal entry, not invented, and enabling full traceability for auditors
+            </button>
+            <button class="quiz-option" data-value="duplicate" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              They duplicate the source journal entry so the schedule can recalculate the amount if the original is deleted
+            </button>
+            <button class="quiz-option" data-value="display" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              They are only used for display purposes on the schedule detail page — they have no effect on entries or reports
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="quiz-question-block"
+             data-correct="roll-forward"
+             data-explanation-right="The Roll-Forward Report is exactly the right tool here. It aggregates all schedule-generated entries filtered by account (Prepaid Expenses), groups them by month, and shows opening balance, entries posted, and closing balance for each of the 12 months. Finance gets a single report showing precisely how the Prepaid Expenses balance moved — month by month — from the January opening balance to the December closing balance, with every entry explained."
+             data-explanation-wrong="The Schedule Page shows individual schedule details but does not aggregate across 50 schedules. The source lines view is a traceability tool, not a period-by-period summary. The Roll-Forward Report is the correct answer — it aggregates entries across all schedules filtered by account and date range, grouped by period, showing opening balance, entries posted, and closing balance. This is the purpose the report was built for.">
+          <div class="scenario-block">
+            <div class="scenario-context">
+              <span class="scenario-label">Scenario</span>
+              A company has 50 active prepaid schedules. Finance wants a single report showing how their Prepaid Expenses account balance changed month by month over the past year — one row per month with opening balance, total entries, and closing balance.
+            </div>
+            <p class="quiz-question">Which feature in the schedule system answers this directly?</p>
+          </div>
+          <div class="quiz-options">
+            <button class="quiz-option" data-value="roll-forward" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The Roll-Forward Report — it aggregates entries across all schedules filtered by account and date range, grouped by month, showing opening balance, entries posted, and closing balance
+            </button>
+            <button class="quiz-option" data-value="schedule-page" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The Schedule Page — open each of the 50 schedules and manually total their entries for each month
+            </button>
+            <button class="quiz-option" data-value="source-lines" onclick="selectOption(this)">
+              <span class="quiz-option-radio"></span>
+              The Source Lines view — it traces each schedule back to the original invoice, which shows the total liability per month
+            </button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div style="display: flex; gap: var(--space-3); margin-top: var(--space-6);">
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module5')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module5')">Reset</button>
+        </div>
+
+      </div>
+
+      <!-- Completion callout -->
+      <div class="callout callout-accent animate-in" style="margin-top: var(--space-10);">
+        <span class="callout-icon">🏁</span>
+        <div class="callout-content">
+          <span class="callout-title">You have completed the Avise Schedules course</span>
+          <p>
+            You now understand the full Avise Schedule system — from the accounting concept to the AI proposal, creation pipeline, entry lifecycle, and all the connected modules.
+            Schedules are one of the most complex features in Avise because they sit at the intersection of AI assistance, accounting rules, and financial reporting.
+            Understanding how they work gives you the vocabulary to direct changes to any part of this system.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,351 @@
+<section class="module" id="module-3" style="background: var(--color-bg-warm)">
+  <div class="module-content">
+
+    <header class="module-header animate-in">
+      <span class="module-number">03</span>
+      <h1 class="module-title">From Artifact to Schedule</h1>
+      <p class="module-subtitle">The moment a user clicks Accept, a precise eight-step pipeline fires. Learn every step — from validation to the saved record in the database.</p>
+    </header>
+
+    <div class="module-body">
+
+      <!-- Screen 1: The data flow animation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Eight steps from Accept to saved</h2>
+
+        <p>Clicking Accept on an AI proposal does not just tick a box. It triggers an orchestrated sequence: the browser sends the accepted data to the API, which validates it, creates records in two tables, links them together, tracks the acceptance for analytics, and then notifies the user. Step through the pipeline below.</p>
+
+        <div class="flow-animation" data-steps="[
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;User clicks Accept -- the browser sends the accepted artifact data to the API endpoint&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;API validates: does the company exist? Are accounts valid? Do dimensions match? Do the entries balance?&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-1&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;API transforms entries -- stamps each one with status=Scheduled, platform=Avise, and createdBy=userId&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;API creates all journal entries in one batch call. Each entry succeeds or fails individually&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-3&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;API creates the PreparedSchedule parent record in the database -- the container that groups all the entries&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-3&quot;, &quot;label&quot;: &quot;API links each journal entry ID to the schedule via the ScheduleLinkedTransaction join table&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-2&quot;, &quot;label&quot;: &quot;If this came from an AI proposal: API records that the user accepted this artifact (for analytics)&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-3&quot;, &quot;to&quot;: &quot;actor-2&quot;},
+          {&quot;highlight&quot;: &quot;flow-actor-1&quot;, &quot;label&quot;: &quot;API sends a notification to the user -- schedule created successfully. Done!&quot;, &quot;packet&quot;: true, &quot;from&quot;: &quot;actor-2&quot;, &quot;to&quot;: &quot;actor-1&quot;}
+        ]">
+          <div class="flow-actors">
+            <div class="flow-actor" id="flow-actor-1">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-1)">🖥️</div>
+              <span>Browser</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-2">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-2)">⚙️</div>
+              <span>API / Backend</span>
+            </div>
+            <div class="flow-actor" id="flow-actor-3">
+              <div class="flow-actor-icon" style="border-color: var(--color-actor-3)">🗄️</div>
+              <span>Database (Prisma)</span>
+            </div>
+          </div>
+
+          <div class="flow-packet" id="flow-packet"></div>
+          <div class="flow-step-label" id="flow-label">Click &ldquo;Next Step&rdquo; to begin</div>
+
+          <div class="flow-controls">
+            <button class="btn flow-next-btn">Next Step</button>
+            <button class="btn flow-reset-btn">Restart</button>
+            <span class="flow-progress"></span>
+          </div>
+        </div>
+
+        <div class="callout callout-info animate-in">
+          <div class="callout-icon">⚡</div>
+          <div class="callout-content">
+            <strong class="callout-title">All or nothing</strong>
+            <p>If any journal entry fails to create (step 4), the API immediately rolls back by deleting all the entries that did succeed, then throws an error. The user sees a clear message and no partial schedule is left behind in the database. This is an <span class="term" data-definition="An atomic operation is one that either completes fully or not at all -- like flipping a light switch. There is no halfway state. In databases and APIs, atomicity means that if one part of a multi-step operation fails, all previous steps are undone so the system stays consistent.">atomic</span> safety guarantee.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: transformEntriesForSchedule translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Stamping entries with standard metadata</h2>
+
+        <p>Before journal entries are sent to the database, the function <code>transformEntriesForSchedule</code> runs over every entry in the list and adds a standard set of fields. Here is the exact code from <code>avise-api/src/preparedSchedules/helpers.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">return</span> entries.<span class="code-function">map</span>((<span class="code-property">entry</span>) <span class="code-operator">=&gt;</span> ({</span>
+<span class="code-line">  ...<span class="code-property">entry</span>,</span>
+<span class="code-line">  <span class="code-property">status</span>: <span class="code-property">forCreation</span></span>
+<span class="code-line">    <span class="code-operator">?</span> JournalEntryStatus.<span class="code-property">Scheduled</span></span>
+<span class="code-line">    : <span class="code-property">entry</span>.<span class="code-property">status</span> <span class="code-operator">===</span> JournalEntryStatus.<span class="code-property">Quarantined</span></span>
+<span class="code-line">      <span class="code-operator">?</span> JournalEntryStatus.<span class="code-property">Scheduled</span></span>
+<span class="code-line">      : <span class="code-property">entry</span>.<span class="code-property">status</span> <span class="code-operator">||</span> JournalEntryStatus.<span class="code-property">Scheduled</span>,</span>
+<span class="code-line">  <span class="code-property">entryType</span>: JournalEntry.Data.KnownEntryType.<span class="code-property">JournalEntry</span>,</span>
+<span class="code-line">  <span class="code-property">platform</span>: Platform.<span class="code-property">Avise</span>,</span>
+<span class="code-line">  <span class="code-property">updatedBy</span>: <span class="code-property">userId</span>,</span>
+<span class="code-line">  <span class="code-property">description</span>: HARDCODED_SCHEDULE_JE_DESCRIPTION,</span>
+<span class="code-line">  ...(<span class="code-property">forCreation</span> <span class="code-operator">&amp;&amp;</span> { <span class="code-property">createdBy</span>: <span class="code-property">userId</span> }),</span>
+<span class="code-line">}));</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Go through every entry in the list and return a new version with extra fields added.</p>
+              <p class="tl">Keep all the original fields from the entry (spread operator).</p>
+              <p class="tl">Now decide the status. If this is a brand-new schedule (forCreation = true)...</p>
+              <p class="tl">...always use <span class="term" data-definition="Scheduled status means the journal entry exists in Avise but has not yet been pushed to the general ledger (e.g. QuickBooks). It is a &quot;ready and waiting&quot; state -- the entry is approved and queued, but the accounting period has not closed yet.">Scheduled status</span> regardless of what was in the AI proposal.</p>
+              <p class="tl">For updates: if the entry was <span class="term" data-definition="Quarantined means the entry was blocked from posting -- usually because an account was invalid or a period was closed. A quarantined entry is stuck and cannot be sent to the general ledger until the problem is fixed.">Quarantined</span> (blocked from posting)...</p>
+              <p class="tl">...promote it back to Scheduled so it can be posted again.</p>
+              <p class="tl">Otherwise keep the entry&rsquo;s existing status, or fall back to Scheduled if it had none.</p>
+              <p class="tl">Mark the entry type as a standard journal entry.</p>
+              <p class="tl">Record which <span class="term" data-definition="Platform identifies the source system for a journal entry. Avise means the entry was created inside Avise. Other values include QuickBooks or other external accounting systems. This field lets the system treat entries differently depending on where they came from.">platform</span> created this entry -- Avise (not QuickBooks or another external source).</p>
+              <p class="tl">Record who last updated this entry (the user who clicked Accept).</p>
+              <p class="tl">Use the standard hardcoded description for all schedule journal entries.</p>
+              <p class="tl">For new schedules only: also record who created the entry (the user who clicked Accept).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Main orchestration function translation -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The orchestration function, line by line</h2>
+
+        <p>Everything in the pipeline flows through one function: <code>createPreparedScheduleAndAssociatedJournalEntries</code> in <code>avise-api/src/preparedSchedules/crud.ts</code>. Here is the core of it translated into plain English:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-property">company</span> = <span class="code-keyword">await</span> companiesData.<span class="code-function">get</span>(<span class="code-property">companyId</span>);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">await</span> <span class="code-function">validatePreparedSchedule</span>(</span>
+<span class="code-line">  <span class="code-property">company</span>, <span class="code-property">entries</span>, <span class="code-property">dimensionId</span>, <span class="code-property">dimensionValueId</span></span>
+<span class="code-line">);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-property">transformedEntries</span> = <span class="code-function">transformEntriesForSchedule</span>(</span>
+<span class="code-line">  <span class="code-property">entries</span>, <span class="code-property">userId</span>, { <span class="code-property">forCreation</span>: <span class="code-keyword">true</span> }</span>
+<span class="code-line">);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> { <span class="code-property">success</span>: <span class="code-property">newlyCreatedEntries</span>, <span class="code-property">failure</span>: <span class="code-property">failedEntries</span> } =</span>
+<span class="code-line">  <span class="code-keyword">await</span> v2JournalEntriesService.<span class="code-function">createEntriesEndpoint</span>(</span>
+<span class="code-line">    <span class="code-property">company</span>.<span class="code-property">id</span>, Platform.<span class="code-property">Avise</span>, <span class="code-property">transformedEntries</span></span>
+<span class="code-line">  );</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">if</span> (<span class="code-property">failedEntries</span>.<span class="code-property">length</span>) {</span>
+<span class="code-line">  <span class="code-keyword">await</span> <span class="code-function">cleanUpAfterCreationFailure</span>(...);</span>
+<span class="code-line">  <span class="code-keyword">throw new</span> <span class="code-function">DataConflictError</span>(...);</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">const</span> <span class="code-property">preparedSchedule</span> = <span class="code-keyword">await</span> preparedSchedulesData.<span class="code-function">create</span>(</span>
+<span class="code-line">  <span class="code-property">name</span>, <span class="code-property">company</span>.<span class="code-property">id</span>, { ... }</span>
+<span class="code-line">);</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">await</span> preparedSchedulesData</span>
+<span class="code-line">  .<span class="code-function">linkJournalEntriesToPreparedScheduleOrNoopIfUpdate</span>(</span>
+<span class="code-line">    <span class="code-property">ids</span>, <span class="code-property">preparedSchedule</span>.<span class="code-property">id</span></span>
+<span class="code-line">  );</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">if</span> (<span class="code-property">artifactId</span>) {</span>
+<span class="code-line">  <span class="code-keyword">await</span> <span class="code-function">trackArtifactAcceptance</span>({ ... });</span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line"><span class="code-keyword">return</span> <span class="code-function">retrievePreparedSchedule</span>(</span>
+<span class="code-line">  <span class="code-property">companyId</span>, <span class="code-property">preparedSchedule</span>.<span class="code-property">id</span></span>
+<span class="code-line">);</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Load the company record from the database -- needed for validation rules specific to this company.</p>
+              <p class="tl">Run validation: are the accounts valid? Do the dimensions exist? Do the entries balance? If anything fails, stop here and throw an error.</p>
+              <p class="tl">Stamp every entry with Avise-standard metadata: status=Scheduled, platform=Avise, createdBy=userId.</p>
+              <p class="tl">Try to create all journal entries in one batch call. The result splits into two lists: the ones that succeeded and the ones that failed.</p>
+              <p class="tl">If any entry failed: delete all the ones that did succeed (cleanup), then throw a <span class="term" data-definition="A DataConflictError is thrown when the data you are trying to save conflicts with the current state of the system -- for example, trying to post to a closed accounting period. The API returns a 409 Conflict HTTP status, and the user sees an error message.">DataConflictError</span> so the user knows what went wrong. No partial schedule is left behind.</p>
+              <p class="tl">Create the PreparedSchedule parent record in the database -- the container that groups all the entries together and holds the schedule name, dates, and dimension.</p>
+              <p class="tl">Link each journal entry ID to this schedule via the <span class="term" data-definition="A join table (also called a linking or junction table) is a database table that connects two other tables in a many-to-many relationship. It holds only two columns: the ID from table A and the ID from table B. ScheduleLinkedTransaction links PreparedSchedule records to JournalEntry records.">join table</span> (ScheduleLinkedTransaction). This is a no-op on updates -- it only adds new links.</p>
+              <p class="tl">If this schedule came from an AI proposal: record that the user accepted it. This links the artifact ID to the new schedule ID for analytics.</p>
+              <p class="tl">Return the fully assembled schedule -- the parent record plus all its journal entries and source transactions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4: The join table + Argo -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">The join table and large-schedule creation</h2>
+
+        <p>Two architectural patterns power the creation pipeline: the <span class="term" data-definition="A join table (also called a linking or junction table) is a database table that connects two other tables in a many-to-many relationship. It holds only two columns: the ID from table A and the ID from table B. ScheduleLinkedTransaction links PreparedSchedule records to JournalEntry records.">join table</span> that connects schedules to entries, and <span class="term" data-definition="Argo Workflows is a Kubernetes-native workflow engine that runs background jobs. Instead of blocking an HTTP request for minutes while a long operation completes, you submit it to Argo as a workflow and let it run in the background. The user gets a response immediately and is notified when the job finishes.">Argo workflow</span> offloading for large schedules.</p>
+
+        <div class="arch-diagram animate-in">
+          <div class="arch-zone">
+            <div class="arch-zone-label">Database relationship &mdash; click a component to learn more</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: var(--space-4); flex-wrap: wrap; padding: var(--space-4) 0;">
+              <div class="arch-component"
+                   data-desc="The PreparedSchedule record is the parent. It holds the schedule name, date range, dimension, total amount, and which company it belongs to. One schedule can have many journal entries.">
+                <div class="arch-icon">📋</div>
+                <span>PreparedSchedule</span>
+                <small style="font-size: var(--text-xs); color: var(--color-text-muted);">(1)</small>
+              </div>
+              <div style="font-size: var(--text-2xl); color: var(--color-accent); font-weight: 700;">&#8596;</div>
+              <div class="arch-component"
+                   data-desc="ScheduleLinkedTransaction is the join table. It holds exactly two columns: the schedule ID and the journal entry ID. This is how the database knows which entries belong to which schedule. One row per connection.">
+                <div class="arch-icon">🔗</div>
+                <span>ScheduleLinkedTransaction</span>
+                <small style="font-size: var(--text-xs); color: var(--color-text-muted);">(join table)</small>
+              </div>
+              <div style="font-size: var(--text-2xl); color: var(--color-accent); font-weight: 700;">&#8596;</div>
+              <div class="arch-component"
+                   data-desc="JournalEntry records represent the individual accounting lines. Each entry has its own status, amount, account, and dimension. Many entries can belong to one schedule.">
+                <div class="arch-icon">📝</div>
+                <span>JournalEntry</span>
+                <small style="font-size: var(--text-xs); color: var(--color-text-muted);">(many)</small>
+              </div>
+            </div>
+            <div class="arch-description">Click a component above to learn what it stores.</div>
+          </div>
+        </div>
+
+        <div class="callout callout-accent animate-in">
+          <div class="callout-icon">💡</div>
+          <div class="callout-content">
+            <strong class="callout-title">Why a join table?</strong>
+            <p>A join table exists when one thing is related to many of another thing. A schedule has many journal entries, and each journal entry belongs to one schedule. The join table (ScheduleLinkedTransaction) holds just two IDs: the schedule ID and the journal entry ID. This lets the database answer two questions efficiently: &ldquo;Give me all entries for schedule X&rdquo; and &ldquo;Which schedule does entry Y belong to?&rdquo;</p>
+          </div>
+        </div>
+
+        <h3 class="screen-heading" style="font-size: var(--text-xl); margin-top: var(--space-10);">Large schedules: background creation via Argo</h3>
+
+        <p>When a schedule has a large number of entries, creating them inside a single HTTP request risks a timeout. Instead, the API hands off the work to an <span class="term" data-definition="Argo Workflows is a Kubernetes-native workflow engine that runs background jobs. Instead of blocking an HTTP request for minutes while a long operation completes, you submit it to Argo as a workflow and let it run in the background. The user gets a response immediately and is notified when the job finishes.">Argo workflow</span> &mdash; a background job. Here is that code from <code>avise-api/src/preparedSchedules/createScheduleAndNotifyUser.ts</code>:</p>
+
+        <div class="translation-block animate-in">
+          <div class="translation-code">
+            <span class="translation-label">CODE</span>
+            <pre><code>
+<span class="code-line"><span class="code-keyword">async function</span> <span class="code-function">argoCreateScheduleAndNotifyUser</span>(</span>
+<span class="code-line">  <span class="code-property">args</span>: <span class="code-property">CreateScheduleArgs</span></span>
+<span class="code-line">): <span class="code-keyword">Promise</span>&lt;<span class="code-keyword">void</span>&gt; {</span>
+<span class="code-line">  <span class="code-keyword">await</span> <span class="code-function">submitArgoWorkflow</span>({</span>
+<span class="code-line">    <span class="code-property">workflowName</span>: <span class="code-string">&quot;create-schedule&quot;</span>,</span>
+<span class="code-line">    <span class="code-property">parameters</span>: {</span>
+<span class="code-line">      <span class="code-property">scheduleParams</span>: <span class="code-property">parameters</span>,</span>
+<span class="code-line">    },</span>
+<span class="code-line">  });</span>
+<span class="code-line">}</span>
+            </code></pre>
+          </div>
+          <div class="translation-english">
+            <span class="translation-label">PLAIN ENGLISH</span>
+            <div class="translation-lines">
+              <p class="tl">Define a function that kicks off background creation for large schedules.</p>
+              <p class="tl">Submit a job to the Argo workflow engine.</p>
+              <p class="tl">Tell Argo which workflow to run: the one named &ldquo;create-schedule.&rdquo;</p>
+              <p class="tl">Pass all the schedule data as parameters so Argo has everything it needs to do the work.</p>
+              <p class="tl">This function returns immediately -- the HTTP request completes and the user gets a response. Argo does the heavy lifting asynchronously in the background. When it finishes, the user is notified.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Quiz -->
+      <section class="screen animate-in">
+        <h2 class="screen-heading">Check your understanding</h2>
+
+        <div class="quiz-container" id="quiz-module3">
+
+          <div class="quiz-question-block"
+               data-correct="option-b"
+               data-explanation-right="Exactly. The API calls cleanUpAfterCreationFailure to delete the 10 entries that did succeed, then throws a DataConflictError. The user sees an error message and the database is left clean -- no partial schedule, no orphaned entries."
+               data-explanation-wrong="The API does not keep partial results. Leaving 10 entries without a schedule would create orphaned records in the database. The cleanup step deletes every entry that succeeded, so the system stays consistent. The user must fix the blocking issue (for example, reopen the accounting period) and try again.">
+            <h3 class="quiz-question">
+              <div class="scenario-block">
+                <div class="scenario-context">
+                  <span class="scenario-label">Scenario</span>
+                  <p>A user accepts an AI proposal with 12 journal entries. The API creates 10 of them successfully, but 2 fail because those accounts belong to a closed accounting period.</p>
+                </div>
+              </div>
+              What does the API do next?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Save the 10 that succeeded and create the schedule with a partial warning</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Delete the 10 that succeeded, throw a DataConflictError, and leave no schedule behind</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Retry the 2 failed entries automatically until they succeed</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-c"
+               data-explanation-right="Right. Scheduled means the entry exists in Avise and is approved, but has not yet been pushed to the general ledger. The accounting period has not closed yet. When the period closes, the entry gets promoted to Posted and sent to QuickBooks or the GL. Scheduled is a ready-but-waiting state -- not a final state."
+               data-explanation-wrong="Scheduled is not the final accounting state. Posted means the entry has been sent to the general ledger (e.g. QuickBooks) and is permanent. Scheduled entries exist only in Avise -- they are queued and approved but waiting for the accounting period to close before they become permanent records.">
+            <h3 class="quiz-question">
+              <div class="scenario-block">
+                <div class="scenario-context">
+                  <span class="scenario-label">Scenario</span>
+                  <p>A new accountant asks: &ldquo;Why do the entries created by a schedule have status=Scheduled and not status=Posted? Does that mean they are not real accounting entries yet?&rdquo;</p>
+                </div>
+              </div>
+              What is the correct explanation?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>They are not real entries -- Scheduled is a draft state and they can be deleted at any time</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Scheduled and Posted mean the same thing in Avise -- it is just a display label</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>Scheduled means the entries exist in Avise and are approved, but have not yet been pushed to the general ledger -- they become Posted when the accounting period closes</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question-block"
+               data-correct="option-a"
+               data-explanation-right="Correct. trackArtifactAcceptance records that a specific user accepted a specific AI proposal, linking the artifact ID to the resulting schedule ID. Over time this data answers the question: how often do users accept AI proposals vs. modify or reject them? That signal feeds back into improving the AI model and the proposal quality."
+               data-explanation-wrong="Artifact acceptance tracking is not for legal compliance or rollback. Its purpose is analytics: linking the AI output (artifact) to the user action (accept) and the resulting record (schedule). This data tells the product team whether the AI is producing useful proposals and helps improve the model.">
+            <h3 class="quiz-question">
+              <div class="scenario-block">
+                <div class="scenario-context">
+                  <span class="scenario-label">Scenario</span>
+                  <p>A product manager asks: &ldquo;Why does the API call <code>trackArtifactAcceptance</code> at the end of creation? The schedule is already saved -- what is the extra tracking for?&rdquo;</p>
+                </div>
+              </div>
+              What is the correct answer?
+            </h3>
+            <div class="quiz-options">
+              <button class="quiz-option" data-value="option-a" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It records which AI proposals users actually accept, linking artifact ID to schedule ID -- this data measures AI proposal quality and improves the model over time</span>
+              </button>
+              <button class="quiz-option" data-value="option-b" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It is a legal audit trail -- required for compliance to prove a human approved the AI output</span>
+              </button>
+              <button class="quiz-option" data-value="option-c" onclick="selectOption(this)">
+                <div class="quiz-option-radio"></div>
+                <span>It enables the user to undo the schedule creation later by replaying the original artifact</span>
+              </button>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="quiz-check-btn" onclick="checkQuiz('quiz-module3')">Check Answers</button>
+          <button class="quiz-reset-btn" onclick="resetQuiz('quiz-module3')">Try Again</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</section>

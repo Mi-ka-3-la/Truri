@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Brief — Prepared Schedules</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+  :root {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --ink: #1a1714;
+    --ink2: #4a4540;
+    --ink3: #8a8278;
+    --accent: #c04a2a;
+    --accent2: #2a5fc0;
+    --accent3: #2a8a4a;
+    --warn: #c08a2a;
+    --low: #e8f4ec;
+    --low-b: #2a8a4a;
+    --med: #fef7e8;
+    --med-b: #c08a2a;
+    --high: #fdeee9;
+    --high-b: #c04a2a;
+    --border: #e0dbd0;
+    --radius: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--ink);
+    color: #fff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 52px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #8a8278;
+    white-space: nowrap;
+    margin-right: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  nav a {
+    color: #ccc;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+  }
+  nav a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+  nav a.active { background: var(--accent); color: #fff; }
+
+  /* LAYOUT */
+  .wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* HEADER */
+  .doc-header {
+    margin-bottom: 48px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 24px;
+  }
+  .doc-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .doc-header p {
+    color: var(--ink2);
+    font-size: 14px;
+  }
+  .meta-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: var(--surface2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: var(--ink2);
+  }
+
+  /* TECHNIQUE BANNER */
+  .technique-banner {
+    background: var(--ink);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .technique-banner h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .technique-banner p {
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.6;
+  }
+  .technique-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .technique-card {
+    background: rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+  }
+  .technique-card .tc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .technique-card .tc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .technique-card .tc-desc {
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.5;
+  }
+
+  /* TICKET */
+  .ticket {
+    background: var(--surface);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 40px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .ticket-header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ticket-id {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--ink3);
+    margin-bottom: 4px;
+  }
+  .ticket-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    line-height: 1.3;
+  }
+  .badge-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge.low { background: var(--low); color: var(--low-b); border: 1px solid var(--low-b); }
+  .badge.med { background: var(--med); color: var(--med-b); border: 1px solid var(--med-b); }
+  .badge.high { background: var(--high); color: var(--high-b); border: 1px solid var(--high-b); }
+
+  .ticket-body { padding: 24px 28px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 28px; }
+  .section:last-child { margin-bottom: 0; }
+
+  .section-title {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink3);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section p { color: var(--ink2); font-size: 14px; margin-bottom: 8px; }
+  .section p:last-child { margin-bottom: 0; }
+
+  /* USER QUOTE */
+  .user-quote {
+    background: var(--surface2);
+    border-left: 3px solid var(--ink3);
+    padding: 12px 16px;
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-size: 13px;
+    color: var(--ink2);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+
+  /* LAYERS */
+  .layer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+  }
+
+  .layer-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .layer-card-header {
+    padding: 8px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .layer-db .layer-card-header { background: #e8eaf8; color: #3a44a0; }
+  .layer-be .layer-card-header { background: #e8f4f0; color: #1a6a4a; }
+  .layer-fe .layer-card-header { background: #f8ece8; color: #a03a1a; }
+
+  .layer-card-body { padding: 12px 14px; }
+  .file-item {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .file-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .file-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    margin-bottom: 3px;
+    word-break: break-all;
+  }
+  .file-role { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+
+  /* FIVE WHYS */
+  .five-whys {
+    background: linear-gradient(135deg, #fdf9f0 0%, #fff 100%);
+    border: 1px solid #e8d8a0;
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .five-whys-header {
+    background: #c08a2a;
+    color: #fff;
+    padding: 8px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .five-whys-body { padding: 14px; }
+  .why-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+  .why-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--warn);
+    font-weight: 500;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .why-text { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+  .why-answer {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+    margin-left: 26px;
+    margin-top: 2px;
+    margin-bottom: 6px;
+    padding-left: 10px;
+    border-left: 2px solid var(--warn);
+  }
+
+  /* AC */
+  .ac-list { list-style: none; padding: 0; }
+  .ac-list li {
+    font-size: 13px;
+    color: var(--ink2);
+    padding: 6px 0 6px 22px;
+    position: relative;
+    border-bottom: 1px dashed var(--border);
+    line-height: 1.5;
+  }
+  .ac-list li:last-child { border-bottom: none; }
+  .ac-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent3);
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .ac-list li.out::before {
+    content: '✗';
+    color: var(--ink3);
+  }
+
+  /* RISKS */
+  .risk-list { list-style: none; padding: 0; }
+  .risk-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border);
+    align-items: flex-start;
+  }
+  .risk-item:last-child { border-bottom: none; }
+  .risk-level {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .risk-level.r-high { background: var(--high); color: var(--high-b); border: 1px solid var(--high-b); }
+  .risk-level.r-med { background: var(--med); color: var(--med-b); border: 1px solid var(--med-b); }
+  .risk-level.r-low { background: var(--low); color: var(--low-b); border: 1px solid var(--low-b); }
+  .risk-text { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+
+  /* PLANNING QUESTIONS */
+  .questions-box {
+    background: #eef2fc;
+    border: 1px solid #b8c8f0;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .questions-box .qb-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #3a44a0;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .questions-box ul { list-style: none; padding: 0; }
+  .questions-box ul li {
+    font-size: 13px;
+    color: var(--ink2);
+    padding: 4px 0 4px 18px;
+    position: relative;
+    line-height: 1.5;
+  }
+  .questions-box ul li::before {
+    content: '?';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+
+  /* DEPENDENCY & SUMMARY */
+  .summary-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .summary-section .sh {
+    background: var(--ink);
+    color: #fff;
+    padding: 16px 24px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+  }
+  .summary-section .sb { padding: 24px; }
+
+  /* MATRIX */
+  .matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .matrix-table th {
+    background: var(--surface2);
+    padding: 8px 12px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink2);
+    border-bottom: 1px solid var(--border);
+  }
+  .matrix-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+  .matrix-table tr:last-child td { border-bottom: none; }
+  .matrix-table .ticket-ref {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink3);
+  }
+  .matrix-table .ticket-name { font-weight: 500; color: var(--ink); }
+
+  /* POKER GUIDE */
+  .poker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .poker-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    text-align: center;
+  }
+  .poker-points {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .poker-label { font-size: 12px; color: var(--ink2); line-height: 1.4; }
+  .poker-tickets {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink3);
+    margin-top: 6px;
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  /* CURRENT vs DESIRED */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr; }
+    .layer-grid { grid-template-columns: 1fr; }
+  }
+  .compare-box {
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink2);
+  }
+  .compare-box.current {
+    background: #fdeee9;
+    border: 1px solid #f0c0b0;
+  }
+  .compare-box.desired {
+    background: #e8f4ec;
+    border: 1px solid #a0d0b0;
+  }
+  .compare-box .cb-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .compare-box.current .cb-label { color: var(--high-b); }
+  .compare-box.desired .cb-label { color: var(--low-b); }
+
+  /* DEPENDENCY ARROWS */
+  .dep-box {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .dep-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .dep-row:last-child { margin-bottom: 0; }
+  .dep-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: var(--ink);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .dep-arrow { color: var(--ink3); font-size: 16px; }
+  .dep-text { color: var(--ink2); font-size: 13px; }
+
+  /* SCROLL TOP */
+  .scroll-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .scroll-top:hover { transform: translateY(-2px); }
+
+  /* PRINT */
+  @media print {
+    nav { display: none; }
+    .scroll-top { display: none; }
+    .ticket { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <span class="nav-label">Tickets</span>
+  <a href="#t7411">7411</a>
+  <a href="#t7410">7410</a>
+  <a href="#t7398">7398</a>
+  <a href="#t7397">7397</a>
+  <a href="#tdebit">Debit Acct</a>
+  <a href="#summary">📊 Summary</a>
+</nav>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="ticket-id">Sprint Planning Brief</div>
+    <h1>Prepared Schedules — 5 Tickete</h1>
+    <p>Analiza tehnica completa + context pentru planning poker</p>
+    <div class="meta-row">
+      <span class="meta-pill">Feature area: Prepared Schedules Report</span>
+      <span class="meta-pill">5 tickete analizate</span>
+      <span class="meta-pill">Backend + Frontend + DB</span>
+    </div>
+  </div>
+
+  <!-- TECHNIQUE BANNER -->
+  <div class="technique-banner">
+    <h2>Cum folosim aceste tehnici la planning</h2>
+    <p>Inainte de estimare, fiecare ticket trece printr-un set de verificari. Nu le facem pe toate simultan — alegi una sau doua per ticket, in functie de complexitate.</p>
+    <div class="technique-grid">
+      <div class="technique-card">
+        <div class="tc-label">Tehnica 1</div>
+        <div class="tc-name">5 Whys</div>
+        <div class="tc-desc">Intrebi „de ce?" de 5 ori ca sa ajungi la cauza reala, nu simptom. Util inainte de estimare ca sa validezi ca rezolvi problema potrivita.</div>
+      </div>
+      <div class="technique-card">
+        <div class="tc-label">Tehnica 2</div>
+        <div class="tc-name">Acceptance Criteria</div>
+        <div class="tc-desc">Lista clara de „dat/nedat" — ce e IN scope si ce e OUT. Reduce dezacordurile la demo.</div>
+      </div>
+      <div class="technique-card">
+        <div class="tc-label">Tehnica 3</div>
+        <div class="tc-name">Three Amigos</div>
+        <div class="tc-desc">PO + Dev + QA pun intrebarile lor inainte de estimare. Fiecare vede riscuri diferite.</div>
+      </div>
+      <div class="technique-card">
+        <div class="tc-label">Tehnica 4</div>
+        <div class="tc-name">Spike înainte de estimare</div>
+        <div class="tc-desc">Daca incertitudinea e prea mare, planifici un spike (investigatie tehnica cu timebox fix) si estimezi dupa el.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- TICKET 7411 -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="ticket" id="t7411">
+    <div class="ticket-header">
+      <div>
+        <div class="ticket-id">#7411</div>
+        <div class="ticket-title">Hide Inactive Schedules</div>
+      </div>
+      <div class="badge-row">
+        <span class="badge low">Risc: Scazut</span>
+        <span class="badge low">Complexitate: Mica</span>
+        <span class="badge low">Easy Win</span>
+      </div>
+    </div>
+    <div class="ticket-body">
+
+      <div class="section">
+        <div class="section-title">Ce a zis userul</div>
+        <div class="user-quote">„Am programele care s-au terminat si nu mai vreau sa le vad in lista. Vreau un toggle sa le ascund."</div>
+        <p>Un schedule devine „inactiv" cand data de sfarsit (termEnd) a trecut. Userul vede lista aglomerata cu programe vechi si nu poate sa se concentreze pe cele active.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Comportament curent vs. ce vrem</div>
+        <div class="compare-grid">
+          <div class="compare-box current">
+            <div class="cb-label">❌ Acum</div>
+            Raportul nu stie ce inseamna „inactiv". Un schedule cu termEnd in trecut apare in lista daca are activitate istorica in fereastra de date selectata. Nu exista niciun filtru legat de data de sfarsit a schedule-ului.
+          </div>
+          <div class="compare-box desired">
+            <div class="cb-label">✅ Ce vrem</div>
+            Un toggle „Hide Inactive" care exclude din lista orice schedule unde termEnd &lt; azi. Toggle off by default (sa nu sperie userii vechi). Cand e on, lista afiseaza doar ce e activ.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Unde se atinge codul</div>
+        <div class="layer-grid">
+          <div class="layer-card layer-db">
+            <div class="layer-card-header">🗄️ Database</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">prepared_schedules (tabel)</div>
+                <div class="file-role">Campul <strong>term_end_date</strong> exista deja. Nu e nevoie de nicio migrare de baza de date — informatia este deja acolo.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-be">
+            <div class="layer-card-header">⚙️ Backend / API</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">controllers/types/reports.ts</div>
+                <div class="file-role">Defineste ce parametri poate primi un request API. Adaugam <strong>hideInactive: boolean</strong> — fara asta, frontend-ul nu poate trimite optiunea.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">controllers/.../reportController.ts</div>
+                <div class="file-role">Valideaza requestul primit de la frontend. Adaugam validarea noului parametru cu valoare default <strong>false</strong>.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">services/.../preparedSchedulesReportService.ts</div>
+                <div class="file-role">Logica principala a raportului. Adaugam un <strong>if</strong> care sarite schedule-ul din rezultate daca termEnd a trecut si toggle-ul e activ.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-fe">
+            <div class="layer-card-header">🖥️ Frontend</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">usePreparedSchedulesPageFilterSet.ts</div>
+                <div class="file-role">Gestioneaza starea filtrelor de pe pagina. Adaugam toggle-ul „Hide Inactive" si il transmitem in request-ul catre API.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="section">
+        <div class="section-title">🔍 5 Whys — Cauza reala</div>
+        <div class="five-whys">
+          <div class="five-whys-header">De ce vrea userul asta?</div>
+          <div class="five-whys-body">
+            <div class="why-item"><span class="why-num">De ce 1</span><span class="why-text">Lista de schedules e aglomerata.</span></div>
+            <div class="why-answer">→ Pentru ca apar si schedule-urile terminate, nu doar cele active.</div>
+            <div class="why-item"><span class="why-num">De ce 2</span><span class="why-text">De ce apar si cele terminate?</span></div>
+            <div class="why-answer">→ Raportul nu face diferenta intre active si inactive — filtreaza doar dupa activitate in fereastra de date.</div>
+            <div class="why-item"><span class="why-num">De ce 3</span><span class="why-text">De ce ii deranjeaza?</span></div>
+            <div class="why-answer">→ Ii consuma timp sa caute schedule-urile relevante si exista riscul sa lucreze din greseala pe un schedule vechi.</div>
+            <div class="why-item"><span class="why-num">De ce 4</span><span class="why-text">De ce nu filtreaza din UI?</span></div>
+            <div class="why-answer">→ Nu exista nicio optiune de filtrare dupa status activ/inactiv in prezent.</div>
+            <div class="why-item"><span class="why-num">De ce 5</span><span class="why-text">De ce nu a fost facut pana acum?</span></div>
+            <div class="why-answer">→ Probabil ca initial numarul de schedule-uri era mic. Pe masura ce platforma creste si companiile au istoric mai lung, problema devine vizibila. <strong>Cauza reala: lipsa unui concept de ciclu de viata al schedule-ului in interfata.</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">✅ Acceptance Criteria</div>
+        <ul class="ac-list">
+          <li>Exista un toggle „Hide Inactive Schedules" vizibil pe pagina de Prepared Schedules</li>
+          <li>Toggle off by default — comportamentul existent nu se schimba</li>
+          <li>Cand toggle e ON: niciun schedule cu termEnd &lt; azi nu apare in lista</li>
+          <li>Cand toggle e ON: schedule-urile fara termEnd (fara data de sfarsit) raman vizibile</li>
+          <li>Toggle-ul se aplica si exportului (xlsx/csv)</li>
+          <li class="out">OUT: Nu include un concept de „archivare" permanenta a schedule-ului</li>
+          <li class="out">OUT: Nu schimba comportamentul altor rapoarte</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">⚠️ Riscuri</div>
+        <ul class="risk-list">
+          <li class="risk-item">
+            <span class="risk-level r-low">Scazut</span>
+            <span class="risk-text">Nicio migrare de DB necesara. termEnd exista deja. Riscul principal e sa nu gestionam corect cazul in care termEnd e null (schedule fara data de sfarsit).</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">❓ Intrebari Three Amigos (de pus la planning)</div>
+        <div class="questions-box">
+          <div class="qb-title">Dev / QA / PO</div>
+          <ul>
+            <li>Ce se intampla cu schedule-urile care nu au termEnd setat — raman intotdeauna vizibile?</li>
+            <li>Toggle-ul e per-user sau per-companie (se salveaza preferinta)?</li>
+            <li>Trebuie aplicat si in exportul CSV/XLSX sau doar in UI?</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- TICKET 7410 -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="ticket" id="t7410">
+    <div class="ticket-header">
+      <div>
+        <div class="ticket-id">#7410</div>
+        <div class="ticket-title">Fixed Vendor Column</div>
+      </div>
+      <div class="badge-row">
+        <span class="badge med">Risc: Mediu</span>
+        <span class="badge med">Complexitate: Medie</span>
+      </div>
+    </div>
+    <div class="ticket-body">
+
+      <div class="section">
+        <div class="section-title">Ce a zis userul</div>
+        <div class="user-quote">„Vreau sa vad coloana Vendor intotdeauna in tabel, nu doar cand o selectez manual din filtru."</div>
+        <p>In Avise, „Vendor" este un tip de dimensiune — o eticheta suplimentara pe inregistrarile contabile (de ex. Amazon, Microsoft). Userul nu ar trebui sa fie nevoit sa o selecteze activ ca sa o vada in raport.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Context tehnic important — doua concepte de „dimensiune"</div>
+        <div class="compare-grid">
+          <div class="compare-box current">
+            <div class="cb-label">Dimensiunea schedule-ului (proprie)</div>
+            Setata la crearea schedule-ului. Un singur vendor per schedule. Stocata in <strong>prepared_schedules.dimension_value_id</strong>. Nu este inclusa in raspunsul raportului acum.
+          </div>
+          <div class="compare-box desired">
+            <div class="cb-label">Dimensiunile din linii (agregate)</div>
+            Valorile de dimensiune de pe <strong>journal_lines_dimensions</strong> — toate vendorii care apar in inregistrarile contabile legate. Pot fi mai multi per schedule. Astea foloseste raportul acum, dar doar daca userul selecteaza filtrul.
+          </div>
+        </div>
+        <p style="margin-top:12px; font-size:13px; color: var(--accent);">⚠️ Aceasta ambiguitate trebuie clarificata cu echipa inainte de estimare.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Comportament curent vs. ce vrem</div>
+        <div class="compare-grid">
+          <div class="compare-box current">
+            <div class="cb-label">❌ Acum</div>
+            Coloana dimensiune apare in tabel <em>doar</em> daca userul a selectat activ o dimensiune din filtru. Daca nu selecteaza, nu vede coloana deloc — chiar daca compania are Vendor configurat.
+          </div>
+          <div class="compare-box desired">
+            <div class="cb-label">✅ Ce vrem</div>
+            Coloana „Vendor" (sau, mai generic, dimensiunea proprie a schedule-ului) apare intotdeauna, indiferent de filtru. Userul nu mai face niciun pas extra.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Unde se atinge codul</div>
+        <div class="layer-grid">
+          <div class="layer-card layer-db">
+            <div class="layer-card-header">🗄️ Database</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">prepared_schedules + dimension_values + dimensions</div>
+                <div class="file-role">Datele exista. Un schedule are <strong>dimension_value_id</strong> care leaga la un vendor. Din acel vendor putem obtine si numele dimensiunii (ex. „Vendor"). Niciun camp nou in DB, doar query extins.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-be">
+            <div class="layer-card-header">⚙️ Backend / API</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReportData.ts</div>
+                <div class="file-role">Extinde query-ul din <strong>mutateSchedulesAndAddMetadata</strong> ca sa faca JOIN la dimension_values si dimensions si sa returneze numele dimensiunii si valoarea proprie a schedule-ului.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReport.ts (tipuri)</div>
+                <div class="file-role">Adaugam doua campuri noi la tipuri: <strong>scheduleDimensionValue</strong> (ex. „Amazon") si <strong>scheduleDimensionName</strong> (ex. „Vendor").</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedSchedulesReportService.ts</div>
+                <div class="file-role">Mapeaza campurile noi prin functia de build a randurilor de raport, astfel incat sa ajunga in raspuns.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-fe">
+            <div class="layer-card-header">🖥️ Frontend</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">PreparedSchedulesTable.tsx</div>
+                <div class="file-role">Arata coloana de dimensiune <strong>intotdeauna</strong> (nu conditionat de filtrul userului), folosind valoarea proprie a schedule-ului, nu valorile agregate din linii.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="section">
+        <div class="section-title">🔍 5 Whys — Cauza reala</div>
+        <div class="five-whys">
+          <div class="five-whys-header">De ce e o problema ca userul trebuie sa selecteze filtrul?</div>
+          <div class="five-whys-body">
+            <div class="why-item"><span class="why-num">De ce 1</span><span class="why-text">Userul se asteapta sa vada Vendor fara sa faca nimic extra.</span></div>
+            <div class="why-answer">→ Pentru ca in alte sisteme (QBO, Xero) dimensiunile sunt coloane standard.</div>
+            <div class="why-item"><span class="why-num">De ce 2</span><span class="why-text">De ce e conditionata coloana de filtru?</span></div>
+            <div class="why-answer">→ Pentru ca tabelul a fost proiectat sa fie generic — sa suporte orice tip de dimensiune, nu doar Vendor. Coloana e dinamica, nu fixa.</div>
+            <div class="why-item"><span class="why-num">De ce 3</span><span class="why-text">De ce nu e Vendor o coloana fixa?</span></div>
+            <div class="why-answer">→ Nu toate companiile au Vendor configurat. Deci nu poti sa o afisezi intotdeauna fara sa stii daca e relevanta.</div>
+            <div class="why-item"><span class="why-num">De ce 4</span><span class="why-text">De ce nu verificam daca compania are Vendor si il afisam automat?</span></div>
+            <div class="why-answer">→ Nu s-a facut inca — logica lipseste. Dar datele exista in DB.</div>
+            <div class="why-item"><span class="why-num">De ce 5</span><span class="why-text">De ce exista aceste doua concepte de dimensiune (proprie vs. din linii) neconsolidate?</span></div>
+            <div class="why-answer">→ <strong>Cauza reala: modelul de date are o tensiune nerezolvata</strong> intre dimensiunea fixata la creare si cea emergenta din tranzactii. Aceasta e decizia de design care trebuie luata.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">✅ Acceptance Criteria</div>
+        <ul class="ac-list">
+          <li>Coloana „Vendor" (sau dimensiunea proprie) apare fara nicio actiune a userului</li>
+          <li>Daca schedule-ul nu are dimensiune proprie setata, coloana e goala pentru acel rand</li>
+          <li>Daca compania nu are nicio dimensiune configurata, coloana nu apare</li>
+          <li class="out">OUT: Nu schimbam modul in care filtrul de dimensiune functioneaza acum</li>
+          <li class="out">OUT: Nu schimbam tipul string[] al dimensionValues in alte parti ale codului</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">⚠️ Riscuri</div>
+        <ul class="risk-list">
+          <li class="risk-item">
+            <span class="risk-level r-med">Mediu</span>
+            <span class="risk-text">Exista doua concepte de dimensiune in cod care se pot confunda. Daca nu e clar care din ele vrem sa afisam, riscam sa implementam „alta" coloana decat ce asteapta userul.</span>
+          </li>
+          <li class="risk-item">
+            <span class="risk-level r-low">Scazut</span>
+            <span class="risk-text">Numele dimensiunii variaza per companie — nu e hardcodat „Vendor". Trebuie sa il extragem dinamic din configuratia companiei.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">❓ Intrebari Three Amigos (de pus la planning)</div>
+        <div class="questions-box">
+          <div class="qb-title">Clarificari critice inainte de estimare</div>
+          <ul>
+            <li>Ce vrea userul sa vada: valoarea FIXA de la creare (un singur vendor) sau toti vendorii din tranzactii (poate fi mai multi)?</li>
+            <li>Daca un schedule are mai multi vendori pe linii, le afisam pe toti sau doar pe cel de la creare?</li>
+            <li>Daca nu sunt de acord, avem nevoie de spike inainte de estimare.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- TICKET 7398 -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="ticket" id="t7398">
+    <div class="ticket-header">
+      <div>
+        <div class="ticket-id">#7398</div>
+        <div class="ticket-title">Export nu include informatii despre dimensiuni</div>
+      </div>
+      <div class="badge-row">
+        <span class="badge high">Risc: Inalt</span>
+        <span class="badge high">Complexitate: Mare</span>
+        <span class="badge med">Cuplat cu 7397</span>
+      </div>
+    </div>
+    <div class="ticket-body">
+
+      <div class="section">
+        <div class="section-title">Ce a zis userul</div>
+        <div class="user-quote">„Exportez raportul si nu vad coloana Vendor in fisierul Excel, desi in Avise se vede."</div>
+        <p>Userul poate vedea informatii de dimensiune in UI cand filtreaza, dar cand descarca exportul Excel/CSV, coloana lipseste daca nu a selectat explicit dimensiunea in filtru.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Comportament curent vs. ce vrem</div>
+        <div class="compare-grid">
+          <div class="compare-box current">
+            <div class="cb-label">❌ Acum</div>
+            Exportul include coloana de dimensiune DOAR daca <strong>dimensionName</strong> este in query params — adica userul a selectat filtrul. Daca nu a selectat, exportul nu are coloana, indiferent de ce vede in UI.
+          </div>
+          <div class="compare-box desired">
+            <div class="cb-label">✅ Ce vrem (varianta corecta, complexa)</div>
+            Exportul include automat TOATE dimensiunile configurate ale companiei, fiecare ca o coloana separata. Nu mai depinde de filtrul userului.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">De ce e complex — schimbare arhitecturala</div>
+        <p>Acum, datele de dimensiune sunt un array simplu: <code style="font-family:monospace;background:#f0ede6;padding:1px 5px;border-radius:3px;">dimensionValues: string[]</code> — o lista de valori. Daca vrem toate dimensiunile, trebuie sa schimbam la: <code style="font-family:monospace;background:#f0ede6;padding:1px 5px;border-radius:3px;">dimensionValues: Record&lt;string, string[]&gt;</code> — un dictionar {NumeDimensiune → valori}. Aceasta schimbare afecteaza <strong>toate</strong> partile codului care consuma aceste date.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Unde se atinge codul</div>
+        <div class="layer-grid">
+          <div class="layer-card layer-db">
+            <div class="layer-card-header">🗄️ Database</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">journal_lines_dimensions (tabel)</div>
+                <div class="file-role">Stocheaza toate dimensiunile pe fiecare linie contabila. Query-ul actual extrage o singura dimensiune. Ar trebui sa extraga toate dimensiunile companiei si sa le agrege separat.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-be">
+            <div class="layer-card-header">⚙️ Backend / API</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReportData.ts</div>
+                <div class="file-role">Query-ul principal trebuie sa extraga TOATE dimensiunile per schedule, nu una. Structura rezultatului se schimba fundamental.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReport.ts (tipuri)</div>
+                <div class="file-role">Tipurile de date se schimba — <strong>dimensionValues</strong> nu mai e string[] ci Record. Toate tipurile care il mostenesc trebuie actualizate.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReportXlsxFormatter.ts</div>
+                <div class="file-role">Formateaza datele pentru Excel. Trebuie sa itereze dinamic peste toate dimensiunile si sa creeze o coloana per dimensiune.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-fe">
+            <div class="layer-card-header">🖥️ Frontend</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">PreparedSchedulesTable.tsx + tipuri</div>
+                <div class="file-role">Tabelul din UI consuma <strong>dimensionValues: string[]</strong>. Cand tipul se schimba pe backend, tabelul se sparge — trebuie actualizat in paralel.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="section">
+        <div class="section-title">🔍 5 Whys — Cauza reala</div>
+        <div class="five-whys">
+          <div class="five-whys-header">De ce exportul nu include dimensiunile?</div>
+          <div class="five-whys-body">
+            <div class="why-item"><span class="why-num">De ce 1</span><span class="why-text">Exportul nu are coloana Vendor.</span></div>
+            <div class="why-answer">→ Pentru ca exportul e conditionat de parametrul dimensionName din request.</div>
+            <div class="why-item"><span class="why-num">De ce 2</span><span class="why-text">De ce e conditionat?</span></div>
+            <div class="why-answer">→ Pentru ca sistemul suporta o singura dimensiune in acelasi timp — a fost proiectat asa.</div>
+            <div class="why-item"><span class="why-num">De ce 3</span><span class="why-text">De ce o singura dimensiune?</span></div>
+            <div class="why-answer">→ E o decizie de MVP — simplu de implementat, suficient la inceput.</div>
+            <div class="why-item"><span class="why-num">De ce 4</span><span class="why-text">De ce nu mai e suficient?</span></div>
+            <div class="why-answer">→ Companiile care folosesc Avise au mai multe dimensiuni (Vendor, Department, Class) si vor sa le vada simultan in export.</div>
+            <div class="why-item"><span class="why-num">De ce 5</span><span class="why-text">De ce nu s-a rezolvat pana acum?</span></div>
+            <div class="why-answer">→ <strong>Cauza reala: limitare arhitecturala de MVP care a ajuns la limita sa.</strong> Rezolvarea corecta necesita o refactorizare coordonata backend + frontend, nu un fix punctual.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">✅ Acceptance Criteria (daca implementam varianta completa)</div>
+        <ul class="ac-list">
+          <li>Exportul Excel/CSV include automat o coloana per dimensiune configurata de companie</li>
+          <li>Coloanele de dimensiune apar indiferent daca userul a selectat sau nu filtrul de dimensiune</li>
+          <li>Tabelul din UI inca functioneaza corect dupa schimbarea tipurilor</li>
+          <li class="out">OUT: Nu includem dimensiunile altor companii</li>
+          <li class="out">OUT: Varianta simplificata (documentatie/tooltip) nu e suficienta ca long-term fix</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">⚠️ Riscuri</div>
+        <ul class="risk-list">
+          <li class="risk-item">
+            <span class="risk-level r-high">Inalt</span>
+            <span class="risk-text">Schimbarea tipului dimensionValues din string[] in Record sparge atat UI-ul cat si exportul simultan. E nevoie de coordonare stricta intre frontend si backend — nu poti face deploy partial.</span>
+          </li>
+          <li class="risk-item">
+            <span class="risk-level r-med">Mediu</span>
+            <span class="risk-text">Cuplat cu 7397 — daca facem 7397 mai tarziu cu o arhitectura diferita, riscam sa facem 7398 de doua ori.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">❓ Intrebari Three Amigos (de pus la planning)</div>
+        <div class="questions-box">
+          <div class="qb-title">Decizie necesara inainte de estimare</div>
+          <ul>
+            <li>Facem fix-ul rapid (tooltip/documentatie) sau arhitectura corecta? Alegerea afecteaza estimarea radical.</li>
+            <li>7398 si 7397 se planifica impreuna ca un singur feature? Recomandat da.</li>
+            <li>Avem nevoie de spike pentru a estima impactul schimbarii tipurilor?</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- TICKET 7397 -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="ticket" id="t7397">
+    <div class="ticket-header">
+      <div>
+        <div class="ticket-id">#7397</div>
+        <div class="ticket-title">Filtrare dupa dimensiuni multiple simultan</div>
+      </div>
+      <div class="badge-row">
+        <span class="badge high">Risc: Inalt</span>
+        <span class="badge high">Complexitate: Mare</span>
+        <span class="badge high">Sprint semnificativ</span>
+      </div>
+    </div>
+    <div class="ticket-body">
+
+      <div class="section">
+        <div class="section-title">Ce a zis userul</div>
+        <div class="user-quote">„Vreau sa filtrez dupa Vendor SI dupa Department in acelasi timp, nu ori una ori alta."</div>
+        <p>In prezent, poti selecta un singur tip de dimensiune in filtru. Daca vrei Vendor si Department simultan, nu poti — trebuie sa alegi una.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Comportament curent vs. ce vrem</div>
+        <div class="compare-grid">
+          <div class="compare-box current">
+            <div class="cb-label">❌ Acum</div>
+            Filtrul suporta <strong>o singura dimensiune primara</strong> (ex. Vendor) si valori multiple in cadrul ei (ex. Amazon, Microsoft). Structura: <code style="font-family:monospace;font-size:12px;">{primary: string, secondary: string[]}</code>
+          </div>
+          <div class="compare-box desired">
+            <div class="cb-label">✅ Ce vrem</div>
+            Filtrul suporta <strong>mai multe tipuri de dimensiuni simultan</strong>. Structura: <code style="font-family:monospace;font-size:12px;">dimensions: Array&lt;{name, values}&gt;</code>. Un schedule apare doar daca satisface TOATE dimensiunile selectate.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">De ce e cel mai complex dintre cele 4 — SQL dinamic</div>
+        <p>Pentru a filtra dupa mai multe dimensiuni in acelasi timp, query-ul SQL trebuie sa faca un JOIN separat per dimensiune. Dar numele dimensiunilor nu sunt cunoscute la compile time — vin dinamic de la user. Asta inseamna ca SQL-ul trebuie <strong>construit dinamic la runtime</strong>, ceea ce creste semnificativ complexitatea si riscul de performanta.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Unde se atinge codul</div>
+        <div class="layer-grid">
+          <div class="layer-card layer-db">
+            <div class="layer-card-header">🗄️ Database</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">journal_lines_dimensions</div>
+                <div class="file-role">Tabelul cu dimensiunile pe linii. Query-ul actual face un singur JOIN pentru o dimensiune. Noul query trebuie sa faca N join-uri, unul per dimensiune selectata. Query-ul devine mai greu pe DB.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-be">
+            <div class="layer-card-header">⚙️ Backend / API</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">controllers/types/reports.ts</div>
+                <div class="file-role">Parametrul API se schimba din <strong>dimensionName + dimensionValue</strong> (singular) la <strong>dimensions[]</strong> (array de perechi). Schimbare de contract API.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReportData.ts</div>
+                <div class="file-role">Query-ul SQL principal devine dinamic — construim JOIN-urile la runtime in functie de dimensiunile cerute. Cel mai complex loc de modificat.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedSchedulesReportService.ts</div>
+                <div class="file-role">Logica de filtrare trebuie sa aplice conditia AND: un schedule trece filtrul doar daca are valori in TOATE dimensiunile selectate simultan.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-fe">
+            <div class="layer-card-header">🖥️ Frontend</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">useConnectedDimensionFilterOptions.ts + UI filtru</div>
+                <div class="file-role">Redesign al componentei de filtru — de la un singur selector de dimensiune la posibilitatea de a adauga mai multi selectori independenti.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="section">
+        <div class="section-title">🔍 5 Whys — Cauza reala</div>
+        <div class="five-whys">
+          <div class="five-whys-header">De ce are nevoie userul de filtrare multi-dimensionala?</div>
+          <div class="five-whys-body">
+            <div class="why-item"><span class="why-num">De ce 1</span><span class="why-text">Nu poate filtra dupa doua dimensiuni simultan.</span></div>
+            <div class="why-answer">→ Filtrul suporta doar o dimensiune primara.</div>
+            <div class="why-item"><span class="why-num">De ce 2</span><span class="why-text">De ce are nevoie de doua simultan?</span></div>
+            <div class="why-answer">→ Vrea sa vada spre exemplu: Amazon (Vendor) si IT Department — intersectia celor doua, nu toate tranzactiile Amazon sau toate IT.</div>
+            <div class="why-item"><span class="why-num">De ce 3</span><span class="why-text">De ce nu face doua rapoarte separate?</span></div>
+            <div class="why-answer">→ Ar trebui sa compare manual, sa piarda timp, si nu poate exporta intersectia.</div>
+            <div class="why-item"><span class="why-num">De ce 4</span><span class="why-text">Cat de des are nevoie de asta?</span></div>
+            <div class="why-answer">→ Neclar — aceasta e o intrebare critica de pus inainte de planning. Daca e un use case rar, prioritatea scade.</div>
+            <div class="why-item"><span class="why-num">De ce 5</span><span class="why-text">De ce nu a fost implementat de la inceput?</span></div>
+            <div class="why-answer">→ <strong>Cauza reala: complexitate tehnica disproportionata fata de valoarea initiala.</strong> Acum ca baza de useri creste si companiile au mai multe dimensiuni configurate, use case-ul devine mai frecvent.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">⚠️ Riscuri</div>
+        <ul class="risk-list">
+          <li class="risk-item">
+            <span class="risk-level r-high">Inalt</span>
+            <span class="risk-text">SQL dinamic creste complexitatea query-ului si poate degrada performanta. executeWithOptimizedMemory exista deja pentru un motiv — cu mai multe JOIN-uri va fi si mai lent.</span>
+          </li>
+          <li class="risk-item">
+            <span class="risk-level r-high">Inalt</span>
+            <span class="risk-text">Schimbarea tipului dimensionValues (la fel ca 7398) sparge UI-ul si exportul simultan. E necesar deployment coordonat.</span>
+          </li>
+          <li class="risk-item">
+            <span class="risk-level r-med">Mediu</span>
+            <span class="risk-text">Redesign-ul componentei de filtru afecteaza UX si necesita validare cu useri reali inainte de implementare.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">❓ Intrebari Three Amigos (de pus la planning)</div>
+        <div class="questions-box">
+          <div class="qb-title">Recomandat: Spike inainte de estimare</div>
+          <ul>
+            <li>Cat de frecvent e use case-ul? (date din analytics sau interviu user)</li>
+            <li>7397 si 7398 se planifica in acelasi sprint? Sunt cuplate.</li>
+            <li>Avem nevoie de un spike de performanta pentru SQL dinamic cu N join-uri?</li>
+            <li>Filtrul UI: adaugam un buton „+ Add dimension" sau redesign complet?</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- DEBIT ACCOUNT COLUMN -->
+  <!-- ─────────────────────────────────────── -->
+  <div class="ticket" id="tdebit">
+    <div class="ticket-header">
+      <div>
+        <div class="ticket-id">Nou — Fara numar inca</div>
+        <div class="ticket-title">Coloana „Debit Account" in raportul Prepared Schedules</div>
+      </div>
+      <div class="badge-row">
+        <span class="badge med">Risc: Mediu</span>
+        <span class="badge med">Complexitate: Medie</span>
+      </div>
+    </div>
+    <div class="ticket-body">
+
+      <div class="section">
+        <div class="section-title">Ce a zis userul</div>
+        <div class="user-quote">„Vreau sa vad in lista de schedules pe ce cont de cheltuiala merge amortizarea — acum trebuie sa deschid fiecare schedule individual."</div>
+        <p>Intr-un schedule de amortizare tipic exista doua conturi: un cont de bilant (ex. Prepaid Expense) si un cont de cheltuiala (ex. Insurance Expense). Raportul afiseaza informatii despre contul de bilant, dar nu spune nimic despre contul de cheltuiala — cel care se debiteaza la fiecare amortizare.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Context contabil — de ce „debit account" si nu altceva</div>
+        <p>In contabilitate, <strong>debit = suma pozitiva</strong> pe un cont de cheltuiala. Conventie in Avise: amount &gt; 0 inseamna debit. Raportul filtreaza acum exclusiv conturile de bilant (Asset, Liability, Equity). Contul de cheltuiala — cel care se debiteaza — e pe cealalta parte a inregistrarii si nu apare nicaieri in raport.</p>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Comportament curent vs. ce vrem</div>
+        <div class="compare-grid">
+          <div class="compare-box current">
+            <div class="cb-label">❌ Acum</div>
+            Raportul nu include nicio informatie despre conturi. Query-ul SQL selecteaza linii doar de pe conturi de bilant. Contul de cheltuiala nu apare nicaieri in lista sau in export.
+          </div>
+          <div class="compare-box desired">
+            <div class="cb-label">✅ Ce vrem</div>
+            O coloana noua „Debit Account" care afiseaza numele contului/conturilor de cheltuiala debitate in inregistrarile legate de schedule. Vizibila in tabel si inclusa in export.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Unde se atinge codul — 5 fisiere + query nou</div>
+        <div class="layer-grid">
+          <div class="layer-card layer-db">
+            <div class="layer-card-header">🗄️ Database</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">schedule_linked_transactions → journal_entries → journal_lines → accounts</div>
+                <div class="file-role">Lantul de tabele prin care ajungem la contul de cheltuiala. <strong>schedule_linked_transactions</strong> leaga un schedule de inregistrarile sale contabile. Din acele inregistrari, selectam liniile cu amount &gt; 0 pe conturi care NU sunt bilant — acelea sunt conturile de cheltuiala. Nu e nevoie de tabele sau campuri noi.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-be">
+            <div class="layer-card-header">⚙️ Backend / API</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReportData.ts — mutateSchedulesAndAddMetadata</div>
+                <div class="file-role">Adaugam un query nou care parcurge lantul de tabele si returneaza, per schedule, un array cu numele distincte ale conturilor de cheltuiala. Query-ul se executa o singura data pentru toate schedule-urile din rezultat.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReport.ts (tipuri)</div>
+                <div class="file-role">Adaugam campul <strong>debitAccounts: string[]</strong> la tipurile PreparedScheduleReportSqlRow si PreparedScheduleRow.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedSchedulesReportService.ts</div>
+                <div class="file-role">Mapeaza noul camp <strong>debitAccounts</strong> prin functia buildPreparedSchedulesReportRows astfel incat ajunge in raspunsul API.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">preparedScheduleReportXlsxFormatter.ts</div>
+                <div class="file-role">La export, array-ul debitAccounts trebuie convertit la string inainte de a scrie in Excel (join cu virgula). Similar cu cum se trateaza dimensionValues.</div>
+              </div>
+            </div>
+          </div>
+          <div class="layer-card layer-fe">
+            <div class="layer-card-header">🖥️ Frontend</div>
+            <div class="layer-card-body">
+              <div class="file-item">
+                <div class="file-name">rollforwards.ts (tipuri)</div>
+                <div class="file-role">Adaugam <strong>debitAccounts: string[]</strong> la PreparedScheduleRowFromApi — tipul care descrie ce primeste frontend-ul de la API.</div>
+              </div>
+              <div class="file-item">
+                <div class="file-name">PreparedSchedulesTable.tsx</div>
+                <div class="file-role">Adaugam o coloana noua „Debit Account" in tabel. Cand array-ul are mai multe valori, le afisam concatenate cu virgula. Cand array-ul e gol (schedule nou, fara tranzactii inca), coloana e goala.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="section-divider">
+
+      <div class="section">
+        <div class="section-title">🔍 5 Whys — Cauza reala</div>
+        <div class="five-whys">
+          <div class="five-whys-header">De ce userul nu stie pe ce cont merge amortizarea?</div>
+          <div class="five-whys-body">
+            <div class="why-item"><span class="why-num">De ce 1</span><span class="why-text">Nu vede contul de cheltuiala in lista de schedules.</span></div>
+            <div class="why-answer">→ Raportul nu include informatii despre conturi.</div>
+            <div class="why-item"><span class="why-num">De ce 2</span><span class="why-text">De ce nu include?</span></div>
+            <div class="why-answer">→ Raportul a fost proiectat sa arate activitatea financiara (sume, balante), nu configuratia schedule-ului (ce conturi foloseste).</div>
+            <div class="why-item"><span class="why-num">De ce 3</span><span class="why-text">De ce are nevoie sa vada contul?</span></div>
+            <div class="why-answer">→ Vrea sa verifice rapid daca amortizarea ajunge pe contul corect, fara sa deschida fiecare schedule.</div>
+            <div class="why-item"><span class="why-num">De ce 4</span><span class="why-text">De ce e important sa fie rapid?</span></div>
+            <div class="why-answer">→ La inchidere de luna, verifica zeci de schedules. Deschisul fiecare individual consuma timp si creste riscul de erori.</div>
+            <div class="why-item"><span class="why-num">De ce 5</span><span class="why-text">De ce nu a identificat problema mai devreme?</span></div>
+            <div class="why-answer">→ <strong>Cauza reala: pe masura ce numarul de schedules creste, lista devine un instrument de navigare si nu mai e suficient sa aiba doar balante.</strong> Userul are nevoie de context de configuratie chiar in lista.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">✅ Acceptance Criteria</div>
+        <ul class="ac-list">
+          <li>Coloana „Debit Account" apare in tabel pentru toti userii, intotdeauna</li>
+          <li>Afiseaza numele contului de cheltuiala (sau conturilor, daca sunt mai multe)</li>
+          <li>Pentru schedule-uri fara tranzactii postate inca, coloana e goala</li>
+          <li>Coloana apare si in exportul Excel/CSV</li>
+          <li>Pentru schedule-uri multi-linie cu mai multe conturi de cheltuiala: afiseaza toate, separate cu virgula</li>
+          <li class="out">OUT: Nu includem filtrare dupa debit account in aceasta iteratie</li>
+          <li class="out">OUT: Nu schimbam logica de afisare a sumelor sau balantelor existente</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">⚠️ Riscuri</div>
+        <ul class="risk-list">
+          <li class="risk-item">
+            <span class="risk-level r-med">Mediu</span>
+            <span class="risk-text">Query-ul nou face JOIN prin 4 tabele pentru toate schedule-urile. Necesita verificarea existentei index-urilor pe schedule_linked_transactions.prepared_schedule_id, journal_lines.journal_entry_id si accounts.classification.</span>
+          </li>
+          <li class="risk-item">
+            <span class="risk-level r-low">Scazut</span>
+            <span class="risk-text">Schedule-urile multi-linie pot debita mai multe conturi — coloana poate deveni lata. Design-ul trebuie sa decidă: concatenare, tooltip, sau trunchere.</span>
+          </li>
+          <li class="risk-item">
+            <span class="risk-level r-low">Scazut</span>
+            <span class="risk-text">Schedule-uri noi fara tranzactii vor afisa coloana goala — comportament corect, dar trebuie validat cu userul ca nu e confuz.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <div class="section-title">❓ Intrebari Three Amigos (de pus la planning)</div>
+        <div class="questions-box">
+          <div class="qb-title">De clarificat inainte de estimare</div>
+          <ul>
+            <li>Ce facem cu schedule-urile multi-linie care debiteaza 3-4 conturi diferite — aratam toate sau doar primele N?</li>
+            <li>Trebuie adaugat index pe schedule_linked_transactions.prepared_schedule_id? (intrebare pentru Harris)</li>
+            <li>Coloana goala pentru schedule-uri noi e OK sau afisam un placeholder?</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────── -->
+  <!-- SUMMARY -->
+  <!-- ─────────────────────────────────────── -->
+  <div id="summary">
+
+    <div class="summary-section">
+      <div class="sh">Dependente intre tickete</div>
+      <div class="sb">
+        <div class="dep-box">
+          <div class="dep-row">
+            <span class="dep-tag">7398</span>
+            <span class="dep-arrow">⟵ necesita ⟶</span>
+            <span class="dep-tag">7397</span>
+            <span class="dep-text" style="margin-left:8px;">— Sunt cuplate arhitectural. Ambele schimba tipul dimensionValues. Recomandat: planificate in acelasi sprint.</span>
+          </div>
+          <div class="dep-row">
+            <span class="dep-tag">7410</span>
+            <span class="dep-arrow">→ influentat de →</span>
+            <span class="dep-tag">7397</span>
+            <span class="dep-text" style="margin-left:8px;">— Daca 7397 schimba tipul dimensionValues, 7410 trebuie refacut. Daca facem 7410 inainte, poate fi facut de doua ori.</span>
+          </div>
+          <div class="dep-row">
+            <span class="dep-tag">7411</span>
+            <span class="dep-arrow">→</span>
+            <span class="dep-text">Complet independent. Poate merge in orice sprint.</span>
+          </div>
+          <div class="dep-row">
+            <span class="dep-tag">Debit Acct</span>
+            <span class="dep-arrow">→</span>
+            <span class="dep-text">Independent de celelalte. Nu schimba tipuri existente. Poate merge in paralel.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-section">
+      <div class="sh">Matricea de complexitate — ghid pentru planning poker</div>
+      <div class="sb">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Ticket</th>
+              <th>DB</th>
+              <th>Backend</th>
+              <th>Frontend</th>
+              <th>Risc arhitectural</th>
+              <th>Sugestie puncte</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="ticket-ref">#7411</span><br><span class="ticket-name">Hide Inactive</span></td>
+              <td>✗ nimic</td>
+              <td>3 fisiere, logic simpla</td>
+              <td>1 toggle</td>
+              <td><span class="badge low">Scazut</span></td>
+              <td style="font-weight:700;">1–3 pts</td>
+            </tr>
+            <tr>
+              <td><span class="ticket-ref">Debit Acct</span><br><span class="ticket-name">Coloana Debit Account</span></td>
+              <td>Query nou, 4 tabele</td>
+              <td>4 fisiere, query nou</td>
+              <td>1 coloana + export</td>
+              <td><span class="badge low">Scazut</span></td>
+              <td style="font-weight:700;">3–5 pts</td>
+            </tr>
+            <tr>
+              <td><span class="ticket-ref">#7410</span><br><span class="ticket-name">Vendor Column</span></td>
+              <td>Query extins, JOIN nou</td>
+              <td>3 fisiere, tipuri noi</td>
+              <td>1 coloana</td>
+              <td><span class="badge med">Mediu — ambiguitate concept</span></td>
+              <td style="font-weight:700;">5–8 pts</td>
+            </tr>
+            <tr>
+              <td><span class="ticket-ref">#7398 + #7397</span><br><span class="ticket-name">Multi-dim export + filtru</span></td>
+              <td>SQL dinamic, N join-uri</td>
+              <td>5+ fisiere, tip schimbat</td>
+              <td>Redesign filtru + tabel</td>
+              <td><span class="badge high">Inalt — sparge lucruri existente</span></td>
+              <td style="font-weight:700;">Spike mai intai</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="summary-section">
+      <div class="sh">Ordinea recomandata de planificare</div>
+      <div class="sb">
+        <div class="poker-grid">
+          <div class="poker-card">
+            <div class="poker-points">1</div>
+            <div class="poker-label">Sprint asta sau urmator — easy win</div>
+            <div class="poker-tickets">#7411 Hide Inactive</div>
+          </div>
+          <div class="poker-card">
+            <div class="poker-points">2</div>
+            <div class="poker-label">Sprint independent, valoare clara</div>
+            <div class="poker-tickets">Debit Account Column</div>
+          </div>
+          <div class="poker-card">
+            <div class="poker-points">3</div>
+            <div class="poker-label">Dupa clarificarea ambiguitatii de concept</div>
+            <div class="poker-tickets">#7410 Vendor Column</div>
+          </div>
+          <div class="poker-card" style="border-color: var(--high-b);">
+            <div class="poker-points" style="color:var(--high-b);">4</div>
+            <div class="poker-label" style="color:var(--high-b);">Spike mai intai, apoi estimare</div>
+            <div class="poker-tickets">#7397 + #7398 impreuna</div>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; padding:14px 16px; background:var(--surface2); border-radius:var(--radius); font-size:13px; color:var(--ink2); line-height:1.6;">
+          <strong>De ce spike pentru 7397 + 7398?</strong><br>
+          Cand echipa nu poate converge pe o estimare (cineva zice 5, altul 13), e un semnal ca incertitudinea tehnica e prea mare. In loc sa mediezi estimarile, planifici un <strong>spike cu timebox de 2-4 ore</strong>: Harris investigheaza impactul complet al schimbarii tipului dimensionValues si performance-ul SQL dinamic. Dupa spike, estimarea devine convergenta si mult mai precisa.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  // Active nav on scroll
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.2, rootMargin: '-60px 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

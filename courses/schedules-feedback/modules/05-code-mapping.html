@@ -1,0 +1,257 @@
+<section class="module" id="module-5">
+  <div class="module-content">
+    <div class="module-number">05</div>
+    <h2 class="module-title">Where to Change the Code</h2>
+    <p class="module-subtitle">For each of the six themes, here are the files that would change, the type of change, and an honest complexity estimate.</p>
+
+    <!-- SCREEN 1: Overview map -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Six themes mapped to the codebase</h2>
+      <p>Use this as a reference when triaging a support ticket or writing a Shortcut story. The change type tells you who owns it (frontend vs backend vs infra). The complexity tells you how to size the sprint task.</p>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info);">A — List View</code>
+          <span class="badge-desc">Frontend · <strong>Medium</strong> · usePreparedSchedulesPageFilterSet.ts + PreparedSchedulesTable.tsx + backend query schema</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info);">B — Export</code>
+          <span class="badge-desc">Backend · <strong>Small–Medium</strong> · preparedSchedulesReportService.ts + utils.ts + XLSX formatter</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 15%, transparent); color: var(--color-actor-4);">C — Auto-increment</code>
+          <span class="badge-desc">Full-stack · <strong>Medium</strong> · helpers.ts (backend) + CreateSchedulePageV2 form (frontend)</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted);">D — Status Confusion</code>
+          <span class="badge-desc">Frontend · <strong>Small</strong> · PreparedSchedulePage.tsx — add contextual messaging only</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">E — Reloading Bug</code>
+          <span class="badge-desc">Frontend · <strong>Small–Medium</strong> · EditPreparedScheduleDetailsPage.tsx — debounce or query stabilization</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error);">F — Duplicate Companies</code>
+          <span class="badge-desc">Backend + Data · <strong>Large</strong> · company import logic + deduplication guard — root cause investigation needed</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: Themes A & B -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Themes A &amp; B — List view and export fixes</h2>
+
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">A — List view columns and multi-dimension filter</h3>
+      <p><strong>Change type: UI polish + minor backend</strong></p>
+
+      <div class="step-cards stagger-children">
+        <div class="step-card animate-in">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>usePreparedSchedulesPageFilterSet.ts</strong>
+            <p>The <code>dimension</code> filter today is <code>connectedSelectAndMulti</code> — one dimension name at a time. Adding multi-dimension support requires changing this to a repeatable filter group. The backend query schema also only accepts a single <code>dimensionName</code> param.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>PreparedSchedulesTable.tsx</strong>
+            <p>Vendor and Debit Account columns don't exist. Adding them requires knowing the account linked to each schedule (not currently in the report row type). The <code>PreparedScheduleRow</code> type in <code>data/types/preparedScheduleReport.ts</code> needs new fields first.</p>
+          </div>
+        </div>
+        <div class="step-card animate-in">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>preparedSchedulesReportService.ts + SQL</strong>
+            <p>The "hide inactive schedules" toggle needs a backend filter. The SQL query in <code>preparedScheduleReportData.ts</code> would need a new optional <code>includeInactive</code> param and a corresponding WHERE clause.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: var(--space-8);"></div>
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">B — Export includes dimension column</h3>
+      <p><strong>Change type: Backend bug fix · Small</strong></p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/services/reports/schedules/shared/utils.ts — getFullColumnDefsFromReport()</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-keyword">const</span> dimensionCols =
+  reportIsPreparedSchedulesReport(report)
+  &amp;&amp; report.<span class="code-property">includeDimensionValueColumn</span>
+  ? [{ <span class="code-property">key</span>: <span class="code-string">"dimensionValues"</span>,
+       <span class="code-property">header</span>: <span class="code-string">"Dimension Value"</span> }]
+  : [];</code></pre>
+          <div class="code-walk-explanation">
+            <p>The dimension column is only added when <code>includeDimensionValueColumn</code> is true — which is only set when the caller passes a <code>dimensionName</code> query param. If the user exported without filtering by dimension, this is false.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// In preparedSchedulesReportService.ts:</span>
+<span class="code-property">includeDimensionValueColumn</span>:
+  <span class="code-function">Boolean</span>(validQuery.<span class="code-property">dimensionName</span>)</code></pre>
+          <div class="code-walk-explanation">
+            <p><strong>The fix:</strong> always include <code>dimensionValues</code> in the XLSX if the schedule has a dimensionValueId — not just when a filter was applied. The report service should set <code>includeDimensionValueColumn: true</code> when any schedule in the result set has dimension data.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: Theme C — the HIGH priority capstone -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Theme C — Auto-increment journal entry names (HIGH priority)</h2>
+      <p><strong>Change type: New feature · Full-stack · Medium complexity</strong></p>
+      <p>This is the only HIGH-priority feature in the Schedules backlog. Here is exactly where the logic would live.</p>
+
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-api/src/preparedSchedules/helpers.ts — transformEntriesForSchedule()</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// TODAY — every entry gets the same hardcoded text</span>
+<span class="code-keyword">return</span> entries.<span class="code-function">map</span>((entry) =&gt; ({
+  ...entry,
+  <span class="code-property">description</span>: <span class="code-string">HARDCODED_SCHEDULE_JE_DESCRIPTION</span>,
+}));</code></pre>
+          <div class="code-walk-explanation">
+            <p>Every entry in every schedule gets the exact same description: "This entry is part of a Prepared Schedule. If you want to edit…". The user's own description input is not used here.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// PROPOSED — use user-provided name, incrementing per entry</span>
+<span class="code-keyword">return</span> entries.<span class="code-function">map</span>((entry, index) =&gt; ({
+  ...entry,
+  <span class="code-property">description</span>: entry.<span class="code-property">name</span>
+    ? <span class="code-template">`${entry.name} ${index + 1}`</span>
+    : <span class="code-string">HARDCODED_SCHEDULE_JE_DESCRIPTION</span>,
+}));</code></pre>
+          <div class="code-walk-explanation">
+            <p>If the user provided a base name, append the 1-based index. Fallback to the hardcoded text if no name was given. The frontend form would need a new "Base Name" field, and the create/edit form payload would pass it through.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2-cols stagger-children" style="margin-top: var(--space-6);">
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-error);">
+          <i data-lucide="x-circle" class="icon-lg icon-error"></i>
+          <h4 class="pattern-title">Frontend changes needed</h4>
+          <p class="pattern-desc">Add a "Base Name" input to <code>CreateSchedulePageV2</code>. The form should show a preview: "Description 1, Description 2, Description 3…"</p>
+        </div>
+        <div class="pattern-card animate-in" style="border-top: 3px solid var(--color-success);">
+          <i data-lucide="check-circle-2" class="icon-lg icon-success"></i>
+          <h4 class="pattern-title">Backend changes needed</h4>
+          <p class="pattern-desc">Update <code>transformEntriesForSchedule</code> in <code>helpers.ts</code> to accept and apply the base name with index. Update the <code>PreparedScheduleBody</code> type in <code>controllers/types/preparedSchedules.ts</code> to include the optional field.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: Themes D, E, F -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">Themes D, E, F — Status UX, the reloading bug, and duplicates</h2>
+
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">D — Entry status messaging (CHORE · Small · Frontend only)</h3>
+      <div class="badge-list" style="margin-bottom: var(--space-6);">
+        <div class="badge-item">
+          <code class="badge-code">PreparedSchedulePage.tsx</code>
+          <span class="badge-desc">Add a tooltip or contextual message on entries that are Posted-in-inactive-period. No data model changes needed — the entry status is already correct.</span>
+        </div>
+      </div>
+
+      <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">E — Source transaction reloading (HIGHEST · Small–Medium · Frontend)</h3>
+      <div class="code-walk animate-in">
+        <div class="code-walk-header">
+          <span class="code-walk-file">avise-web/src/pages/CompanyApp/SchedulesPages/EditPreparedScheduleDetailsPage/EditPreparedScheduleDetailsPage.tsx</span>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">1</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Line 166 — sourceIds re-derived on every render</span>
+<span class="code-keyword">const</span> sourceIds = <span class="code-function">watch</span>(<span class="code-string">"sourceIds"</span>);
+
+<span class="code-comment">// Line 168 — query fires every time sourceIds changes</span>
+<span class="code-keyword">const</span> query = <span class="code-function">useJournalLinesByIdQuery</span>({
+  companyId: company.id,
+  ids: sourceIds,
+  includeFileInfo: <span class="code-keyword">true</span>,
+}, { placeholderData: keepPreviousData });</code></pre>
+          <div class="code-walk-explanation">
+            <p><code>watch("sourceIds")</code> re-runs on every form render. Adding IDs (or removing them) triggers a new network request. For large clients the request is slow and the <code>isFetching</code> state causes the section to bounce.</p>
+          </div>
+        </div>
+        <div class="code-walk-step">
+          <div class="code-walk-step-num">2</div>
+          <pre class="code-walk-code"><code><span class="code-comment">// Proposed fix: debounce the IDs before passing to the query</span>
+<span class="code-keyword">const</span> sourceIds = <span class="code-function">watch</span>(<span class="code-string">"sourceIds"</span>);
+<span class="code-keyword">const</span> debouncedSourceIds = <span class="code-function">useDebounce</span>(sourceIds, <span class="code-number">300</span>);</code></pre>
+          <div class="code-walk-explanation">
+            <p>A 300ms debounce means the query only fires after the user stops interacting for 300ms — eliminating rapid-fire refetches. Alternatively, move to a <code>staleTime</code> strategy so the previous data stays until the new fetch completes without flashing.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: var(--space-8);">
+        <h3 style="font-family: var(--font-display); font-weight: 700; margin-bottom: var(--space-3);">F — Duplicate companies (HIGHEST · Large · Needs investigation)</h3>
+        <div class="callout callout-warning animate-in">
+          <div class="callout-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
+          <div class="callout-content">
+            <strong class="callout-title">Root cause unknown — investigation required before estimating</strong>
+            <p>The support tooling in <code>supportUtils/preparedSchedules/archiveDuplicates.ts</code> targets duplicate <em>schedule entries</em> — not duplicate companies. The company-level deduplication problem is separate and unresolved. An engineer needs to audit company creation/import to find where the duplicate originates before any fix can be sized.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: Summary table + quiz -->
+    <section class="screen animate-in">
+      <h2 class="screen-heading">The full prioritization picture</h2>
+
+      <div class="badge-list stagger-children">
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">HIGHEST</code>
+          <span class="badge-desc"><strong>E</strong> — Fix source transaction reloading. Frontend debounce in EditPreparedScheduleDetailsPage.tsx. Ship fast — multi-client.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-error-light); color: var(--color-error); font-weight: 700;">HIGHEST</code>
+          <span class="badge-desc"><strong>F</strong> — Investigate duplicate company root cause. Large unknown — needs engineering spike.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: color-mix(in srgb, var(--color-actor-4) 18%, transparent); color: var(--color-actor-4); font-weight: 700;">HIGH</code>
+          <span class="badge-desc"><strong>C</strong> — Auto-increment JE names. Medium full-stack change. helpers.ts + CreateSchedulePageV2 form.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info); font-weight: 700;">MEDIUM</code>
+          <span class="badge-desc"><strong>B</strong> — Fix export dimension column. Small backend change. preparedSchedulesReportService.ts + utils.ts.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-info-light); color: var(--color-info); font-weight: 700;">LOW–MED</code>
+          <span class="badge-desc"><strong>A</strong> — List view columns + multi-filter. Medium frontend + minor backend. Multiple files, multiple stories.</span>
+        </div>
+        <div class="badge-item animate-in">
+          <code class="badge-code" style="background: var(--color-bg-warm); color: var(--color-text-muted); font-weight: 700;">CHORE</code>
+          <span class="badge-desc"><strong>D</strong> — Add status context message. Small frontend change. PreparedSchedulePage.tsx only.</span>
+        </div>
+      </div>
+
+      <div class="callout callout-accent animate-in" style="margin-top: var(--space-8);">
+        <div class="callout-icon"><i data-lucide="lightbulb" class="icon-lg"></i></div>
+        <div class="callout-content">
+          <strong class="callout-title">Severity and complexity don&rsquo;t always align</strong>
+          <p>Theme E (HIGHEST severity, source transaction bouncing) is actually a small-to-medium frontend fix. Theme F (also HIGHEST) is potentially a large investigation. A fast win can fix a critical client issue — always check complexity before assuming a high-severity issue is expensive to fix.</p>
+        </div>
+      </div>
+
+      <div class="module-nav-end animate-in">
+        <a href="#module-6" class="btn module-continue-btn">
+          Continue to Module 6: Triage Quiz <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <a href="#module-4" class="module-back-link">
+          <i data-lucide="arrow-left" class="icon-sm"></i> Back to Module 4
+        </a>
+      </div>
+    </section>
+  </div>
+</section>
