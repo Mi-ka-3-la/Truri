@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Knowledge Track · Avise Learning Hub</title>
+  <title>Courses · Mikaela's Learning Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400;1,9..40,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -22,29 +22,63 @@
       Avise<span class="dot">.</span>Learn
     </a>
     <div class="nav-links">
-      <a href="avise.html" class="nav-link">Avise</a>
-      <a href="knowledge.html" class="nav-link active">Knowledge</a>
-      <a href="briefs.html" class="nav-link">Briefs</a>
+      <a href="avise.html" class="nav-link">Work</a>
+      <a href="knowledge.html" class="nav-link active">Courses</a>
       <span class="nav-pill">Hub</span>
     </div>
   </nav>
 
   <div class="breadcrumb animate-in">
-    <a href="index.html">Hub</a><span class="sep">/</span><span>Knowledge track</span>
+    <a href="index.html">Hub</a><span class="sep">/</span><span>Courses</span>
   </div>
 
   <section class="hero" style="padding-top: 32px;">
-    <p class="hero-eyebrow animate-in">Portable engineering skills</p>
+    <p class="hero-eyebrow animate-in">Organized by topic</p>
     <h1 class="hero-title animate-in delay-1">
-      Foundations<br>that <em>travel with you</em>
+      Skills that<br><em>travel with you</em>
     </h1>
     <p class="hero-subtitle animate-in delay-2">
       Cross-cutting topics that aren't tied to any one product. Take them with you to the next ticket, the next team, the next company.
     </p>
   </section>
 
+  <style>
+    .learning-path{margin:0 0 40px;padding:20px 24px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px}
+    .path-label{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#555;margin:0 0 14px;font-weight:600}
+    .path-track{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding-bottom:4px}
+    .path-node{flex-shrink:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;min-width:130px}
+    .path-topic{font-size:12px;font-weight:700;color:#fff;margin-bottom:6px}
+    .path-items{font-size:11px;color:#666;line-height:1.6}
+    .path-sep{display:flex;align-items:center;padding:0 8px;color:#333;font-size:20px;flex-shrink:0;align-self:center}
+  </style>
+
+  <div class="learning-path animate-in delay-2">
+    <p class="path-label">Suggested learning path</p>
+    <div class="path-track">
+      <div class="path-node">
+        <div class="path-topic">🔒 Security</div>
+        <div class="path-items">Autentificare<br>Login Process<br>GH-500</div>
+      </div>
+      <div class="path-sep">→</div>
+      <div class="path-node">
+        <div class="path-topic">🔌 APIs</div>
+        <div class="path-items">API pentru BA<br>Build APIs</div>
+      </div>
+      <div class="path-sep">→</div>
+      <div class="path-node">
+        <div class="path-topic">📊 Product</div>
+        <div class="path-items">GitHub PO<br>Scrum & Reporting</div>
+      </div>
+      <div class="path-sep">→</div>
+      <div class="path-node">
+        <div class="path-topic">⚙️ Engineering</div>
+        <div class="path-items">Git Cheatsheet</div>
+      </div>
+    </div>
+  </div>
+
   <div class="section-heading animate-in delay-3">
-    <h2>Courses</h2>
+    <h2>Security</h2>
     <div class="section-heading-line"></div>
   </div>
 
@@ -77,6 +111,15 @@
       </div>
       <div class="card-cta"><span class="btn-open btn-github">Open course <i data-lucide="arrow-right"></i></span></div>
     </a>
+
+  </div>
+
+  <div class="section-heading animate-in delay-4" style="margin-top:24px">
+    <h2>APIs</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
 
     <a class="course-card card-api animate-in delay-5" href="courses/api-course/index.html">
       <div class="card-body">
@@ -142,6 +185,38 @@
       </div>
       <div class="card-cta"><span class="btn-open btn-api-visual">Open guide <i data-lucide="arrow-right"></i></span></div>
     </a>
+
+  </div>
+
+  <div class="section-heading animate-in delay-6" style="margin-top:24px">
+    <h2>Product &amp; Process</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
+
+    <a class="course-card card-github-po animate-in delay-6" href="courses/github-po/index.html">
+      <div class="card-body">
+        <span class="card-tag tag-github-po"><i data-lucide="git-branch"></i> GitHub · Product</span>
+        <h2 class="card-title">GitHub pentru PO — Curs Interactiv</h2>
+        <p class="card-desc">Cum trăiește codul și cum îl urmărești ca Product Owner. Anatomia unui repo, ciclul de viață al codului, branch-uri, versionare SemVer, integrarea Jira–GitHub și fluența tehnică minimă pentru PO — cu quiz-uri și contexte reale Avise & IMK.</p>
+        <div class="card-meta">
+          <span class="meta-item"><i data-lucide="clock"></i> ~60 minutes</span>
+          <span class="meta-item"><i data-lucide="layers"></i> 7 module</span>
+          <span class="meta-item"><i data-lucide="users"></i> PO · PM · BA</span>
+        </div>
+      </div>
+      <div class="card-cta"><span class="btn-open btn-github-po">Open course <i data-lucide="arrow-right"></i></span></div>
+    </a>
+
+  </div>
+
+  <div class="section-heading animate-in delay-7" style="margin-top:24px">
+    <h2>Engineering</h2>
+    <div class="section-heading-line"></div>
+  </div>
+
+  <div class="courses">
 
     <a class="course-card card-git-sheet animate-in delay-7" href="courses/git-cheatsheet/index.html">
       <div class="card-body">
