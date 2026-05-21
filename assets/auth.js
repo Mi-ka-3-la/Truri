@@ -87,15 +87,15 @@
     const { data, error } = await client.auth.signUp({ email, password, options: { emailRedirectTo: 'https://truri-nm7o.vercel.app' } });
     if (error) {
       showErr(error.message); btn.textContent = 'Sign Up'; btn.disabled = false;
-    } else if (data.session) {
-      // Email confirmation is off — user is logged in immediately, overlay closes via onAuthStateChange
-    } else {
-      const err = document.getElementById('_err');
-      err.style.color = '#68d391';
-      err.textContent = 'Check your email to confirm your account.';
-      err.style.display = 'block';
+      return;
+    }
+    // Try signing in immediately (works when email confirmation is off)
+    const { error: loginErr } = await client.auth.signInWithPassword({ email, password });
+    if (loginErr) {
+      showErr('Account created! Please check your email to confirm before signing in.');
       btn.textContent = 'Sign Up'; btn.disabled = false;
     }
+    // If login succeeded, onAuthStateChange closes the overlay automatically
   }
 
   function showErr(msg) {
