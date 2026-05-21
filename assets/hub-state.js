@@ -1,12 +1,11 @@
 /* hub-state.js — runs on hub pages (index, avise, knowledge, briefs)
    Provides: ✓ visited badges, "Continue" rail, Cmd+K palette, filter chips.
-   State is kept in localStorage under key "avise.learn.v1".
+   Depends on: Hub (core.js)
 */
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'avise.learn.v1';
-  const MANIFEST_URL = 'assets/courses.json';
+  const STORAGE_KEY = window.Hub ? window.Hub.config.storage.state : 'hub.v1';
 
   // ---------- state ----------
   const loadState = () => {
@@ -21,16 +20,10 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
   };
 
-  // ---------- manifest ----------
-  let manifestPromise;
-  const getManifest = () => {
-    if (!manifestPromise) {
-      manifestPromise = fetch(MANIFEST_URL, { cache: 'no-cache' })
-        .then(r => r.json())
-        .catch(() => ({ items: [] }));
-    }
-    return manifestPromise;
-  };
+  // ---------- manifest — use Hub cache if available ----------
+  const getManifest = () => window.Hub
+    ? window.Hub.getManifest()
+    : fetch('assets/courses.json').then(r => r.json()).catch(() => ({ items: [] }));
 
   // ---------- formatting ----------
   const relTime = (ts) => {

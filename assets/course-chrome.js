@@ -1,17 +1,17 @@
 /* course-chrome.js — runs INSIDE individual course pages.
    Non-invasive: uses Shadow DOM to avoid clashing with course CSS.
    Provides: visited-mark, scroll-progress bar, "Hub · Next" floating pill.
+   Depends on: Hub (core.js) when available; falls back to direct fetch.
 */
 (() => {
   'use strict';
 
-  const STORAGE_KEY = 'avise.learn.v1';
+  const STORAGE_KEY = window.Hub ? window.Hub.config.storage.state : 'hub.v1';
 
-  // Compute paths relative to this script's location
+  // Compute repo base from script src (with fallback for dynamic/inline scripts)
   const scriptSrc = (document.currentScript && document.currentScript.src) || '';
-  const assetsBase = scriptSrc.replace(/[^/]+$/, ''); // .../assets/
-  const repoBase = assetsBase.replace(/assets\/$/, ''); // .../
-  const manifestUrl = assetsBase + 'courses.json';
+  const assetsBase = scriptSrc ? scriptSrc.replace(/[^/]+$/, '') : '../../assets/';
+  const repoBase = assetsBase.replace(/assets\/?$/, '');
 
   // ---------- state ----------
   const loadState = () => {
@@ -240,8 +240,13 @@
   const boot = async () => {
     let manifest;
     try {
-      manifest = await fetch(manifestUrl, { cache: 'no-cache' }).then(r => r.json());
-    } catch { return; }
+      manifest = window.Hub
+        ? await window.Hub.getManifest()
+        : await fetch(assetsBase + 'courses.json', { cache: 'no-cache' }).then(r => r.json());
+    } catch (e) {
+      if (window.Hub) window.Hub.log.error('[Chrome] Manifest load failed:', e);
+      return;
+    }
     const current = detectCurrent(manifest);
     if (current) markVisited(current.slug);
     const next = findNext(manifest, current);
