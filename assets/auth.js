@@ -8,6 +8,12 @@
   var Hub = window.Hub;
   if (!Hub) { console.error('[Auth] Hub core not loaded.'); return; }
 
+  // Force a fresh load whenever the page is restored from BF cache (browser back/forward).
+  // Prevents blank pages and stale auth state on back-navigation.
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) { window.location.reload(); }
+  });
+
   var INPUT_STYLE = [
     'width:100%;box-sizing:border-box;padding:12px 16px;border-radius:8px',
     'border:1px solid #333;background:#1a1a1a;color:#fff;font-size:15px',
