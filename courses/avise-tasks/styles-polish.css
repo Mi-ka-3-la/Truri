@@ -65,11 +65,15 @@
 }
 
 /* ── AMBIENT BACKGROUND TEXTURE ─────────────────────────────── */
-body {
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background-image:
     radial-gradient(ellipse 80% 50% at 20% 0%, color-mix(in srgb, var(--color-accent) 4%, transparent) 0%, transparent 60%),
     radial-gradient(ellipse 60% 40% at 80% 100%, color-mix(in srgb, var(--color-accent) 3%, transparent) 0%, transparent 60%);
-  background-attachment: fixed;
 }
 
 /* Even modules get a slightly different ambient base */

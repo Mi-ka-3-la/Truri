@@ -99,11 +99,18 @@
    ──────────────────────────────────────────────────────────── */
 body {
   background-color: var(--color-bg);
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--color-bg);
   background-image:
     radial-gradient(ellipse 60% 50% at 15% 10%, color-mix(in srgb, var(--color-bg-mesh-1) 65%, transparent) 0%, transparent 55%),
     radial-gradient(ellipse 50% 40% at 85% 30%, color-mix(in srgb, var(--color-bg-mesh-2) 55%, transparent) 0%, transparent 50%),
     radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in srgb, var(--color-bg-mesh-3) 50%, transparent) 0%, transparent 55%);
-  background-attachment: fixed;
 }
 
 /* Alternating module zones — subtle vertical band gradients */
