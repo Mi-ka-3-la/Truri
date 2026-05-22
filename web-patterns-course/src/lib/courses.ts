@@ -85,20 +85,21 @@ Internet:
         position: { x: 24.6, y: 22.9 },
         connections: ['clientserver', 'scalabilitate', 'cdn'],
         explain: [
-          '<strong>Latenta</strong> e timpul care trece intre momentul in care clientul trimite cererea si momentul in care primeste primul byte de raspuns. Se masoara in milisecunde. Nu e viteza de download — e <em>timpul de asteptare.</em> Un server din Romania raspunde unui utilizator din Tokyo in ~200ms indiferent cat de rapid e internetul utilizatorului.',
-          '<strong>Bottleneck</strong> inseamna literal "gatul sticlei" — un punct unic prin care trebuie sa treaca tot traficul si care limiteaza debitul intregului sistem. Daca ai un singur server care poate procesa 1.000 de cereri pe secunda, dar primesti 10.000, celelalte 9.000 asteapta la coada sau primesc eroare 503 (Service Unavailable).',
-          'Latenta si bottleneck sunt <em>probleme diferite cu solutii diferite.</em> Latenta e o problema de distanta fizica — se rezolva cu CDN sau servere mai aproape de utilizator. Bottleneck-ul e o problema de capacitate — se rezolva cu mai multe servere si load balancing.',
+          '<strong>Latenta</strong> e timpul care trece intre momentul in care clientul trimite cererea si momentul in care primeste primul byte de raspuns. Se masoara in milisecunde. Nu e viteza de download — e <em>timpul de asteptare.</em> Un server din Romania raspunde unui utilizator din Tokyo in ~200ms indiferent cat de rapid e internetul utilizatorului, pentru ca semnalul trebuie sa parcurga fizic acea distanta.',
+          '<strong>Bottleneck</strong> inseamna literal "gatul sticlei" — un punct unic prin care trebuie sa treaca tot traficul si care limiteaza debitul intregului sistem. Daca ai un singur server care poate procesa 1.000 de cereri pe secunda, dar primesti 10.000, celelalte 9.000 asteapta la coada sau primesc eroare 503 (Service Unavailable). Serverul e bottleneck-ul.',
+          'Latenta si bottleneck sunt <em>probleme diferite cu solutii diferite.</em> Latenta e o problema de distanta fizica — se rezolva cu CDN sau servere mai aproape de utilizator. Bottleneck-ul e o problema de capacitate — se rezolva cu mai multe servere si load balancing. Le poti avea pe amandoua in acelasi timp.',
         ],
         diagram: `Latenta (distanta fizica):
   User Tokyo → cerere → Server Romania
-               ~200ms dus + ~200ms intors = 400ms
+               ~200ms dus + ~200ms intors
+               = 400ms doar din distanta, indiferent de viteza internet
 
 Bottleneck (capacitate):
   10.000 cereri/secunda
          ↓
   [Server: capacitate 1.000/secunda]
          ↓
-  9.000 cereri: timeout → eroare 503`,
+  9.000 cereri: timeout → eroare 503 sau 504`,
         usecases: ['Diagnosticare: "de ce e lent?"', 'Decizie: CDN vs mai multe servere', 'Intelegerea erorilor 503, 504'],
         pros: [],
         cons: [],
@@ -114,8 +115,8 @@ Bottleneck (capacitate):
         connections: ['latenta', 'clientserver', 'stateless'],
         explain: [
           '<strong>Scalare verticala</strong> inseamna sa dai serverului mai multa memorie si CPU. Are limite fizice si devine scump rapid. <strong>Scalare orizontala</strong> inseamna sa adaugi mai multe servere identice care impart incarcatura. Asta e ce se foloseste in productie pentru sisteme mari.',
-          '<strong>Load balancer</strong> sta in fata tuturor serverelor si distribuie cererile intre ele. Primeste 10.000 de cereri/secunda si le trimite echilibrat catre 10 servere — 1.000 fiecare. Cererile se distribuie: <em>round-robin</em>, <em>least connections</em>, sau <em>geographic routing</em>.',
-          '<strong>Kubernetes</strong> e un orchestrator care gestioneaza containere. Stie sa <em>adauge servere automat</em> cand incarcatura creste (autoscaling) si sa le <em>opreasca</em> cand scade — infrastructura care se adapteaza singura la trafic.',
+          '<strong>Load balancer</strong> sta in fata tuturor serverelor si distribuie cererile intre ele. Primeste 10.000 de cereri/secunda si le trimite echilibrat catre 10 servere — 1.000 fiecare. Din perspectiva clientului exista o singura adresa. Cererile se distribuie in mai multe moduri: <em>round-robin</em> (pe rand, egal), <em>least connections</em> (la serverul cel mai liber in momentul respectiv), sau <em>geographic routing</em> (la serverul cel mai aproape geografic de utilizator).',
+          '<strong>Kubernetes</strong> nu rezolva el singur bottleneck-ul — e un orchestrator: un sistem care gestioneaza containere (pachete cu aplicatia ta). Kubernetes stie sa <em>adauge servere automat</em> cand incarcatura creste (autoscaling) si sa le <em>opreasca</em> cand scade. Deci ecuatia productie e: load balancer distribuie cererile + Kubernetes gestioneaza cate servere ruleaza. Impreuna fac infrastructura care se adapteaza singura la trafic.',
         ],
         diagram: `Fara scalare:
   10.000 useri → [Server 1] → sufocat, 503
@@ -127,11 +128,12 @@ Cu load balancer:
                        └── [Server 3]  sau geographic
 
 Kubernetes + autoscaling:
-  Trafic mic   →  2 servere active
-  Spike trafic →  Kubernetes porneste automat 8 servere`,
-        usecases: ['SaaS-uri cu multi clienti', 'Aplicatii cu trafic variabil', 'Black Friday / spike-uri de trafic'],
-        pros: ['suporta orice volum de trafic teoretic', 'costuri proportionale cu utilizarea', 'rezistenta la caderea unui server'],
-        cons: ['complexitate infrastructura mult mai mare', 'sesiunile user trebuie gestionate stateless', 'debugging mai dificil'],
+  Trafic mic    →  2 servere active
+  Spike trafic  →  Kubernetes porneste automat 8 servere in plus
+  Trafic scade  →  Kubernetes opreste 6 (economie costuri)`,
+        usecases: ['SaaS-uri cu multi clienti (Avise)', 'Aplicatii cu trafic variabil', 'Black Friday / spike-uri de trafic'],
+        pros: ['suporta orice volum de trafic teoretic', 'costuri proportionale cu utilizarea', 'rezistenta la caderea unui server individual'],
+        cons: ['complexitate infrastructura mult mai mare', 'sesiunile user trebuie gestionate stateless', 'debugging mai dificil cu multe instante active'],
       },
       {
         id: 'http',
@@ -143,27 +145,31 @@ Kubernetes + autoscaling:
         position: { x: 24.6, y: 39.8 },
         connections: ['clientserver', 'stateless', 'ssr', 'spa', 'webhooks'],
         explain: [
-          'Orice comunicare HTTP — <em>absolut orice</em> — are: o <strong>metoda</strong> (ce vrei sa faci), o <strong>adresa URL</strong> (unde), si <strong>headere</strong> (metadate: cine esti, ce format accepti, token-ul de autentificare). Body-ul e optional: GET nu are body, POST si PUT au body cu datele.',
-          'Cand bagi un URL in browser si apesi Enter, browser-ul trimite automat un <strong>GET request</strong>. Click pe un link = GET. Form submit = POST. Toate sunt HTTP requests cu metoda, URL si headere.',
-          'Raspunsul are intotdeauna un <strong>status code</strong>: 200 OK, 201 creat, 400 cererea ta e gresita, 401 neautentificat, 403 fara acces, 404 resursa nu exista, 500 eroare pe server.',
-          '<strong>HTTPS</strong> e HTTP cu criptare TLS. Tot ce trimiti e criptat in tranzit — ISP-ul tau, un hacker pe acelasi WiFi, nimeni nu poate citi continutul.',
+          'Orice comunicare HTTP — <em>absolut orice</em> — are: o <strong>metoda</strong> (ce vrei sa faci), o <strong>adresa URL</strong> (unde), si <strong>headere</strong> (metadate: cine esti, ce format accepti, token-ul de autentificare). Body-ul e optional: GET nu are body, POST si PUT au body cu datele pe care le trimiti.',
+          'Cand bagi un URL in browser si apesi Enter, browser-ul trimite automat un <strong>GET request</strong> — GET inseamna "vreau sa citesc ceva". Nu trebuie sa faci nimic special, browser-ul stie ca o adresa tastata = GET. Click pe un link = GET. Form submit = POST. Toate sunt HTTP requests cu metoda, URL si headere.',
+          'Raspunsul are intotdeauna un <strong>status code</strong> numeric: 200 OK, 201 creat, 400 cererea ta e gresita, 401 nu esti autentificat, 403 autentificat dar fara acces, 404 resursa nu exista, 500 eroare pe server, 503 server supraaglomerat sau jos.',
+          '<strong>HTTPS</strong> e HTTP cu criptare TLS. Tot ce trimiti e criptat in tranzit — ISP-ul tau, un hacker pe acelasi WiFi, nimeni nu poate citi continutul. Azi orice aplicatie serioasa foloseste HTTPS. HTTP fara S e considerat insecure si browserele il marcheaza ca atare.',
         ],
         diagram: `URL in browser → GET automat:
   GET /dashboard HTTP/1.1
   Host: avise.com
-  Authorization: Bearer eyJhbGc...
+  Authorization: Bearer eyJhbGc...token...
   Accept: text/html
+  (fara body — GET nu are body)
 
 Form submit sau API call → POST cu body:
   POST /api/invoices HTTP/1.1
   Content-Type: application/json
+  Authorization: Bearer eyJhbGc...
+
   { "amount": 1500, "client": "Acme SRL" }
 
 Raspuns intotdeauna cu status code:
-  HTTP/1.1 201 Created`,
+  HTTP/1.1 201 Created
+  { "id": 99, "status": "created" }`,
         usecases: ['Orice comunicare browser-server', 'API calls intre servicii', 'Download si upload fisiere'],
-        pros: ['universal — orice limbaj il suporta', 'simplu de debuguit in DevTools (tab Network)', 'stateless — usor de scalat'],
-        cons: ['stateless — necesita token la fiecare request', 'pull-only — serverul nu poate initia comunicarea'],
+        pros: ['universal — orice limbaj il suporta', 'simplu de debuguit in DevTools (tab Network)', 'stateless — usor de scalat orizontal'],
+        cons: ['stateless — necesita token la fiecare request', 'pull-only — serverul nu poate initia comunicarea (rezolvat de webhooks)'],
       },
       {
         id: 'stateless',
@@ -175,21 +181,22 @@ Raspuns intotdeauna cu status code:
         position: { x: 75.4, y: 39.8 },
         connections: ['http', 'scalabilitate'],
         explain: [
-          '<strong>Stateless</strong> inseamna ca serverul nu tine minte conversatia anterioara. Dupa ce ti-a raspuns la un request, te-a uitat complet. Urmatorul request il trateaza ca si cum te-ar vedea pentru prima data.',
-          'Consecinta: <em>fiecare request trebuie sa contina tot ce serverul are nevoie ca sa raspunda</em>. Inclusiv cine esti. De aceea in fiecare API call ai in header un <strong>token de autentificare</strong> (JWT).',
-          'De ce stateless = scalabil? Daca serverul nu tine stare despre tine, <em>oricare dintre cele 10 servere din spatele load balancer-ului poate raspunde la cererea ta.</em> Nu conteaza la care server ai vorbit ultima data.',
+          '<strong>Stateless</strong> inseamna ca serverul nu tine minte conversatia anterioara. Dupa ce ti-a raspuns la un request, te-a uitat complet. Urmatorul request il trateaza ca si cum te-ar vedea pentru prima data. Nu exista "sesiune" stocata pe server care sa spuna "userul asta e logat".',
+          'Consecinta: <em>fiecare request trebuie sa contina tot ce serverul are nevoie ca sa raspunda</em>. Inclusiv cine esti. De aceea in fiecare API call ai in header un <strong>token de autentificare</strong> (JWT). Nu e o pedepsa — e contractul: request-ul e autocontinent, serverul nu trebuie sa-si aminteasca nimic din trecut ca sa te serveasca.',
+          'De ce stateless = scalabil? Daca serverul nu tine stare despre tine, <em>oricare dintre cele 10 servere din spatele load balancer-ului poate raspunde la cererea ta.</em> Nu conteaza la care server ai vorbit ultima data. Daca serverul ar tine stare (stateful), ar trebui sa ajungi mereu la acelasi server — ceea ce face scalarea orizontala dramatic mai complicata.',
         ],
         diagram: `STATEFUL (problematic la scalare):
   Request 1 → Server 1 (memoreaza: "userul X e logat")
-  Request 2 → Server 2 (nu stie nimic: "cine e X?") ← PROBLEMA
+  Request 2 → Server 2 (nu stie nimic: "cine e userul X?") ← PROBLEMA
 
 STATELESS (scalabil):
-  Request 1 → Server 1 (citeste token, verifica, raspunde)
-  Request 2 → Server 7 (citeste token, verifica, raspunde)
+  Request 1 → Server 1 (citeste token din header, verifica, raspunde)
+  Request 2 → Server 7 (citeste token din header, verifica, raspunde)
+  Request 3 → Server 3 (citeste token din header, verifica, raspunde)
   ← orice server poate raspunde, nu conteaza care`,
         usecases: ['REST API-uri', 'Microservicii distribuite', 'Orice sistem cu load balancing'],
         pros: ['orice server poate raspunde la orice request', 'scalare orizontala simpla', 'serverul nu tine sesiuni in memorie'],
-        cons: ['fiecare request e mai mare (token adaugat mereu)', 'nu poti face push de la server la client'],
+        cons: ['fiecare request e mai mare (token adaugat mereu)', 'nu poti face push de la server la client prin HTTP (rezolvat de webhooks)'],
       },
       {
         id: 'ssr',
@@ -201,22 +208,24 @@ STATELESS (scalabil):
         position: { x: 24.6, y: 56.1 },
         connections: ['http', 'spa', 'ssg'],
         explain: [
-          'In SSR, la fiecare cerere serverul <strong>construieste HTML-ul complet</strong> — cu date reale, proaspete din baza de date — si il trimite gata catre browser. Browser-ul primeste pagina completa si o afiseaza direct.',
-          'Cand un utilizator acceseaza /cursul-meu/lectia-3, serverul interogheaza baza de date, asambleaza HTML-ul cu toate datele si il trimite. <em>La click pe urmatoarea lectie, se face un nou request complet</em>.',
-          '<strong>De ce SEO e excelent:</strong> un robot Google care acceseaza pagina ta vede HTML real cu titlu, descriere, continut complet — il indexeaza imediat. Frameworkuri: Next.js, Nuxt, Laravel, Django, Rails.',
+          'In SSR, la fiecare cerere serverul <strong>construieste HTML-ul complet</strong> — cu date reale, proaspete din baza de date — si il trimite gata catre browser. Browser-ul primeste pagina completa si o afiseaza direct, fara sa mai execute JavaScript pentru continut.',
+          'Pentru o platforma de cursuri cu continut dinamic, SSR e raspunsul corect. Cand un utilizator acceseaza /cursul-meu/lectia-3, serverul interogheaza baza de date ("ce lectie e asta? are userul acces? ce progres are?"), asambleaza HTML-ul cu toate datele si il trimite. <em>La click pe urmatoarea lectie, se face un nou request complet</em> — serverul reconstruieste o noua pagina. E mai lent la navigare decat SPA, dar perfect pentru continut personalizat per user.',
+          '<strong>De ce SEO e excelent:</strong> un robot Google care acceseaza /cursul-tau vede HTML real cu titlu, descriere, continut complet — il indexeaza imediat si corect. In SPA, robotul ar vedea un div gol si ar trebui sa execute JavaScript ca sa vada ceva, ceea ce Google face partial si cu intarziere. Frameworkuri: Next.js cu getServerSideProps, Nuxt, Laravel, Django, Rails.',
         ],
         diagram: `Browser cere /curs/lectia-3
         ↓
     Server SSR
     ├── query DB: "ce e lectia 3?"
     ├── query DB: "are userul acces?"
+    ├── query DB: "ce progres are userul?"
     ├── asambleaza HTML cu toate datele
     └── trimite HTML complet gata
         ↓
-Browser afiseaza pagina — Google vede acelasi HTML ✓`,
-        usecases: ['Platforme de cursuri cu continut dinamic', 'Magazin online (pagini de produs)', 'Blog, stiri, orice site indexat pe Google'],
-        pros: ['SEO nativ si corect', 'continut dinamic personalizat per user', 'prima incarcare rapida'],
-        cons: ['fiecare navigare = request nou catre server', 'server mai solicitat', 'experienta mai putin fluida decat SPA'],
+Browser afiseaza pagina
+Google vede acelasi HTML → SEO corect ✓`,
+        usecases: ['Platforme de cursuri cu continut dinamic', 'Magazin online (pagini de produs personalizate)', 'Blog, stiri, orice site indexat pe Google'],
+        pros: ['SEO nativ si corect', 'continut dinamic personalizat per user', 'prima incarcare rapida', 'functioneaza fara JavaScript activ in browser'],
+        cons: ['fiecare navigare = request nou catre server', 'server mai solicitat', 'experienta mai putin fluida decat SPA la navigare rapida'],
       },
       {
         id: 'spa',
@@ -228,23 +237,25 @@ Browser afiseaza pagina — Google vede acelasi HTML ✓`,
         position: { x: 24.6, y: 72.4 },
         connections: ['ssr', 'ssg', 'http', 'stateless'],
         explain: [
-          'La primul request catre o aplicatie SPA, serverul trimite o pagina HTML aproape goala — un div si un fisier JavaScript mare (bundle). <em>Tot JavaScript-ul aplicatiei</em> vine in acel prim GET.',
-          'De acolo incolo, <strong>nu mai ceri HTML de la server niciodata.</strong> Cand navighezi intre sectiuni, JavaScript schimba ce se vede pe ecran. Datele vin prin API calls — cereri care returneaza JSON pur, nu HTML.',
-          '<strong>De ce SEO e prost:</strong> Googlebot acceseaza pagina ta si vede un div gol. JavaScript-ul care construieste pagina nu ruleaza. Solutia e SSR hibrid — Next.js poate face SSR pentru pagini publice si SPA pentru dashboard.',
+          'La primul request catre o aplicatie SPA, serverul trimite o pagina HTML aproape goala — un div si un fisier JavaScript mare (bundle). <em>Tot JavaScript-ul aplicatiei</em> vine in acel prim GET. Browser-ul il descarca, il executa, si abia atunci construieste interfata vizibila.',
+          'De acolo incolo, <strong>nu mai ceri HTML de la server niciodata.</strong> Cand navighezi intre sectiuni, JavaScript schimba ce se vede pe ecran (manipuleaza DOM-ul direct). Datele vin prin API calls — cereri care returneaza JSON pur, nu HTML. JavaScript insereaza acel JSON in interfata. De aceea navigarea e fluida si instantanea — nu se reincarca pagina.',
+          '<strong>Avise e SPA.</strong> Cand deschizi avise.com primesti o data tot bundle-ul React. Cand navighezi intre module (Trial Balance, Invoices, Reports) nu se reincarca pagina — JavaScript actualizeaza UI-ul si face API calls pentru date. Asta e popularea despre care intrebai.',
+          '<strong>De ce SEO e prost:</strong> Googlebot acceseaza /facturile-mele si vede un div gol. JavaScript-ul care construieste pagina nu ruleaza (sau ruleaza partial si tarziu). Robotul indexeaza un div gol. Solutia e SSR hibrid — Next.js poate face SSR pentru paginile publice si SPA pentru dashboard.',
         ],
         diagram: `Prima incarcare (un singur GET pentru tot JS-ul):
-  Browser → GET / → Server trimite index.html + bundle.js
+  Browser → GET / → Server trimite index.html + bundle.js (2MB)
   Browser executa JS → construieste tot UI-ul
 
 Navigare la /dashboard (fara request HTTP pentru HTML!):
   JavaScript schimba URL si UI instant
-  Browser → GET /api/dashboard-data → { JSON }
+  Browser → GET /api/dashboard-data → { JSON cu date }
+  JavaScript populeaza UI cu datele JSON
 
 Ce vede Google:
   GET / → <div id="root"></div>  ← div gol, SEO prost`,
-        usecases: ['Aplicatii SaaS', 'Dashboard-uri si tool-uri interne', 'Aplicatii complexe unde SEO nu conteaza'],
-        pros: ['navigare instant dupa prima incarcare', 'server serveste doar JSON (mai eficient)', 'separare clara frontend/backend'],
-        cons: ['prima incarcare lenta (bundle mare)', 'SEO prost fara configurare suplimentara', 'mai complex de construit'],
+        usecases: ['Avise si alte aplicatii SaaS', 'Dashboard-uri si tool-uri interne', 'Aplicatii complexe unde SEO nu conteaza'],
+        pros: ['navigare instant dupa prima incarcare', 'server serveste doar JSON, nu HTML (mai eficient)', 'separare clara frontend/backend'],
+        cons: ['prima incarcare lenta (bundle mare de descarcat si executat)', 'SEO prost fara configurare suplimentara', 'mai complex de construit si debuguit'],
       },
       {
         id: 'ssg',
@@ -256,19 +267,24 @@ Ce vede Google:
         position: { x: 75.4, y: 56.1 },
         connections: ['ssr', 'spa', 'cdn'],
         explain: [
-          'SSG genereaza toate paginile HTML <strong>la build time</strong> — inainte ca vreun utilizator sa acceseze site-ul. Rezultatul e un set de fisiere HTML statice, gata de servit. La cerere, serverul nu face nimic: primeste request, trimite fisierul pre-generat.',
-          'Diferenta critica fata de SSR: in SSR serverul construieste HTML-ul <em>la fiecare cerere</em>. In SSG, HTML-ul e construit <em>o singura data la build</em>. Daca datele se schimba, trebuie sa rebuilzi.',
-          'Limita clara: nu functioneaza pentru continut personalizat per utilizator. Pagina /cursuri e aceeasi pentru toata lumea = SSG. Pagina /progresul-meu e diferita per user = SSR sau SPA.',
+          'SSG genereaza toate paginile HTML <strong>la build time</strong> — inainte ca vreun utilizator sa acceseze site-ul. Rezultatul e un set de fisiere HTML statice, gata de servit. La cerere, serverul nu face nimic: primeste request, trimite fisierul pre-generat. Nu e nicio baza de date, nicio logica de server.',
+          'Diferenta critica fata de SSR: in SSR serverul construieste HTML-ul <em>la fiecare cerere</em>, cu date proaspete din DB. In SSG, HTML-ul e construit <em>o singura data la build</em>. Daca datele se schimba (ai adaugat un curs nou), trebuie sa rebuilzi si sa redesfasori.',
+          'Limita clara: nu functioneaza pentru continut personalizat per utilizator. <em>Pagina /cursuri</em> e aceeasi pentru toata lumea = SSG. <em>Pagina /progresul-meu</em> e diferita per user = SSR sau SPA cu API calls. Un proiect real combina toate trei: SSG pentru pagini publice, SSR sau SPA pentru cele personalizate.',
         ],
         diagram: `BUILD TIME (o singura data, la fiecare deploy):
   Cod + date → generator → 500 fisiere .html pre-generate
 
 REQUEST TIME (de mii de ori pe zi):
   Browser → CDN → fisier .html gata
-  Fara DB, fara calcule, fara server = instant`,
-        usecases: ['Pagini de marketing si landing pages', 'Blog-uri si documentatie', 'Site-uri cu continut rar schimbat'],
-        pros: ['viteza maxima', 'ieftin de hostuit', 'SEO perfect', 'securitate maxima'],
-        cons: ['rebuild necesar la orice schimbare', 'nu suporta date personalizate per user', 'nu e potrivit pentru aplicatii dinamice'],
+  Fara DB, fara calcule, fara server = instant
+
+Combinatie reala:
+  avise.com/features  → SSG (aceeasi pt toata lumea)
+  avise.com/blog/     → SSG (articole statice)
+  avise.com/dashboard → SPA (personalizat, API calls)`,
+        usecases: ['Pagini de marketing si landing pages', 'Blog-uri si documentatie', 'Site-uri de prezentare cu continut rar schimbat'],
+        pros: ['viteza maxima', 'ieftin de hostuit', 'SEO perfect', 'securitate maxima (nu exista server atacabil)'],
+        cons: ['rebuild necesar la orice schimbare de continut', 'nu suporta date personalizate per utilizator', 'nu e potrivit pentru aplicatii dinamice complexe'],
       },
       {
         id: 'cdn',
@@ -280,23 +296,26 @@ REQUEST TIME (de mii de ori pe zi):
         position: { x: 75.4, y: 72.4 },
         connections: ['ssg', 'latenta'],
         explain: [
-          'Un CDN (Content Delivery Network) e o retea de sute de servere amplasate geografic in toata lumea. Stocheaza copii ale continutului static — imagini, CSS, JavaScript bundle — pe toate aceste servere.',
-          'Efectul: fara CDN, un utilizator din Tokyo asteapta ~200ms. Cu CDN, imaginea e stocata pe un server din Tokyo — utilizatorul o primeste local, ~5ms. <em>CDN rezolva latenta cauzata de distanta fizica.</em>',
-          'CDN nu e potrivit pentru continut dinamic — datele care difera per user trebuie sa vina de la serverul real. Provideri: Cloudflare (cel mai comun, plan gratuit), AWS CloudFront, Fastly.',
+          'Un CDN (Content Delivery Network) e o retea de sute de servere amplasate geografic in toata lumea. Stocheaza copii ale continutului static — imagini, CSS, JavaScript bundle, fisiere HTML pre-generate — pe toate aceste servere.',
+          'Efectul direct asupra latentei: fara CDN, un utilizator din Tokyo trimite cererea ~9.000km pana in Romania si asteapta ~200ms. Cu CDN, imaginea e stocata si pe un server din Tokyo — utilizatorul o primeste de la distanta locala, ~5ms. <em>CDN rezolva latenta cauzata de distanta fizica.</em>',
+          'CDN nu e potrivit pentru continut dinamic — datele care difera per user sau per request trebuie sa vina de la serverul real. E ideal pentru assets statice. Avise foloseste CDN pentru bundle-ul React — il descarci rapid de pe cel mai aproape server CDN, o singura data. Provideri: Cloudflare (cel mai comun, plan gratuit), AWS CloudFront, Fastly.',
         ],
         diagram: `Fara CDN:
-  User Tokyo ──────────────── Server Romania (~200ms)
+  User Tokyo ─────────────────────── Server Romania
+                    ~200ms latenta
 
 Cu CDN:
-  User Tokyo ── CDN Tokyo ─── Server Romania (~5ms)
-  User Londra ─ CDN Londra ── Server Romania (~15ms)
+  User Tokyo ──── CDN Tokyo ─────── Server Romania
+      ~5ms                (sync la fiecare deploy)
+  User Londra ─── CDN Londra ────── Server Romania
+     ~15ms
 
 Ce se pune pe CDN:
-  ✓ bundle.js, styles.css, imagini, fonturi
-  ✗ /api/dashboard-data (dinamic, vine de la server)`,
-        usecases: ['Orice site cu utilizatori internationali', 'Assets statice pentru SPA', 'Site-uri SSG'],
-        pros: ['latenta mult mai mica pentru useri departe', 'reduce incarcarea serverului principal', 'rezistenta la DDoS'],
-        cons: ['continut cached poate fi invechit (TTL)', 'cost suplimentar', 'debugging mai complex'],
+  ✓ bundle.js, styles.css, imagini, fonturi, HTML static
+  ✗ /api/dashboard-data (dinamic, personal, vine de la server)`,
+        usecases: ['Orice site cu utilizatori internationali', 'Assets statice pentru SPA', 'Site-uri SSG', 'Distribuire fisiere mari'],
+        pros: ['latenta mult mai mica pentru useri departe de server', 'reduce incarcarea serverului principal', 'rezistenta la atacuri DDoS'],
+        cons: ['continut cached poate fi invechit (TTL — trebuie invalidat la deploy)', 'cost suplimentar', 'debugging mai complex'],
       },
       {
         id: 'webhooks',
@@ -308,25 +327,29 @@ Ce se pune pe CDN:
         position: { x: 50.0, y: 88.8 },
         connections: ['http', 'stateless'],
         explain: [
-          'HTTP e in mod normal pull: <em>clientul cere, serverul raspunde.</em> Dar uneori un serviciu extern are ceva de anuntat — o plata a fost procesata, un fisier e gata. Tu nu stii cand se intampla.',
-          '<strong>Webhook</strong> e un HTTP POST pe care <em>serverul extern il trimite catre un endpoint al tau</em> cand se intampla un eveniment. Tu dai Stripe o adresa: "cand o plata e confirmata, trimite POST la /api/payment-confirmed".',
-          '<strong>Retry mechanism:</strong> daca serverul tau raspunde cu altceva decat 200, Stripe stie ca webhook-ul n-a ajuns. Retrimite dupa 1 minut, dupa 5, dupa 30. Status code 200 = primit, orice altceva = esec, retrimite.',
+          'HTTP e in mod normal pull: <em>clientul cere, serverul raspunde.</em> Dar uneori un serviciu extern are ceva de anuntat — o plata a fost procesata, un fisier e gata, o eroare a aparut. Tu nu stii cand se intampla, nu poti sa intrebi periodic la infinit. Asta e problema pe care o rezolva webhook-urile.',
+          '<strong>Webhook</strong> e un HTTP POST pe care <em>serverul extern il trimite catre un endpoint al tau</em> cand se intampla un eveniment. Tu dai Stripe o adresa: "cand o plata e confirmata, trimite POST la /api/payment-confirmed". Stripe face acel POST cu datele platii. Serverul tau primeste, proceseaza, raspunde cu 200 OK.',
+          'Browserul e irelevant pentru webhooks. Daca browserul userului e inchis cand Stripe trimite webhook-ul — <em>nu conteaza.</em> <strong>Serverul tau e destinatarul, nu browser-ul.</strong> Serverul tau ruleaza 24/7. Webhook-ul ajunge, serverul proceseaza si stocheaza in DB. Cand userul redeschide browser-ul, vede starea actualizata. Webhooks sunt mereu intre doua servere.',
+          '<strong>Retry mechanism:</strong> daca serverul tau raspunde cu altceva decat 200 (eroare, timeout, server down temporar), Stripe stie ca webhook-ul n-a ajuns — stie din status code-ul HTTP din raspunsul tau. Retrimite dupa 1 minut, dupa 5, dupa 30, dupa cateva ore. Dupa un numar fix de incercari marcheaza ca failed. Mecanismul e simplu: status code 200 = primit, orice altceva = esec, retrimite.',
         ],
         diagram: `PULL (trebuie sa intrebi tu periodic — ineficient):
-  Browser → GET /api/payment-status → "pending" x3...
+  Browser → GET /api/payment-status → "pending"
+  Browser → GET /api/payment-status → "pending"
+  Browser → GET /api/payment-status → "confirmed"
 
-PUSH prin webhook:
+PUSH prin webhook (Stripe iti spune el cand e gata):
   Stripe proceseaza plata
        ↓
-  Stripe → POST /api/payment-confirmed → Serverul tau
+  Stripe → POST /api/payment-confirmed → Serverul tau (24/7)
   Serverul tau → 200 OK → Stripe marcheaza ca livrat
+  Serverul tau actualizeaza DB → user vede la urmatoarea deschidere
 
 Retry (serverul tau era down 2 minute):
-  Stripe → POST → down → timeout → retry dupa 1 min
-  Stripe → POST → up   → 200 OK  → livrat ✓`,
-        usecases: ['Notificari de plata (Stripe, PayPal)', 'CI/CD — GitHub notifica la push', 'Integrari intre platforme'],
-        pros: ['eficient — nu trebuie sa intrebi periodic', 'real-time', 'serverul proceseaza indiferent daca userul e activ'],
-        cons: ['endpoint-ul tau trebuie sa fie accesibil public', 'trebuie verificata autenticitatea', 'debugging mai dificil'],
+  Stripe → POST → Serverul tau (down) → timeout → retry dupa 1 min
+  Stripe → POST → Serverul tau (up)   → 200 OK  → livrat ✓`,
+        usecases: ['Notificari de plata (Stripe, PayPal)', 'CI/CD — GitHub notifica Jenkins la push', 'Integrari intre platforme (Zapier, Make)', 'Orice eveniment asincron intre servicii'],
+        pros: ['eficient — nu trebuie sa intrebi periodic (no polling)', 'real-time', 'serverul proceseaza indiferent daca userul e activ'],
+        cons: ['endpoint-ul tau trebuie sa fie accesibil public', 'trebuie verificata autenticitatea (cineva poate trimite POST fals)', 'debugging mai dificil — evenimentele vin din exterior'],
       },
     ],
   },
