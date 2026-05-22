@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Patterns — API, Events, Retry</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --paper: #161b22;
+  --ink: #e6edf3;
+  --muted: #8b949e;
+  --line: #21262d;
+  --accent: #58a6ff;
+  --accent2: #3fb950;
+  --accent3: #f78166;
+  --accent4: #d2a8ff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 56px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+header {
+  grid-column: 1/-1;
+  background: #010409;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 20px;
+}
+header h1 { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; color: var(--ink); }
+header h1 em { color: var(--accent); font-style: normal; }
+.progress-track { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.bricks { display: flex; gap: 3px; }
+.brick { width: 18px; height: 12px; background: #21262d; border-radius: 2px; transition: background 0.4s; }
+.brick.lit { background: var(--accent); box-shadow: 0 0 6px rgba(88,166,255,0.4); }
+.progress-label { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); overflow-y: auto; padding: 20px 0; }
+.map-title { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); padding: 0 20px 12px; }
+svg.buzan { width: 100%; overflow: visible; display: block; }
+
+.content { overflow-y: auto; padding: 32px 40px; background: var(--bg); }
+
+.cell { display: none; max-width: 640px; animation: fadeIn 0.3s ease; }
+.cell.visible { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+.cell-number { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+.cell-title { font-family: 'DM Serif Display', serif; font-size: 32px; font-weight: 400; line-height: 1.1; margin-bottom: 8px; color: var(--ink); }
+.cell-subtitle { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+.block-explain { margin-bottom: 20px; }
+.block-explain p { font-size: 14px; line-height: 1.8; color: var(--ink); margin-bottom: 12px; }
+.block-explain strong { color: var(--accent); }
+.block-explain em { color: var(--accent2); font-style: normal; font-weight: 700; }
+
+.block-diagram {
+  background: #010409;
+  border: 1px solid var(--line);
+  color: var(--accent2);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.9;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.block-usecase { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-bottom: 20px; }
+.block-usecase .uc-label { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); margin-bottom: 8px; }
+.block-usecase ul { padding-left: 16px; }
+.block-usecase li { font-size: 13px; line-height: 1.7; color: var(--ink); margin-bottom: 4px; }
+
+.block-tradeoffs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.tradeoff-col { background: var(--paper); border-radius: 8px; padding: 12px 14px; border: 1px solid var(--line); }
+.tradeoff-col .t-label { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.tradeoff-col.plus .t-label { color: var(--accent2); }
+.tradeoff-col.minus .t-label { color: var(--accent3); }
+.tradeoff-col li { font-size: 12px; line-height: 1.6; list-style: none; margin-bottom: 4px; color: var(--muted); }
+.tradeoff-col.plus li::before { content: '+ '; color: var(--accent2); font-weight: 700; }
+.tradeoff-col.minus li::before { content: '− '; color: var(--accent3); font-weight: 700; }
+
+.block-connections { margin-bottom: 24px; }
+.block-connections .bc-label { font-family: 'DM Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+.conn-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.conn-pill { font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--line); cursor: pointer; transition: all 0.2s; color: var(--muted); }
+.conn-pill:hover { border-color: var(--accent); color: var(--accent); background: rgba(88,166,255,0.05); }
+
+.divider { height: 1px; background: var(--line); margin: 20px 0; }
+
+.btn-row { display: flex; gap: 10px; align-items: center; }
+.btn-done { padding: 12px 24px; background: var(--accent); color: #010409; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.btn-done:hover { background: #79c0ff; }
+.btn-done:disabled { background: var(--line); color: var(--muted); cursor: default; }
+.btn-next { padding: 12px 24px; background: transparent; color: var(--accent2); border: 1.5px solid var(--accent2); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: none; }
+.btn-next:hover { background: rgba(63,185,80,0.05); }
+.btn-next.visible { display: block; }
+
+.empty-state { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; height: 60vh; gap: 12px; }
+.empty-state h2 { font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400; color: var(--ink); }
+.empty-state p { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 400px; }
+
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--accent); color: #010409; padding: 10px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; transform: translateY(60px); opacity: 0; transition: all 0.3s; z-index: 999; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Web <em>Patterns</em></h1>
+  <div class="progress-track">
+    <div class="bricks" id="bricks"></div>
+    <span class="progress-label" id="prog-label">0 / 9</span>
+  </div>
+</header>
+
+<div class="sidebar">
+  <div class="map-title">harta conceptelor</div>
+  <svg class="buzan" id="mm-svg" viewBox="0 0 236 590"></svg>
+</div>
+
+<div class="content" id="content">
+  <div class="empty-state" id="empty-state">
+    <h2>API-uri, events, rezilienta.</h2>
+    <p>Conceptele din acest curs apar in orice sistem modern. Incepe cu REST API sau Webhook — depinde ce intalnesti primul in munca ta.</p>
+    <p style="margin-top:4px; color:#58a6ff;">← click pe harta</p>
+  </div>
+</div>
+
+<div class="toast" id="toast">🧱 +1 cărămidă</div>
+
+<script>
+const CELLS = [
+  {
+    id: 'restapi',
+    label: 'REST API',
+    branch: 0,
+    subtitle: 'Cerere–Raspuns: tu intrebi, serverul raspunde',
+    connections: ['Webhook', 'GraphQL', 'Polling'],
+    explain: [
+      'Un API REST functioneaza pe modelul <strong>cerere–raspuns sincron</strong>: tu trimiti o cerere HTTP, astepti, primesti raspunsul, continui. E cel mai simplu model de integrare intre doua sisteme.',
+      'Cand sistemul A vrea date de la sistemul B, A face un request HTTP catre B. B proceseaza si raspunde imediat (in milisecunde sau secunde). <strong>A trebuie sa stie cand sa intrebe</strong> si sa astepte activ raspunsul.',
+      'Limitarea fundamentala: daca vrei sa stii cand s-a schimbat ceva pe server, trebuie sa intrebi periodic (<em>polling</em>). Nu exista un mecanism nativ prin care serverul sa te anunte el — de-aci vine nevoia de Webhook si event-driven.'
+    ],
+    diagram: `Sistem A                    Sistem B
+    │                              │
+    │── GET /comenzi/status/42 ──► │
+    │                              │  proceseaza
+    │◄── 200 OK { status: "livrat"}│
+    │                              │
+   (A stie doar daca intreaba)`,
+    usecase: ['Integrari simple intre sisteme', 'CRUD operations (create, read, update, delete)', 'Cand ai nevoie de date la cerere, nu in timp real'],
+    pros: ['simplu, universal, usor de testat', 'orice limbaj il suporta', 'usor de debuguit (request–response vizibil)'],
+    cons: ['nu poti primi notificari — trebuie sa intrebi tu', 'polling = ineficient si lent', 'coupling strans intre sisteme']
+  },
+  {
+    id: 'webhook',
+    label: 'Webhook',
+    branch: 0,
+    subtitle: 'Serverul te anunta el, nu tu il intrebi',
+    connections: ['REST API', 'Event-Driven', 'Retry'],
+    explain: [
+      'Un Webhook inverseaza modelul REST: in loc sa intrebi tu periodic "s-a intamplat ceva?", <strong>serverul te anunta el</strong> cand se intampla ceva. Tu inregistrezi o adresa URL la care vrei sa primesti notificari — serverul face un POST catre acea adresa cand apare un eveniment.',
+      'Concret: inregistrezi la Stripe URL-ul <em>https://aplicatia-ta.ro/webhooks/stripe</em>. Cand un client plateste, Stripe face imediat un POST catre acea adresa cu detaliile platii. Tu nu trebuie sa intrebi Stripe la fiecare secunda daca a venit o plata.',
+      '<strong>Problema principala</strong>: daca aplicatia ta e offline in momentul in care Stripe trimite webhook-ul, il pierzi. De-aci vine nevoia de retry mechanism — Stripe va incerca din nou dupa 1 minut, 5 minute, 30 minute etc.',
+      'Webhooks sunt folosite peste tot: Stripe pentru plati, GitHub pentru events pe repository, Slack pentru notificari, Twilio pentru SMS.'
+    ],
+    diagram: `Fara Webhook (polling):
+  Aplicatia → Stripe: "a platit cineva?" (la fiecare 5 sec)
+  Aplicatia → Stripe: "a platit cineva?"  ← ineficient
+  Aplicatia → Stripe: "a platit cineva?"
+
+Cu Webhook:
+  Client plateste pe Stripe
+       │
+       ▼
+  Stripe → POST https://aplicatia-ta.ro/webhooks
+           { event: "payment.success", amount: 100 }
+  (instant, o singura data, fara polling)`,
+    usecase: ['Notificari de plata (Stripe, PayPal)', 'CI/CD declansat de push pe GitHub', 'Sincronizare date intre sisteme', 'Notificari in timp real'],
+    pros: ['eficient — serverul anunta doar cand e nevoie', 'timp real', 'fara polling'],
+    cons: ['aplicatia ta trebuie sa fie online si sa raspunda rapid', 'greu de testat local', 'necesita retry logic daca receptorul e offline']
+  },
+  {
+    id: 'polling',
+    label: 'Polling',
+    branch: 0,
+    subtitle: 'Intrebi periodic daca s-a schimbat ceva',
+    connections: ['REST API', 'Webhook', 'WebSocket'],
+    explain: [
+      'Polling inseamna sa intrebi serverul la intervale regulate: "s-a schimbat ceva?". E cel mai simplu mecanism pentru a simula date in timp real, dar si cel mai ineficient.',
+      '<strong>Short polling</strong>: faci un request la fiecare N secunde. Serverul raspunde imediat, fie cu date noi fie cu "nimic nou". Simplu dar genereaza trafic inutil — 95% din cereri pot fi "nimic nou".',
+      '<strong>Long polling</strong>: faci un request, serverul <em>tine conexiunea deschisa</em> pana are ceva de trimis (sau pana expira un timeout). Cand vine un eveniment, serverul raspunde si inchide conexiunea. Tu faci imediat un nou request si astepti din nou. Mai eficient decat short polling, dar tot imperfect.',
+      'Cand are sens polling: cand nu ai acces la webhooks sau WebSocket, cand evenimentele sunt rare si latenta nu conteaza, cand sistemul e simplu si nu merita complexitatea alternativelor.'
+    ],
+    diagram: `Short Polling (ineficient):
+  Client ──► Server: "ceva nou?" → "nu"   (t=0s)
+  Client ──► Server: "ceva nou?" → "nu"   (t=5s)
+  Client ──► Server: "ceva nou?" → "nu"   (t=10s)
+  Client ──► Server: "ceva nou?" → "DA!"  (t=15s)
+
+Long Polling (mai eficient):
+  Client ──► Server: "ceva nou?" 
+  Server tine conexiunea deschisa...
+  [eveniment apare dupa 12s]
+  Server ──► Client: "DA, iata datele"
+  Client face imediat un nou request`,
+    usecase: ['Sisteme simple fara suport de WebSocket', 'Verificare status job de lunga durata', 'Fallback cand webhooks nu sunt disponibile'],
+    pros: ['simplu de implementat', 'functioneaza cu orice server HTTP standard', 'usor de debuguit'],
+    cons: ['ineficient — genereaza trafic inutil', 'latenta (intarzie intre poll-uri)', 'solicita serverul cu cereri inutile']
+  },
+  {
+    id: 'websocket',
+    label: 'WebSocket',
+    branch: 1,
+    subtitle: 'Conexiune persistenta bidirectionala',
+    connections: ['Polling', 'Event-Driven', 'REST API'],
+    explain: [
+      'HTTP e unidirectional: clientul cere, serverul raspunde, conexiunea se inchide. WebSocket stabileste o <strong>conexiune persistenta, bidirectionala</strong>: odata deschisa, atat clientul cat si serverul pot trimite mesaje oricand, fara sa astepte.',
+      'Conexiunea incepe cu un "handshake" HTTP special (Upgrade: websocket). Dupa aceea protocolul se schimba: nu mai e request–response, e un canal deschis permanent in ambele directii.',
+      '<strong>Serverul poate trimite date clientului fara ca acesta sa fi cerut ceva.</strong> Asta e imposibil in HTTP clasic — e revolutia WebSocket.',
+      'Cand are sens: chat in timp real, colaborare simultana (Google Docs), notificari live, dashboarduri cu date care se actualizeaza continuu, jocuri multiplayer.'
+    ],
+    diagram: `HTTP clasic:
+  Client ──► Server (request)
+  Client ◄── Server (response)
+  [conexiune inchisa]
+
+WebSocket:
+  Client ──► Server (handshake HTTP)
+  [conexiune deschisa permanent]
+  Client ──► Server: "mesaj de la user"
+  Server ──► Client: "mesaj de la alt user"
+  Server ──► Client: "notificare noua"
+  Client ──► Server: "user a tastat..."
+  [conexiunea ramane deschisa]`,
+    usecase: ['Chat in timp real (Slack, Discord)', 'Colaborare live (Figma, Google Docs)', 'Dashboarduri cu date live (trading, monitoring)', 'Jocuri multiplayer in browser'],
+    pros: ['bidirectional — serverul poate trimite oricand', 'latenta minima (conexiune persistenta)', 'eficient — nu se repeta handshake HTTP'],
+    cons: ['conexiunile persistente consuma resurse pe server', 'mai complex de implementat si scalat', 'nu e cacheabil ca HTTP']
+  },
+  {
+    id: 'eventdriven',
+    label: 'Event-Driven',
+    branch: 1,
+    subtitle: 'Sistemele comunica prin evenimente, nu prin apeluri directe',
+    connections: ['Webhook', 'Message Queue', 'WebSocket'],
+    explain: [
+      'In arhitectura event-driven, sistemele nu se apeleaza direct. In loc de "sistemul A apeleaza sistemul B", avem: <strong>"sistemul A publica un eveniment, sistemul B il consuma cand e disponibil"</strong>.',
+      'Un eveniment e o notificare ca ceva s-a intamplat: <em>OrderPlaced</em>, <em>PaymentReceived</em>, <em>UserRegistered</em>. Sistemul care produce evenimentul nu stie cine il consuma — si nici nu ii pasa. Poate fi consumat de un sistem, zece sisteme, sau niciunul.',
+      'Intre producator si consumator exista un <strong>message broker</strong> (Kafka, RabbitMQ, AWS SQS) — un intermediar care retine evenimentele pana sunt procesate. Asta decupleaza sistemele: producatorul nu trebuie sa astepte consumatorul, consumatorul poate procesa in ritmul lui.',
+      'Marele avantaj: <strong>decuplare</strong>. Poti adauga un nou consumator fara sa modifici producatorul. Poti scala consumatorii independent. Daca un consumator cade, evenimentele se acumuleaza si sunt procesate cand revine.'
+    ],
+    diagram: `Arhitectura directa (coupling strans):
+  OrderService ──► PaymentService
+  OrderService ──► InventoryService  ← fragil
+  OrderService ──► EmailService
+
+Arhitectura Event-Driven:
+  OrderService ──► [OrderPlaced event] ──► Message Broker
+                                               │
+                          ┌────────────────────┼──────────────┐
+                          ▼                    ▼              ▼
+                   PaymentService    InventoryService   EmailService
+                   (consuma cand     (consuma cand      (consuma cand
+                    e gata)           e gata)            e gata)`,
+    usecase: ['Sisteme cu multe componente independente (microservicii)', 'Procesare asincron (comenzi, plati, emailuri)', 'Audit logs si analytics', 'Integrari intre sisteme care nu pot fi modificate'],
+    pros: ['decuplare — sistemele nu se cunosc direct', 'scalare independenta a fiecarei componente', 'rezilienta — un consumator cazut nu blocheaza producatorul'],
+    cons: ['mai greu de debuguit (fluxul nu e liniar)', 'consistenta eventuala, nu imediata', 'complexitate operationala (message broker de intretinut)']
+  },
+  {
+    id: 'messagequeue',
+    label: 'Message Queue',
+    branch: 1,
+    subtitle: 'Coada care decupleaza producatorul de consumator',
+    connections: ['Event-Driven', 'Retry', 'Webhook'],
+    explain: [
+      'O message queue e un <strong>intermediar care stocheaza mesaje pana sunt procesate</strong>. Producatorul pune mesaje in coada, consumatorul le ia si le proceseaza in ritmul lui. Cei doi nu interactioneaza direct.',
+      'Modelul fundamental: <strong>producer → queue → consumer</strong>. Queue-ul garanteaza ca mesajele nu se pierd chiar daca consumatorul e offline. Cand revine, proceseaza mesajele acumulate.',
+      'Un mesaj e <em>acknowledges</em> (confirmat procesat) de consumator abia dupa ce a fost procesat cu succes. Daca consumatorul pica inainte de acknowledge, mesajul ramane in coada si va fi reluat — nu se pierde.',
+      'Provideri: <strong>RabbitMQ</strong> (open source, clasic), <strong>AWS SQS</strong> (managed, simplu), <strong>Kafka</strong> (volum extrem de mare, retentie pe termen lung, pub/sub). Kafka e diferit conceptual — mai mult un event log decat o coada clasica.'
+    ],
+    diagram: `Fara queue (sincron):
+  Producer ──► Consumer
+  [daca Consumer e offline → mesaj pierdut]
+  [daca Consumer e lent → Producer asteapta]
+
+Cu Message Queue:
+  Producer ──► [Queue] ◄── Consumer procesa cand poate
+               │
+               ├─ mesaj 1 (procesat)
+               ├─ mesaj 2 (procesat)
+               ├─ mesaj 3 (asteapta)  ← consumatorul era offline
+               └─ mesaj 4 (asteapta)`,
+    usecase: ['Procesare comenzi e-commerce', 'Trimitere emailuri in bulk', 'Procesare imagini/video (resize, transcoding)', 'Orice task care poate astepta si nu trebuie facut sincron'],
+    pros: ['mesajele nu se pierd daca consumatorul e offline', 'decupleaza viteza producatorului de cea a consumatorului', 'scalare: mai multi consumatori pentru aceeasi coada'],
+    cons: ['consistenta eventuala (nu imediata)', 'mesaje duplicate posibile (daca acknowledge esueaza)', 'infrastructura suplimentara de intretinut']
+  },
+  {
+    id: 'retry',
+    label: 'Retry + Backoff',
+    branch: 2,
+    subtitle: 'Ce faci cand o operatie esueaza',
+    connections: ['Webhook', 'Message Queue', 'Circuit Breaker'],
+    explain: [
+      'Intr-un sistem distribuit, operatiile esueaza. Reteaua are probleme, un serviciu e suprasolicitat, un server se restarteza. <strong>Retry</strong> inseamna sa incerci din nou automat dupa un esec.',
+      'Retry simplu (incearca imediat) e periculos: daca serverul e suprasolicitat si toti clientii incearca din nou instantaneu, ii dai si mai mult trafic si agravezi problema. De-aci vine <strong>Exponential Backoff</strong>: cresti intervalul intre retry-uri exponential.',
+      'Formula: primul retry dupa 1s, al doilea dupa 2s, al treilea dupa 4s, al patrulea dupa 8s, etc. Plus un element de <strong>jitter</strong> (variatie aleatorie) ca nu toti clientii sa retry simultan.',
+      '<strong>Max retries</strong> si <strong>dead letter queue</strong>: dupa un numar maxim de incercari, renunti. Mesajul esuat merge intr-o coada separata (dead letter queue) pentru investigatie manuala sau procesare ulterioara.'
+    ],
+    diagram: `Retry cu Exponential Backoff:
+
+  t=0s   → request → ESEC (server down)
+  t=1s   → retry 1 → ESEC
+  t=3s   → retry 2 → ESEC
+  t=7s   → retry 3 → ESEC
+  t=15s  → retry 4 → SUCCES ✓
+
+  (cu jitter: +/- random pentru a distribui traficul)
+
+  Dupa max retries → Dead Letter Queue
+  ┌─────────────────────────────────────┐
+  │ mesaje care au esuat definitiv      │
+  │ → alerta, investigatie manuala      │
+  └─────────────────────────────────────┘`,
+    usecase: ['Apeluri HTTP intre microservicii', 'Procesare mesaje din queue', 'Retry webhook-uri (Stripe, GitHub fac asta automat)', 'Orice operatie care poate esua tranzitoriu'],
+    pros: ['rezilienta la erori temporare', 'transparent pentru utilizator daca retry reuseste', 'reduce impactul erorilor de retea'],
+    cons: ['operatia trebuie sa fie idempotenta (retry de doua ori = acelasi rezultat)', 'poate masca probleme reale', 'complexitate in implementare']
+  },
+  {
+    id: 'circuitbreaker',
+    label: 'Circuit Breaker',
+    branch: 2,
+    subtitle: 'Opreste-te din a incerca cand stii ca va esua',
+    connections: ['Retry + Backoff', 'Event-Driven'],
+    explain: [
+      'Retry e util pentru erori temporare. Dar daca serviciul extern e complet cazut pentru 30 de minute, sa incerci la infinit e inutil si consuma resurse. <strong>Circuit Breaker</strong> rezolva asta.',
+      'Functioneaza ca un intrerupator electric: are trei stari. <em>Closed</em> (normal): cererile trec. <em>Open</em>: serviciul e considerat cazut, toate cererile esueaza imediat fara sa mai incerce — economia timp si resurse. <em>Half-Open</em>: lasi o cerere de test sa treaca; daca reuseste, revii la Closed; daca esueaza, ramai Open.',
+      'Tranzitia Closed → Open se face cand procentul de erori depaseste un prag (ex: 50% din ultimele 20 de cereri au esuat). Tranzitia Open → Half-Open se face dupa un timeout (ex: dupa 30 de secunde).',
+      'Implementat in: <strong>Resilience4j</strong> (Java), <strong>Polly</strong> (.NET), <strong>Hystrix</strong> (Netflix, acum deprecated). Service mesh-uri ca <strong>Istio</strong> il implementeaza transparent, fara cod.'
+    ],
+    diagram: `CLOSED (normal):
+  Client ──► Circuit Breaker ──► Serviciu extern
+  [monitorizeaza rata de erori]
+  [erori > 50%] → trece in OPEN
+
+OPEN (serviciu cazut):
+  Client ──► Circuit Breaker ──✗ (esec imediat, nu mai incearca)
+  [dupa 30s timeout] → trece in HALF-OPEN
+
+HALF-OPEN (test):
+  Client ──► Circuit Breaker ──► Serviciu extern
+  [succes] → CLOSED
+  [esec]   → OPEN (inca 30s)`,
+    usecase: ['Microservicii care depind unele de altele', 'Apeluri catre API-uri externe', 'Orice sistem unde un serviciu cazut poate cascada esecuri in lant'],
+    pros: ['previne cascade failures', 'fail fast — eroare imediata in loc de timeout lung', 'permite serviciului extern sa se recupereze'],
+    cons: ['complexitate suplimentara', 'starea circuitului trebuie partajata intre instante (dificil in sisteme distribuite)', 'tuning dificil al pragurilor']
+  },
+  {
+    id: 'graphql',
+    label: 'GraphQL',
+    branch: 3,
+    subtitle: 'Tu ceri exact ce date vrei, nimic mai mult',
+    connections: ['REST API', 'WebSocket'],
+    explain: [
+      'In REST, serverul decide ce date trimite la fiecare endpoint. Vrei un profil de user? Primesti toate campurile, chiar daca tu ai nevoie doar de nume si avatar. Vrei date de la resurse multiple? Faci cereri multiple. GraphQL inverseaza controlul: <strong>clientul specifica exact ce campuri vrea</strong>.',
+      'Exista un singur endpoint (<em>/graphql</em>). Clientul trimite o "query" care descrie exact structura datelor dorite. Serverul raspunde cu exact acea structura — nimic in plus.',
+      'Rezolva doua probleme clasice ale REST: <strong>over-fetching</strong> (primesti prea multe date) si <strong>under-fetching</strong> (ai nevoie de mai multe request-uri pentru date legate).',
+      'GraphQL suporta si <strong>subscriptions</strong> — echivalentul WebSocket pentru date in timp real. Clientul se aboneaza la un eveniment si primeste update-uri automat. Creat de Facebook, folosit de GitHub, Shopify, Twitter.'
+    ],
+    diagram: `REST (serverul decide):
+  GET /users/1    → { id, name, email, address, phone, avatar, ... }
+  GET /users/1/posts → { posts array... }
+  (2 request-uri, date in plus)
+
+GraphQL (clientul decide):
+  POST /graphql
+  query {
+    user(id: 1) {
+      name
+      avatar
+      posts { title }
+    }
+  }
+  → exact { name, avatar, posts: [{title}] }
+  (1 request, exact ce ai cerut)`,
+    usecase: ['Aplicatii mobile (bandwidth limitat — ceri exact ce ai nevoie)', 'Frontend-uri complexe cu multe tipuri de date', 'API-uri publice cu clienti diversi (fiecare cere ce are nevoie)', 'Sisteme cu date interconectate complex'],
+    pros: ['elimina over-fetching si under-fetching', 'un singur endpoint', 'schema auto-documentata', 'subscriptions pentru real-time'],
+    cons: ['mai complex de implementat pe server', 'caching mai dificil decat REST (nu mai e GET simplu)', 'query-uri complexe pot suprasolicita serverul', 'overhead pentru API-uri simple']
+  }
+];
+
+const CELL_MAP = {};
+CELLS.forEach(c => CELL_MAP[c.id] = c);
+const ORDER = CELLS.map(c => c.id);
+const BRANCH_COLORS = ['#58a6ff','#3fb950','#f78166','#d2a8ff','#ffa657'];
+
+const LAYOUT = {
+  restapi:       [118, 45,  0],
+  webhook:       [50,  120, 0],
+  polling:       [50,  195, 0],
+  websocket:     [50,  275, 1],
+  eventdriven:   [50,  355, 1],
+  messagequeue:  [50,  435, 1],
+  retry:         [186, 150, 2],
+  circuitbreaker:[186, 260, 2],
+  graphql:       [186, 380, 3],
+};
+
+const mmSvg = document.getElementById('mm-svg');
+const NS = 'http://www.w3.org/2000/svg';
+const done = new Set();
+let currentId = null;
+
+function buildMindMap() {
+  const drawn = new Set();
+  CELLS.forEach(cell => {
+    const [x1,y1] = LAYOUT[cell.id];
+    cell.connections.forEach(connLabel => {
+      const target = CELLS.find(c => c.label === connLabel || c.id === connLabel.toLowerCase().replace(/[\s\+\/–]/g,''));
+      if (!target) return;
+      const [x2,y2] = LAYOUT[target.id];
+      const edgeId = [cell.id, target.id].sort().join('-');
+      if (drawn.has(edgeId)) return;
+      drawn.add(edgeId);
+      const col = BRANCH_COLORS[LAYOUT[cell.id][2]];
+      const path = document.createElementNS(NS, 'path');
+      const mx = (x1+x2)/2;
+      path.setAttribute('d', `M${x1},${y1} Q${mx},${y1} ${x2},${y2}`);
+      path.setAttribute('fill','none'); path.setAttribute('stroke',col);
+      path.setAttribute('stroke-width','1.5'); path.setAttribute('stroke-opacity','0.25');
+      mmSvg.appendChild(path);
+    });
+  });
+
+  CELLS.forEach(cell => {
+    const [x,y,bi] = LAYOUT[cell.id];
+    const col = BRANCH_COLORS[bi];
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('id','mmnode-'+cell.id); g.setAttribute('cursor','pointer');
+
+    const rx = Math.max(cell.label.length * 4.2 + 12, 26);
+    const ellipse = document.createElementNS(NS, 'ellipse');
+    ellipse.setAttribute('cx',x); ellipse.setAttribute('cy',y);
+    ellipse.setAttribute('rx',rx); ellipse.setAttribute('ry',12);
+    ellipse.setAttribute('fill','#161b22'); ellipse.setAttribute('stroke',col);
+    ellipse.setAttribute('stroke-width','1.5'); ellipse.setAttribute('id','mmbg-'+cell.id);
+    g.appendChild(ellipse);
+
+    const text = document.createElementNS(NS, 'text');
+    text.setAttribute('x',x); text.setAttribute('y',y+1);
+    text.setAttribute('text-anchor','middle'); text.setAttribute('dominant-baseline','middle');
+    text.setAttribute('font-family','DM Mono, monospace'); text.setAttribute('font-size','9.5');
+    text.setAttribute('fill',col); text.setAttribute('id','mmtx-'+cell.id);
+    text.textContent = cell.label;
+    g.appendChild(text);
+
+    g.addEventListener('click', () => openCell(cell.id));
+    mmSvg.appendChild(g);
+  });
+}
+
+function openCell(id) {
+  currentId = id;
+  const cell = CELL_MAP[id];
+
+  CELLS.forEach(c => {
+    const bg = document.getElementById('mmbg-'+c.id);
+    const tx = document.getElementById('mmtx-'+c.id);
+    const col = BRANCH_COLORS[LAYOUT[c.id][2]];
+    if (c.id === id) { bg.setAttribute('fill',col); tx.setAttribute('fill','#010409'); tx.setAttribute('font-weight','700'); }
+    else { bg.setAttribute('fill','#161b22'); tx.setAttribute('fill',col); tx.setAttribute('font-weight','400'); }
+  });
+
+  const idx = ORDER.indexOf(id)+1;
+  let html = `<div class="cell visible">
+    <div class="cell-number">Conceptul ${idx} din ${CELLS.length}</div>
+    <div class="cell-title">${cell.label}</div>
+    <div class="cell-subtitle">${cell.subtitle}</div>
+    <div class="block-explain">`;
+  cell.explain.forEach(p => { html += `<p>${p}</p>`; });
+  html += `</div>`;
+  if (cell.diagram) html += `<div class="block-diagram">${cell.diagram}</div>`;
+  if (cell.usecase) html += `<div class="block-usecase"><div class="uc-label">Cand il gasesti</div><ul>${cell.usecase.map(u=>`<li>${u}</li>`).join('')}</ul></div>`;
+  if (cell.pros && cell.cons) html += `<div class="block-tradeoffs"><div class="tradeoff-col plus"><div class="t-label">Avantaje</div><ul>${cell.pros.map(p=>`<li>${p}</li>`).join('')}</ul></div><div class="tradeoff-col minus"><div class="t-label">Limitari</div><ul>${cell.cons.map(c=>`<li>${c}</li>`).join('')}</ul></div></div>`;
+  if (cell.connections) {
+    const pills = cell.connections.map(c => {
+      const t = CELLS.find(x => x.label === c || x.id === c.toLowerCase().replace(/[\s\+\/–]/g,''));
+      return t ? `<span class="conn-pill" onclick="openCell('${t.id}')">${c}</span>` : '';
+    }).join('');
+    html += `<div class="block-connections"><div class="bc-label">Leaga-se de</div><div class="conn-pills">${pills}</div></div>`;
+  }
+  const isDone = done.has(id);
+  const nextId = ORDER[ORDER.indexOf(id)+1];
+  html += `<div class="divider"></div><div class="btn-row">
+    <button class="btn-done" id="btn-done" onclick="markDone()" ${isDone?'disabled':''}>${isDone?'✓ Marcat':'✓ Am inteles'}</button>
+    <button class="btn-next ${isDone&&nextId?'visible':''}" id="btn-next" onclick="openCell('${nextId||''}')">Urmatorul →</button>
+  </div></div>`;
+
+  const content = document.getElementById('content');
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.style.display='none';
+  content.innerHTML = html;
+  content.scrollTop = 0;
+}
+
+function markDone() {
+  if (!currentId || done.has(currentId)) return;
+  done.add(currentId);
+  updateBricks();
+  const tx = document.getElementById('mmtx-'+currentId);
+  if (tx) tx.textContent = CELL_MAP[currentId].label + ' ✓';
+  document.getElementById('btn-done').disabled = true;
+  document.getElementById('btn-done').textContent = '✓ Marcat';
+  const nextId = ORDER[ORDER.indexOf(currentId)+1];
+  if (nextId) { const nb=document.getElementById('btn-next'); if(nb){nb.classList.add('visible');nb.onclick=()=>openCell(nextId);} }
+  const t=document.getElementById('toast'); t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function initBricks() {
+  const el=document.getElementById('bricks');
+  CELLS.forEach((_,i)=>{ const b=document.createElement('div'); b.className='brick'; b.id='brick-'+i; el.appendChild(b); });
+}
+
+function updateBricks() {
+  const count=done.size;
+  document.getElementById('prog-label').textContent=`${count} / ${CELLS.length}`;
+  CELLS.forEach((_,i)=>{ document.getElementById('brick-'+i).className='brick'+(i<count?' lit':''); });
+}
+
+initBricks();
+buildMindMap();
+</script>
+</body>
+</html>
