@@ -1,302 +1,148 @@
-import { motion } from "motion/react";
-import { useNavigate } from "react-router";
-import { useEffect, useRef } from "react";
-import {
-  Check,
-  ArrowRight,
-  RefreshCw,
-  Webhook,
-  Clock,
-  Plug,
-  Radio,
-  Inbox,
-  RotateCw,
-  Shield,
-  Network,
-  LucideIcon,
-  Map
-} from "lucide-react";
+import { motion } from 'motion/react';
+import { useNavigate, useParams } from 'react-router';
+import { useEffect, useRef } from 'react';
+import { Check, ArrowRight, Map } from 'lucide-react';
+import type { ConceptNode } from '@/lib/courses';
 
-interface Concept {
-  id: string;
-  label: string;
-  color: string;
-  connections: string[];
-  position: { x: number; y: number };
-  category: string;
-  Icon: LucideIcon;
-}
-
-const CONCEPTS: Concept[] = [
-  {
-    id: 'restapi',
-    label: 'REST API',
-    color: 'from-cyan-500 to-blue-500',
-    connections: ['webhook', 'polling', 'graphql'],
-    position: { x: 50, y: 10 },
-    category: 'Request-Response',
-    Icon: RefreshCw
-  },
-  {
-    id: 'webhook',
-    label: 'Webhook',
-    color: 'from-blue-500 to-indigo-500',
-    connections: ['restapi', 'eventdriven', 'retry'],
-    position: { x: 20, y: 25 },
-    category: 'Push-Based',
-    Icon: Webhook
-  },
-  {
-    id: 'polling',
-    label: 'Polling',
-    color: 'from-indigo-500 to-purple-500',
-    connections: ['restapi', 'websocket'],
-    position: { x: 20, y: 40 },
-    category: 'Pull-Based',
-    Icon: Clock
-  },
-  {
-    id: 'websocket',
-    label: 'WebSocket',
-    color: 'from-purple-500 to-pink-500',
-    connections: ['polling', 'eventdriven'],
-    position: { x: 20, y: 55 },
-    category: 'Bidirectional',
-    Icon: Plug
-  },
-  {
-    id: 'eventdriven',
-    label: 'Event-Driven',
-    color: 'from-pink-500 to-rose-500',
-    connections: ['webhook', 'websocket', 'messagequeue'],
-    position: { x: 20, y: 70 },
-    category: 'Architecture',
-    Icon: Radio
-  },
-  {
-    id: 'messagequeue',
-    label: 'Message Queue',
-    color: 'from-rose-500 to-orange-500',
-    connections: ['eventdriven', 'retry'],
-    position: { x: 20, y: 85 },
-    category: 'Async Processing',
-    Icon: Inbox
-  },
-  {
-    id: 'retry',
-    label: 'Retry Logic',
-    color: 'from-orange-500 to-amber-500',
-    connections: ['webhook', 'messagequeue', 'circuitbreaker'],
-    position: { x: 80, y: 30 },
-    category: 'Resilience',
-    Icon: RotateCw
-  },
-  {
-    id: 'circuitbreaker',
-    label: 'Circuit Breaker',
-    color: 'from-amber-500 to-yellow-500',
-    connections: ['retry'],
-    position: { x: 80, y: 50 },
-    category: 'Resilience',
-    Icon: Shield
-  },
-  {
-    id: 'graphql',
-    label: 'GraphQL',
-    color: 'from-yellow-500 to-lime-500',
-    connections: ['restapi', 'websocket'],
-    position: { x: 80, y: 70 },
-    category: 'Query Language',
-    Icon: Network
-  },
-];
-
-interface ConceptNavProps {
-  currentConcept: string | null;
+interface FullConceptNavProps {
+  currentConceptId: string | null;
   completedConcepts: Set<string>;
-  onConceptSelect: (conceptId: string) => void;
+  onConceptSelect: (id: string) => void;
+  concepts: ConceptNode[];
+  courseTitle: string;
 }
 
-export function ConceptNav({ currentConcept, completedConcepts, onConceptSelect }: ConceptNavProps) {
+export function ConceptNavFull({ concepts, courseTitle, currentConceptId, completedConcepts, onConceptSelect }: FullConceptNavProps) {
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const conceptRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+  const conceptRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const groupedConcepts = CONCEPTS.reduce((acc, concept) => {
-    if (!acc[concept.category]) {
-      acc[concept.category] = [];
-    }
-    acc[concept.category].push(concept);
-    return acc;
-  }, {} as Record<string, Concept[]>);
-
-  // Listen for selectConcept events from CourseOverview
   useEffect(() => {
-    const handleSelectConcept = (event: any) => {
-      const { conceptId } = event.detail;
-      onConceptSelect(conceptId);
-      navigate('/learn');
-    };
-
-    window.addEventListener('selectConcept', handleSelectConcept);
-    return () => window.removeEventListener('selectConcept', handleSelectConcept);
-  }, [onConceptSelect, navigate]);
-
-  // Auto-scroll to current concept
-  useEffect(() => {
-    if (currentConcept && conceptRefs.current[currentConcept] && containerRef.current) {
-      const element = conceptRefs.current[currentConcept];
+    if (currentConceptId && conceptRefs.current[currentConceptId] && containerRef.current) {
+      const el = conceptRefs.current[currentConceptId]!;
       const container = containerRef.current;
-
-      if (element) {
-        const elementTop = element.offsetTop;
-        const elementHeight = element.offsetHeight;
-        const containerHeight = container.clientHeight;
-        const scrollTop = container.scrollTop;
-
-        // Calculate if element is out of view
-        const elementBottom = elementTop + elementHeight;
-        const containerBottom = scrollTop + containerHeight;
-
-        if (elementTop < scrollTop || elementBottom > containerBottom) {
-          // Scroll to center the element
-          const scrollTo = elementTop - (containerHeight / 2) + (elementHeight / 2);
-
-          container.scrollTo({
-            top: scrollTo,
-            behavior: 'smooth'
-          });
-        }
-      }
+      const scrollTo = el.offsetTop - container.clientHeight / 2 + el.offsetHeight / 2;
+      container.scrollTo({ top: scrollTo, behavior: 'smooth' });
     }
-  }, [currentConcept]);
+  }, [currentConceptId]);
+
+  const grouped = concepts.reduce<Record<string, ConceptNode[]>>((acc, c) => {
+    if (!acc[c.category]) acc[c.category] = [];
+    acc[c.category].push(c);
+    return acc;
+  }, {});
 
   return (
-    <div ref={containerRef} className="w-80 border-r border-white/10 bg-black/20 backdrop-blur-xl overflow-auto">
-      <div className="p-6">
-        {/* Back to Table of Contents Button */}
+    <div ref={containerRef} className="w-72 border-r border-white/10 bg-black/20 backdrop-blur-xl overflow-auto flex-shrink-0">
+      <div className="p-5">
+        {/* Back to mind map */}
         <motion.button
-          onClick={() => navigate('/')}
-          className="w-full mb-6 p-4 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 hover:border-cyan-500/50 transition-all group"
+          onClick={() => navigate(`/courses/${slug}`)}
+          className="w-full mb-5 p-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-cyan-500/40 transition-all group"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Map className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Map className="w-4 h-4 text-white" />
             </div>
             <div className="text-left">
-              <div className="text-sm font-bold text-white">Table of Contents</div>
-              <div className="text-xs text-slate-400">Back to concept map</div>
+              <div className="text-sm font-semibold text-white">{courseTitle}</div>
+              <div className="text-xs text-slate-400">← harta conceptelor</div>
             </div>
           </div>
         </motion.button>
 
-        <div className="mb-6">
-          <div className="text-xs font-mono uppercase tracking-wider text-slate-400 mb-2">
-            Concepts
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          {Object.entries(groupedConcepts).map(([category, concepts]) => (
+        <div className="space-y-5">
+          {Object.entries(grouped).map(([category, items]) => (
             <div key={category}>
-              <div className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3 px-2">
+              <div className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-2 px-1">
                 {category}
               </div>
-              <div className="space-y-2">
-                {concepts.map((concept) => {
-                  const isCompleted = completedConcepts.has(concept.id);
-                  const isCurrent = currentConcept === concept.id;
-                  const hasConnection = currentConcept && concept.connections.includes(currentConcept);
+              <div className="space-y-1.5">
+                {items.map((concept) => {
+                  const done = completedConcepts.has(concept.id);
+                  const active = currentConceptId === concept.id;
+                  const connected = currentConceptId
+                    ? concept.connections.includes(currentConceptId) ||
+                      concepts.find((c) => c.id === currentConceptId)?.connections.includes(concept.id)
+                    : false;
 
                   return (
                     <motion.button
                       key={concept.id}
                       ref={(el) => { conceptRefs.current[concept.id] = el; }}
-                      onClick={() => {
-                        onConceptSelect(concept.id);
-                        navigate('/learn');
-                      }}
-                      className={`relative w-full text-left px-4 py-3 rounded-lg transition-all duration-300 group ${
-                        isCurrent
-                          ? 'bg-white/10 ring-2 ring-white/30 shadow-xl'
-                          : hasConnection
-                          ? 'bg-white/5 ring-1 ring-white/20'
+                      onClick={() => onConceptSelect(concept.id)}
+                      className={`relative w-full text-left px-3.5 py-3 rounded-lg transition-all ${
+                        active
+                          ? 'bg-white/10 ring-2 ring-white/25'
+                          : connected
+                          ? 'bg-white/5 ring-1 ring-white/15'
                           : 'bg-white/5 hover:bg-white/10'
                       }`}
-                      whileHover={{ scale: 1.02, x: 4 }}
+                      whileHover={{ scale: 1.015, x: 3 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      {/* Gradient border effect for current concept */}
-                      {isCurrent && (
+                      {active && (
                         <motion.div
-                          className={`absolute -inset-0.5 bg-gradient-to-r ${concept.color} rounded-lg blur opacity-30 -z-10`}
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          className={`absolute -inset-0.5 bg-gradient-to-r ${concept.gradient} rounded-lg blur opacity-25 -z-10`}
+                          animate={{ opacity: [0.25, 0.5, 0.25] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         />
                       )}
-
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${concept.color} flex items-center justify-center flex-shrink-0 ${
-                            isCurrent ? 'animate-pulse shadow-lg' : ''
-                          }`}>
-                            <concept.Icon className="w-4 h-4 text-white" />
+                        <div className="flex items-center gap-2.5">
+                          <div
+                            className={`w-7 h-7 rounded-md bg-gradient-to-r ${concept.gradient} flex items-center justify-center flex-shrink-0 ${active ? 'animate-pulse' : ''}`}
+                          >
+                            <span className="text-white text-[10px] font-bold">
+                              {concept.label.slice(0, 2).toUpperCase()}
+                            </span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className={`font-medium ${
-                              isCurrent ? 'text-white' : 'text-slate-300'
-                            }`}>
+                          <div>
+                            <div className={`text-sm font-medium ${active ? 'text-white' : 'text-slate-300'}`}>
                               {concept.label}
                             </div>
-                            {concept.connections.length > 0 && (
-                              <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                                <ArrowRight className="w-3 h-3" />
-                                <span>{concept.connections.length} connection{concept.connections.length !== 1 ? 's' : ''}</span>
-                              </div>
-                            )}
+                            <div className="text-xs text-slate-500 flex items-center gap-1">
+                              <ArrowRight className="w-2.5 h-2.5" />
+                              {concept.connections.length} conexiuni
+                            </div>
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {hasConnection && !isCurrent && (
-                            <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-                          )}
-                          {isCompleted && (
+                        <div className="flex items-center gap-1.5">
+                          {connected && !active && <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />}
+                          {done && (
                             <motion.div
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
-                              className={`w-6 h-6 rounded-full bg-gradient-to-r ${concept.color} flex items-center justify-center shadow-lg`}
+                              className={`w-5 h-5 rounded-full bg-gradient-to-r ${concept.gradient} flex items-center justify-center`}
                             >
-                              <Check className="w-4 h-4 text-white" />
+                              <Check className="w-3 h-3 text-white" />
                             </motion.div>
                           )}
                         </div>
                       </div>
 
-                      {/* Connection indicators */}
-                      {isCurrent && concept.connections.length > 0 && (
+                      {/* Connected pills */}
+                      {active && concept.connections.length > 0 && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
-                          className="mt-3 pt-3 border-t border-white/10"
+                          className="mt-2.5 pt-2.5 border-t border-white/10"
                         >
-                          <div className="text-xs text-slate-400 mb-2">Connects to:</div>
+                          <div className="text-xs text-slate-500 mb-1.5">Leaga-se de:</div>
                           <div className="flex flex-wrap gap-1">
                             {concept.connections.map((connId) => {
-                              const connConcept = CONCEPTS.find(c => c.id === connId);
-                              if (!connConcept) return null;
+                              const conn = concepts.find((c) => c.id === connId);
+                              if (!conn) return null;
                               return (
                                 <span
                                   key={connId}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    onConceptSelect(connId);
-                                  }}
-                                  className={`text-xs px-2 py-1 rounded-full bg-gradient-to-r ${connConcept.color} text-white cursor-pointer hover:scale-105 transition-transform`}
+                                  onClick={(e) => { e.stopPropagation(); onConceptSelect(connId); }}
+                                  className={`text-xs px-2 py-0.5 rounded-full bg-gradient-to-r ${conn.gradient} text-white cursor-pointer hover:scale-105 transition-transform`}
                                 >
-                                  {connConcept.label}
+                                  {conn.label}
                                 </span>
                               );
                             })}
@@ -310,7 +156,6 @@ export function ConceptNav({ currentConcept, completedConcepts, onConceptSelect 
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
