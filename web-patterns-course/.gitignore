@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.vercel/
+
+.env
+.env.local
+.env.*.local
+
+db/migrations/meta/
+
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
