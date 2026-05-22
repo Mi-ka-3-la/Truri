@@ -1,6 +1,5 @@
 import { motion } from "motion/react";
 import {
-  Sparkles,
   RotateCcw,
   RefreshCw,
   Webhook,
@@ -26,6 +25,7 @@ import {
 } from "@/app/components/ui/alert-dialog";
 
 interface LearningHeaderProps {
+  courseTitle?: string;
   completedCount: number;
   totalCount: number;
   onResetCourse: () => void;
