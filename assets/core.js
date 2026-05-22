@@ -51,7 +51,7 @@
     var _sessionTimeout = setTimeout(function () {
       log.warn('getSession timed out — treating as unauthenticated');
       _sessionResolve(null);
-    }, 4000);
+    }, 1500);
 
     client.auth.getSession().then(function (result) {
       clearTimeout(_sessionTimeout);

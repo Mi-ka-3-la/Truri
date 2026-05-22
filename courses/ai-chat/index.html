@@ -22,17 +22,13 @@
       --color-accent-muted: #5A9DB8;
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="../../assets/core.js"></script>
-  <script src="../../assets/progress.js" defer></script>
   <script src="main.js" defer></script>
-  <script src="../../assets/notes.js" defer></script>
+  <script src="../../assets/course-chrome.js" defer></script>
 </head>
 <body>
   <nav class="nav" id="nav">
     <div class="progress-bar" id="progress-bar"></div>
     <div class="nav-inner">
-      <a href="../../index.html" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;font-weight:600;color:var(--color-accent-muted,#5A9DB8);text-decoration:none;letter-spacing:0.01em;opacity:0.8;transition:opacity 0.15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">← All courses</a>
       <span class="nav-title">Avise AI Chat</span>
       <div class="nav-dots" id="nav-dots" role="tablist">
         <button class="nav-dot" data-target="module-0" data-tooltip="Overview"></button>
@@ -1247,49 +1243,6 @@ ${userMessage}
         window.lucide.createIcons();
       }
     });
-  </script>
-
-  <!-- ADD TO HUB WIDGET -->
-  <div style="position:fixed;bottom:24px;right:24px;z-index:500">
-    <button id="hub-btn" style="display:flex;align-items:center;gap:7px;background:#1F1D1B;color:#FBF8F3;border:none;border-radius:99px;padding:9px 18px;font-family:'DM Sans',system-ui,sans-serif;font-size:0.8rem;font-weight:600;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.25)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-      Add to Hub
-    </button>
-  </div>
-  <div id="hub-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;align-items:center;justify-content:center;padding:24px">
-    <div style="background:#fff;border-radius:20px;padding:32px;max-width:620px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.2)">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div>
-          <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#9E9690;margin-bottom:6px">Register this page</div>
-          <h2 style="font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:1.2rem;font-weight:800">Add to Hub</h2>
-        </div>
-        <button id="hub-close" style="background:none;border:none;cursor:pointer;color:#9E9690;font-size:1.3rem;line-height:1;padding:4px">✕</button>
-      </div>
-      <p style="font-size:0.84rem;color:#6B6560;line-height:1.6;margin-bottom:16px">Copy this snippet into <code style="font-family:monospace;font-size:0.85em;background:#E4F2F7;color:#2A7B9B;padding:2px 6px;border-radius:4px">Documentation-/index.html</code> inside the <strong>Courses</strong> section.</p>
-      <div style="background:#1E1E2E;border-radius:10px;padding:16px;margin-bottom:16px;overflow-x:auto">
-        <pre id="hub-snippet" style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#CDD6F4;white-space:pre;line-height:1.65;margin:0"></pre>
-      </div>
-      <button id="hub-copy" style="display:inline-flex;align-items:center;gap:7px;background:#1F1D1B;color:#FBF8F3;border:none;border-radius:8px;padding:10px 20px;font-family:'DM Sans',system-ui,sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Copy snippet
-      </button>
-    </div>
-  </div>
-  <script>
-  (function() {
-    var snippet = '<a class="course-card card-ai animate-in" href="courses/ai-chat/index.html">\n  <div class="card-body">\n    <span class="card-tag tag-ai">\n      <i data-lucide="message-square"></i> AI Chat\n    </span>\n    <h2 class="card-title">Avise AI Chat — Architecture Deep Dive</h2>\n    <p class="card-desc">How 20+ tools, a multi-provider LLM loop, an artifact engine,\n    and strict accounting guardrails combine into the chat panel your users type into.</p>\n    <div class="card-meta">\n      <span class="meta-item"><i data-lucide="clock"></i> ~55 minutes</span>\n      <span class="meta-item"><i data-lucide="layers"></i> 7 modules</span>\n      <span class="meta-item"><i data-lucide="users"></i> Engineers · PMs</span>\n    </div>\n  </div>\n  <div class="card-cta">\n    <span class="btn-open btn-ai">Open course <i data-lucide="arrow-right"></i></span>\n  </div>\n</a>';
-    document.getElementById('hub-snippet').textContent = snippet;
-    document.getElementById('hub-btn').addEventListener('click', function() { document.getElementById('hub-overlay').style.display = 'flex'; });
-    document.getElementById('hub-close').addEventListener('click', function() { document.getElementById('hub-overlay').style.display = 'none'; });
-    document.getElementById('hub-overlay').addEventListener('click', function(e) { if (e.target === this) this.style.display = 'none'; });
-    document.getElementById('hub-copy').addEventListener('click', function() {
-      navigator.clipboard.writeText(snippet).then(function() {
-        var btn = document.getElementById('hub-copy');
-        btn.textContent = 'Copied!';
-        setTimeout(function() { btn.textContent = 'Copy snippet'; }, 2000);
-      });
-    });
-  })();
   </script>
 
 </body>
