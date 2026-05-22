@@ -47,9 +47,17 @@
   var _sessionPromise = new Promise(function (resolve) { _sessionResolve = resolve; });
 
   if (client) {
+    // Safety timeout: if Supabase never responds, unblock the page after 4s
+    var _sessionTimeout = setTimeout(function () {
+      log.warn('getSession timed out — treating as unauthenticated');
+      _sessionResolve(null);
+    }, 4000);
+
     client.auth.getSession().then(function (result) {
+      clearTimeout(_sessionTimeout);
       _sessionResolve(result.data.session || null);
     }).catch(function (e) {
+      clearTimeout(_sessionTimeout);
       log.error('getSession failed:', e);
       _sessionResolve(null);
     });
