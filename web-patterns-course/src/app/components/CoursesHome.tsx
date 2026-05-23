@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { ArrowRight, BookOpen, CheckCircle2, Zap } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle, Lightning } from '@phosphor-icons/react';
 import { COURSES } from '@/lib/courses';
 
 export function CoursesHome() {
@@ -20,7 +20,7 @@ export function CoursesHome() {
       {/* Header */}
       <header className="border-b border-white/10 bg-black/20 backdrop-blur-xl px-8 py-5 flex items-center gap-3">
         <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg">
-          <Zap className="w-5 h-5 text-white" />
+          <Lightning className="w-5 h-5 text-white" weight="duotone" />
         </div>
         <span className="text-xl font-bold text-white tracking-tight">Scio</span>
         <span className="text-xs font-mono text-slate-500 uppercase tracking-widest ml-1 mt-0.5">
@@ -68,7 +68,7 @@ export function CoursesHome() {
                   <div
                     className={`w-12 h-12 rounded-xl bg-gradient-to-br ${firstGradient} flex items-center justify-center shadow-lg`}
                   >
-                    <BookOpen className="w-6 h-6 text-white" />
+                    <BookOpen className="w-6 h-6 text-white" weight="duotone" />
                   </div>
                   <span className="text-xs font-mono text-slate-500 uppercase tracking-widest bg-slate-800/50 px-2 py-1 rounded-md">
                     {course.language === 'ro' ? 'Română' : 'English'}
@@ -89,7 +89,7 @@ export function CoursesHome() {
                     <span className="text-xs text-slate-500 font-mono">{total} concepte</span>
                     {completed > 0 && (
                       <span className="text-xs text-slate-400 font-mono flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-green-400" />
+                        <CheckCircle className="w-3 h-3 text-green-400" weight="duotone" />
                         {completed}/{total} completate
                       </span>
                     )}

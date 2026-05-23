@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { useState, useEffect } from 'react';
 import {
-  Sparkles, CheckCircle2, ArrowRight, StickyNote, Brain,
-  Construction, BookOpen, X, Plus, PartyPopper,
-} from 'lucide-react';
+  Sparkle, CheckCircle, ArrowRight, Note, Brain,
+  HardHat, BookOpen, X, Plus, Confetti,
+} from '@phosphor-icons/react';
 import { Button } from '@/app/components/ui/button';
 import { NotesPanel } from '@/app/components/NotesPanel';
 import { FlashcardsPanel } from '@/app/components/FlashcardsPanel';
@@ -52,14 +52,14 @@ export function ConceptView() {
             animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <Construction className="w-14 h-14 text-white" />
+            <HardHat className="w-14 h-14 text-white" weight="duotone" />
           </motion.div>
           <h2 className="text-3xl font-bold text-white mb-4">Alege un concept</h2>
           <p className="text-lg text-slate-300 mb-8">
             Selecteaza un concept din bara laterala pentru a incepe.
           </p>
           <div className="flex items-center justify-center gap-3 text-cyan-400">
-            <BookOpen className="w-5 h-5" />
+            <BookOpen className="w-5 h-5" weight="duotone" />
             <span>← alege din stanga</span>
           </div>
         </motion.div>
@@ -101,7 +101,7 @@ export function ConceptView() {
                   size="sm"
                   className={isNotesPanelOpen ? 'border-cyan-500/50 text-cyan-300 bg-cyan-500/10' : 'border-white/10 text-slate-400 hover:text-white bg-white/5'}
                 >
-                  <StickyNote className="w-4 h-4 mr-1.5" /> Note
+                  <Note className="w-4 h-4 mr-1.5" weight="duotone" /> Note
                 </Button>
                 <Button
                   onClick={() => { setIsFlashcardsPanelOpen(!isFlashcardsPanelOpen); if (!isFlashcardsPanelOpen) setIsNotesPanelOpen(false); }}
@@ -109,7 +109,7 @@ export function ConceptView() {
                   size="sm"
                   className={isFlashcardsPanelOpen ? 'border-purple-500/50 text-purple-300 bg-purple-500/10' : 'border-white/10 text-slate-400 hover:text-white bg-white/5'}
                 >
-                  <Brain className="w-4 h-4 mr-1.5" /> Carduri
+                  <Brain className="w-4 h-4 mr-1.5" weight="duotone" /> Carduri
                 </Button>
               </div>
             </div>
@@ -214,9 +214,9 @@ export function ConceptView() {
                 }`}
               >
                 {isCompleted ? (
-                  <><CheckCircle2 className="w-5 h-5 mr-2" /> Completat!</>
+                  <><CheckCircle className="w-5 h-5 mr-2" weight="duotone" /> Completat!</>
                 ) : (
-                  <><Sparkles className="w-5 h-5 mr-2" /> Am inteles — adauga caramida</>
+                  <><Sparkle className="w-5 h-5 mr-2" weight="duotone" /> Am inteles — adauga caramida</>
                 )}
               </Button>
               {isCompleted && hasNext && (
@@ -225,7 +225,7 @@ export function ConceptView() {
                   variant="outline"
                   className="px-6 py-5 text-base border-white/10 text-slate-300 hover:text-white hover:border-cyan-500/50 hover:bg-white/5"
                 >
-                  Urmatorul <ArrowRight className="w-4 h-4 ml-2" />
+                  Urmatorul <ArrowRight className="w-4 h-4 ml-2" weight="bold" />
                 </Button>
               )}
             </div>
@@ -241,7 +241,7 @@ export function ConceptView() {
                   animate={{ rotate: [0, 12, -12, 0], scale: [1, 1.1, 1] }}
                   transition={{ duration: 0.5, repeat: 2 }}
                 >
-                  <PartyPopper className="w-5 h-5" />
+                  <Confetti className="w-5 h-5" weight="duotone" />
                 </motion.div>
                 Bravo! O caramida adaugata la zidul tau.
               </motion.div>
@@ -265,7 +265,7 @@ export function ConceptView() {
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <span className="text-sm font-bold text-white">Text selectat</span>
                   <Button onClick={() => setSelectedText('')} variant="ghost" size="icon" className="w-5 h-5 text-slate-400">
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3.5 h-3.5" weight="bold" />
                   </Button>
                 </div>
                 <p className="text-xs text-slate-400 italic mb-3 line-clamp-2">"{selectedText.slice(0, 120)}{selectedText.length > 120 ? '...' : ''}"</p>
@@ -274,7 +274,7 @@ export function ConceptView() {
                   size="sm"
                   className={`w-full bg-gradient-to-r ${concept?.gradient ?? 'from-cyan-500 to-blue-500'} text-white`}
                 >
-                  <Plus className="w-3.5 h-3.5 mr-1.5" /> Adauga la note
+                  <Plus className="w-3.5 h-3.5 mr-1.5" weight="bold" /> Adauga la note
                 </Button>
               </div>
             </div>

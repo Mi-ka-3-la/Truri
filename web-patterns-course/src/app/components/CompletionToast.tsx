@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { Sparkles, Layers } from "lucide-react";
+import { Sparkle, Stack } from "@phosphor-icons/react";
 import Confetti from "react-confetti";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 
@@ -42,11 +42,11 @@ export function CompletionToast({ show, conceptName, brickNumber }: CompletionTo
                   animate={{ rotate: [0, 360] }}
                   transition={{ duration: 0.5 }}
                 >
-                  <Sparkles className="w-6 h-6 text-cyan-400" />
+                  <Sparkle className="w-6 h-6 text-cyan-400" weight="duotone" />
                 </motion.div>
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
-                    <Layers className="w-6 h-6 text-white" />
+                    <Stack className="w-6 h-6 text-white" weight="duotone" />
                   </div>
                   <div>
                     <div className="font-bold text-white mb-1">

@@ -3,15 +3,16 @@ export interface ConceptNode {
   label: string;
   subtitle: string;
   branchIndex: number;
-  gradient: string;        // tailwind gradient e.g. 'from-cyan-500 to-blue-500'
-  category: string;        // sidebar group label
-  position: { x: number; y: number };  // 0–100 percentages for SVG
-  connections: string[];   // concept keys
-  explain: string[];       // HTML strings
+  gradient: string;
+  category: string;
+  position: { x: number; y: number };
+  connections: string[];
+  explain: string[];
   diagram?: string;
   usecases: string[];
   pros: string[];
   cons: string[];
+  icon: string;
 }
 
 export interface CourseData {
@@ -20,6 +21,7 @@ export interface CourseData {
   language: string;
   description: string;
   theme: 'light' | 'dark';
+  branchColors: string[];
   concepts: ConceptNode[];
 }
 
@@ -48,6 +50,7 @@ export const COURSES: CourseData[] = [
     language: 'ro',
     description: 'Client-Server, HTTP, SSR, SPA, CDN, Webhooks — modelele de baza ale oricarei aplicatii web.',
     theme: 'light',
+    branchColors: ['#ef4444', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'],
     concepts: [
       {
         id: 'clientserver',
@@ -74,6 +77,7 @@ Internet:
         usecases: ['Orice aplicatie web sau mobila', 'Servicii interne fara internet public', 'Dev local pe laptop (localhost)'],
         pros: ['simplu de inteles si debuguit', 'serverul controleaza datele si accesul', 'clientul poate fi orice device pe orice retea'],
         cons: ['serverul devine bottleneck la multi clienti simultani', 'clientul depinde de disponibilitatea serverului'],
+        icon: 'Desktop',
       },
       {
         id: 'latenta',
@@ -103,6 +107,7 @@ Bottleneck (capacitate):
         usecases: ['Diagnosticare: "de ce e lent?"', 'Decizie: CDN vs mai multe servere', 'Intelegerea erorilor 503, 504'],
         pros: [],
         cons: [],
+        icon: 'Timer',
       },
       {
         id: 'scalabilitate',
@@ -134,6 +139,7 @@ Kubernetes + autoscaling:
         usecases: ['SaaS-uri cu multi clienti (Avise)', 'Aplicatii cu trafic variabil', 'Black Friday / spike-uri de trafic'],
         pros: ['suporta orice volum de trafic teoretic', 'costuri proportionale cu utilizarea', 'rezistenta la caderea unui server individual'],
         cons: ['complexitate infrastructura mult mai mare', 'sesiunile user trebuie gestionate stateless', 'debugging mai dificil cu multe instante active'],
+        icon: 'Stack',
       },
       {
         id: 'http',
@@ -170,6 +176,7 @@ Raspuns intotdeauna cu status code:
         usecases: ['Orice comunicare browser-server', 'API calls intre servicii', 'Download si upload fisiere'],
         pros: ['universal — orice limbaj il suporta', 'simplu de debuguit in DevTools (tab Network)', 'stateless — usor de scalat orizontal'],
         cons: ['stateless — necesita token la fiecare request', 'pull-only — serverul nu poate initia comunicarea (rezolvat de webhooks)'],
+        icon: 'Globe',
       },
       {
         id: 'stateless',
@@ -197,6 +204,7 @@ STATELESS (scalabil):
         usecases: ['REST API-uri', 'Microservicii distribuite', 'Orice sistem cu load balancing'],
         pros: ['orice server poate raspunde la orice request', 'scalare orizontala simpla', 'serverul nu tine sesiuni in memorie'],
         cons: ['fiecare request e mai mare (token adaugat mereu)', 'nu poti face push de la server la client prin HTTP (rezolvat de webhooks)'],
+        icon: 'LinkBreak',
       },
       {
         id: 'ssr',
@@ -226,6 +234,7 @@ Google vede acelasi HTML → SEO corect ✓`,
         usecases: ['Platforme de cursuri cu continut dinamic', 'Magazin online (pagini de produs personalizate)', 'Blog, stiri, orice site indexat pe Google'],
         pros: ['SEO nativ si corect', 'continut dinamic personalizat per user', 'prima incarcare rapida', 'functioneaza fara JavaScript activ in browser'],
         cons: ['fiecare navigare = request nou catre server', 'server mai solicitat', 'experienta mai putin fluida decat SPA la navigare rapida'],
+        icon: 'HardDrive',
       },
       {
         id: 'spa',
@@ -256,6 +265,7 @@ Ce vede Google:
         usecases: ['Avise si alte aplicatii SaaS', 'Dashboard-uri si tool-uri interne', 'Aplicatii complexe unde SEO nu conteaza'],
         pros: ['navigare instant dupa prima incarcare', 'server serveste doar JSON, nu HTML (mai eficient)', 'separare clara frontend/backend'],
         cons: ['prima incarcare lenta (bundle mare de descarcat si executat)', 'SEO prost fara configurare suplimentara', 'mai complex de construit si debuguit'],
+        icon: 'AppWindow',
       },
       {
         id: 'ssg',
@@ -285,6 +295,7 @@ Combinatie reala:
         usecases: ['Pagini de marketing si landing pages', 'Blog-uri si documentatie', 'Site-uri de prezentare cu continut rar schimbat'],
         pros: ['viteza maxima', 'ieftin de hostuit', 'SEO perfect', 'securitate maxima (nu exista server atacabil)'],
         cons: ['rebuild necesar la orice schimbare de continut', 'nu suporta date personalizate per utilizator', 'nu e potrivit pentru aplicatii dinamice complexe'],
+        icon: 'Files',
       },
       {
         id: 'cdn',
@@ -316,6 +327,7 @@ Ce se pune pe CDN:
         usecases: ['Orice site cu utilizatori internationali', 'Assets statice pentru SPA', 'Site-uri SSG', 'Distribuire fisiere mari'],
         pros: ['latenta mult mai mica pentru useri departe de server', 'reduce incarcarea serverului principal', 'rezistenta la atacuri DDoS'],
         cons: ['continut cached poate fi invechit (TTL — trebuie invalidat la deploy)', 'cost suplimentar', 'debugging mai complex'],
+        icon: 'CloudArrowDown',
       },
       {
         id: 'webhooks',
@@ -350,6 +362,7 @@ Retry (serverul tau era down 2 minute):
         usecases: ['Notificari de plata (Stripe, PayPal)', 'CI/CD — GitHub notifica Jenkins la push', 'Integrari intre platforme (Zapier, Make)', 'Orice eveniment asincron intre servicii'],
         pros: ['eficient — nu trebuie sa intrebi periodic (no polling)', 'real-time', 'serverul proceseaza indiferent daca userul e activ'],
         cons: ['endpoint-ul tau trebuie sa fie accesibil public', 'trebuie verificata autenticitatea (cineva poate trimite POST fals)', 'debugging mai dificil — evenimentele vin din exterior'],
+        icon: 'BellRinging',
       },
     ],
   },
@@ -361,6 +374,7 @@ Retry (serverul tau era down 2 minute):
     language: 'ro',
     description: 'REST, Webhooks, WebSocket, Event-Driven, Retry, Circuit Breaker, GraphQL — patternurile oricarui sistem modern.',
     theme: 'dark',
+    branchColors: ['#06b6d4', '#ec4899', '#f97316', '#eab308'],
     concepts: [
       {
         id: 'restapi',
@@ -386,6 +400,7 @@ Retry (serverul tau era down 2 minute):
         usecases: ['Integrari simple intre sisteme', 'CRUD operations', 'Cand ai nevoie de date la cerere, nu in timp real'],
         pros: ['simplu, universal, usor de testat', 'orice limbaj il suporta', 'usor de debuguit'],
         cons: ['nu poti primi notificari — trebuie sa intrebi tu', 'polling = ineficient si lent', 'coupling strans intre sisteme'],
+        icon: 'ArrowsClockwise',
       },
       {
         id: 'webhook',
@@ -414,6 +429,7 @@ Cu Webhook:
         usecases: ['Notificari de plata (Stripe, PayPal)', 'CI/CD declansat de push pe GitHub', 'Sincronizare date intre sisteme'],
         pros: ['eficient — serverul anunta doar cand e nevoie', 'timp real', 'fara polling'],
         cons: ['aplicatia ta trebuie sa fie online', 'greu de testat local', 'necesita retry logic'],
+        icon: 'WebhooksLogo',
       },
       {
         id: 'polling',
@@ -442,6 +458,7 @@ Long Polling (mai eficient):
         usecases: ['Sisteme simple fara suport de WebSocket', 'Verificare status job de lunga durata', 'Fallback cand webhooks nu sunt disponibile'],
         pros: ['simplu de implementat', 'functioneaza cu orice server HTTP', 'usor de debuguit'],
         cons: ['ineficient — genereaza trafic inutil', 'latenta (intarzie intre poll-uri)', 'solicita serverul cu cereri inutile'],
+        icon: 'ClockCounterClockwise',
       },
       {
         id: 'websocket',
@@ -470,6 +487,7 @@ WebSocket:
         usecases: ['Chat in timp real (Slack, Discord)', 'Colaborare live (Figma, Google Docs)', 'Dashboarduri cu date live', 'Jocuri multiplayer'],
         pros: ['bidirectional — serverul poate trimite oricand', 'latenta minima', 'eficient — nu se repeta handshake HTTP'],
         cons: ['conexiunile persistente consuma resurse pe server', 'mai complex de implementat si scalat', 'nu e cacheabil'],
+        icon: 'ArrowsLeftRight',
       },
       {
         id: 'eventdriven',
@@ -498,6 +516,7 @@ Arhitectura Event-Driven:
         usecases: ['Sisteme cu multe componente (microservicii)', 'Procesare asincron (comenzi, plati)', 'Audit logs si analytics'],
         pros: ['decuplare — sistemele nu se cunosc direct', 'scalare independenta', 'rezilienta — un consumator cazut nu blocheaza'],
         cons: ['mai greu de debuguit (fluxul nu e liniar)', 'consistenta eventuala', 'complexitate operationala'],
+        icon: 'Radio',
       },
       {
         id: 'messagequeue',
@@ -526,6 +545,7 @@ Cu Message Queue:
         usecases: ['Procesare comenzi e-commerce', 'Trimitere emailuri in bulk', 'Procesare imagini/video', 'Orice task care poate astepta'],
         pros: ['mesajele nu se pierd daca consumatorul e offline', 'decupleaza viteza producatorului de consumator', 'scalare: mai multi consumatori'],
         cons: ['consistenta eventuala', 'mesaje duplicate posibile', 'infrastructura suplimentara'],
+        icon: 'Tray',
       },
       {
         id: 'retry',
@@ -555,6 +575,7 @@ Cu Message Queue:
         usecases: ['Apeluri HTTP intre microservicii', 'Procesare mesaje din queue', 'Retry webhook-uri'],
         pros: ['rezilienta la erori temporare', 'transparent pentru utilizator daca retry reuseste', 'reduce impactul erorilor de retea'],
         cons: ['operatia trebuie sa fie idempotenta', 'poate masca probleme reale', 'complexitate in implementare'],
+        icon: 'ArrowCounterClockwise',
       },
       {
         id: 'circuitbreaker',
@@ -583,6 +604,7 @@ HALF-OPEN (test):
         usecases: ['Microservicii care depind unele de altele', 'Apeluri catre API-uri externe', 'Prevenirea cascade failures'],
         pros: ['previne cascade failures', 'fail fast — eroare imediata in loc de timeout lung', 'permite serviciului sa se recupereze'],
         cons: ['complexitate suplimentara', 'starea circuitului trebuie partajata intre instante', 'tuning dificil al pragurilor'],
+        icon: 'ShieldWarning',
       },
       {
         id: 'graphql',
@@ -612,6 +634,7 @@ GraphQL (clientul decide):
         usecases: ['Aplicatii mobile (bandwidth limitat)', 'Frontend-uri complexe cu multe tipuri de date', 'API-uri publice cu clienti diversi'],
         pros: ['elimina over-fetching si under-fetching', 'un singur endpoint', 'schema auto-documentata', 'subscriptions pentru real-time'],
         cons: ['mai complex de implementat pe server', 'caching mai dificil', 'query-uri complexe pot suprasolicita serverul'],
+        icon: 'Graph',
       },
     ],
   },

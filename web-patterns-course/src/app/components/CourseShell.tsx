@@ -89,6 +89,7 @@ export function CourseShell() {
             completedCount={completedConcepts.size}
             totalCount={course.concepts.length}
             onResetCourse={resetCourse}
+            concepts={course.concepts}
           />
         )}
         <div className="flex flex-1 overflow-hidden">

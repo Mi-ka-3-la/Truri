@@ -1,16 +1,5 @@
 import { motion } from "motion/react";
-import {
-  RotateCcw,
-  RefreshCw,
-  Webhook,
-  Clock,
-  Plug,
-  Radio,
-  Inbox,
-  RotateCw as RotateCwIcon,
-  Shield,
-  Network
-} from "lucide-react";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
 import { Button } from "@/app/components/ui/button";
 import { useState } from "react";
 import {
@@ -23,15 +12,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/app/components/ui/alert-dialog";
+import type { ConceptNode } from "@/lib/courses";
+import { ICON_MAP } from "@/lib/icons";
 
 interface LearningHeaderProps {
   courseTitle?: string;
   completedCount: number;
   totalCount: number;
   onResetCourse: () => void;
+  concepts: ConceptNode[];
 }
 
-export function LearningHeader({ completedCount, totalCount, onResetCourse }: LearningHeaderProps) {
+export function LearningHeader({ completedCount, totalCount, onResetCourse, concepts }: LearningHeaderProps) {
   const [showResetDialog, setShowResetDialog] = useState(false);
   const progress = (completedCount / totalCount) * 100;
 
@@ -60,7 +52,7 @@ export function LearningHeader({ completedCount, totalCount, onResetCourse }: Le
               <div className="text-xs text-slate-400 font-mono mb-2 uppercase tracking-wider">
                 Build Your Knowledge Wall
               </div>
-              <BrickWall completedCount={completedCount} totalCount={totalCount} />
+              <BrickWall completedCount={completedCount} concepts={concepts} />
             </div>
           </div>
         </div>
@@ -72,7 +64,7 @@ export function LearningHeader({ completedCount, totalCount, onResetCourse }: Le
           size="sm"
           className="border-white/10 text-slate-400 hover:text-white hover:bg-white/10 hover:border-red-500/50"
         >
-          <RotateCcw className="w-4 h-4 mr-2" />
+          <ArrowCounterClockwise className="w-4 h-4 mr-2" weight="bold" />
           Restart Course
         </Button>
       </div>
@@ -93,7 +85,7 @@ export function LearningHeader({ completedCount, totalCount, onResetCourse }: Le
       <AlertDialogContent className="bg-slate-900 border-white/10 text-white">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2 text-xl">
-            <RotateCcw className="w-5 h-5 text-orange-400" />
+            <ArrowCounterClockwise className="w-5 h-5 text-orange-400" weight="bold" />
             Restart Course?
           </AlertDialogTitle>
           <AlertDialogDescription className="text-slate-300">
@@ -132,20 +124,8 @@ export function LearningHeader({ completedCount, totalCount, onResetCourse }: Le
 
 interface BrickWallProps {
   completedCount: number;
-  totalCount: number;
+  concepts: ConceptNode[];
 }
-
-const CONCEPT_ICONS = [
-  RefreshCw,      // REST API
-  Webhook,        // Webhook
-  Clock,          // Polling
-  Plug,           // WebSocket
-  Radio,          // Event-Driven
-  Inbox,          // Message Queue
-  RotateCwIcon,   // Retry Logic
-  Shield,         // Circuit Breaker
-  Network         // GraphQL
-];
 
 const CONCEPT_GRADIENTS = [
   'from-cyan-500 to-blue-500',
@@ -159,10 +139,9 @@ const CONCEPT_GRADIENTS = [
   'from-yellow-500 to-lime-500'
 ];
 
-function BrickWall({ completedCount, totalCount }: BrickWallProps) {
-  // Create a realistic brick wall pattern
+function BrickWall({ completedCount, concepts }: BrickWallProps) {
   const rows = 3;
-  const bricksInRows = [3, 3, 3]; // 3 bricks per row
+  const bricksInRows = [3, 3, 3];
 
   let brickCounter = 0;
 
@@ -185,11 +164,12 @@ function BrickWall({ completedCount, totalCount }: BrickWallProps) {
               const currentBrickIndex = brickCounter;
               brickCounter++;
 
-              if (currentBrickIndex >= totalCount) return null;
+              if (currentBrickIndex >= concepts.length) return null;
 
               const isLit = currentBrickIndex < completedCount;
-              const IconComponent = CONCEPT_ICONS[currentBrickIndex];
-              const gradient = CONCEPT_GRADIENTS[currentBrickIndex];
+              const concept = concepts[currentBrickIndex];
+              const IconComponent = ICON_MAP[concept.icon];
+              const gradient = CONCEPT_GRADIENTS[currentBrickIndex % CONCEPT_GRADIENTS.length];
 
               return (
                 <motion.div
@@ -200,30 +180,20 @@ function BrickWall({ completedCount, totalCount }: BrickWallProps) {
                       : 'bg-slate-800/80 border border-slate-700/50'
                   }`}
                   initial={{ scale: 0, opacity: 0, y: 20 }}
-                  animate={{
-                    scale: 1,
-                    opacity: 1,
-                    y: 0
-                  }}
-                  transition={{
-                    delay: currentBrickIndex * 0.1,
-                    duration: 0.4,
-                    type: "spring"
-                  }}
-                  title={`Concept ${currentBrickIndex + 1}`}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  transition={{ delay: currentBrickIndex * 0.1, duration: 0.4, type: "spring" }}
+                  title={concept.label}
                 >
                   {isLit ? (
                     <>
-                      <IconComponent className="w-3.5 h-3.5 text-white z-10" />
+                      {IconComponent && (
+                        <IconComponent size={14} weight="duotone" color="white" />
+                      )}
                       <motion.div
                         className="absolute inset-0 bg-white/20 rounded-sm"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: [0.2, 0, 0.2] }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          delay: currentBrickIndex * 0.3
-                        }}
+                        transition={{ duration: 2, repeat: Infinity, delay: currentBrickIndex * 0.3 }}
                       />
                     </>
                   ) : (
